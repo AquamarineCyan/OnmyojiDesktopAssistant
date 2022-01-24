@@ -3,11 +3,10 @@
 
 '''
 召唤界面
+主界面功能2
 '''
 
-
 import window
-import mouse
 
 import os
 import time
@@ -15,27 +14,16 @@ import pyautogui
 import random
 
 
-# 相对坐标
-# 第一个按钮-普通召唤
-relative_zhaohuan_1_x = 0.2339688041594454
-relative_zhaohuan_1_y = 0.8864628820960698
-# 第二个按钮-再次召唤
-relative_zhaohuan_2_x = 0.5979202772963604
-relative_zhaohuan_2_y = 0.8893740902474527
-# 第一个按钮-普通召唤
-relative_zhaohuan_1_x1 = 0.0
-relative_zhaohuan_1_x2 = 0.0
-relative_zhaohuan_1_y1 = 0.0
-relative_zhaohuan_1_y2 = 0.0
-# 第二个按钮-再次召唤
-relative_zhaohuan_2_x1 = 0.0
-relative_zhaohuan_2_x2 = 0.0
-relative_zhaohuan_2_y1 = 0.0
-relative_zhaohuan_2_y2 = 0.0
+'''
+普通召唤第1个按钮-普通召唤
+putongzhaohuan_1.png
+普通召唤第2个按钮-再次召唤
+putongzhaohuan_2.png
+'''
 
 
 # 召唤次数（默认十连）
-zhaohuan_n = 0
+zhaohuan_n : int
 # 获取当前目录的父目录
 fpath = os.getcwd()
 # 保护措施，避免失控
@@ -44,20 +32,36 @@ pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 0.5
 
 
-# 获取召唤界面的按钮相对位置坐标
-def GetRelativeInfo_Zhaohuan():
-    mouse_x, mouse_y = mouse.GetInfo_Mouse()
-    global relative_zhaohuan_1_x
-    global relative_zhaohuan_1_y
-    global relative_zhaohuan_2_x
-    global relative_zhaohuan_2_y
-    # relative_zhaohuan_1_x = (mouse_x - window_x) / window_Width
-    # relative_zhaohuan_1_y = (mouse_y - window_y) / window_Height
-    # print(relative_zhaohuan_1_x, relative_zhaohuan_1_y)
-    relative_zhaohuan_2_x = (mouse_x - window.window_x) / window.window_width
-    relative_zhaohuan_2_y = (mouse_y - window.window_y) / window.window_height
-    print(relative_zhaohuan_2_x, relative_zhaohuan_2_y)
+# 图像识别
+def GetCoorInfo_Picture(picname : str):
+    timestart = time.time_ns()
+    filename : str = './/pic//' + picname
+    try:
+        button_location = pyautogui.locateOnScreen(filename, region =(window.window_left, window.window_top, window.window_width, window.window_height))
+    except:
+        print('检测不到游戏窗口')
+        x = y = 0
+    else:
+        # print(button_location)
+        x, y = Coor_Random(button_location[0], button_location[0] + button_location[2], button_location[1],
+                           button_location[1] + button_location[3])
+    timeend = time.time_ns()
+    print('time')
+    print(timeend - timestart)
+    return x, y
 
+
+# 伪随机坐标
+def Coor_Random(x1 : int, x2 : int, y1 : int, y2 : int):
+    # 获取系统当前时间戳
+    random.seed(time.time_ns())
+    # x1-x2随机
+    x = int(random.random() * (x2 - x1) + x1)
+    # 获取系统当前时间戳
+    random.seed(time.time_ns())
+    # y1-y2随机
+    y = int(random.random() * (y2 - y1) + y1)
+    return x, y
 
 
 # 随机延时区间
@@ -70,33 +74,42 @@ def SleepRandom(m, n):
     time.sleep(random.random() * (n - m) + m)
 
 
-# 修改配置文件
-def WriteConfig():
-    f = open(fpath + '\config.txt', 'a')
-    f.write(str(relative_zhaohuan_1_x) + '\n')
-    f.write(str(relative_zhaohuan_1_y) + '\n')
-    f.close()
-
-
 # 程序运行
 def Run_Zhaohuan(zhaohuan_n):
+    print('ready to run')
+    print('loading...')
+    time.sleep(1)
     if (zhaohuan_n == 1):
-        x = int((relative_zhaohuan_1_x * window.window_width) + window.window_x)
-        y = int((relative_zhaohuan_1_y * window.window_height) + window.window_y)
-        pyautogui.click(x, y)
-        print(x, y)
+        x, y = GetCoorInfo_Picture('putongzhaohuan_1.png')
+        if (x != 0 and y != 0):
+            print(x, y)
+            pyautogui.moveTo(x, y, duration = 0.25)
+            pyautogui.click()
+        else:
+            print('try again')
         SleepRandom(4, 6)
     elif (zhaohuan_n > 1):
-        x = int((relative_zhaohuan_1_x * window.window_width) + window.window_x)
-        y = int((relative_zhaohuan_1_y * window.window_height) + window.window_y)
-        pyautogui.click(x, y)
-        print(x, y)
-        SleepRandom(4, 6)
-        x = int((relative_zhaohuan_2_x * window.window_width) + window.window_x)
-        y = int((relative_zhaohuan_2_y * window.window_height) + window.window_y)
-        for i in range(1, zhaohuan_n):
-            pyautogui.click(x, y)
+        x, y = GetCoorInfo_Picture('putongzhaohuan_1.png')
+        if (x != 0 and y != 0):
             print(x, y)
+            pyautogui.moveTo(x, y, duration = 0.25)
+            pyautogui.click()
+        else:
+            print('try again')
+        SleepRandom(4, 6)
+        for i in range(1, zhaohuan_n):
+            x, y = GetCoorInfo_Picture('putongzhaohuan_2.png')
+            if (x != 0 and y != 0):
+                print(x, y)
+                pyautogui.moveTo(x, y, duration = 0.25)
+                pyautogui.click()
+            else:
+                print('try again')
             SleepRandom(4, 6)
     print('end')
 
+'''
+if __name__ == '__main__':
+    window.GetInfo_Window()
+    Run_Zhaohuan(zhaohuan_n = 10)
+'''

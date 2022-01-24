@@ -13,7 +13,7 @@ import win32gui
 import pyautogui
 import random
 
-version = 1.1
+version = 1.2
 # 获取当前目录的父目录
 fpath = os.getcwd()
 num_choice : int
@@ -32,26 +32,31 @@ def Init():
     window.GetInfo_Window()
     print('\n')
     print('本程序目前实现的功能如下：')
-    print('1.普通召唤')
-    print('2.组队御魂副本')
+    print('1.组队御魂副本')
+    print('2.普通召唤')
     num_choice = int(input('回复数字选择功能：'))
     print('\n')
-    if(num_choice == 1):
+    if(num_choice == 2):
         print('请确认您的游戏窗口前置并能被鼠标点击')
         print('请确认您的游戏界面为召唤界面')
         print('\n')
         while (zhaohuan.zhaohuan_n < 1):
             zhaohuan.zhaohuan_n = int(input('请输入普通召唤十连的次数（请确保您的余票足够）：'))
         zhaohuan.Run_Zhaohuan(zhaohuan.zhaohuan_n)
-    elif(num_choice == 2):
+    elif(num_choice == 1):
         print('请确认您的游戏窗口前置并能被鼠标点击')
         print('请确认您的游戏界面为御魂副本组队界面')
         print('\n')
         while(yuhun.yuhun_n < 1):
+            print('目前仅适配乘客端，司机端请手动开始')
             yuhun.yuhun_n = int(input('请输入御魂副本的次数：'))
-            yuhun.yuhun_time = int(input('请输入您的阵容时间（单位秒）：'))
-            yuhun.flag_driver = int(input('是否为司机，回复“0”为“否”，回复“1”为“是”：'))
-        yuhun.Run_Yuhun(yuhun.yuhun_n, yuhun.yuhun_time, yuhun.flag_driver)
+            flag_driver = input('是否为司机（默认否），回复“0”为“否”，回复“1”为“是”：')
+            if (flag_driver == '\n'):
+                yuhun.flag_driver = 0
+            elif (flag_driver.isdigit()):
+                yuhun.flag_driver = int(flag_driver)
+            print('总计' + str(yuhun.yuhun_n) + '次')
+        yuhun.Run_Yuhun(yuhun.yuhun_n, yuhun.flag_driver)
 
 
 
