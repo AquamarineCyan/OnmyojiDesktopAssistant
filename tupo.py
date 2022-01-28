@@ -81,8 +81,9 @@ def Run_Tupo():
         if (x == 0 or y == 0):
             print(i, 'need to fight')
             x, y = function.Coor_Random(tupo_x[(i + 1) % 2 + 1], tupo_x[(i + 1) % 2 + 1] + 185, tupo_y[(i + 1) // 2], tupo_y[(i + 1) // 2] + 90)
-            pyautogui.moveTo(x, y, duration = 0.5)
+            pyautogui.moveTo(x + window.window_left, y + window.window_top, duration = 0.5)
             pyautogui.click()
+            print(x + window.window_left, y + window.window_top)
             while(1):
                 x, y = function.GetCoorInfo_Picture('tupo_jingong.png')
                 if (x != 0 and y != 0):
