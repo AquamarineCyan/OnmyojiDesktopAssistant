@@ -7,20 +7,28 @@
 主界面功能1
 '''
 
+import function
 import window
 
 import os
-import time
+from time import sleep
 import pyautogui
-import random
 import string
 
 
 '''
-御魂副本第1个按钮-结束界面的’鼓‘
+组队界面
+yuhun_zudui.png
+司机挑战按钮
+yuhun_tiaozhan.png
+队员2
+yuhun_passenger_2.png
+队员3
+yuhun_passenger_3.png
+对局进行中
+yuhun_fighting.png
+御魂副本结算按钮
 yuhun_victory.png
-御魂副本第2个按钮-结束界面的’达摩‘
-yuhun_egg.png
 '''
 
 # 绝对坐标
@@ -60,6 +68,12 @@ yuhun_n = 0
 yuhun_time : int
 # 是否为司机（默认否）
 flag_driver = 0
+# 组队人数
+flag_passengers : int
+# 队员2就位
+flag_passenger_2 : int
+# 队员3就位
+flag_passenger_3 : int
 # 是否进行中对局（默认否）
 flag_fighting = 0
 # 获取当前目录的父目录
@@ -70,45 +84,18 @@ pyautogui.FAILSAFE = True
 pyautogui.PAUSE = 0.5
 
 
-# 图像识别
-def GetCoorInfo_Picture(picname : str):
-    filename : str = './/pic//' + picname
-    try:
-        button_location = pyautogui.locateOnScreen(filename, region =(window.window_left, window.window_top, window.window_width, window.window_height))
-        # print(button_location)
-        x, y = Coor_Random(button_location[0], button_location[0] + button_location[2], button_location[1],
-                           button_location[1] + button_location[3])
-        # print('true')
-    except:
-        x = y = 0
-        # print(picname)
-    return x, y
-
-# 伪随机坐标
-def Coor_Random(x1 : int, x2 : int, y1 : int, y2 : int):
-    # 获取系统当前时间戳
-    random.seed(time.time_ns())
-    # x1-x2随机
-    x = int(random.random() * (x2 - x1) + x1)
-    # 获取系统当前时间戳
-    random.seed(time.time_ns())
-    # y1-y2随机
-    y = int(random.random() * (y2 - y1) + y1)
-    return x, y
-
-
 # 伪随机区域
 def Yuhun_Random_Left_Right_Driver(a : string):
     x : int
     y : int
     if a == 'left':
-        x, y = Coor_Random(relative_yuhun_left_x1, relative_yuhun_left_x2, relative_yuhun_y1, relative_yuhun_y2)
+        x, y = function.Coor_Random(relative_yuhun_left_x1, relative_yuhun_left_x2, relative_yuhun_y1, relative_yuhun_y2)
         return x, y
     elif a == 'right':
-        x, y = Coor_Random(relative_yuhun_right_x1, relative_yuhun_right_x2, relative_yuhun_y1, relative_yuhun_y2)
+        x, y = function.Coor_Random(relative_yuhun_right_x1, relative_yuhun_right_x2, relative_yuhun_y1, relative_yuhun_y2)
         return x, y
     elif a == 'driver':
-        x, y = Coor_Random(relative_yuhun_driver_x1, relative_yuhun_driver_x2, relative_yuhun_driver_y1, relative_yuhun_driver_y2)
+        x, y = function.Coor_Random(relative_yuhun_driver_x1, relative_yuhun_driver_x2, relative_yuhun_driver_y1, relative_yuhun_driver_y2)
         return x, y
 
 
@@ -136,31 +123,25 @@ def GetRelativeInfo_Yuhun():
     relative_yuhun_driver_y2 = int(window.window_height * yuhun_driver_y2 / window.absolute_window_height)
 
 
-# 随机延时区间
-def SleepRandom(m, n):
-    m : int
-    n : int
-    # 获取系统当前时间戳
-    random.seed(time.time_ns())
-    # m-n (s)
-    time.sleep(random.random() * (n - m) + m)
 
-
-def Run_Yuhun(yuhun_n : int, flag_driver : int = 0):
-    global stra
-    global strb
+def Run_Yuhun(yuhun_n : int, flag_driver : int = 0, flag_passengers : int = 2):
+    global stra, strb
     global flag_fighting
+    global flag_driver_start
+    global flag_passenger_2, flag_passenger_3
     x : int
     y : int
     GetRelativeInfo_Yuhun()
     while(yuhun_n > 0):
         flag_fighting = 0
+        flag_driver_start = 0
         while(1):
-            x, y = GetCoorInfo_Picture('yuhun_zudui.png')
+            x, y = function.GetCoorInfo_Picture('yuhun_zudui.png')
             if(x != 0 and y != 0):
+                flag_driver_start = 1
                 print('当前为组队界面')
                 break
-            x, y = GetCoorInfo_Picture('yuhun_fighting.png')
+            x, y = function.GetCoorInfo_Picture('yuhun_fighting.png')
             if (x != 0 and y != 0):
                 flag_fighting = 1
                 print('对局进行中...')
@@ -168,32 +149,47 @@ def Run_Yuhun(yuhun_n : int, flag_driver : int = 0):
         if(x != 0 and y != 0):
             print('剩余' + str(yuhun_n) + '次')
             # 司机
-            if(flag_driver):
-                '''print('waitng for passengers...')
-                SleepRandom(3, 4)
-                x, y = Yuhun_Random_Left_Right_Driver('driver')
-                pyautogui.click(x + window.window_left, y + window.window_top)
-                print(x + window.window_left, y + window.window_top)'''
+            if(flag_driver_start and flag_driver):
+                print('waitng for passengers...')
+                # 队员2就位
+                while(1):
+                    x, y = function.GetCoorInfo_Picture('yuhun_passenger_2.png')
+                    if (x == 0 and y == 0):
+                        flag_passenger_2 = 1
+                        print('passenger 2 is already')
+                        break
+                # 是否3人组队
+                if(flag_passengers == 3):
+                    while(1):
+                        x, y = function.GetCoorInfo_Picture('yuhun_passenger_3.png')
+                        if (x == 0 and y == 0):
+                            flag_passenger_3 = 1
+                            print('passenger 3 is already')
+                            break
+                # 挑战开始
+                while(1):
+                    x, y = function.GetCoorInfo_Picture('yuhun_tiaozhan.png')
+                    if (x != 0 and y != 0):
+                        pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
+                        pyautogui.click()
+                        print(x + window.window_left, y + window.window_top)
+                        print('start')
             if(flag_fighting == 0):
                 while (1):
-                    x, y = GetCoorInfo_Picture('yuhun_fighting.png')
+                    x, y = function.GetCoorInfo_Picture('yuhun_fighting.png')
                     if (x != 0 and y != 0):
                         flag_fighting = 0
                         print('对局进行中...')
                         break
             # 转场
-            print('sleep for 10s')
-            time.sleep(10)
+            print('sleep for 8s')
+            sleep(8)
             while (1):
-                x, y = GetCoorInfo_Picture('yuhun_victory.png')
+                x, y = function.GetCoorInfo_Picture('yuhun_victory.png')
                 if (x != 0 and y != 0):
                     print('victory!')
                     break
-            # time.sleep(yuhun_time)
-            # time.sleep(2)
-            # 转场
-            # SleepRandom(2, 3)
-            # 结束界面点击
+            # 结束界面
             if(yuhun_n % 2 == 0):
                 stra = 'left'
                 strb = 'right'
@@ -201,34 +197,40 @@ def Run_Yuhun(yuhun_n : int, flag_driver : int = 0):
                 stra = 'right'
                 strb = 'left'
             x, y = Yuhun_Random_Left_Right_Driver(stra)
-            pyautogui.doubleClick(x + window.window_left, y + window.window_top)
+            pyautogui.moveTo(x + window.window_left, y + window.window_top)
+            pyautogui.doubleClick()
             print(x + window.window_left, y + window.window_top)
+            '''
             while (1):
                 x, y = GetCoorInfo_Picture('yuhun_finish.png')
                 if (x != 0 and y != 0):
                     print('finish')
                     break
-            time.sleep(1)
+                else:
+                    print('yuhun_finish.png')
+            '''
+            sleep(1)
             x, y = Yuhun_Random_Left_Right_Driver(strb)
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration = 0.25)
             pyautogui.click()
             print(x + window.window_left, y + window.window_top)
             while (1):
-                x, y = GetCoorInfo_Picture('yuhun_zudui.png')
+                x, y = function.GetCoorInfo_Picture('yuhun_zudui.png')
                 if (x == 0 and y == 0):
                     x, y = Yuhun_Random_Left_Right_Driver(strb)
                     pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
                     pyautogui.click()
                     print(x + window.window_left, y + window.window_top)
+                    sleep(0.5)
                 else:
                     break
             # 转场
-            time.sleep(1)
+            sleep(1)
             yuhun_n -= 1
 
 
 '''
 if __name__ == '__main__':
     window.GetInfo_Window()
-    Run_Yuhun(4)
+    Run_Yuhun(50)
 '''

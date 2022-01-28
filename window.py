@@ -4,6 +4,7 @@
 窗口信息
 '''
 
+
 import win32gui
 
 
@@ -28,7 +29,7 @@ def GetInfo_Window():
     # 返回窗口信息（x,y坐标，还有宽度，高度）
     handle_info = win32gui.GetWindowRect(handle)
     # 返回数据类型
-    window_left = handle_info[0]
+    window_left = handle_info[0] + 9
     window_top = handle_info[1]
     window_width = handle_info[2]
     window_height = handle_info[3]
@@ -39,24 +40,8 @@ def GetInfo_Window():
         3: '窗体高度'
     }
     for i in range(4):
-        print(handle_infodict[i] + ':' + str(handle_info[i]))
-        '''
-        if i == 0:
-            window_left = handle_info[i]
-            print(handle_infodict[i + 1] + ':' + str(window_left))
-        elif i == 1:
-            window_top = handle_info[i]
-            print(handle_infodict[i + 1] + ':' + str(window_top))
-        elif i == 2:
-            window_width = (handle_info[i] - handle_info[i - 2])
-            print(handle_infodict[i + 1] + ':' + str(window_width))
-        elif i == 3:
-            window_height = (handle_info[i] - handle_info[i - 2])
-            print(handle_infodict[i + 1] + ':' + str(window_height))
-        '''
+        if(i == 0):
+            print(handle_infodict[i] + ':' + str(handle_info[i] + 9))
+        else:
+            print(handle_infodict[i] + ':' + str(handle_info[i]))
 
-
-'''
-if __name__ == "__main__":
-    GetInfo_Window()
-'''
