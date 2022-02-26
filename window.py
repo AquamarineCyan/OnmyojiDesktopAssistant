@@ -4,21 +4,26 @@
 窗口信息
 '''
 
-
 import win32gui
-
 
 # 窗口大小(官方1136*640)
 absolute_window_width = 1154
+'''窗口绝对宽度'''
 absolute_window_height = 687
+'''窗口绝对高度'''
 # 窗口坐标
-window_left : int
-window_top : int
-window_width : int
-window_height : int
+window_left : int = 0
+'''窗口横坐标'''
+window_top : int = 0
+'''窗口纵坐标'''
+window_width : int = 0
+'''窗口宽度'''
+window_height : int = 0
+'''窗口高度'''
 
 # 获取窗口信息
 def GetInfo_Window():
+    """获取窗口信息"""
     global window_left
     global window_top
     global window_width
@@ -34,14 +39,13 @@ def GetInfo_Window():
     window_width = handle_info[2]
     window_height = handle_info[3]
     handle_infodict = {
-        0: '窗体左坐标',
-        1: '窗体上坐标',
-        2: '窗体宽度',
-        3: '窗体高度'
+        0: '窗口横坐标',
+        1: '窗口纵坐标',
+        2: '窗口宽度',
+        3: '窗口高度'
     }
     for i in range(4):
         if(i == 0):
             print(handle_infodict[i] + ':' + str(handle_info[i] + 9))
         else:
             print(handle_infodict[i] + ':' + str(handle_info[i]))
-

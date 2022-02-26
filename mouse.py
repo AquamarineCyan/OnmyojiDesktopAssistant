@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # window.py
-'''
+"""
 鼠标信息
-'''
+"""
 
 import pyautogui
 
-mouse_x : int
-mouse_y : int
+mouse_x: int
+mouse_y: int
+
 
 # 获取鼠标当前位置坐标
 def GetInfo_Mouse():
