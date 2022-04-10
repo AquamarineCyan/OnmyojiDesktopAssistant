@@ -1,6 +1,7 @@
 from package import function
 from package import update
 from package import window
+from package import log
 from package import yuhun  # 1
 from package import zhaohuan  # 2
 from package import jiejietupo  # 3&4

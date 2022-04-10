@@ -12,6 +12,7 @@ import time
 import pathlib
 from colorama import init, Fore, Back, Style
 
+
 def random_coor(x1: int, x2: int, y1: int, y2: int):
     """
     伪随机坐标，返回给定坐标区间的随机值
@@ -45,7 +46,8 @@ def get_coor_info_picture(pic: str):
     try:
         button_location = pyautogui.locateOnScreen(filename, region=(
             window.window_left, window.window_top, window.window_width, window.window_height), confidence=0.8)
-        x, y = random_coor(button_location[0], button_location[0] + button_location[2], button_location[1], button_location[1] + button_location[3])
+        x, y = random_coor(button_location[0], button_location[0] + button_location[2], button_location[1],
+                           button_location[1] + button_location[3])
     except:
         x = y = 0
     finally:
@@ -53,6 +55,7 @@ def get_coor_info_picture(pic: str):
 
 
 def judge_scene(pic: str, scenename: str = None):
+    # scenename参数待删除
     """
     场景判断
 
@@ -75,15 +78,15 @@ def judge_click(pic: str, click: bool = True, dura: float = 0.5):
     图像识别，并点击
 
     :param pic: 文件路径&图像名称(*.png)
-    :param dura: 移动速度（默认0.25）
     :param click: 是否点击（默认True）
+    :param dura: 移动速度（默认0.25）
     :return: None
     """
     while 1:
         x, y = get_coor_info_picture(pic)
         if x != 0 and y != 0:
-            pyautogui.moveTo(x, y, duration=dura)
             if click:
+                pyautogui.moveTo(x, y, duration=dura)
                 pyautogui.click()
             break
 
@@ -101,8 +104,9 @@ def random_sleep(m: int, n: int):
     time.sleep(random.random() * (n - m) + m)
 
 
-class fighting():
+class fighting:
     """战斗场景"""
+
     def ready(self):
         """准备"""
         judge_click('zhunbei.png')
@@ -110,8 +114,6 @@ class fighting():
     def finish(self):
         result()
         x, y = random_finish_left_right()
-        pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
-        pyautogui.click()
 
 
 def result():
@@ -130,9 +132,10 @@ def result():
             print('fail')
             return False
 
+
 finish_left_x1 = 20
 '''左侧可点击区域x1'''
-finish_left_x2 = 250
+finish_left_x2 = 240
 '''左侧可点击区域x2'''
 finish_right_x1 = 950
 '''右侧可点击区域x1'''
@@ -143,9 +146,10 @@ finish_y1 = 190
 finish_y2 = 570
 '''可点击区域y2'''
 
-def random_finish_left_right():
+
+def random_finish_left_right(click: bool = True):
     """
-    结算界面伪随机点击区域，返回局部随机坐标
+    结算界面伪随机点击区域，返回局部随机坐标，单击全局坐标
 
     :return: x: 横坐标
              y: 纵坐标
@@ -156,7 +160,9 @@ def random_finish_left_right():
     random.seed(time.time_ns())
     if random.random() * 10 > 5:
         x, y = random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2)
-        return x, y
     else:
         x, y = random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2)
-        return x, y
+    if click:
+        pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
+        pyautogui.click()
+    return x, y

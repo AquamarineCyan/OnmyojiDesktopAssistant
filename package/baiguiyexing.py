@@ -32,8 +32,10 @@ kaishi.png
 baiguiqiyueshu.png
 '''
 
-class baiguiyexing():
+
+class baiguiyexing:
     """百鬼夜行"""
+
     def title(self):
         """场景"""
         x, y = function.get_coor_info_picture(f'{picpath}/title.png')
@@ -86,7 +88,8 @@ class baiguiyexing():
         time.sleep(2)
         while n > 0:
             function.random_sleep(0, 1)
-            x, y = function.random_coor(60, window.absolute_window_width - 120, 300, window.absolute_window_height - 100)
+            x, y = function.random_coor(60, window.absolute_window_width - 120, 300,
+                                        window.absolute_window_height - 100)
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.click()
             n -= 5

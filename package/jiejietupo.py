@@ -4,7 +4,7 @@
 结界突破场景
 主界面功能3、4
 """
-
+from main import MainWindow, ms
 from . import window
 from . import function
 
@@ -32,6 +32,7 @@ fangshoujilu.png
 yinyangliao.png
 '''
 
+
 def get_coor_info_picture_tupo(x1, y1, pic: str):
     """
     图像识别，返回图像的局部相对坐标
@@ -45,15 +46,19 @@ def get_coor_info_picture_tupo(x1, y1, pic: str):
     if 'xunzhang' in pic:
         # 个人突破
         try:
-            button_location = pyautogui.locateOnScreen(filename, region=(x1 + window.window_left - 25, y1 + window.window_top + 40, 185 + 20, 90 - 20), confidence=0.9)
-            x, y = function.random_coor(button_location[0], button_location[0] + button_location[2], button_location[1], button_location[1] + button_location[3])
+            button_location = pyautogui.locateOnScreen(filename, region=(
+                x1 + window.window_left - 25, y1 + window.window_top + 40, 185 + 20, 90 - 20), confidence=0.9)
+            x, y = function.random_coor(button_location[0], button_location[0] + button_location[2], button_location[1],
+                                        button_location[1] + button_location[3])
         except:
             x = y = 0
     else:
         # 阴阳寮突破
         try:
-            button_location = pyautogui.locateOnScreen(filename, region=(x1 + window.window_left, y1 - 40 + window.window_top, 185 + 40, 90), confidence=0.8)
-            x, y = function.random_coor(button_location[0], button_location[0] + button_location[2], button_location[1], button_location[1] + button_location[3])
+            button_location = pyautogui.locateOnScreen(filename, region=(
+                x1 + window.window_left, y1 - 40 + window.window_top, 185 + 40, 90), confidence=0.8)
+            x, y = function.random_coor(button_location[0], button_location[0] + button_location[2], button_location[1],
+                                        button_location[1] + button_location[3])
         except:
             x = y = 0
     return x, y
@@ -122,6 +127,7 @@ def list_num_xunzhang():
     '''
     return alist
 
+
 '''
 个人突破相对坐标
 宽185
@@ -141,18 +147,101 @@ tupo_geren_y = {
     3: 415
 }
 
+
+class JieJieTuPoGeRen(MainWindow):
+    """个人突破"""
+
+    def scene(self):
+        """场景"""
+        while 1:
+            if function.judge_scene(f'{picpath}/fangshoujilu.png', '场景：个人突破'):
+                break
+            else:
+                function.judge_click(f'{picpath}/geren.png')
+                time.sleep(4)
+
+    def fighting(self, list_xunzhang, tupo_victory):
+        """战斗"""
+        self.list_xunzhang = list_xunzhang
+        self.tupo_victory = tupo_victory
+        for i in range(5, -1, -1):
+            if self.list_xunzhang.count(i):
+                k = 1
+                for j in range(1, self.list_xunzhang.count(i) + 1):
+                    k = self.list_xunzhang.index(i, k)
+                    print(k, 'need fight')
+                    x, y = get_coor_info_picture_tupo(tupo_geren_x[(k + 2) % 3 + 1], tupo_geren_y[(k + 2) // 3],
+                                                      'fail.png')
+                    if x != 0 and y != 0:
+                        print(k, 'fail')
+                        k += 1
+                        continue
+                    fighting_tupo(tupo_geren_x[(k + 2) % 3 + 1], tupo_geren_y[(k + 2) // 3])
+                    if function.result():
+                        # self.n -= 1
+                        flag_victory = True
+                    else:
+                        flag_victory = False
+                    time.sleep(1)
+                    # 结束界面
+                    x, y = function.random_finish_left_right()
+                    time.sleep(2)
+                    # 3胜奖励
+                    if self.tupo_victory == 2 and flag_victory:
+                        time.sleep(2)
+                        while 1:
+                            function.judge_click('victory.png')
+                            function.random_sleep(1, 2)
+                            x, y = function.get_coor_info_picture('victory.png')
+                            if x == 0 or y == 0:
+                                break
+                        print('victory for 3 times')
+                    time.sleep(3)
+                    break
+
+    def refresh(self):
+        """3次刷新"""
+        print('已攻破3次，等待刷新')
+        function.random_sleep(4, 6)
+        function.judge_click(f'{picpath}/shuaxin.png')
+        function.random_sleep(2, 4)
+        function.judge_click(f'{picpath}/queding.png')
+        print('waiting for refresh')
+        function.random_sleep(2, 4)
+
+    def run(self, n: int):
+        print('loading...')
+        time.sleep(2)
+        function.judge_scene(f'{picpath}/title.png', '结界突破')
+        time.sleep(2)
+        tp = JieJieTuPoGeRen()
+        tp.scene()
+        time.sleep(2)
+        while n != 0:
+            print(f'剩余次数：{n}')
+            self.list_xunzhang = list_num_xunzhang()
+            # 打法 胜3刷新
+            self.tupo_victory = self.list_xunzhang.count(-1)
+            if self.tupo_victory == 3:
+                self.refresh()
+            elif self.tupo_victory < 3:
+                print(f'已攻破{self.tupo_victory}个')
+                self.fighting()
+            elif self.tupo_victory > 3:
+                print('暂不支持大于3个，请自行处理')
+                break
+            time.sleep(3)
+        print('over')
+
+
 def run_tupo_geren(n: int):
     """个人突破主程序"""
     print('loading...')
     time.sleep(2)
     function.judge_scene(f'{picpath}/title.png', '结界突破')
     time.sleep(2)
-    while 1:
-        if function.judge_scene(f'{picpath}/fangshoujilu.png', '个人突破'):
-            break
-        else:
-            function.judge_click(f'{picpath}/geren.png')
-            time.sleep(4)
+    tp = JieJieTuPoGeRen()
+    tp.scene()
     time.sleep(2)
     while n != 0:
         print(f'剩余次数：{n}')
@@ -160,13 +249,7 @@ def run_tupo_geren(n: int):
         # 打法 胜3刷新
         tupo_victory = list_xunzhang.count(-1)
         if tupo_victory == 3:
-            print('已攻破3次，等待刷新')
-            function.random_sleep(3, 6)
-            function.judge_click(f'{picpath}/shuaxin.png')
-            function.random_sleep(2, 4)
-            function.judge_click(f'{picpath}/queding.png')
-            print(Fore.GREEN + 'waiting for refresh')
-            function.random_sleep(2, 4)
+            tp.refresh()
         elif tupo_victory < 3:
             print('已攻破', tupo_victory, '个')
             for i in range(5, -1, -1):
@@ -175,7 +258,8 @@ def run_tupo_geren(n: int):
                     for j in range(1, list_xunzhang.count(i) + 1):
                         k = list_xunzhang.index(i, k)
                         print(k, 'need fight')
-                        x, y = get_coor_info_picture_tupo(tupo_geren_x[(k + 2) % 3 + 1], tupo_geren_y[(k + 2) // 3], 'fail.png')
+                        x, y = get_coor_info_picture_tupo(tupo_geren_x[(k + 2) % 3 + 1], tupo_geren_y[(k + 2) // 3],
+                                                          'fail.png')
                         if x != 0 and y != 0:
                             print(k, 'fail')
                             k += 1
@@ -189,15 +273,13 @@ def run_tupo_geren(n: int):
                         time.sleep(1)
                         # 结束界面
                         x, y = function.random_finish_left_right()
-                        pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
-                        pyautogui.click()
                         time.sleep(2)
                         # 3胜奖励
                         if tupo_victory == 2 and flag_victory:
-                            time.sleep(2)
+                            time.sleep(4)
                             while 1:
                                 function.judge_click('victory.png')
-                                function.random_sleep(1, 2)
+                                function.random_sleep(2, 5)
                                 x, y = function.get_coor_info_picture('victory.png')
                                 if x == 0 or y == 0:
                                     break
@@ -209,6 +291,7 @@ def run_tupo_geren(n: int):
             break
         time.sleep(3)
     print('over')
+
 
 '''
 阴阳寮突破相对坐标
@@ -229,10 +312,12 @@ tupo_yinyangliao_y = {
     4: 560
 }
 
-class jiejietupo_yinyangliao():
+
+class JieJieTuPoYinYangLiao(MainWindow):
     """阴阳寮突破"""
+
     def title(self):
-        """界面"""
+        """场景"""
         return function.judge_scene(f'{picpath}/tupojilu.png', '场景：阴阳寮突破')
 
     def jibaicishu(self):
@@ -241,7 +326,8 @@ class jiejietupo_yinyangliao():
         if self.title():
             while 1:
                 try:
-                    button_location = pyautogui.locateOnScreen(f'./pic/{picpath}/jibaicishu.png', region=(window.window_left, window.window_top, window.window_width, window.window_height))
+                    button_location = pyautogui.locateOnScreen(f'./pic/{picpath}/jibaicishu.png', region=(
+                        window.window_left, window.window_top, window.window_width, window.window_height))
                     print('find')
                     return False
                 except:
@@ -252,9 +338,11 @@ class jiejietupo_yinyangliao():
     def fighting(self):
         i = 1
         while 1:
-            x, y = get_coor_info_picture_tupo(tupo_yinyangliao_x[(i + 1) % 2 + 1], tupo_yinyangliao_y[(i + 1) // 2], 'fail.png')
+            x, y = get_coor_info_picture_tupo(tupo_yinyangliao_x[(i + 1) % 2 + 1], tupo_yinyangliao_y[(i + 1) // 2],
+                                              'fail.png')
             if x == 0 or y == 0:
                 print(i, 'need to fight')
+                ms.text_print_update.emit(f'{i} need to fight')
                 fighting_tupo(tupo_yinyangliao_x[(i + 1) % 2 + 1], tupo_yinyangliao_y[(i + 1) // 2])
                 if function.result():
                     # 胜利
@@ -265,8 +353,6 @@ class jiejietupo_yinyangliao():
                 time.sleep(2)
                 # 结束界面
                 x, y = function.random_finish_left_right()
-                pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
-                pyautogui.click()
                 return flag
             else:
                 print(i, 'fail')
@@ -277,8 +363,32 @@ class jiejietupo_yinyangliao():
                     flag = -1
                     return flag
 
+    def run(self, n):
+        print('loading...')
+        time.sleep(2)
+        function.judge_scene(f'{picpath}/title.png', '结界突破')
+        ms.text_print_update.emit('场景：结界突破')
+        time.sleep(2)
+        while 1:
+            if function.judge_scene(f'{picpath}/tupojilu.png'):
+                break
+            else:
+                function.judge_click(f'{picpath}/yinyangliao.png', dura=0.5)
+                time.sleep(4)
+        time.sleep(2)
+        m = 1  # 计数器
+        while m <= n:
+            print(f'{m}/{n}')
+            flag = JieJieTuPoYinYangLiao.fighting(self)
+            if flag:
+                m += 1
+            elif flag == -1:
+                break
+            time.sleep(3)
+        print('over')
 
-def Run_Tupo_Yinyangliao(n: int):
+
+def run_tupo_yinyangliao(n: int):
     """
     阴阳寮突破主程序
 
@@ -295,8 +405,8 @@ def Run_Tupo_Yinyangliao(n: int):
             function.judge_click(f'{picpath}/yinyangliao.png', dura=0.5)
             time.sleep(4)
     time.sleep(2)
-    tp = jiejietupo_yinyangliao()
-    m = 1 # 计数器
+    tp = JieJieTuPoYinYangLiao()
+    m = 1  # 计数器
     while m <= n:
         print(f'{m}/{n}')
         flag = tp.fighting()

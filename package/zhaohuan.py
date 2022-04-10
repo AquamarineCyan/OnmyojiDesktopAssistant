@@ -21,19 +21,23 @@ putongzhaohuan.png
 zaicizhaohuan.png
 '''
 
-class zhaohuan():
+
+class zhaohuan:
     """召唤"""
+
     def title(self):
-        """界面"""
+        """场景"""
         return function.judge_scene(f'{picpath}/title.png', '召唤')
 
     def first(self):
         """第一次召唤"""
         function.judge_click(f'{picpath}/putongzhaohuan.png')
+        function.random_sleep(6, 8)
 
     def again(self):
         """非第一次召唤"""
         function.judge_click(f'{picpath}/zaicizhaohuan.png')
+        function.random_sleep(6, 8)
 
 
 def run_zhaohuan(n: int):
@@ -42,7 +46,6 @@ def run_zhaohuan(n: int):
 
     :param n: 次数
     """
-    print('loading...')
     time.sleep(2)
     flag = False
     if n == 1:
@@ -55,9 +58,7 @@ def run_zhaohuan(n: int):
                 zh.first()
                 flag = False
                 n -= 1
-                function.random_sleep(4, 6)
             else:
                 zh.again()
                 n -= 1
-                function.random_sleep(4, 6)
     print('over')

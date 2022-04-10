@@ -4,7 +4,7 @@
 道馆突破
 主界面功能6
 """
-import main
+
 from . import function
 
 import time
@@ -44,7 +44,7 @@ victory.png
 '''
 
 
-class daoguantupo():
+class daoguantupo:
     """道馆突破"""
 
     def title(self):
@@ -91,7 +91,6 @@ def run_daoguantupo():
                 if dgtp.judge_scene() == '倒计时':
                     if flag_daojishi:
                         print(Fore.GREEN + '等待系统自行进入')
-                        main.MainWindow.ui
                         flag_daojishi = False
                     flag_fighting = True
                     time.sleep(10)

@@ -4,7 +4,6 @@
 
 ## 前言
 
----
 使用阴阳师桌面版[提供NGA下载地址](https://nga.178.com/read.php?tid=29661629)
 
 暂不支持多开，~~环境检测时哪个窗口在最前默认该窗口~~
@@ -12,8 +11,6 @@
 模拟器没适配，~~理论上只需要获取窗口句柄，改一下窗口大小等参数~~
 
 ## 功能
-
----
 
 1. 组队御魂副本
 2. 普通召唤
@@ -26,14 +23,10 @@
 
 ## 使用方法
 
----
-
 1. **推荐**前往 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 下载压缩包，解压，使用管理员启动 **Onmyoji_Python** （鼠标点击事件需要管理员权限）
 2. 下载源码，安装环境 `pip install -r requirements.txt` ， `cmd` 运行 `python Onmyoji_Python.exe` ，依旧需要管理员权限
 
 ### run.bat
-
----
 
 run.bat 可快速以管理员身份运行主程序
 
@@ -44,13 +37,10 @@ run.bat 可快速以管理员身份运行主程序
 
 ## UI
 
----
-
-~~在学了~~
+基础功能 ~~至少能用~~
 
 ## Tips
 
----
 
 **请自行合理使用，所产生的一切后果自负**
 

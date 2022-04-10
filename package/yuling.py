@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # yuling.py
 """
-御灵场景
+御灵副本
 主界面功能7
 """
 
@@ -10,7 +10,6 @@ from . import function
 
 import time
 import pyautogui
-from colorama import Fore
 
 picpath = 'yuling'
 '''图片路径'''
@@ -22,8 +21,9 @@ title.png
 tiaozhan.png
 '''
 
-class yuling():
-    """御灵"""
+
+class yuling:
+    """御灵副本"""
 
     def title(self):
         """场景"""
@@ -36,7 +36,7 @@ class yuling():
 
 def run_yuling(n: int):
     """
-    御灵主程序
+    御灵副本主程序
 
     :param n: 次数
     """
@@ -55,12 +55,10 @@ def run_yuling(n: int):
                 function.result()
                 time.sleep(1)
                 x, y = function.random_finish_left_right()
-                pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
-                pyautogui.click()
-                function.random_sleep(1,3)
+                function.random_sleep(1, 3)
                 n -= 1
             break
         elif flag_title:
             flag_title = False
-            print(Fore.RED + '请检查游戏场景')
-    print(Fore.RED + 'over')
+            print('请检查游戏场景')
+    print('over')
