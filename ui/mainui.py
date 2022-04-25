@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'myui.ui'
+## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.2.3
+## Created by: Qt User Interface Compiler version 6.2.4
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -234,9 +234,37 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7 = QHBoxLayout()
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.verticalLayout_3 = QVBoxLayout()
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.text_wininfo = QTextBrowser(self.centralwidget)
+        self.text_wininfo.setObjectName(u"text_wininfo")
+        sizePolicy = QSizePolicy(QSizePolicy.Ignored, QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.text_wininfo.sizePolicy().hasHeightForWidth())
+        self.text_wininfo.setSizePolicy(sizePolicy)
 
-        self.horizontalLayout_7.addItem(self.horizontalSpacer_5)
+        self.verticalLayout_3.addWidget(self.text_wininfo)
+
+        self.button_wininfo = QPushButton(self.centralwidget)
+        self.button_wininfo.setObjectName(u"button_wininfo")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.button_wininfo.sizePolicy().hasHeightForWidth())
+        self.button_wininfo.setSizePolicy(sizePolicy1)
+
+        self.verticalLayout_3.addWidget(self.button_wininfo)
+
+
+        self.horizontalLayout_7.addLayout(self.verticalLayout_3)
+
+        self.line_4 = QFrame(self.centralwidget)
+        self.line_4.setObjectName(u"line_4")
+        self.line_4.setFrameShape(QFrame.VLine)
+        self.line_4.setFrameShadow(QFrame.Sunken)
+
+        self.horizontalLayout_7.addWidget(self.line_4)
 
         self.text_print = QTextBrowser(self.centralwidget)
         self.text_print.setObjectName(u"text_print")
@@ -244,13 +272,8 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_7.addWidget(self.text_print)
 
-        self.horizontalSpacer_6 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_7.addItem(self.horizontalSpacer_6)
-
-        self.horizontalLayout_7.setStretch(0, 1)
-        self.horizontalLayout_7.setStretch(1, 5)
-        self.horizontalLayout_7.setStretch(2, 1)
+        self.horizontalLayout_7.setStretch(0, 2)
+        self.horizontalLayout_7.setStretch(2, 8)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_7)
 
@@ -291,6 +314,7 @@ class Ui_MainWindow(object):
         self.button_resources.setText(QCoreApplication.translate("MainWindow", u"\u73af\u5883\u68c0\u6d4b", None))
         self.button_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\u5b8c\u6210\u60c5\u51b5", None))
+        self.button_wininfo.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u7a97\u53e3\u4fe1\u606f", None))
         self.menu.setTitle(QCoreApplication.translate("MainWindow", u"\u83dc\u5355", None))
     # retranslateUi
 

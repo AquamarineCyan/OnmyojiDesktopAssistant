@@ -4,11 +4,11 @@
 绘卷查分
 主界面功能8
 """
-from colorama import Fore
+
 
 def run_huijuan():
     sum: int
-    print(Fore.RED + '请及时提交绘卷')
+    print('请及时提交绘卷')
     a = int(input("大绘卷数量："))
     b = int(input("中绘卷数量："))
     c = int(input("小绘卷数量："))

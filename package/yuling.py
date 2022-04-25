@@ -5,14 +5,10 @@
 主界面功能7
 """
 
-from . import window
-from . import function
-
 import time
-import pyautogui
 
-picpath = 'yuling'
-'''图片路径'''
+from . import function
+from mysignal import global_ms as ms
 
 '''
 御灵场景
@@ -22,43 +18,46 @@ tiaozhan.png
 '''
 
 
-class yuling:
+class YuLing:
     """御灵副本"""
+
+    def __init__(self):
+        self.picpath = 'yuling'  # 路径
+        self.m = 0  # 当前次数
+        self.n = None  # 总次数
 
     def title(self):
         """场景"""
-        return function.judge_scene(f'{picpath}/title.png', '御灵')
+        flag_title = True  # 场景提示
+        while 1:
+            if function.judge_scene(f'{self.picpath}/title.png', '[SCENE] 御灵'):
+                return True
+            elif flag_title:
+                flag_title = False
+                ms.text_print_update.emit('[WARN] 请检查游戏场景')
 
     def start(self):
         """挑战开始"""
-        function.judge_click(f'{picpath}/tiaozhan.png')
+        function.judge_click(f'{self.picpath}/tiaozhan.png')
 
-
-def run_yuling(n: int):
-    """
-    御灵副本主程序
-
-    :param n: 次数
-    """
-    print('loading...')
-    time.sleep(2)
-    flag_title = True  # 场景提示
-    yl = yuling()
-    while 1:
-        if yl.title():
-            while n > 0:
-                print(f'剩余{n}次')
-                time.sleep(1)
-                function.random_sleep(0, 1)
-                yl.start()
-                time.sleep(8)
+    def run(self, n: int):
+        time.sleep(2)
+        self.n = n
+        if self.title():
+            ms.text_num_update.emit(f'0/{self.n}')
+            function.random_sleep(1, 3)
+            while self.m < self.n:
+                function.random_sleep(1, 2)
+                # 开始
+                self.start()
+                # 结束
                 function.result()
-                time.sleep(1)
-                x, y = function.random_finish_left_right()
+                function.random_sleep(1, 2)
+                # 结算
+                function.random_finish_left_right(is_yuling=True)
                 function.random_sleep(1, 3)
-                n -= 1
-            break
-        elif flag_title:
-            flag_title = False
-            print('请检查游戏场景')
-    print('over')
+                self.m += 1
+                ms.text_num_update.emit(f'{self.m}/{self.n}')
+        ms.text_print_update.emit(f'已完成 御灵副本{self.m}次')
+        # 启用按钮
+        ms.is_fighting_update.emit(False)

@@ -5,19 +5,14 @@
 主界面功能5
 """
 
-from . import window
-from . import function
-
-import pyautogui
 import time
 import random
 import pathlib
-from colorama import init, Fore, Back, Style
+import pyautogui
 
-picpath = 'baiguiyexing'
-'''图片路径'''
-screenshotpath = 'cache_baiguiyexing'
-'''截图路径'''
+from . import window
+from . import function
+from mysignal import global_ms as ms
 
 '''
 标题
@@ -33,21 +28,28 @@ baiguiqiyueshu.png
 '''
 
 
-class baiguiyexing:
+class BaiGuiYeXing:
     """百鬼夜行"""
+
+    def __init__(self):
+        self.picpath = 'baiguiyexing'  # 路径
+        self.screenshotpath = 'cache_baiguiyexing'  # 截图路径
+        self.m = 0  # 当前次数
+        self.n = None  # 总次数
 
     def title(self):
         """场景"""
-        x, y = function.get_coor_info_picture(f'{picpath}/title.png')
-        if x != 0 and y != 0:
-            print(Fore.GREEN + '场景：百鬼夜行')
-            return True
-        else:
-            return False
+        flag_title = True  # 场景提示
+        while 1:
+            if function.judge_scene(f'{self.picpath}/title.png', '[SCENE] 百鬼夜行'):
+                return True
+            elif flag_title:
+                flag_title = False
+                ms.text_print_update.emit('[WARN] 请检查游戏场景')
 
     def start(self):
         """开始"""
-        function.judge_click(f'{picpath}/jinru.png')
+        function.judge_click(f'{self.picpath}/jinru.png')
 
     def choose(self):
         """鬼王选择"""
@@ -76,11 +78,11 @@ class baiguiyexing:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
             pyautogui.click()
             time.sleep(2)
-            x, y = function.get_coor_info_picture(f'{picpath}/ya.png')
+            x, y = function.get_coor_info_picture(f'{self.picpath}/ya.png')
             if x != 0 and y != 0:
-                print(Fore.GREEN + 'already choose')
+                print('already choose')
                 break
-        function.judge_click(f'{picpath}/kaishi.png', dura=0.5)
+        function.judge_click(f'{self.picpath}/kaishi.png', dura=0.5)
 
     def fighting(self):
         """砸豆子"""
@@ -97,7 +99,7 @@ class baiguiyexing:
     def finish(self):
         """结束"""
         while 1:
-            x, y = function.get_coor_info_picture(f'{picpath}/baiguiqiyueshu.png')
+            x, y = function.get_coor_info_picture(f'{self.picpath}/baiguiqiyueshu.png')
             time.sleep(2)
             if x != 0 and y != 0:
                 self.screenshot()
@@ -107,36 +109,31 @@ class baiguiyexing:
 
     def screenshot(self):
         """截图"""
-
         fpath = pathlib.Path.cwd()
-        filepath = fpath / screenshotpath
+        filepath = fpath / self.screenshotpath
         if not filepath.exists():
             filepath.mkdir()
-        picname = f'{screenshotpath}./screenshot-{time.strftime("%Y%m%d%H%M%S")}.png'
+        picname = f'{self.screenshotpath}./screenshot-{time.strftime("%Y%m%d%H%M%S")}.png'
         pyautogui.screenshot(imageFilename=picname, region=(window.window_left - 1, window.window_top, 1138, 679))
 
-
-def Run_BaiGuiYeXing(n: int):
-    """
-    百鬼夜行主程序
-
-    :param n: 次数
-    """
-    print('loading...')
-    time.sleep(2)
-    while n > 0:
-        print(f'剩余{n}次')
-        bgyx = baiguiyexing()
-        if bgyx.title():
-            time.sleep(1)
-            function.random_sleep(0, 2)
-            bgyx.start()
+    def run(self, n: int):
+        time.sleep(2)
+        self.n = n
+        if self.title():
+            ms.text_num_update.emit(f'0/{self.n}')
             function.random_sleep(1, 3)
-            bgyx.choose()
-            function.random_sleep(2, 4)
-            bgyx.fighting()
-            function.random_sleep(2, 4)
-            bgyx.finish()
-            n -= 1
-            time.sleep(4)
-    print('over')
+            while self.m < self.n:
+                function.random_sleep(0, 2)
+                self.start()
+                function.random_sleep(1, 3)
+                self.choose()
+                function.random_sleep(2, 4)
+                self.fighting()
+                function.random_sleep(2, 4)
+                self.finish()
+                self.m += 1
+                ms.text_num_update.emit(f'{self.m}/{self.n}')
+                time.sleep(4)
+        ms.text_print_update.emit(f'已完成 百鬼夜行{self.m}次')
+        # 启用按钮
+        ms.is_fighting_update.emit(False)

@@ -5,12 +5,10 @@
 主界面功能2
 """
 
-from . import function
-
 import time
 
-picpath = 'zhaohuan'
-'''图片路径'''
+from . import function
+from mysignal import global_ms as ms
 
 '''
 标题
@@ -22,43 +20,50 @@ zaicizhaohuan.png
 '''
 
 
-class zhaohuan:
+class ZhaoHuan:
     """召唤"""
+
+    def __init__(self):
+        self.picpath = 'zhaohuan'  # 路径
+        self.m = 0  # 当前次数
+        self.n = None  # 总次数
 
     def title(self):
         """场景"""
-        return function.judge_scene(f'{picpath}/title.png', '召唤')
+        flag_title = True  # 场景提示
+        while 1:
+            if function.judge_scene(f'{self.picpath}/title.png', '[SCENE] 召唤'):
+                return True
+            elif flag_title:
+                flag_title = False
+                ms.text_print_update.emit('[WARN] 请检查游戏场景')
 
     def first(self):
         """第一次召唤"""
-        function.judge_click(f'{picpath}/putongzhaohuan.png')
+        function.judge_click(f'{self.picpath}/putongzhaohuan.png')
         function.random_sleep(6, 8)
 
     def again(self):
         """非第一次召唤"""
-        function.judge_click(f'{picpath}/zaicizhaohuan.png')
+        function.judge_click(f'{self.picpath}/zaicizhaohuan.png')
         function.random_sleep(6, 8)
 
-
-def run_zhaohuan(n: int):
-    """
-    召唤主程序
-
-    :param n: 次数
-    """
-    time.sleep(2)
-    flag = False
-    if n == 1:
-        flag = True
-    zh = zhaohuan()
-    if zh.title():
-        while n > 0:
-            print(f'剩余{n}次')
-            if flag:
-                zh.first()
-                flag = False
-                n -= 1
-            else:
-                zh.again()
-                n -= 1
-    print('over')
+    def run(self, n: int):
+        self.n = n
+        time.sleep(2)
+        flag = True  # 是否第一次
+        if self.title():
+            ms.text_num_update.emit(f'0/{self.n}')
+            function.random_sleep(1, 3)
+            while self.m < self.n:
+                if flag:
+                    self.first()
+                    flag = False
+                    self.m += 1
+                else:
+                    self.again()
+                    self.m += 1
+                ms.text_num_update.emit(f'{self.m}/{self.n}')
+        ms.text_print_update.emit(f'已完成 普通召唤十连{self.m}次')
+        # 启用按钮
+        ms.is_fighting_update.emit(False)

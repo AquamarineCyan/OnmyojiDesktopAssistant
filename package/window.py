@@ -3,10 +3,10 @@
 """
 窗口信息
 """
-import sys
+
 import win32gui
 
-# from colorama import init, Fore, Back, Style
+from mysignal import global_ms as ms
 
 # 窗口大小(官方1136*640)
 absolute_window_width = 1154
@@ -24,10 +24,7 @@ window_height: int = 0
 '''窗口高度'''
 
 
-# init(autoreset=True)
-
-
-def GetInfo_Window():
+def getInfo_Window():
     """
     获取窗口信息，打印输出
     """
@@ -42,29 +39,24 @@ def GetInfo_Window():
         # 返回窗口信息（x,y坐标，还有宽度，高度）
         handle_coor = win32gui.GetWindowRect(handle)
     except:
-        # print(Fore.RED + '请登录游戏并重新启动本程序')
-        # print(Fore.GREEN + '键入回车键退出程序')
         handle_coor = (0, 0, 0, 0)
-        # input('Input Enter Key')
-        # sys.exit()
     else:
         # 返回数据类型
         window_left = handle_coor[0] + 9
         window_top = handle_coor[1]
         window_width = handle_coor[2]
         window_height = handle_coor[3]
-        '''
-        # 以下内容待删除
         handle_infodict = {
-            0: '窗口横坐标',
-            1: '窗口纵坐标',
-            2: '窗口宽度',
-            3: '窗口高度'
+            0: '横坐标',
+            1: '纵坐标',
+            2: '宽度',
+            3: '高度'
         }
+        s = ''
         for i in range(4):
             if i == 0:
-                print(handle_infodict[i] + ':' + str(handle_coor[i] + 9))
+                s = s + f'{handle_infodict[i]}:{handle_coor[i] + 9}\n'
             else:
-                print(handle_infodict[i] + ':' + str(handle_coor[i]))
-        '''
+                s = s + f'{handle_infodict[i]}:{handle_coor[i]}\n'
+        ms.text_wininfo_update.emit(s)
     return handle_coor

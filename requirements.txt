@@ -1,7 +1,0 @@
-python>=3.8
-pywin32>=303
-PyAutoGUI>=0.9.53
-numpy>=1.22.3
-random2>=1.0.1
-pyinstaller>=4.10
-colorama>=0.4.4

@@ -4,13 +4,13 @@
 通用函数库
 """
 
-from . import window
-
 import pyautogui
 import random
 import time
 import pathlib
-from colorama import init, Fore, Back, Style
+
+from . import window
+from mysignal import global_ms as ms
 
 
 def random_coor(x1: int, x2: int, y1: int, y2: int):
@@ -54,20 +54,19 @@ def get_coor_info_picture(pic: str):
         return x, y
 
 
-def judge_scene(pic: str, scenename: str = None):
-    # scenename参数待删除
+def judge_scene(pic: str, text: str = None):
     """
     场景判断
 
     :param pic: 文件路径&图像名称(*.png)
-    :param scenename: 场景名称（默认绿色）
+    :param text: 提示语
     :return: True or False
     """
     while 1:
         x, y = get_coor_info_picture(pic)
         if x != 0 and y != 0:
-            if scenename is not None:
-                print(Fore.GREEN + f'场景：{scenename}')
+            if text is not None:
+                ms.text_print_update.emit(text)
             return True
         else:
             return False
@@ -104,6 +103,7 @@ def random_sleep(m: int, n: int):
     time.sleep(random.random() * (n - m) + m)
 
 
+# 未启用
 class fighting:
     """战斗场景"""
 
@@ -125,14 +125,15 @@ def result():
     while 1:
         x, y = get_coor_info_picture('victory.png')
         if x != 0 and y != 0:
-            print('victory')
+            ms.text_print_update.emit('胜利')
             return True
         x, y = get_coor_info_picture('fail.png')
         if x != 0 and y != 0:
-            print('fail')
+            ms.text_print_update.emit('失败')
             return False
 
 
+# 绝对坐标
 finish_left_x1 = 20
 '''左侧可点击区域x1'''
 finish_left_x2 = 240
@@ -147,7 +148,7 @@ finish_y2 = 570
 '''可点击区域y2'''
 
 
-def random_finish_left_right(click: bool = True):
+def random_finish_left_right(click: bool = True, is_yuling: bool = False):
     """
     结算界面伪随机点击区域，返回局部随机坐标，单击全局坐标
 
@@ -159,9 +160,15 @@ def random_finish_left_right(click: bool = True):
     # 获取系统当前时间戳
     random.seed(time.time_ns())
     if random.random() * 10 > 5:
-        x, y = random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2)
+        if is_yuling:
+            x, y = random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2 - 200)
+        else:
+            x, y = random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2)
     else:
-        x, y = random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2)
+        if is_yuling:
+            x, y = random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2 - 200)
+        else:
+            x, y = random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2)
     if click:
         pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
         pyautogui.click()
