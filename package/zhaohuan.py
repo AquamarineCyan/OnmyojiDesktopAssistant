@@ -2,12 +2,11 @@
 # zhaohuan.py
 """
 普通召唤
-主界面功能2
 """
 
 import time
 
-from . import function
+from .function import Function
 from mysignal import global_ms as ms
 
 '''
@@ -20,7 +19,7 @@ zaicizhaohuan.png
 '''
 
 
-class ZhaoHuan:
+class ZhaoHuan(Function):
     """召唤"""
 
     def __init__(self):
@@ -32,7 +31,7 @@ class ZhaoHuan:
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if function.judge_scene(f'{self.picpath}/title.png', '[SCENE] 召唤'):
+            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 召唤'):
                 return True
             elif flag_title:
                 flag_title = False
@@ -40,13 +39,13 @@ class ZhaoHuan:
 
     def first(self):
         """第一次召唤"""
-        function.judge_click(f'{self.picpath}/putongzhaohuan.png')
-        function.random_sleep(6, 8)
+        self.judge_click(f'{self.picpath}/putongzhaohuan.png')
+        self.random_sleep(6, 8)
 
     def again(self):
         """非第一次召唤"""
-        function.judge_click(f'{self.picpath}/zaicizhaohuan.png')
-        function.random_sleep(6, 8)
+        self.judge_click(f'{self.picpath}/zaicizhaohuan.png')
+        self.random_sleep(6, 8)
 
     def run(self, n: int):
         self.n = n
@@ -54,7 +53,7 @@ class ZhaoHuan:
         flag = True  # 是否第一次
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
-            function.random_sleep(1, 3)
+            self.random_sleep(1, 3)
             while self.m < self.n:
                 if flag:
                     self.first()

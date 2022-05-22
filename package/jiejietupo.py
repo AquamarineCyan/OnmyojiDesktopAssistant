@@ -2,18 +2,14 @@
 # jiejietupo.py
 """
 结界突破场景
-主界面功能3、4
 """
 
 import time
 import pyautogui
 
 from . import window
-from . import function
+from .function import Function
 from mysignal import global_ms as ms
-
-picpath = 'jiejietupo'
-'''图片路径'''
 
 '''
 突破界面
@@ -33,7 +29,11 @@ yinyangliao.png
 '''
 
 
-class JieJieTuPo:
+class JieJieTuPo(Function):
+    """结界突破"""
+
+    def __init__(self):
+        self.picpath = 'jiejietupo'  # 图片路径
 
     def get_coor_info_picture_tupo(self, x1, y1, pic: str):
         """
@@ -44,15 +44,15 @@ class JieJieTuPo:
         :param picname: 图像名称
         :return: x, y
         """
-        filename: str = fr'.\pic\{picpath}\{pic}'
+        filename: str = fr'.\pic\{self.picpath}\{pic}'
         if 'xunzhang' in pic:
             # 个人突破
             try:
                 button_location = pyautogui.locateOnScreen(filename, region=(
                     x1 + window.window_left - 25, y1 + window.window_top + 40, 185 + 20, 90 - 20), confidence=0.9)
-                x, y = function.random_coor(button_location[0], button_location[0] + button_location[2],
-                                            button_location[1],
-                                            button_location[1] + button_location[3])
+                x, y = self.random_coor(button_location[0], button_location[0] + button_location[2],
+                                        button_location[1],
+                                        button_location[1] + button_location[3])
             except:
                 x = y = 0
         else:
@@ -60,9 +60,9 @@ class JieJieTuPo:
             try:
                 button_location = pyautogui.locateOnScreen(filename, region=(
                     x1 + window.window_left, y1 - 40 + window.window_top, 185 + 40, 90), confidence=0.8)
-                x, y = function.random_coor(button_location[0], button_location[0] + button_location[2],
-                                            button_location[1],
-                                            button_location[1] + button_location[3])
+                x, y = self.random_coor(button_location[0], button_location[0] + button_location[2],
+                                        button_location[1],
+                                        button_location[1] + button_location[3])
             except:
                 x = y = 0
         return x, y
@@ -75,15 +75,26 @@ class JieJieTuPo:
         :param y0: 顶部纵坐标
         :return: None
         """
-        x, y = function.random_coor(x0, x0 + 185, y0, y0 + 80)
+        x, y = self.random_coor(x0, x0 + 185, y0, y0 + 80)
         pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
         pyautogui.click()
         while 1:
-            x, y = function.get_coor_info_picture(f'{picpath}/jingong.png')
+            x, y = self.get_coor_info_picture(f'{self.picpath}/jingong.png')
             if x != 0 and y != 0:
                 pyautogui.moveTo(x, y, duration=0.5)
                 pyautogui.click()
                 break
+
+    def fighting_fail_again(self):
+        # 主动失败
+        time.sleep(2)
+        while True:
+            pyautogui.press('esc')
+            if self.judge_scene(f'{self.picpath}/fighting_fail.png'):
+                pyautogui.press('enter')
+                ms.text_print_update.emit('手动退出')
+                break
+            time.sleep(0.5)
 
 
 class JieJieTuPoGeRen(JieJieTuPo):
@@ -97,6 +108,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     '''
 
     def __init__(self):
+        super().__init__()
         self.tupo_geren_x = {
             1: 215,
             2: 515,
@@ -111,19 +123,19 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.n = None  # 总次数
         self.list_xunzhang = None  # 勋章列表
         self.tupo_victory = None  # 攻破次数
-        self.time_refresh = None  # 记录刷新时间
+        self.time_refresh = 0  # 记录刷新时间
 
     def title(self):
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if function.judge_scene(f'{picpath}/title.png', '[SCENE] 结界突破'):
+            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 结界突破'):
                 while 1:
-                    if function.judge_scene(f'{picpath}/fangshoujilu.png', '[SCENE] 个人突破'):
+                    if self.judge_scene(f'{self.picpath}/fangshoujilu.png', '[SCENE] 个人突破'):
                         return True
                     else:
                         time.sleep(1)
-                        function.judge_click(f'{picpath}/geren.png', dura=0.5)
+                        self.judge_click(f'{self.picpath}/geren.png', dura=0.5)
                         time.sleep(4)
             elif flag_title:
                 flag_title = False
@@ -183,14 +195,14 @@ class JieJieTuPoGeRen(JieJieTuPo):
             else:
                 print(i, '勋章', alist.count(i), '个')
         """
-        listprint = '['
+        list_xunzhang = '勋章数：['
         for i in range(1, 10):
             if i == 1:
-                listprint = listprint + str(alist[i])
+                list_xunzhang = list_xunzhang + str(alist[i])
             else:
-                listprint = listprint + ',' + str(alist[i])
-        listprint = listprint + ']'
-        ms.text_print_update.emit(listprint)
+                list_xunzhang = list_xunzhang + ',' + str(alist[i])
+        list_xunzhang = list_xunzhang + ']'
+        ms.text_print_update.emit(list_xunzhang)
         return alist
 
     def fighting(self):
@@ -200,16 +212,16 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 k = 1
                 for j in range(1, self.list_xunzhang.count(i) + 1):
                     k = self.list_xunzhang.index(i, k)
-                    ms.text_print_update.emit(f'{k} need fight')
+                    ms.text_print_update.emit(f'{k} 可进攻')
                     x, y = self.get_coor_info_picture_tupo(self.tupo_geren_x[(k + 2) % 3 + 1],
                                                            self.tupo_geren_y[(k + 2) // 3],
                                                            'fail.png')
                     if x != 0 and y != 0:
-                        ms.text_print_update.emit(f'{k} fail')
+                        ms.text_print_update.emit(f'{k} 已失败')
                         k += 1
                         continue
                     self.fighting_tupo(self.tupo_geren_x[(k + 2) % 3 + 1], self.tupo_geren_y[(k + 2) // 3])
-                    if function.result():
+                    if self.result():
                         flag_victory = True
                         self.m += 1
                         ms.text_num_update.emit(f'{self.m}/{self.n}')
@@ -217,15 +229,15 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         flag_victory = False
                     time.sleep(1)
                     # 结束界面
-                    x, y = function.random_finish_left_right()
+                    x, y = self.random_finish_left_right()
                     time.sleep(2)
                     # 3胜奖励
                     if self.tupo_victory == 2 and flag_victory:
                         time.sleep(2)
                         while 1:
-                            function.judge_click('victory.png')
-                            function.random_sleep(1, 2)
-                            x, y = function.get_coor_info_picture('victory.png')
+                            self.judge_click('victory.png')
+                            self.random_sleep(1, 2)
+                            x, y = self.get_coor_info_picture('victory.png')
                             if x == 0 or y == 0:
                                 break
                         ms.text_print_update.emit('成功攻破3次')
@@ -235,16 +247,17 @@ class JieJieTuPoGeRen(JieJieTuPo):
     def refresh(self):
         """刷新"""
         flag_refresh = False  # 刷新提醒
+        self.random_sleep(4, 8)  # 强制等待
         while 1:
             # 第一次刷新 或 冷却时间已过
-            if self.time_refresh == None or self.time_refresh + 5 * 60 >= time.perf_counter():
+            if self.time_refresh == 0 or self.time_refresh + 5 * 60 >= time.perf_counter():
                 ms.text_print_update.emit('刷新中')
-                function.random_sleep(4, 6)
-                function.judge_click(f'{picpath}/shuaxin.png')
-                function.random_sleep(2, 4)
-                function.judge_click(f'{picpath}/queding.png')
+                self.random_sleep(4, 6)
+                self.judge_click(f'{self.picpath}/shuaxin.png', sleeptime=2)
+                self.random_sleep(2, 4)
+                self.judge_click(f'{self.picpath}/queding.png', sleeptime=0.5)
                 self.time_refresh = time.perf_counter()
-                function.random_sleep(2, 4)
+                self.random_sleep(2, 4)
                 break
             elif not flag_refresh:
                 ms.text_print_update.emit('等待刷新冷却')
@@ -255,11 +268,11 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.n = n
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
-            function.random_sleep(1, 3)
+            self.random_sleep(1, 3)
             while self.m < self.n:
-                function.random_sleep(2, 4)
+                self.random_sleep(2, 4)
                 self.list_xunzhang = self.list_num_xunzhang()
-                # 胜3刷新
+                # 胜利次数
                 self.tupo_victory = self.list_xunzhang.count(-1)
                 # 刷新
                 if self.tupo_victory == 3:
@@ -288,6 +301,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     '''
 
     def __init__(self):
+        super().__init__()
         self.tupo_yinyangliao_x = {
             1: 460,
             2: 760
@@ -305,13 +319,13 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if function.judge_scene(f'{picpath}/title.png', '[SCENE] 结界突破'):
+            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 结界突破'):
                 while 1:
-                    if function.judge_scene(f'{picpath}/tupojilu.png', '[SCENE] 阴阳寮突破'):
+                    if self.judge_scene(f'{self.picpath}/tupojilu.png', '[SCENE] 阴阳寮突破'):
                         return True
                     else:
                         time.sleep(1)
-                        function.judge_click(f'{picpath}/yinyangliao.png', dura=0.5)
+                        self.judge_click(f'{self.picpath}/yinyangliao.png', dura=0.5)
                         time.sleep(4)
             elif flag_title:
                 flag_title = False
@@ -323,7 +337,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         if self.title():
             while 1:
                 try:
-                    button_location = pyautogui.locateOnScreen(f'./pic/{picpath}/jibaicishu.png', region=(
+                    button_location = pyautogui.locateOnScreen(f'./pic/{self.picpath}/jibaicishu.png', region=(
                         window.window_left, window.window_top, window.window_width, window.window_height))
                     print('find')
                     return False
@@ -340,9 +354,9 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                                                    self.tupo_yinyangliao_y[(i + 1) // 2],
                                                    'fail.png')
             if x == 0 or y == 0:
-                ms.text_print_update.emit(f'{i} need to fight')
+                ms.text_print_update.emit(f'{i} 可进攻')
                 self.fighting_tupo(self.tupo_yinyangliao_x[(i + 1) % 2 + 1], self.tupo_yinyangliao_y[(i + 1) // 2])
-                if function.result():
+                if self.result():
                     # 胜利
                     flag = 1
                 else:
@@ -350,14 +364,14 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     flag = 0
                 time.sleep(2)
                 # 结束界面
-                x, y = function.random_finish_left_right()
+                x, y = self.random_finish_left_right()
                 return flag
             else:
-                ms.text_print_update.emit(f'{i} fail')
+                ms.text_print_update.emit(f'{i} 已失败')
                 i += 1
                 if i == 8:
                     # 单页上限8个
-                    ms.text_print_update.emit('all fail')
+                    ms.text_print_update.emit('当前页全部失败')
                     flag = -1
                     return flag
 
@@ -366,7 +380,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         self.n = n
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
-            function.random_sleep(1, 3)
+            self.random_sleep(1, 3)
             while self.m < self.n:
                 time.sleep(1)
                 flag = JieJieTuPoYinYangLiao.fighting(self)

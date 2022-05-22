@@ -2,7 +2,6 @@
 # baiguiyexing.py
 """
 百鬼夜行
-主界面功能5
 """
 
 import time
@@ -11,7 +10,7 @@ import pathlib
 import pyautogui
 
 from . import window
-from . import function
+from .function import Function
 from mysignal import global_ms as ms
 
 '''
@@ -28,7 +27,7 @@ baiguiqiyueshu.png
 '''
 
 
-class BaiGuiYeXing:
+class BaiGuiYeXing(Function):
     """百鬼夜行"""
 
     def __init__(self):
@@ -41,7 +40,7 @@ class BaiGuiYeXing:
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if function.judge_scene(f'{self.picpath}/title.png', '[SCENE] 百鬼夜行'):
+            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 百鬼夜行'):
                 return True
             elif flag_title:
                 flag_title = False
@@ -49,7 +48,7 @@ class BaiGuiYeXing:
 
     def start(self):
         """开始"""
-        function.judge_click(f'{self.picpath}/jinru.png')
+        self.judge_click(f'{self.picpath}/jinru.png')
 
     def choose(self):
         """鬼王选择"""
@@ -74,24 +73,24 @@ class BaiGuiYeXing:
             else:
                 x1 = _x3_left
                 x2 = _x3_right
-            x, y = function.random_coor(x1, x2, _y1, _y2)
+            x, y = self.random_coor(x1, x2, _y1, _y2)
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
             pyautogui.click()
             time.sleep(2)
-            x, y = function.get_coor_info_picture(f'{self.picpath}/ya.png')
+            x, y = self.get_coor_info_picture(f'{self.picpath}/ya.png')
             if x != 0 and y != 0:
                 print('already choose')
                 break
-        function.judge_click(f'{self.picpath}/kaishi.png', dura=0.5)
+        self.judge_click(f'{self.picpath}/kaishi.png', dura=0.5)
 
     def fighting(self):
         """砸豆子"""
         n = 250  # 豆子数量
         time.sleep(2)
         while n > 0:
-            function.random_sleep(0, 1)
-            x, y = function.random_coor(60, window.absolute_window_width - 120, 300,
-                                        window.absolute_window_height - 100)
+            self.random_sleep(0, 1)
+            x, y = self.random_coor(60, window.absolute_window_width - 120, 300,
+                                    window.absolute_window_height - 100)
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.click()
             n -= 5
@@ -99,7 +98,7 @@ class BaiGuiYeXing:
     def finish(self):
         """结束"""
         while 1:
-            x, y = function.get_coor_info_picture(f'{self.picpath}/baiguiqiyueshu.png')
+            x, y = self.get_coor_info_picture(f'{self.picpath}/baiguiqiyueshu.png')
             time.sleep(2)
             if x != 0 and y != 0:
                 self.screenshot()
@@ -121,15 +120,15 @@ class BaiGuiYeXing:
         self.n = n
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
-            function.random_sleep(1, 3)
+            self.random_sleep(1, 3)
             while self.m < self.n:
-                function.random_sleep(0, 2)
+                self.random_sleep(0, 2)
                 self.start()
-                function.random_sleep(1, 3)
+                self.random_sleep(1, 3)
                 self.choose()
-                function.random_sleep(2, 4)
+                self.random_sleep(2, 4)
                 self.fighting()
-                function.random_sleep(2, 4)
+                self.random_sleep(2, 4)
                 self.finish()
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')

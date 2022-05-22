@@ -9,6 +9,12 @@ from mysignal import global_ms as ms
 def update_record():
     """更新日志"""
     update = {
+    '1.6.2':
+'''新增 业原火副本
+新增 道馆突破观战功能
+优化 功能列表顺序
+修复 初次使用无日志时写入报错''',
+
     '1.6.1':
 '''新增 UI界面色彩显示
 新增 组队永生之海副本

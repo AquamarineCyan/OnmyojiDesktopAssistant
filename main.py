@@ -15,7 +15,7 @@ from ui.updateui import Ui_Form
 from mysignal import global_ms as ms
 from package import *
 
-version: str = '1.6.1'
+version: str = '1.6.2'
 """版本号"""
 fpath = Path.cwd()
 """文件路径"""
@@ -25,12 +25,13 @@ class MainWindow(QMainWindow):
     _list_function = [
         '1.组队御魂副本',
         '2.组队永生之海副本',
-        '3.寮突破',
-        '4.个人突破',
-        '5.百鬼夜行',
-        '6.道馆突破',
-        '7.御灵',
-        '8.普通召唤'
+        '3.业原火副本',
+        '4.御灵副本',
+        '5.个人突破',
+        '6.寮突破',
+        '7.道馆突破',
+        '8.普通召唤',
+        '9.百鬼夜行',
     ]
     _choice: int  # 功能
 
@@ -39,14 +40,19 @@ class MainWindow(QMainWindow):
         # 使用ui文件导入定义界面类
         self.ui = Ui_MainWindow()
         # 初始化界面
+        self.setFixedSize(550, 450)  # 固定宽高
         self.ui.setupUi(self)
+        # 窗口图标
         icon = QIcon()
         icon.addPixmap(QPixmap('buzhihuo.ico'))
         self.setWindowIcon(icon)
-        self.setWindowTitle(f'Onmyoji_Python - v{version}')
+        self.setWindowTitle(f'Onmyoji_Python - v{version}')  # 版本号显示
         timenow = time.strftime("%H:%M:%S")
-        log.logWrite('[START]')
-        log.logWrite(f'{timenow} [VERSION] {version}')
+        try:
+            log.logWrite('[START]')
+            log.logWrite(f'{timenow} [VERSION] {version}')
+        except:
+            pass
 
         # 事件连接
         self.ui.button_resources.clicked.connect(self.resources)  # 资源检测按钮
@@ -68,7 +74,8 @@ class MainWindow(QMainWindow):
         self.ui.text_miaoshu.setPlaceholderText('仅供内部测试使用，请勿外传，本程序所产生的一切后果自负\
                                                 请确认您是使用管理员权限打开本程序\
                                                 请先运行“环境检测”')
-        self.is_fighting_yuhun(False)
+        # self.is_fighting_yuhun(False)
+        self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self.ui.text_print.document().setMaximumBlockCount(50)
 
         # 菜单栏
@@ -84,17 +91,16 @@ class MainWindow(QMainWindow):
         :param text: 文本
         """
         timenow = time.strftime("%H:%M:%S")
-        if '[' and ']' not in text:
+        if ('[' and ']' not in text) or ('勋章' in text):  # 勋章数单独适配
             text = f'{timenow} [INFO] {text}'
             print(f'[DEBUG] {text}')  # 输出至控制台调试
             log.logWrite(text)
         else:
             if '[WARN]' in text:
                 self.ui.text_print.setTextColor('red')
-                print(f'[DEBUG] {timenow} {text}')
             elif '[SCENE]' in text:
                 self.ui.text_print.setTextColor('green')
-                print(f'[DEBUG] {timenow} {text}')
+            print(f'[DEBUG] {timenow} {text}')
             text = f'{timenow} {text}'
 
         self.ui.text_print.append(text)
@@ -114,7 +120,7 @@ class MainWindow(QMainWindow):
         timenow = time.strftime("%H:%M:%S")
         self.ui.text_wininfo.setText(text)
         text = text.replace('\n', ' ')
-        text = f'{timenow} [WIN] {text}'
+        text = f'{timenow} [WINDOW] {text}'
         print(f'[DEBUG] {text}')
         log.logWrite(text)
 
@@ -153,64 +159,81 @@ class MainWindow(QMainWindow):
         text = self.ui.combo_choice.currentText()
         self.ui.button_start.setEnabled(True)
         self.ui.spinB_num.setEnabled(True)
-        self.is_fighting_yuhun(False)
+        # self.is_fighting_yuhun(False)
+        self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         if text == self._list_function[0]:
             # 1.组队御魂副本
             self._choice = 1
             self.ui.text_miaoshu.setPlainText('请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\
                                                待开发：手动第一次锁定阵容')
+            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+            # 默认值
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
-            self.is_fighting_yuhun(True)
+            # self.is_fighting_yuhun(True)
+            self.ui.button_driver_False.setChecked(True)
+            self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[1]:
             # 2.组队永生之海副本
-            self._choice = 8
+            self._choice = 2
             self.ui.text_miaoshu.setPlainText('默认打手30次\
                                                阴阳师技能自行选择，如晴明灭\
                                                待开发：手动第一次锁定阵容')
+            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+            # 默认值
             self.ui.spinB_num.setValue(30)
             self.ui.spinB_num.setRange(1, 100)
-            self.is_fighting_yuhun(True)
+            # self.is_fighting_yuhun(True)
+            self.ui.button_driver_False.setChecked(True)
+            self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[2]:
-            # 3.寮突破
+            # 3.业原火副本
             self._choice = 3
-            self.ui.text_miaoshu.setPlainText('请锁定阵容，默认上限6次\
-                                               待开发：滚轮翻页')
-            self.ui.spinB_num.setValue(6)
-            self.ui.spinB_num.setRange(1, 6)
+            self.ui.text_miaoshu.setPlainText('默认为“痴”，有“贪”“嗔”需求的，可替换pic路径下"tiaozhan.png"素材')
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[3]:
-            # 4.个人突破
+            # 4.御灵副本
             self._choice = 4
+            self.ui.text_miaoshu.setPlainText('暗神龙-周二六日\
+                                                   暗白藏主-周三六日\
+                                                   暗黑豹-周四六\
+                                                   暗孔雀-周五六日\
+                                                   绘卷期间请减少使用')
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 100)
+        elif text == self._list_function[4]:
+            # 5.个人突破
+            self._choice = 5
             self.ui.text_miaoshu.setPlainText('默认3胜刷新，上限30')
+            self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 30)
-        elif text == self._list_function[4]:
-            # 5.百鬼夜行
-            self._choice = 5
-            self.ui.text_miaoshu.setPlainText('仅适用于清票，且无法指定鬼王')
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[5]:
-            # 6.道馆突破
+            # 6.寮突破
             self._choice = 6
+            self.ui.text_miaoshu.setPlainText('请锁定阵容，默认上限6次\
+                                                   待开发：滚轮翻页')
+            self.ui.spinB_num.setValue(6)
+            self.ui.spinB_num.setRange(1, 6)
+        elif text == self._list_function[6]:
+            # 7.道馆突破
+            self._choice = 7
             self.ui.text_miaoshu.setPlainText('目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景\
                                                待开发：冷却时间、观战助威')
+            self.ui.stackedWidget.setCurrentIndex(3)  # 索引3，道馆突破
             self.ui.spinB_num.setEnabled(False)
-        elif text == self._list_function[6]:
-            # 7.御灵副本
-            self._choice = 7
-            self.ui.text_miaoshu.setPlainText('暗神龙-周二六日\
-                                               暗白藏主-周三六日\
-                                               暗黑豹-周四六\
-                                               暗孔雀-周五六日\
-                                               绘卷期间请减少使用')
+
+        elif text == self._list_function[7]:
+            # 8.普通召唤
+            self._choice = 8
+            self.ui.text_miaoshu.setPlainText('普通召唤，请选择十连次数')
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
-        elif text == self._list_function[7]:
-
-            # 8.普通召唤
-            self._choice = 2
-            self.ui.text_miaoshu.setPlainText('普通召唤，请选择十连次数')
+        elif text == self._list_function[8]:
+            # 9.百鬼夜行
+            self._choice = 9
+            self.ui.text_miaoshu.setPlainText('仅适用于清票，且无法指定鬼王')
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
 
@@ -219,6 +242,7 @@ class MainWindow(QMainWindow):
         n = self.ui.spinB_num.value()
         self.ui.text_num.clear()
         self.is_fighting(True)
+        thread = None  # 线程
         if self._choice == 1:
             # 1.组队御魂副本
             # 是否司机（默认否）
@@ -230,40 +254,8 @@ class MainWindow(QMainWindow):
                 flag_driver = True
             flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
             thread = Thread(target=yuhun.YuHun().run, args=(n, flag_driver, flag_passengers))
-            thread.daemon = True
-            thread.start()
         elif self._choice == 2:
-            # 2.普通召唤
-            thread = Thread(target=zhaohuan.ZhaoHuan().run, args=(n,))
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 3:
-            # 3.寮突破
-            thread = Thread(target=jiejietupo.JieJieTuPoYinYangLiao().run, args=(n,))
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 4:
-            # 4.个人突破
-            thread = Thread(target=jiejietupo.JieJieTuPoGeRen().run, args=(n,))
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 5:
-            # 5.百鬼夜行
-            thread = Thread(target=baiguiyexing.BaiGuiYeXing().run, args=(n,))
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 6:
-            # 6.道馆突破
-            thread = Thread(target=daoguantupo.DaoGuanTuPo().run)
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 7:
-            # 7.御灵
-            thread = Thread(target=yuling.YuLing().run, args=(n,))
-            thread.daemon = True
-            thread.start()
-        elif self._choice == 8:
-            # 8.组队永生之海副本
+            # 2.组队永生之海副本
             # 是否司机（默认否）
             driver = self.ui.buttonGroup_driver.checkedButton().text()
             if driver == '否':
@@ -271,7 +263,31 @@ class MainWindow(QMainWindow):
             else:
                 flag_driver = True
             thread = Thread(target=yongshengzhihai.YongShengZhiHai().run, args=(n, flag_driver))
-            thread.daemon = True
+        elif self._choice == 3:
+            # 3.业原火
+            thread = Thread(target=yeyuanhuo.YeYuanHuo().run, args=(n,))
+        elif self._choice == 4:
+            # 4.御灵
+            thread = Thread(target=yuling.YuLing().run, args=(n,))
+        elif self._choice == 5:
+            # 5.个人突破
+            thread = Thread(target=jiejietupo.JieJieTuPoGeRen().run, args=(n,))
+        elif self._choice == 6:
+            # 6.寮突破
+            thread = Thread(target=jiejietupo.JieJieTuPoYinYangLiao().run, args=(n,))
+        elif self._choice == 7:
+            # 7.道馆突破
+            flag_guanzhan = self.ui.button_guanzhan.isChecked()
+            thread = Thread(target=daoguantupo.DaoGuanTuPo().run, args=(flag_guanzhan,))
+        elif self._choice == 8:
+            # 8.普通召唤
+            thread = Thread(target=zhaohuan.ZhaoHuan().run, args=(n,))
+        elif self._choice == 9:
+            # 9.百鬼夜行
+            thread = Thread(target=baiguiyexing.BaiGuiYeXing().run, args=(n,))
+        # 线程存在
+        if thread is not None:
+            thread.daemon = True  # 线程守护
             thread.start()
         # 进行中
         self.is_fighting(True)
@@ -310,30 +326,6 @@ class MainWindow(QMainWindow):
             self.ui.button_passengers_2.hide()
             self.ui.button_passengers_3.hide()
 
-    """# 7.御灵
-    def run_7_yuling(self, n: int):
-        flag_title = True  # 场景提示
-        yl = yuling.YuLing()
-        while 1:
-            if yl.title():
-                m = 0  # 计数器
-                while m < n:
-                    time.sleep(1)
-                    function.random_sleep(0, 1)
-                    yl.start()
-                    time.sleep(8)
-                    function.result()
-                    time.sleep(1)
-                    x, y = function.random_finish_left_right()
-                    function.random_sleep(1, 3)
-                    m += 1
-                    ms.text_num_update.emit(f'{m}/{n}')
-                break
-            elif flag_title:
-                flag_title = False
-                ms.text_print_update.emit('请检查游戏场景')
-        self.is_fighting(False)"""
-
     # update info
     def update_info(self):
         self.update_win_ui = UpdateWindow()
@@ -345,7 +337,10 @@ class MainWindow(QMainWindow):
 
     # 退出
     def exit(self):
-        log.logWrite('[EXIT]')
+        try:
+            log.logWrite('[EXIT]')
+        except:
+            pass
         sys.exit()
 
 

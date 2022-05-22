@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-# yuling.py
+# yeyuanhuo.py
 """
-御灵副本
+业原火副本
 """
 
 import time
@@ -10,15 +10,15 @@ from .function import Function
 from mysignal import global_ms as ms
 
 '''
-御灵场景
+业原火场景
 title.png
 挑战
 tiaozhan.png
 '''
 
 
-class YuLing(Function):
-    """御灵副本"""
+class YeYuanHuo(Function):
+    """业原火副本"""
 
     def __init__(self):
         self.picpath = 'yuling'  # 路径
@@ -29,7 +29,7 @@ class YuLing(Function):
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 御灵'):
+            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 业原火'):
                 return True
             elif flag_title:
                 flag_title = False
@@ -57,6 +57,6 @@ class YuLing(Function):
                 self.random_sleep(1, 3)
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
-        ms.text_print_update.emit(f'已完成 御灵副本{self.m}次')
+        ms.text_print_update.emit(f'已完成 业原火副本{self.m}次')
         # 启用按钮
         ms.is_fighting_update.emit(False)

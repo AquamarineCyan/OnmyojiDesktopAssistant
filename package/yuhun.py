@@ -3,14 +3,13 @@
 """
 组队御魂副本
 仅支持进行中的组队副本
-主界面功能1
 """
 
 import time
 import pyautogui
 
-from . import function
 from . import window
+from .function import Function
 from mysignal import global_ms as ms
 
 '''
@@ -29,7 +28,7 @@ yuhun_victory.png
 '''
 
 
-class YuHun:
+class YuHun(Function):
     """组队御魂副本"""
 
     def __init__(self):
@@ -47,10 +46,10 @@ class YuHun:
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if function.judge_scene(f'{self.picpath}/xiezhanduiwu.png', '[SCENE] 组队御魂准备中'):
+            if self.judge_scene(f'{self.picpath}/xiezhanduiwu.png', '[SCENE] 组队御魂准备中'):
                 self.flag_driver_start = True
                 return True
-            elif function.judge_scene(f'{self.picpath}/fighting.png', '[SCENE] 组队御魂进行中'):
+            elif self.judge_scene(f'{self.picpath}/fighting.png', '[SCENE] 组队御魂进行中'):
                 self.flag_fighting = True
                 return True
             elif flag_title:
@@ -60,25 +59,25 @@ class YuHun:
     def finish(self):
         """结算"""
         while 1:
-            x, y = function.get_coor_info_picture(f'{self.picpath}/yuhun_victory.png')
+            x, y = self.get_coor_info_picture(f'{self.picpath}/yuhun_victory.png')
             if x != 0 and y != 0:
                 ms.text_print_update.emit('结算中')
                 break
-        function.random_sleep(2, 4)
-        x, y = function.random_finish_left_right(False)
+        self.random_sleep(2, 4)
+        x, y = self.random_finish_left_right(False)
         while 1:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.doubleClick()
-            if function.result():
+            if self.result():
                 while 1:
-                    function.random_sleep(1, 2)
+                    self.random_sleep(1, 2)
                     pyautogui.click()
-                    function.random_sleep(1, 2)
-                    x, y = function.get_coor_info_picture('victory.png')
+                    self.random_sleep(1, 2)
+                    x, y = self.get_coor_info_picture('victory.png')
                     if x == 0 or y == 0:
                         break
                 break
-            function.random_sleep(0, 1)
+            self.random_sleep(0, 1)
 
     def run(self, n: int, flag_driver: bool = False, flag_passengers: int = 2):
         """
@@ -102,7 +101,7 @@ class YuHun:
                     ms.text_print_update.emit('等待队员')
                     # 队员2就位
                     while 1:
-                        x, y = function.get_coor_info_picture(f'{self.picpath}/passenger_2.png')
+                        x, y = self.get_coor_info_picture(f'{self.picpath}/passenger_2.png')
                         if x == 0 and y == 0:
                             self.flag_passenger_2 = True
                             ms.text_print_update.emit('队员2就位')
@@ -110,16 +109,16 @@ class YuHun:
                     # 是否3人组队
                     if self.flag_passengers == 3:
                         while 1:
-                            x, y = function.get_coor_info_picture(f'{self.picpath}/passenger_3.png')
+                            x, y = self.get_coor_info_picture(f'{self.picpath}/passenger_3.png')
                             if x == 0 and y == 0:
                                 self.flag_passenger_3 = True
                                 ms.text_print_update.emit('队员3就位')
                                 break
                     # 开始挑战
-                    function.judge_click(f'{self.picpath}/tiaozhan.png', dura=0.25)
+                    self.judge_click(f'{self.picpath}/tiaozhan.png', dura=0.25)
                     ms.text_print_update.emit('开始')
                 if not self.flag_fighting:
-                    function.judge_click(f'{self.picpath}/fighting.png', False)
+                    self.judge_click(f'{self.picpath}/fighting.png', False)
                     self.flag_fighting = False
                     ms.text_print_update.emit('对局进行中')
                 self.finish()
