@@ -16,7 +16,15 @@ title.png
 putongzhaohuan.png
 再次召唤
 zaicizhaohuan.png
+确定
+queding.png
 '''
+piclist = [
+    'title.png',  # 标题
+    'putongzhaohuan.png',  # 普通召唤
+    'zaicizhaohuan.png',  # 再次召唤
+    'queding.png'  # 确定
+]
 
 
 class ZhaoHuan(Function):
@@ -24,6 +32,12 @@ class ZhaoHuan(Function):
 
     def __init__(self):
         self.picpath = 'zhaohuan'  # 路径
+        self.piclist = [
+            'title.png',  # 标题
+            'putongzhaohuan.png',  # 普通召唤
+            'zaicizhaohuan.png',  # 再次召唤
+            'queding.png'  # 确定
+        ]
         self.m = 0  # 当前次数
         self.n = None  # 总次数
 
@@ -63,6 +77,9 @@ class ZhaoHuan(Function):
                     self.again()
                     self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
+            # 结束
+            if self.m == self.n:
+                self.judge_click(f'{self.picpath}/queding.png')
         ms.text_print_update.emit(f'已完成 普通召唤十连{self.m}次')
         # 启用按钮
         ms.is_fighting_update.emit(False)
