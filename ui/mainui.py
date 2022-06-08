@@ -40,6 +40,8 @@ class Ui_MainWindow(object):
         self.action_update.setFont(font)
         self.action_GitHub = QAction(MainWindow)
         self.action_GitHub.setObjectName(u"action_GitHub")
+        self.action_clean_log = QAction(MainWindow)
+        self.action_clean_log.setObjectName(u"action_clean_log")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.groupBox_basic = QGroupBox(self.centralwidget)
@@ -193,12 +195,13 @@ class Ui_MainWindow(object):
 
         self.menubar.addAction(self.menu.menuAction())
         self.menu.addAction(self.action_update)
+        self.menu.addAction(self.action_clean_log)
         self.menu.addAction(self.action_GitHub)
         self.menu.addAction(self.action_exit)
 
         self.retranslateUi(MainWindow)
 
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -209,7 +212,9 @@ class Ui_MainWindow(object):
         self.exit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
         self.action_exit.setText(QCoreApplication.translate("MainWindow", u"\u9000\u51fa", None))
         self.action_update.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u65e5\u5fd7", None))
+        self.action_update.setIconText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u65e5\u5fd7", None))
         self.action_GitHub.setText(QCoreApplication.translate("MainWindow", u"GitHub\u5730\u5740", None))
+        self.action_clean_log.setText(QCoreApplication.translate("MainWindow", u"\u6e05\u7406\u65e5\u5fd7", None))
         self.groupBox_basic.setTitle(QCoreApplication.translate("MainWindow", u"\u57fa\u672c\u529f\u80fd", None))
         self.text_miaoshu.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u529f\u80fd\u63cf\u8ff0", None))
         self.button_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb", None))

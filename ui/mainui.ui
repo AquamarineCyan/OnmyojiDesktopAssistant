@@ -178,7 +178,7 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="none"/>
      <widget class="QWidget" name="yuhun">
@@ -509,6 +509,7 @@
      <string>菜单</string>
     </property>
     <addaction name="action_update"/>
+    <addaction name="action_clean_log"/>
     <addaction name="action_GitHub"/>
     <addaction name="action_exit"/>
    </widget>
@@ -533,6 +534,9 @@
    <property name="text">
     <string>更新日志</string>
    </property>
+   <property name="iconText">
+    <string>更新日志</string>
+   </property>
    <property name="font">
     <font>
      <family>宋体</family>
@@ -542,6 +546,11 @@
   <action name="action_GitHub">
    <property name="text">
     <string>GitHub地址</string>
+   </property>
+  </action>
+  <action name="action_clean_log">
+   <property name="text">
+    <string>清理日志</string>
    </property>
   </action>
  </widget>

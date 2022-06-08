@@ -1,37 +1,55 @@
 #!/usr/bin/env python3
 # log.py
 """
-日志保存
+日志
 """
 
-import os
 import time
-
-# 获取当前目录的父目录
-fpath = os.getcwd()
+from pathlib import Path
 
 
-def logInit():
-    # print("目录为: %s" % os.listdir(fpath))
-    if 'log' not in os.listdir(fpath):
-        try:
-            os.mkdir(fr'{fpath}\log')
-            print('log succend')
+class Log:
+    def __init__(self):
+        self.fpath = Path.cwd()
+
+    def log_init(self):
+        """日志初始化"""
+        if 'log' not in self.fpath.iterdir():
+            try:
+                Path(fr'{self.fpath}\log').mkdir()
+                print('log succend')
+                return True
+            except:
+                print('log failed')
+                return False
+        else:
+            print('log already has')
             return True
+
+
+    def log_write(self,text):
+        "日志写入"
+        # 获取当前系统时间
+        # timenow = time.strftime("%Y-%m-%d %H:%M:%S")
+        # timenowday = time.strftime("%Y%m%d")
+        # 生成日志
+        try:
+            f = open(fr'{self.fpath}\log\log-{time.strftime("%Y%m%d")}.txt', mode='a', encoding='utf-8')
+            # f.write(f'{timenow} {text}\n')
+            f.write(text + '\n')
+            f.close()
         except:
-            print('log failed')
-            return False
-    else:
-        print('log already has')
-        return True
+            print(f'FileNotFoundError {self.fpath}\log\log-{time.strftime("%Y%m%d")}.txt')
 
 
-def logWrite(text):
-    # 获取当前系统时间
-    # timenow = time.strftime("%Y-%m-%d %H:%M:%S")
-    timenowday = time.strftime("%Y%m%d")
-    # 生成日志
-    f = open(fr'{fpath}\log\log-{timenowday}.txt', mode='a', encoding='utf-8')
-    # f.write(f'{timenow} {text}\n')
-    f.write(text + '\n')
-    f.close()
+    def log_remove(self):
+        """日志清理"""
+        if Path('log').exists():
+            for filename in Path('log').iterdir():
+                print(filename)
+                try:
+                    Path(filename).unlink()
+                    print(f'remove {filename} successfully')
+                except:
+                    print(f'FileNotFoundError {filename}')
+            Path('log').rmdir()

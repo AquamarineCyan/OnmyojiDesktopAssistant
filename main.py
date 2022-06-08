@@ -15,14 +15,14 @@ from ui.updateui import Ui_Form
 from mysignal import global_ms as ms
 from package import *
 
-version: str = '1.6.2'
+version: str = '1.6.3'
 """版本号"""
 fpath = Path.cwd()
 """文件路径"""
 
 
-class MainWindow(QMainWindow):
-    _list_function = [
+class MainWindow(QMainWindow, Log):
+    _list_function = [  # 功能列表
         '1.组队御魂副本',
         '2.组队永生之海副本',
         '3.业原火副本',
@@ -32,6 +32,18 @@ class MainWindow(QMainWindow):
         '7.道馆突破',
         '8.普通召唤',
         '9.百鬼夜行',
+        '10.限时活动'
+    ]
+    _package_ = [  # 图片素材文件夹
+        'yuhun',
+        'yongshengzhihai',
+        'yeyuanhuo',
+        'yuling',
+        'jiejietupo',
+        'daoguantupo',
+        'zhaohuan',
+        'baiguiyexing',
+        'huodong'
     ]
     _choice: int  # 功能
 
@@ -49,8 +61,9 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(f'Onmyoji_Python - v{version}')  # 版本号显示
         timenow = time.strftime("%H:%M:%S")
         try:
-            log.logWrite('[START]')
-            log.logWrite(f'{timenow} [VERSION] {version}')
+            self.log_write('[START]')
+            self.log_write('[START]')
+            self.log_write(f'{timenow} [VERSION] {version}')
         except:
             pass
 
@@ -80,8 +93,18 @@ class MainWindow(QMainWindow):
 
         # 菜单栏
         self.ui.action_update.triggered.connect(self.update_info)  # 更新日志
-        self.ui.action_GitHub.triggered.connect(self.GitHub)  # GitHub地址
+        self.ui.action_clean_log.triggered.connect(self.clean_log)  # 清理日志
+        self.ui.action_GitHub.triggered.connect(self.GitHub_address)  # GitHub地址
         self.ui.action_exit.triggered.connect(self.exit)  # 退出
+
+    def pic_is_complete(self):
+        picpath: Path = fpath / 'pic'
+        for i in range(len(self._package_)):
+            flag = Path(Path(picpath).joinpath(self._package_[i])).exists()
+            if not flag:
+                QMessageBox.critical(self, 'ERROR', f'无{self._package_[i]}文件夹')
+                return False
+        return True
 
     def text_print_update_func(self, text: str):
         """
@@ -94,7 +117,7 @@ class MainWindow(QMainWindow):
         if ('[' and ']' not in text) or ('勋章' in text):  # 勋章数单独适配
             text = f'{timenow} [INFO] {text}'
             print(f'[DEBUG] {text}')  # 输出至控制台调试
-            log.logWrite(text)
+            self.log_write(text)
         else:
             if '[WARN]' in text:
                 self.ui.text_print.setTextColor('red')
@@ -113,7 +136,7 @@ class MainWindow(QMainWindow):
         self.ui.text_num.setText(text)
         text = f'{timenow} [NUM] {text}'
         print(f'[DEBUG] {text}')  # 输出至控制台调试
-        log.logWrite(text)
+        self.log_write(text)
 
     def text_wininfo_update_func(self, text: str):
         """输出窗口信息"""
@@ -122,26 +145,33 @@ class MainWindow(QMainWindow):
         text = text.replace('\n', ' ')
         text = f'{timenow} [WINDOW] {text}'
         print(f'[DEBUG] {text}')
-        log.logWrite(text)
+        self.log_write(text)
 
     def resources(self):
         """环境检测按钮"""
         picpath = fpath / 'pic'
         handle_coor = window.getInfo_Window()  # 游戏窗口
         # log检测
-        if not log.logInit():
+        if not self.log_init():
             QMessageBox.critical(self, 'ERROR', '创建log目录失败，请重试！')
         # 图片资源检测
         elif not picpath.exists():
             QMessageBox.critical(self, 'ERROR', '图片资源不存在！')
-            log.logWrite('[ERROR] no pic')
+            self.log_write('[ERROR] no pic')
+        # 图片资源是否完整
+        elif not self.pic_is_complete():
+            pass
         # 游戏环境检测
         elif handle_coor == (0, 0, 0, 0):
             QMessageBox.critical(self, 'ERROR', '请打开游戏！')
-            log.logWrite('[ERROR] no game')
-        elif handle_coor[0] < 0 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
+            self.log_write('[ERROR] no game')
+        elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
             QMessageBox.critical(self, 'ERROR', '请前置游戏窗口！')
-            log.logWrite('[ERROR] no pre-game')
+            self.log_write('[ERROR] no pre-game')
+        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
+            1] != window.absolute_window_height:
+            QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!')
+            self.log_write('[ERROR] no right size')
         # 环境完整
         else:
             self.ui.button_resources.setEnabled(False)
@@ -236,6 +266,12 @@ class MainWindow(QMainWindow):
             self.ui.text_miaoshu.setPlainText('仅适用于清票，且无法指定鬼王')
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
+        elif text == self._list_function[9]:
+            # 10.限时活动
+            self._choice = 10
+            self.ui.text_miaoshu.setPlainText('适用于限时活动及其他连点，替换pic文件夹下的title.png、tiaozhan.png')
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 200)
 
     def start(self):
         """开始按钮"""
@@ -285,6 +321,9 @@ class MainWindow(QMainWindow):
         elif self._choice == 9:
             # 9.百鬼夜行
             thread = Thread(target=baiguiyexing.BaiGuiYeXing().run, args=(n,))
+        elif self._choice == 10:
+            # 10.限时活动
+            thread = Thread(target=huodong.HuoDong().run, args=(n,))
         # 线程存在
         if thread is not None:
             thread.daemon = True  # 线程守护
@@ -331,14 +370,18 @@ class MainWindow(QMainWindow):
         self.update_win_ui = UpdateWindow()
         self.update_win_ui.show()
 
+    # clean log
+    def clean_log(self):
+        self.log_remove()
+
     # GitHub地址
-    def GitHub(self):
+    def GitHub_address(self):
         QMessageBox.information(self, 'GitHub', 'https://github.com/AquamarineCyan/Onmyoji_Python')
 
     # 退出
     def exit(self):
         try:
-            log.logWrite('[EXIT]')
+            self.log_write('[EXIT]')
         except:
             pass
         sys.exit()
