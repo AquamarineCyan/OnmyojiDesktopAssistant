@@ -49,6 +49,7 @@ class MainWindow(QMainWindow, Log):
 
     def __init__(self):
         super().__init__()
+        self.fpath = Path.cwd()
         # 使用ui文件导入定义界面类
         self.ui = Ui_MainWindow()
         # 初始化界面
