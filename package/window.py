@@ -9,6 +9,7 @@ import win32gui
 from mysignal import global_ms as ms
 
 # 窗口大小(官方1136*640)
+# 窗口+外框(1154*687)
 absolute_window_width = 1154
 '''窗口绝对宽度'''
 absolute_window_height = 687
@@ -36,8 +37,13 @@ def getInfo_Window():
         # 获取窗口句柄
         handle = win32gui.FindWindow('Win32Window', '阴阳师-网易游戏')
         # print('%x' % handle)
-        # 返回窗口信息（x,y坐标，还有宽度，高度）
+        # 返回窗口信息（x1,y1,x2,y2）
         handle_coor = win32gui.GetWindowRect(handle)
+        print('handle_coor',handle_coor)
+        # 修正
+        # handle_coor[0] = handle_coor[0] + 9
+        # handle_coor[2] = handle_coor[2] - handle_coor[0]
+        # handle_coor[3] = handle_coor[3] - handle_coor[1]
     except:
         handle_coor = (0, 0, 0, 0)
     else:
@@ -46,6 +52,8 @@ def getInfo_Window():
         window_top = handle_coor[1]
         window_width = handle_coor[2]
         window_height = handle_coor[3]
+        # window_width = handle_coor[2] - handle_coor[0] - 18
+        # window_height = handle_coor[3] - handle_coor[1] - 47
         handle_infodict = {
             0: '横坐标',
             1: '纵坐标',
@@ -53,10 +61,16 @@ def getInfo_Window():
             3: '高度'
         }
         s = ''
-        for i in range(4):
+        # 显示修正，对主体判断无影响
+        s = s + f'{handle_infodict[0]}:{handle_coor[0] + 9}\n'
+        s = s + f'{handle_infodict[1]}:{handle_coor[1]}\n'
+        s = s + f'{handle_infodict[2]}:{handle_coor[2] - handle_coor[0] - 18}\n'
+        s = s + f'{handle_infodict[3]}:{handle_coor[3] - handle_coor[1] - 47}\n'
+        """for i in range(4):
             if i == 0:
-                s = s + f'{handle_infodict[i]}:{handle_coor[i] + 9}\n'
-            else:
                 s = s + f'{handle_infodict[i]}:{handle_coor[i]}\n'
+            else:
+                s = s + f'{handle_infodict[i]}:{handle_coor[i]}\n'"""
+        s = s + '横纵坐标为窗体区域\n宽高为游戏本体区域'
         ms.text_wininfo_update.emit(s)
     return handle_coor
