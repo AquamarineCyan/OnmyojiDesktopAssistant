@@ -4,6 +4,7 @@
 结界突破场景
 """
 
+import math
 import time
 import pyautogui
 
@@ -221,6 +222,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         k += 1
                         continue
                     self.fighting_tupo(self.tupo_geren_x[(k + 2) % 3 + 1], self.tupo_geren_y[(k + 2) // 3])
+                    # time.sleep(4)
+                    # if self.judge_click('zhunbei.png',click=False):
+                    #     self.judge_click('zhunbei.png')
                     if self.result():
                         flag_victory = True
                         self.m += 1
@@ -242,7 +246,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
                                 break
                         ms.text_print_update.emit('成功攻破3次')
                     time.sleep(3)
-                    break
+                    if flag_victory:
+                        return
 
     def refresh(self):
         """刷新"""
@@ -250,18 +255,23 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.random_sleep(4, 8)  # 强制等待
         while 1:
             # 第一次刷新 或 冷却时间已过
-            if self.time_refresh == 0 or self.time_refresh + 5 * 60 >= time.perf_counter():
+            timenow = time.perf_counter()
+            print('time_refresh', self.time_refresh)
+            print('timenow', timenow)
+            if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
                 ms.text_print_update.emit('刷新中')
-                self.random_sleep(4, 6)
+                self.random_sleep(3, 6)
                 self.judge_click(f'{self.picpath}/shuaxin.png', sleeptime=2)
                 self.random_sleep(2, 4)
                 self.judge_click(f'{self.picpath}/queding.png', sleeptime=0.5)
-                self.time_refresh = time.perf_counter()
-                self.random_sleep(2, 4)
+                self.time_refresh = timenow
+                self.random_sleep(2, 6)
                 break
             elif not flag_refresh:
-                ms.text_print_update.emit('等待刷新冷却')
+                time_wait = math.ceil(self.time_refresh + 5 * 60 - timenow)
+                ms.text_print_update.emit(f'等待刷新冷却，约{time_wait}秒')
                 flag_refresh = True
+                time.sleep(time_wait)
 
     def run(self, n: int):
         time.sleep(2)
