@@ -14,7 +14,7 @@ class Log:
 
     def log_init(self):
         """日志初始化"""
-        if 'log' not in self.fpath.iterdir():
+        if self.fpath.joinpath('log') not in self.fpath.iterdir():
             try:
                 Path(fr'{self.fpath}\log').mkdir()
                 print('log succend')
