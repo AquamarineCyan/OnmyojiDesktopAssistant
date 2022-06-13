@@ -21,9 +21,18 @@
 ## 下载  
 
 **无论哪种都需要管理员权限**
-1. 使用`git`命令下载源码，更新较勤，后续只需`git pull`  
-   ``git close https://github.com/AquamarineCyan/Onmyoji_Python.git``
-2. 前往 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 下载解压打包完成的应用程序，点开即用
+
+1. 前往 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 下载解压打包完成的应用程序，点开即用
+2. 需要一定的基础，更新较勤，可能存在bug  
+   - 使用`git`命令下载源码  
+     `git close https://github.com/AquamarineCyan/Onmyoji_Python.git`  
+     后续只需`git pull`
+   - 安装依赖  
+     `pip install -r requestments.txt`
+   - 自行打包，打包配置已存在`main.spec`    
+     `pyinstaller main.spec`
+   - 或者不打包，直接运行（理论上能够生成UI）  
+     `python main.py`
 
 ## Tips
 
