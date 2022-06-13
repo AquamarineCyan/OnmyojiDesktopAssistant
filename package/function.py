@@ -7,7 +7,7 @@
 import pyautogui
 import random
 import time
-import pathlib
+from pathlib import Path
 
 from . import window
 from mysignal import global_ms as ms
@@ -15,13 +15,18 @@ from mysignal import global_ms as ms
 
 class Function:
     """通用函数"""
+    '''
+    def __init__(self):
+        self.window_width_screenshot = 1138  # 截图宽度
+        self.window_height_screenshot = 679  # 截图高度
+    '''
 
     def random_num(self, minimum, maximun):
         """
         返回给定范围的随机值
 
-        :param minimum: 下限
-        :param maximun: 上限
+        :param minimum: 下限（包含）
+        :param maximun: 上限（不含）
         :return: 给定范围的随机值
         """
         # 获取系统当前时间戳
@@ -49,10 +54,11 @@ class Function:
         :param pic: 文件路径&图像名称(*.png)
         :return: 识别成功，返回图像的随机坐标，识别失败，返回(0,0)
         """
-        filename: str = fr'.\pic\{pic}'
+        filename: str = fr'./pic/{pic}'
         try:
             button_location = pyautogui.locateOnScreen(filename, region=(
-                window.window_left, window.window_top, window.window_width, window.window_height), confidence=0.8)
+                window.window_left, window.window_top, window.absolute_window_width, window.absolute_window_height),
+                                                       confidence=0.8)
             x, y = self.random_coor(button_location[0], button_location[0] + button_location[2], button_location[1],
                                     button_location[1] + button_location[3])
         except:
@@ -87,6 +93,7 @@ class Function:
         :param sleeptime:延迟时间(float)
         :return: None
         """
+        flag = False
         while 1:
             x, y = self.get_coor_info_picture(pic)
             if x != 0 and y != 0:
@@ -99,7 +106,13 @@ class Function:
                     random.seed(time.time_ns())
                     pyautogui.moveTo(x, y, duration=dura, tween=list_tween[random.randint(0, 2)])
                     pyautogui.click()
-                break
+                ms.text_print_update.emit('定位成功')
+                time.sleep(1)
+                flag = True
+                return
+            #elif (x == 0 or y == 0) and flag:
+                #ms.text_print_update.emit('等待加载')
+                #return
 
     def random_sleep(self, m: int, n: int):
         """
@@ -136,7 +149,7 @@ class Function:
         # 绝对坐标
         finish_left_x1 = 20
         '''左侧可点击区域x1'''
-        finish_left_x2 = 240
+        finish_left_x2 = 230
         '''左侧可点击区域x2'''
         finish_right_x1 = 950
         '''右侧可点击区域x1'''
@@ -165,7 +178,21 @@ class Function:
             pyautogui.click()
         return x, y
 
+    def screenshot(self, screenshotpath):
+        """截图"""
+        window_width_screenshot = 1138  # 截图宽度
+        window_height_screenshot = 679  # 截图高度
+        # screenshotpath = 'cache_baiguiyexing'  # 截图路径
+        fpath = Path.cwd()
+        filepath = fpath / screenshotpath
+        if not filepath.exists():
+            filepath.mkdir()
+        picname = f'{screenshotpath}./screenshot-{time.strftime("%Y%m%d%H%M%S")}.png'
+        pyautogui.screenshot(imageFilename=picname, region=(
+            window.window_left - 1, window.window_top, window_width_screenshot, window_height_screenshot))
+
     # 未启用
+    '''
     def fighting(self):
         """战斗场景"""
 
@@ -176,3 +203,4 @@ class Function:
         def finish(self):
             self.result()
             x, y = self.random_finish_left_right()
+    '''

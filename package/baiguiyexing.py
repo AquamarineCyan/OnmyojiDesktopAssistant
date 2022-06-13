@@ -31,6 +31,7 @@ class BaiGuiYeXing(Function):
     """百鬼夜行"""
 
     def __init__(self):
+        super().__init__()
         self.picpath = 'baiguiyexing'  # 路径
         self.screenshotpath = 'cache_baiguiyexing'  # 截图路径
         self.m = 0  # 当前次数
@@ -101,19 +102,10 @@ class BaiGuiYeXing(Function):
             x, y = self.get_coor_info_picture(f'{self.picpath}/baiguiqiyueshu.png')
             time.sleep(2)
             if x != 0 and y != 0:
-                self.screenshot()
+                self.screenshot(self.screenshotpath)
                 pyautogui.moveTo(x, y, duration=0.5)
                 pyautogui.click()
                 break
-
-    def screenshot(self):
-        """截图"""
-        fpath = pathlib.Path.cwd()
-        filepath = fpath / self.screenshotpath
-        if not filepath.exists():
-            filepath.mkdir()
-        picname = f'{self.screenshotpath}./screenshot-{time.strftime("%Y%m%d%H%M%S")}.png'
-        pyautogui.screenshot(imageFilename=picname, region=(window.window_left - 1, window.window_top, 1138, 679))
 
     def run(self, n: int):
         time.sleep(2)
@@ -133,6 +125,8 @@ class BaiGuiYeXing(Function):
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
                 time.sleep(4)
+                if self.m == 12 or self.m == 25 or self.m == 39:
+                    self.random_sleep(10, 20)
         ms.text_print_update.emit(f'已完成 百鬼夜行{self.m}次')
         # 启用按钮
         ms.is_fighting_update.emit(False)
