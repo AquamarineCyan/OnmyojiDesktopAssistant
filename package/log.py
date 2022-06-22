@@ -26,21 +26,15 @@ class Log:
             print('log already has')
             return True
 
-
-    def log_write(self,text):
-        "日志写入"
-        # 获取当前系统时间
-        # timenow = time.strftime("%Y-%m-%d %H:%M:%S")
-        # timenowday = time.strftime("%Y%m%d")
+    def log_write(self, text):
+        """日志写入"""
         # 生成日志
         try:
             f = open(fr'{self.fpath}\log\log-{time.strftime("%Y%m%d")}.txt', mode='a', encoding='utf-8')
-            # f.write(f'{timenow} {text}\n')
             f.write(text + '\n')
             f.close()
         except:
             print(f'FileNotFoundError {self.fpath}\log\log-{time.strftime("%Y%m%d")}.txt')
-
 
     def log_remove(self):
         """日志清理"""

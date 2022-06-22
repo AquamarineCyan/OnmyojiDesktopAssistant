@@ -11,9 +11,11 @@ from package import (
     daoguantupo,  # 7
     zhaohuan,  # 8
     baiguiyexing,  # 9
-    huodong  # 10
+    huodong,  # 10
+    rilun  # 11
 )
 from .log import Log
+
 # from .function import Function
 '''
 from package import function

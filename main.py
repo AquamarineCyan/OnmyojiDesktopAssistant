@@ -32,7 +32,8 @@ class MainWindow(QMainWindow, Log):
         '7.道馆突破',
         '8.普通召唤',
         '9.百鬼夜行',
-        '10.限时活动'
+        '10.限时活动',
+        '11.组队日轮副本'
     ]
     _package_ = [  # 图片素材文件夹
         'yuhun',
@@ -270,9 +271,20 @@ class MainWindow(QMainWindow, Log):
         elif text == self._list_function[9]:
             # 10.限时活动
             self._choice = 10
-            self.ui.text_miaoshu.setPlainText('适用于限时活动及其他连点，替换pic文件夹下的title.png、tiaozhan.png')
+            self.ui.text_miaoshu.setPlainText('适用于限时活动及其他连点，请提前确保阵容完好并锁定，替换pic文件夹下的title.png、tiaozhan.png')
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
+        elif text == self._list_function[10]:
+            # 11.组队日轮副本
+            self._choice = 11
+            self.ui.text_miaoshu.setPlainText('请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\
+                                               待开发：手动第一次锁定阵容')
+            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+            # 默认值
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 100)
+            self.ui.button_driver_False.setChecked(True)
+            self.ui.button_passengers_2.setChecked(True)
 
     def start(self):
         """开始按钮"""
@@ -325,6 +337,18 @@ class MainWindow(QMainWindow, Log):
         elif self._choice == 10:
             # 10.限时活动
             thread = Thread(target=huodong.HuoDong().run, args=(n,))
+        elif self._choice == 11:
+            # 1.组队日轮副本
+            # 是否司机（默认否）
+            # 组队人数（默认2人）
+            driver = self.ui.buttonGroup_driver.checkedButton().text()
+            if driver == '否':
+                flag_driver = False
+            else:
+                flag_driver = True
+            flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
+            thread = Thread(target=rilun.RiLun().run, args=(n, flag_driver, flag_passengers))
+
         # 线程存在
         if thread is not None:
             thread.daemon = True  # 线程守护

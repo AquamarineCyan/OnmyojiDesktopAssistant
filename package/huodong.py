@@ -56,7 +56,7 @@ class HuoDong(Function):
                 self.result()
                 self.random_sleep(1, 2)
                 # 结算
-                # self.random_finish_left_right(is_yuling=True)
+                self.random_finish_left_right(is_yuling=True)
                 self.random_sleep(1, 3)
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')

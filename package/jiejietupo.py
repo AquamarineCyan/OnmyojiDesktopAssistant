@@ -222,6 +222,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         k += 1
                         continue
                     self.fighting_tupo(self.tupo_geren_x[(k + 2) % 3 + 1], self.tupo_geren_y[(k + 2) // 3])
+                    # 待优化，利用时间戳的间隔判断
                     # time.sleep(4)
                     # if self.judge_click('zhunbei.png',click=False):
                     #     self.judge_click('zhunbei.png')
