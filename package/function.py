@@ -110,9 +110,9 @@ class Function:
                 time.sleep(1)
                 flag = True
                 return
-            #elif (x == 0 or y == 0) and flag:
-                #ms.text_print_update.emit('等待加载')
-                #return
+            # elif (x == 0 or y == 0) and flag:
+            # ms.text_print_update.emit('等待加载')
+            # return
 
     def random_sleep(self, m: int, n: int):
         """
@@ -149,7 +149,7 @@ class Function:
         # 绝对坐标
         finish_left_x1 = 20
         '''左侧可点击区域x1'''
-        finish_left_x2 = 230
+        finish_left_x2 = 220
         '''左侧可点击区域x2'''
         finish_right_x1 = 950
         '''右侧可点击区域x1'''
@@ -161,18 +161,14 @@ class Function:
         '''可点击区域y2'''
         x: int
         y: int
+        if is_yuling:
+            finish_y2 = finish_y2 - 200
         # 获取系统当前时间戳
         random.seed(time.time_ns())
         if random.random() * 10 > 5:
-            if is_yuling:
-                x, y = self.random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2 - 200)
-            else:
-                x, y = self.random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2)
+            x, y = self.random_coor(finish_left_x1, finish_left_x2, finish_y1, finish_y2)
         else:
-            if is_yuling:
-                x, y = self.random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2 - 200)
-            else:
-                x, y = self.random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2)
+            x, y = self.random_coor(finish_right_x1, finish_right_x2, finish_y1, finish_y2)
         if click:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
             pyautogui.click()
