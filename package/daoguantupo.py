@@ -150,6 +150,8 @@ class DaoGuanTuPo(Function):
     def run(self, flag_guanzhan: bool = False):
         time.sleep(2)
         flag_result = False  # 结束
+        time_progarm = self.TimeProgram()  # 程序计时
+        time_progarm.start()
         if self.title():
             ms.text_num_update.emit(0)
             self.random_sleep(2, 4)
@@ -182,6 +184,9 @@ class DaoGuanTuPo(Function):
                     break
             if flag_guanzhan:
                 self.guanzhan()
-        ms.text_print_update.emit(f'已完成 道馆突破 胜利{self.m}次')
+        text = f"已完成 道馆突破 胜利{self.m}次"
+        time_progarm.end()
+        text = text + " " + time_progarm.print()
+        ms.text_print_update.emit(text)
         # 启用按钮
         ms.is_fighting_update.emit(False)

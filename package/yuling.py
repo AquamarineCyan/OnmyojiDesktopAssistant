@@ -42,6 +42,8 @@ class YuLing(Function):
     def run(self, n: int):
         time.sleep(2)
         self.n = n
+        time_progarm = self.TimeProgram()  # 程序计时
+        time_progarm.start()
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
             self.random_sleep(1, 3)
@@ -57,6 +59,12 @@ class YuLing(Function):
                 self.random_sleep(1, 3)
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
-        ms.text_print_update.emit(f'已完成 御灵副本{self.m}次')
+                # 强制等待，后续优化
+                if self.m == 12 or self.m == 25 or self.m == 39 or self.m == 59 or self.m == 73:
+                    self.random_sleep(10, 20)
+        text = f'已完成 御灵副本{self.m}次'
+        time_progarm.end()
+        text = text + ' ' + time_progarm.print()
+        ms.text_print_update.emit(text)
         # 启用按钮
         ms.is_fighting_update.emit(False)

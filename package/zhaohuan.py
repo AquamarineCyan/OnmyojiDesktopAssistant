@@ -62,9 +62,11 @@ class ZhaoHuan(Function):
         self.random_sleep(6, 8)
 
     def run(self, n: int):
-        self.n = n
         time.sleep(2)
+        self.n = n
         flag = True  # 是否第一次
+        time_progarm = self.TimeProgram()  # 程序计时
+        time_progarm.start()
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
             self.random_sleep(1, 3)
@@ -80,6 +82,9 @@ class ZhaoHuan(Function):
             # 结束
             if self.m == self.n:
                 self.judge_click(f'{self.picpath}/queding.png')
-        ms.text_print_update.emit(f'已完成 普通召唤十连{self.m}次')
+        text = f"已完成 普通召唤十连{self.m}次"
+        time_progarm.end()
+        text = text + " " + time_progarm.print()
+        ms.text_print_update.emit(text)
         # 启用按钮
         ms.is_fighting_update.emit(False)

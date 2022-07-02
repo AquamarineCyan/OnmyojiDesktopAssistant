@@ -79,6 +79,8 @@ class RiLun(Function):
         self.flag_passengers = flag_passengers
         time.sleep(2)
         self.n = n
+        time_progarm = self.TimeProgram()  # 程序计时
+        time_progarm.start()
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
             while self.m < self.n:
@@ -113,6 +115,9 @@ class RiLun(Function):
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
                 time.sleep(2)
-        ms.text_print_update.emit(f'已完成 组队日轮副本{self.m}次')
+        text = f"已完成 组队日轮副本{self.m}次"
+        time_progarm.end()
+        text = text + " " + time_progarm.print()
+        ms.text_print_update.emit(text)
         # 启用按钮
         ms.is_fighting_update.emit(False)

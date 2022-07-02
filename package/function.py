@@ -187,6 +187,24 @@ class Function:
         pyautogui.screenshot(imageFilename=picname, region=(
             window.window_left - 1, window.window_top, window_width_screenshot, window_height_screenshot))
 
+    class TimeProgram:
+        """程序耗时"""
+
+        def start(self) -> None:
+            self._time_program_start = time.perf_counter()
+
+        def end(self) -> None:
+            self._time_program_end = time.perf_counter()
+
+        def print(self) -> str:
+            try:
+                if (self._time_program_end - self._time_program_start) >= 60:
+                    return f"耗时{int((self._time_program_end - self._time_program_start) // 60)}分{int((self._time_program_end - self._time_program_start) % 60)}秒"
+                else:
+                    return f"耗时{int(self._time_program_end - self._time_program_start)}秒"
+            except:
+                return ""
+
     # 未启用
     '''
     def fighting(self):

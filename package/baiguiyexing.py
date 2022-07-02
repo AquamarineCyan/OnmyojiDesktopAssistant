@@ -110,6 +110,8 @@ class BaiGuiYeXing(Function):
     def run(self, n: int):
         time.sleep(2)
         self.n = n
+        time_progarm = self.TimeProgram()  # 程序计时
+        time_progarm.start()
         if self.title():
             ms.text_num_update.emit(f'0/{self.n}')
             self.random_sleep(1, 3)
@@ -127,6 +129,9 @@ class BaiGuiYeXing(Function):
                 time.sleep(4)
                 if self.m == 12 or self.m == 25 or self.m == 39:
                     self.random_sleep(10, 20)
-        ms.text_print_update.emit(f'已完成 百鬼夜行{self.m}次')
+        text = f"已完成 百鬼夜行{self.m}次"
+        time_progarm.end()
+        text = text + " " + time_progarm.print()
+        ms.text_print_update.emit(text)
         # 启用按钮
         ms.is_fighting_update.emit(False)
