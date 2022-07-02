@@ -9,6 +9,22 @@ from mysignal import global_ms as ms
 def update_record():
     """更新日志"""
     update = {
+    '1.6.3':
+'''新增
+环境文件requirements.txt
+清理日志
+限时活动
+组队日轮副本
+
+优化
+召唤功能结束
+截图功能
+窗口信息显示方式
+个人突破刷新逻辑
+
+修复
+因呱太入侵导致的图像错位
+更换pathlib库引发的错误''',
     '1.6.2':
 '''新增 业原火副本
 新增 道馆突破观战功能
