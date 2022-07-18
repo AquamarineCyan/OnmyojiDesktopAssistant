@@ -12,7 +12,8 @@ from package import (
     zhaohuan,  # 8
     baiguiyexing,  # 9
     huodong,  # 10
-    rilun  # 11
+    rilun,  # 11
+    xuanshangfengyin
 )
 from .log import Log
 

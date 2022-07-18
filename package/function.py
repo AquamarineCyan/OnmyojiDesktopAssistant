@@ -12,6 +12,8 @@ from pathlib import Path
 from . import window
 from mysignal import global_ms as ms
 
+from .xuanshangfengyin import XuanShangFengYin
+
 
 class Function:
     """通用函数"""
@@ -55,6 +57,9 @@ class Function:
         :return: 识别成功，返回图像的随机坐标，识别失败，返回(0,0)
         """
         filename: str = fr'./pic/{pic}'
+        print("test", XuanShangFengYin().event_is_set())
+        XuanShangFengYin().event_wait()
+
         try:
             button_location = pyautogui.locateOnScreen(filename, region=(
                 window.window_left, window.window_top, window.absolute_window_width, window.absolute_window_height),

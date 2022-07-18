@@ -181,6 +181,10 @@ class MainWindow(QMainWindow, Log):
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
             self.ui.text_miaoshu.setPlaceholderText('使用过程中，请不要移动游戏窗口，会导致点击位置错误\n请选择功能以加载内容')
+            # 悬赏封印
+            thread_xuanshang = Thread(target=xuanshangfengyin.XuanShangFengYin().judge)
+            thread_xuanshang.daemon = True
+            thread_xuanshang.start()
 
     def wininfo_update(self):
         """更新窗口信息"""
