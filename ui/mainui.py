@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.button_resources.setFont(font1)
         self.combo_choice = QComboBox(self.groupBox_basic)
         self.combo_choice.setObjectName(u"combo_choice")
-        self.combo_choice.setGeometry(QRect(100, 20, 121, 19))
+        self.combo_choice.setGeometry(QRect(100, 20, 141, 19))
         font2 = QFont()
         font2.setFamilies([u"\u5b8b\u4f53"])
         font2.setPointSize(9)

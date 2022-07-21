@@ -90,7 +90,7 @@
       <rect>
        <x>100</x>
        <y>20</y>
-       <width>121</width>
+       <width>141</width>
        <height>19</height>
       </rect>
      </property>
@@ -557,7 +557,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_driver"/>
   <buttongroup name="buttonGroup_passengers"/>
+  <buttongroup name="buttonGroup_driver"/>
  </buttongroups>
 </ui>

@@ -242,7 +242,7 @@ class MainWindow(QMainWindow, Log):
             # 5.个人突破
             self._choice = 5
             self.ui.text_miaoshu.setPlainText('默认3胜刷新，上限30')
-            self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
+            # self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 30)
         elif text == self._list_function[5]:
