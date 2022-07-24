@@ -9,6 +9,13 @@ from mysignal import global_ms as ms
 def update_record():
     """更新日志"""
     update = {
+    '1.6.4':
+'''新增
+悬赏封印
+检查更新
+
+修复
+UI''',
     '1.6.3':
 '''新增
 环境文件requirements.txt

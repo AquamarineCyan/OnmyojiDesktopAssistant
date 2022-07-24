@@ -4,6 +4,8 @@
 
 import sys
 import time
+import httpx
+import json
 from pathlib import Path
 from threading import Thread
 
@@ -98,6 +100,11 @@ class MainWindow(QMainWindow, Log):
         self.ui.action_clean_log.triggered.connect(self.clean_log)  # 清理日志
         self.ui.action_GitHub.triggered.connect(self.GitHub_address)  # GitHub地址
         self.ui.action_exit.triggered.connect(self.exit)  # 退出
+
+        # update_auto
+        thread_update = Thread(target=self.update_auto)
+        thread_update.daemon = True
+        thread_update.start()
 
     def pic_is_complete(self):
         picpath: Path = fpath / 'pic'
@@ -398,6 +405,32 @@ class MainWindow(QMainWindow, Log):
     def update_info(self):
         self.update_win_ui = UpdateWindow()
         self.update_win_ui.show()
+
+    # auto update
+    def update_auto(self):
+        url_releases_1 = "https://github.com/AquamarineCyan/Onmyoji_Python/releases"
+        url_releases_2 = "https://hub.fastgit.xyz/AquamarineCyan/Onmyoji_Python/releases"
+        url_releases_3 = "https://hub.fastgit.org/AquamarineCyan/Onmyoji_Python/releases"
+        url_update = "https://raw.fastgit.org/AquamarineCyan/Onmyoji_Python/main/update.json"
+        try:
+            r = httpx.get(url_update)
+            if r.status_code == 200:
+                data = json.loads(r.text)
+                update_version = data["version"]
+                update_version_info = data["version_info"]
+                if version < update_version:
+                    ms.text_print_update.emit(f'[WARN] 有新版本 {update_version}')
+                    ms.text_print_update.emit(f'更新内容\n{update_version_info}')
+                    ms.text_print_update.emit(f'[WARN] 可前往链接下载，删除原文件，重新解压，如替换可能会造成pic资源问题')
+                    ms.text_print_update.emit(f'链接1：{url_releases_1}')
+                    ms.text_print_update.emit(f'推荐链接2：{url_releases_2}')
+                    ms.text_print_update.emit(f'链接3：{url_releases_3}')
+                else:
+                    ms.text_print_update.emit('暂无更新')
+            else:
+                ms.text_print_update.emit('自动检查更新失败，请稍后重试')
+        except:
+            ms.text_print_update.emit('[WARN] 自动检查更新失败，请稍后重试')
 
     # clean log
     def clean_log(self):
