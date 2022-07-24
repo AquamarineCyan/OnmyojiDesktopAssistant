@@ -5,6 +5,7 @@ random2>=1.0.1
 numpy>=1.22.3
 opencv-python>=4.5.5.64
 Pillow>=9.1.0
+httpx
 
 PySide6>=6.3.0
 pyinstaller>=5.0.1
