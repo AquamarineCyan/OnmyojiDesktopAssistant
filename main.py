@@ -3,6 +3,7 @@
 # main.py
 
 import sys
+from ctypes import windll
 import time
 import httpx
 import json
@@ -470,7 +471,12 @@ class UpdateWindow(QWidget):
 
 
 if __name__ == '__main__':
-    app = QApplication([])
-    main_win_ui = MainWindow()
-    main_win_ui.show()
-    app.exec()
+    if windll.shell32.IsUserAnAdmin():  # 是否以管理员身份运行
+        print("管理员")
+        app = QApplication([])
+        main_win_ui = MainWindow()
+        main_win_ui.show()
+        app.exec()
+    else:
+        windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)  # 调起UAC以管理员身份运行
+        sys.exit(0)
