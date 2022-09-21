@@ -18,7 +18,7 @@ from ui.updateui import Ui_Form
 from mysignal import global_ms as ms
 from package import *
 
-version: str = "1.6.4"
+version: str = "1.6.5"
 """版本号"""
 fpath = Path.cwd()
 """文件路径"""
