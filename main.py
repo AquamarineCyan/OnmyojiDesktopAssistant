@@ -283,7 +283,7 @@ class MainWindow(QMainWindow, Log):
         elif text == self._list_function[9]:
             # 10.限时活动
             self._choice = 10
-            self.ui.text_miaoshu.setPlainText('适用于限时活动及其他连点，请提前确保阵容完好并锁定，替换pic文件夹下的title.png、tiaozhan.png')
+            self.ui.text_miaoshu.setPlainText('适用于限时活动及其他连点，请提前确保阵容完好并锁定，替换pic文件夹huodong下的title.png、tiaozhan.png，周年庆活动素材已替换')
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
         elif text == self._list_function[10]:

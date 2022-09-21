@@ -42,6 +42,18 @@ class HuoDong(Function):
         """挑战开始"""
         self.judge_click(f'{self.picpath}/tiaozhan.png')
 
+    def result(self):
+        """
+        结果判断
+
+        :return: True or False
+        """
+        while 1:
+            x, y = self.get_coor_info_picture(f'{self.picpath}/victory.png')
+            if x != 0 and y != 0:
+                ms.text_print_update.emit('胜利')
+                return True
+
     def run(self, n: int):
         time.sleep(2)
         self.n = n
@@ -59,6 +71,14 @@ class HuoDong(Function):
                 self.random_sleep(1, 2)
                 # 结算
                 self.random_finish_left_right(is_yuling=True)
+                while True:
+                    x, y = self.get_coor_info_picture('victory_gu.png')
+                    if x != 0 and y != 0:
+                        ms.text_print_update.emit('胜利')
+                        pyautogui.click()
+                        self.random_sleep(0,1)
+                    else:
+                        break
                 self.random_sleep(1, 3)
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
