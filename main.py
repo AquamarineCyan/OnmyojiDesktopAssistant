@@ -178,10 +178,10 @@ class MainWindow(QMainWindow, Log):
         elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
             QMessageBox.critical(self, 'ERROR', '请前置游戏窗口！')
             self.log_write('[ERROR] no pre-game')
-        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
-            1] != window.absolute_window_height:
-            QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!')
-            self.log_write('[ERROR] no right size')
+        # elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
+        #     1] != window.absolute_window_height:
+        #     QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!')
+        #     self.log_write('[ERROR] no right size')
         # 环境完整
         else:
             self.ui.button_resources.setEnabled(False)
@@ -193,6 +193,13 @@ class MainWindow(QMainWindow, Log):
             thread_xuanshang = Thread(target=xuanshangfengyin.XuanShangFengYin().judge)
             thread_xuanshang.daemon = True
             thread_xuanshang.start()
+
+        # 解除窗口大小限制，待优化
+        if handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
+            1] != window.absolute_window_height:
+            QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!\n'
+                                                '已解除窗口大小限制，请尽量靠近1136*640')
+            self.log_write('[ERROR] no right size')
 
     def wininfo_update(self):
         """更新窗口信息"""
