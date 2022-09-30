@@ -263,10 +263,10 @@ class MainWindow(QMainWindow, Log):
         elif text == self._list_function[5]:
             # 6.寮突破
             self._choice = 6
-            self.ui.text_miaoshu.setPlainText('请锁定阵容，默认上限6次\
+            self.ui.text_miaoshu.setPlainText('请锁定阵容，默认6次，可在每日21时后无限挑战，桌面版单账号上限100次\
                                                    待开发：滚轮翻页')
             self.ui.spinB_num.setValue(6)
-            self.ui.spinB_num.setRange(1, 6)
+            self.ui.spinB_num.setRange(1, 200)
         elif text == self._list_function[6]:
             # 7.道馆突破
             self._choice = 7
