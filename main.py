@@ -16,6 +16,7 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget
 from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form
 from mysignal import global_ms as ms
+import utils.upgrade
 from package import *
 
 version: str = "1.6.5"
@@ -102,10 +103,16 @@ class MainWindow(QMainWindow, Log):
         self.ui.action_GitHub.triggered.connect(self.GitHub_address)  # GitHub地址
         self.ui.action_exit.triggered.connect(self.exit)  # 退出
 
-        # update_auto
-        thread_update = Thread(target=self.update_auto)
+        # 程序开启运行
+        #upgrade_auto
+        thread_update = Thread(target=utils.upgrade.Upgrade().upgrade_auto)
         thread_update.daemon = True
         thread_update.start()
+
+        # update_auto
+        # thread_update = Thread(target=self.update_auto)
+        # thread_update.daemon = True
+        # thread_update.start()
 
     def pic_is_complete(self):
         picpath: Path = fpath / 'pic'
