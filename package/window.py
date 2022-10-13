@@ -5,6 +5,7 @@
 """
 
 import win32gui
+import win32con
 
 from mysignal import global_ms as ms
 
@@ -40,6 +41,11 @@ def getInfo_Window():
         # 返回窗口信息（x1,y1,x2,y2）
         handle_coor = win32gui.GetWindowRect(handle)
         print('handle_coor',handle_coor)
+        # 强制缩放 1154*687
+        win32gui.SetWindowPos(handle, win32con.HWND_TOP, handle_coor[0], handle_coor[1], 1154, 687, win32con.SWP_SHOWWINDOW)
+        handle_coor = win32gui.GetWindowRect(handle)
+        print("handle_coor_2", handle_coor)
+
         # 修正
         # handle_coor[0] = handle_coor[0] + 9
         # handle_coor[2] = handle_coor[2] - handle_coor[0]
