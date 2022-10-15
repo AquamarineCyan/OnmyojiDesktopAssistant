@@ -204,9 +204,15 @@ class MainWindow(QMainWindow, Log):
         # 解除窗口大小限制，待优化
         if handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
             1] != window.absolute_window_height:
-            QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!\n'
-                                                '已解除窗口大小限制，请尽量靠近1136*640')
+            choice = QMessageBox.question(self, "窗口大小不匹配", "是否强制缩放，如不缩放，请自行靠近1136*640或者替换pic文件夹中对应素材")
+            # QMessageBox.critical(self, 'ERROR', '窗口大小不匹配!\n'
+            #                                     '已解除窗口大小限制，请尽量靠近1136*640')
             self.log_write('[ERROR] no right size')
+            if choice == QMessageBox.Yes:
+                window.force_zoom()
+                self.log_write("user choose force_zoom")
+            elif choice == QMessageBox.No:
+                self.log_write("user choose don't force_zoom")
 
     def wininfo_update(self):
         """更新窗口信息"""

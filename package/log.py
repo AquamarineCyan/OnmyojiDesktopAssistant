@@ -47,3 +47,6 @@ class Log:
                 except:
                     print(f'FileNotFoundError {filename}')
             Path('log').rmdir()
+
+
+log = Log()
