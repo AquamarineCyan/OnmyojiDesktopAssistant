@@ -1,6 +1,7 @@
 {
-    "version": "1.6.5",
-    "version_info": "新增\n管理员运行提示\n\n优化\n周年庆活动",
+    "version": "1.6.6",
+    "version_info": "该更新方式即将作废，请尽快更新至1.6.6及以上\nhttps://github.com/AquamarineCyan/Onmyoji_Python/releases\n优化 素材\n优化 限时活动单次上线\n优化 窗口大小匹配提示\n优化 寮突破次数选择上限\n新增 自动下载更新包\n新增 强制缩放\n新增 强制缩放及弹窗提示",
+    "1.6.5": "新增\n管理员运行提示\n\n优化\n周年庆活动",
     "1.6.4": "新增\n悬赏封印\n检查更新\n    \n修复\nUI",
     "1.6.3": "新增\n环境文件requirements.txt\n清理日志\n限时活动\n组队日轮副本\n\n优化\n召唤功能结束\n截图功能\n窗口信息显示方式\n个人突破刷新逻辑\n\n修复\n因呱太入侵导致的图像错位\n更换pathlib库引发的错误"
 }
