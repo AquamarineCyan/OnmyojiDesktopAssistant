@@ -52,8 +52,8 @@ class Upgrade:
                 data_dict = json.loads(result.text)
                 data = json.dumps(json.loads(result.text), indent=4, ensure_ascii=False)
                 # print(type(data))
-                with open("api_github.json", mode="w") as f:
-                    f.write(data)
+                # with open("api_github.json", mode="w") as f:
+                #     f.write(data)
 
                 Log().log_write("******")
                 Log().log_write(data_dict["tag_name"])
@@ -104,7 +104,7 @@ class Upgrade:
                         if chunk:
                             f.write(chunk)
 
-                    ms.text_print_update.emit("download successfully")
+                    ms.text_print_update.emit("下载更新包完成，请关闭程序后手动解压覆盖")
             except:
                 ms.text_print_update.emit("访问下载链接失败")
 
