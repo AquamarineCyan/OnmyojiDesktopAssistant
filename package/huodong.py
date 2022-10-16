@@ -2,7 +2,7 @@
 # huodong.py
 """
 限时活动
-百面归一
+周年庆
 """
 
 import time
@@ -51,7 +51,7 @@ class HuoDong(Function):
         while 1:
             x, y = self.get_coor_info_picture(f'{self.picpath}/victory.png')
             if x != 0 and y != 0:
-                ms.text_print_update.emit('胜利')
+                ms.text_print_update.emit('获得奖励')
                 return True
 
     def run(self, n: int):
@@ -82,6 +82,9 @@ class HuoDong(Function):
                 self.random_sleep(1, 3)
                 self.m += 1
                 ms.text_num_update.emit(f'{self.m}/{self.n}')
+                if self.m in [49,34,145,63,453,214,64,246,776,35,567,356,674,334,654,211,885,214,667,456,774]:
+                    ms.text_print_update.emit(f'限时随机{self.m}')
+                    self.random_sleep(2, 10)
         text = f"已完成 限时活动{self.m}次"
         time_progarm.end()
         text = text + " " + time_progarm.print()

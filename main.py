@@ -19,7 +19,7 @@ from mysignal import global_ms as ms
 import utils.upgrade
 from package import *
 
-version: str = "1.6.5"
+version: str = "1.6.6"
 """版本号"""
 fpath = Path.cwd()
 """文件路径"""
