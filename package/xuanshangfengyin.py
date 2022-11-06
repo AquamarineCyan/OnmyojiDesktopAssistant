@@ -9,7 +9,7 @@ import pyautogui
 import random
 
 from . import window
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 from utils.event import event_xuanshang
 
 

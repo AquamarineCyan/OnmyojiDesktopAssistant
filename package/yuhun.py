@@ -10,7 +10,7 @@ import pyautogui
 
 from . import window
 from .function import Function
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 
 '''
 组队界面-协战队伍

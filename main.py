@@ -15,7 +15,7 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QMessageBox, QWidget
 
 from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 import utils.upgrade
 from package import *
 

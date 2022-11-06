@@ -8,7 +8,7 @@ import time
 import pyautogui
 
 from .function import Function
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 
 '''
 标题

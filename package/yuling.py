@@ -7,7 +7,7 @@
 import time
 
 from .function import Function
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 
 '''
 御灵场景

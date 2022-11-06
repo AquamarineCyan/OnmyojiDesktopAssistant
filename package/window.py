@@ -7,7 +7,7 @@
 import win32gui
 import win32con
 
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 from .log import log
 
 # 窗口大小(官方1136*640)

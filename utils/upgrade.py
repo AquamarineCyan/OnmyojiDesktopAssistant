@@ -9,7 +9,7 @@ import httpx
 import json
 from pathlib import Path
 
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 from package.log import Log
 
 fpath = Path.cwd()

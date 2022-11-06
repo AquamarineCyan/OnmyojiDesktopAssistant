@@ -10,7 +10,7 @@ import time
 from pathlib import Path
 
 from . import window
-from mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 
 from .xuanshangfengyin import XuanShangFengYin
 
