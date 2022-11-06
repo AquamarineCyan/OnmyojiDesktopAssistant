@@ -9,8 +9,9 @@ import httpx
 import json
 from pathlib import Path
 
-from utils.mysignal import global_ms as ms
+from mysignal import global_ms as ms
 from package.log import Log
+from .toaster import toaster
 
 fpath = Path.cwd()
 """文件路径"""
@@ -54,8 +55,6 @@ class Upgrade:
                 # print(type(data))
                 # with open("api_github.json", mode="w") as f:
                 #     f.write(data)
-
-                Log().log_write("******")
                 Log().log_write(data_dict["tag_name"])
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
@@ -72,9 +71,11 @@ class Upgrade:
                         Log().log_write(self.browser_download_url)
                         Log().log_write(type(self.browser_download_url))
                         ms.text_print_update.emit(f"有新版本{self.version_github}")
+                        toaster("检测到有新版本", f"{self.version_github}\n{self.new_version_info}")
                         return "has new version"
                     else:
                         ms.text_print_update.emit("暂无更新")
+                        toaster("检查更新", "暂无更新")
                         return "the version is the latest"
         except:
             ms.text_print_update.emit("获取更新地址失败")
@@ -105,6 +106,7 @@ class Upgrade:
                             f.write(chunk)
 
                     ms.text_print_update.emit("下载更新包完成，请关闭程序后手动解压覆盖")
+                    toaster("下载更新包完成", "请关闭程序后手动解压覆盖")
             except:
                 ms.text_print_update.emit("访问下载链接失败")
 
