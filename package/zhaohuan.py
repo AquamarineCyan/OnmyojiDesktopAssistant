@@ -4,12 +4,13 @@
 普通召唤
 """
 
+from pathlib import Path
 import time
 
-from .function import Function
-from utils.mysignal import global_ms as ms
+from utils.function import Function
+from utils.log import log
 
-'''
+"""
 标题
 title.png
 普通召唤
@@ -18,12 +19,12 @@ putongzhaohuan.png
 zaicizhaohuan.png
 确定
 queding.png
-'''
+"""
 piclist = [
-    'title.png',  # 标题
-    'putongzhaohuan.png',  # 普通召唤
-    'zaicizhaohuan.png',  # 再次召唤
-    'queding.png'  # 确定
+    "title.png",  # 标题
+    "putongzhaohuan.png",  # 普通召唤
+    "zaicizhaohuan.png",  # 再次召唤
+    "queding.png"  # 确定
 ]
 
 
@@ -31,12 +32,13 @@ class ZhaoHuan(Function):
     """召唤"""
 
     def __init__(self):
-        self.picpath = 'zhaohuan'  # 路径
+        self.scene_name = "召唤"
+        self.picpath = "zhaohuan"  # 路径
         self.piclist = [
-            'title.png',  # 标题
-            'putongzhaohuan.png',  # 普通召唤
-            'zaicizhaohuan.png',  # 再次召唤
-            'queding.png'  # 确定
+            "title.png",  # 标题
+            "putongzhaohuan.png",  # 普通召唤
+            "zaicizhaohuan.png",  # 再次召唤
+            "queding.png"  # 确定
         ]
         self.m = 0  # 当前次数
         self.n = None  # 总次数
@@ -44,21 +46,24 @@ class ZhaoHuan(Function):
     def title(self):
         """场景"""
         flag_title = True  # 场景提示
+        log.info(Path.cwd())
+        log.info(f"looking for {self.picpath}/title.png")
+        log.info(Path(f"{self.picpath}/title.png"))
         while 1:
-            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 召唤'):
+            if self.judge_scene(f"{self.picpath}/title.png", self.scene_name):
                 return True
             elif flag_title:
                 flag_title = False
-                ms.text_print_update.emit('[WARN] 请检查游戏场景')
+                log.warn("请检查游戏场景", True)
 
     def first(self):
         """第一次召唤"""
-        self.judge_click(f'{self.picpath}/putongzhaohuan.png')
+        self.judge_click(f"{self.picpath}/putongzhaohuan.png")
         self.random_sleep(6, 8)
 
     def again(self):
         """非第一次召唤"""
-        self.judge_click(f'{self.picpath}/zaicizhaohuan.png')
+        self.judge_click(f"{self.picpath}/zaicizhaohuan.png")
         self.random_sleep(6, 8)
 
     def run(self, n: int):
@@ -68,7 +73,7 @@ class ZhaoHuan(Function):
         time_progarm = self.TimeProgram()  # 程序计时
         time_progarm.start()
         if self.title():
-            ms.text_num_update.emit(f'0/{self.n}')
+            log.num(f"0/{self.n}")
             self.random_sleep(1, 3)
             while self.m < self.n:
                 if flag:
@@ -78,13 +83,13 @@ class ZhaoHuan(Function):
                 else:
                     self.again()
                     self.m += 1
-                ms.text_num_update.emit(f'{self.m}/{self.n}')
+                log.num(f"{self.m}/{self.n}")
             # 结束
             if self.m == self.n:
-                self.judge_click(f'{self.picpath}/queding.png')
+                self.judge_click(f"{self.picpath}/queding.png")
         text = f"已完成 普通召唤十连{self.m}次"
         time_progarm.end()
         text = text + " " + time_progarm.print()
-        ms.text_print_update.emit(text)
+        log.info(text, True)
         # 启用按钮
-        ms.is_fighting_update.emit(False)
+        log.is_fighting(False)

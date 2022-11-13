@@ -6,14 +6,13 @@
 
 import time
 import random
-import pathlib
 import pyautogui
 
-from . import window
-from .function import Function
-from utils.mysignal import global_ms as ms
+from utils import window
+from utils.function import Function
+from utils.log import log
 
-'''
+"""
 标题
 title.png
 进入
@@ -24,7 +23,7 @@ ya.png
 kaishi.png
 百鬼契约书
 baiguiqiyueshu.png
-'''
+"""
 
 
 class BaiGuiYeXing(Function):
@@ -32,8 +31,9 @@ class BaiGuiYeXing(Function):
 
     def __init__(self):
         super().__init__()
-        self.picpath = 'baiguiyexing'  # 路径
-        self.screenshotpath = 'cache_baiguiyexing'  # 截图路径
+        self.scene_name = "百鬼夜行"
+        self.picpath = "baiguiyexing"  # 路径
+        self.screenshotpath = "cache_baiguiyexing"  # 截图路径
         self.m = 0  # 当前次数
         self.n = None  # 总次数
 
@@ -41,15 +41,15 @@ class BaiGuiYeXing(Function):
         """场景"""
         flag_title = True  # 场景提示
         while 1:
-            if self.judge_scene(f'{self.picpath}/title.png', '[SCENE] 百鬼夜行'):
+            if self.judge_scene(f'{self.picpath}/title.png', self.scene_name):
                 return True
             elif flag_title:
                 flag_title = False
-                ms.text_print_update.emit('[WARN] 请检查游戏场景')
+                log.warn("请检查游戏场景", True)
 
     def start(self):
         """开始"""
-        self.judge_click(f'{self.picpath}/jinru.png')
+        self.judge_click(f"{self.picpath}/jinru.png")
 
     def choose(self):
         """鬼王选择"""
@@ -61,7 +61,7 @@ class BaiGuiYeXing(Function):
         _x3_right = 910
         _y1 = 300
         _y2 = 550
-        while 1:
+        while True:
             # 获取系统当前时间戳
             random.seed(time.time_ns())
             m = random.random() * 3 + 1
@@ -75,14 +75,15 @@ class BaiGuiYeXing(Function):
                 x1 = _x3_left
                 x2 = _x3_right
             x, y = self.random_coor(x1, x2, _y1, _y2)
-            pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.5)
+            pyautogui.moveTo(x + window.window_left, y +
+                             window.window_top, duration=0.5)
             pyautogui.click()
             time.sleep(2)
-            x, y = self.get_coor_info_picture(f'{self.picpath}/ya.png')
+            x, y = self.get_coor_info_picture(f"{self.picpath}/ya.png")
             if x != 0 and y != 0:
-                print('already choose')
+                log.info("已选择鬼王", True)
                 break
-        self.judge_click(f'{self.picpath}/kaishi.png', dura=0.5)
+        self.judge_click(f"{self.picpath}/kaishi.png", dura=0.5)
 
     def fighting(self):
         """砸豆子"""
@@ -92,14 +93,16 @@ class BaiGuiYeXing(Function):
             self.random_sleep(0, 1)
             x, y = self.random_coor(60, window.absolute_window_width - 120, 300,
                                     window.absolute_window_height - 100)
-            pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
+            pyautogui.moveTo(x + window.window_left, y +
+                             window.window_top, duration=0.25)
             pyautogui.click()
             n -= 5
 
     def finish(self):
         """结束"""
         while 1:
-            x, y = self.get_coor_info_picture(f'{self.picpath}/baiguiqiyueshu.png')
+            x, y = self.get_coor_info_picture(
+                f'{self.picpath}/baiguiqiyueshu.png')
             time.sleep(2)
             if x != 0 and y != 0:
                 self.screenshot(self.screenshotpath)
@@ -113,7 +116,7 @@ class BaiGuiYeXing(Function):
         time_progarm = self.TimeProgram()  # 程序计时
         time_progarm.start()
         if self.title():
-            ms.text_num_update.emit(f'0/{self.n}')
+            log.num(f"0/{self.n}")
             self.random_sleep(1, 3)
             while self.m < self.n:
                 self.random_sleep(0, 2)
@@ -125,13 +128,13 @@ class BaiGuiYeXing(Function):
                 self.random_sleep(2, 4)
                 self.finish()
                 self.m += 1
-                ms.text_num_update.emit(f'{self.m}/{self.n}')
+                log.num(f"{self.m}/{self.n}")
                 time.sleep(4)
                 if self.m == 12 or self.m == 25 or self.m == 39:
                     self.random_sleep(10, 20)
         text = f"已完成 百鬼夜行{self.m}次"
         time_progarm.end()
         text = text + " " + time_progarm.print()
-        ms.text_print_update.emit(text)
+        log.info(text, True)
         # 启用按钮
-        ms.is_fighting_update.emit(False)
+        log.is_fighting(False)
