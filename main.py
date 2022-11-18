@@ -17,7 +17,7 @@ from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form
 
 from utils import window
-# from utils.mysignal import global_ms as ms
+from utils.mysignal import global_ms as ms
 from utils.log import log
 from utils.upgrade import *
 
@@ -449,6 +449,7 @@ class MainWindow(QMainWindow):
         self.update_win_ui.show()
 
     # auto update
+    # FIXME 采用新版获取更新并自动下载更新包，该函数在确保安全的情况下可以删去
     def update_auto(self):
         url_releases_1 = "https://github.com/AquamarineCyan/Onmyoji_Python/releases"
         url_releases_2 = "https://hub.fastgit.xyz/AquamarineCyan/Onmyoji_Python/releases"
@@ -483,6 +484,14 @@ class MainWindow(QMainWindow):
     def GitHub_address(self):
         QMessageBox.information(
             self, "GitHub", "https://github.com/AquamarineCyan/Onmyoji_Python")
+    
+    # 关闭程序
+    def closeEvent(self, event) -> None:
+        try:
+            log._write_to_file("[EXIT]")
+        except:
+            pass
+        event.accept()
 
     # 退出
     def exit(self):
