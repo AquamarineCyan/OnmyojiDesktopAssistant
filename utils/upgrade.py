@@ -14,7 +14,6 @@ from main import version as version_location
 
 
 from .log import log
-from .mysignal import global_ms as ms
 from .toaster import toaster
 
 fpath = Path.cwd()
@@ -64,7 +63,6 @@ class Upgrade:
                         return "has new version"
                     else:
                         log.info("暂无更新", True)
-                        toaster("检查更新", "暂无更新")
                         return "the version is the latest"
         except:
             log.info("获取更新地址失败", True)
