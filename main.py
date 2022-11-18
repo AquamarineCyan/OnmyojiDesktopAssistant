@@ -289,8 +289,18 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[5]:
             # 6.寮突破
             self._choice = 6
-            self.ui.text_miaoshu.setPlainText("请锁定阵容，默认6次，可在每日21时后无限挑战，桌面版单账号上限100次\
-                                                   待开发：滚轮翻页")
+            now = time.strftime("%H:%M:%S")
+            if now >= "21:00:00":
+                self.ui.text_miaoshu.setTextColor("red")
+                self.ui.text_miaoshu.append("CD无限")
+                self.ui.text_miaoshu.setTextColor("black")
+                self.ui.text_miaoshu.append("请尽情挑战，桌面版单账号上限100次")
+            else:
+                self.ui.text_miaoshu.setTextColor("red")
+                self.ui.text_miaoshu.append("CD受限")
+                self.ui.text_miaoshu.setTextColor("black")
+                self.ui.text_miaoshu.append("默认6次，可在每日21时后无限挑战")
+            self.ui.text_miaoshu.append("待开发：滚轮翻页")
             self.ui.spinB_num.setValue(6)
             self.ui.spinB_num.setRange(1, 200)
         elif text == self._list_function[6]:
@@ -484,7 +494,7 @@ class MainWindow(QMainWindow):
     def GitHub_address(self):
         QMessageBox.information(
             self, "GitHub", "https://github.com/AquamarineCyan/Onmyoji_Python")
-    
+
     # 关闭程序
     def closeEvent(self, event) -> None:
         try:
