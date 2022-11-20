@@ -24,7 +24,7 @@ from utils.upgrade import *
 
 from package import *
 
-version: str = "1.6.6"
+version: str = "1.6.7"
 """版本号"""
 fpath = Path.cwd()
 """文件路径"""
