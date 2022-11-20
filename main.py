@@ -18,6 +18,7 @@ from ui.updateui import Ui_Form
 
 from utils import window
 from utils.mysignal import global_ms as ms
+from utils.mythread import MyThread
 from utils.log import log
 from utils.upgrade import *
 
@@ -95,8 +96,8 @@ class MainWindow(QMainWindow):
         self.ui.button_start.setEnabled(False)
         self.ui.combo_choice.setEnabled(False)
         self.ui.spinB_num.setEnabled(False)
-        self.ui.text_miaoshu.setPlaceholderText("仅供内部测试使用，请勿外传，本程序所产生的一切后果自负\
-                                                请确认您是使用管理员权限打开本程序\
+        self.ui.text_miaoshu.setPlaceholderText("未正确使用所产生的一切后果自负\
+                                                保持您的肝度与日常无较大差距\
                                                 请先运行“环境检测”")
         # self.is_fighting_yuhun(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
@@ -114,6 +115,12 @@ class MainWindow(QMainWindow):
         thread_update = Thread(target=Upgrade().upgrade_auto)
         thread_update.daemon = True
         thread_update.start()
+
+        thread_resources = MyThread(func=self.resources_auto)
+        thread_resources.daemon = True
+        thread_resources.start()
+        thread_resources.join()
+        self.environment(thread_resources.get_result())
 
         # update_auto
         # thread_update = Thread(target=self.update_auto)
@@ -173,6 +180,71 @@ class MainWindow(QMainWindow):
         print(f"[DEBUG] {text}")
         log._write_to_file(text)
 
+    def environment(self, level):
+        match level:
+            case "log":
+                QMessageBox.critical(self, "ERROR", "创建log目录失败，请重试！")
+            case "picpath":
+                QMessageBox.critical(self, "ERROR", "图片资源不存在！")
+                log._write_to_file("[ERROR] no pic")
+            case "pic is complete":
+                pass
+            case "no game":
+                QMessageBox.critical(self, "ERROR", "请打开游戏！")
+                log._write_to_file("[ERROR] no game")
+            case "no pre-game":
+                QMessageBox.critical(self, "ERROR", "请前置游戏窗口！")
+                log._write_to_file("[ERROR] no pre-game")
+            case "no right size":
+                choice = QMessageBox.question(
+                    self, "窗口大小不匹配", "是否强制缩放，如不缩放，请自行靠近1136*640或者替换pic文件夹中对应素材")
+                log._write_to_file("[ERROR] no right size")
+                if choice == QMessageBox.Yes:
+                    window.force_zoom()
+                    log._write_to_file("user choose force_zoom")
+                elif choice == QMessageBox.No:
+                    log._write_to_file("user choose not force_zoom")
+            case _:
+                self.ui.button_resources.setEnabled(False)
+                self.ui.button_resources.setText("环境完整")
+                self.ui.combo_choice.setEnabled(True)
+                self.ui.spinB_num.setEnabled(True)
+                self.ui.text_miaoshu.setPlaceholderText(
+                    "移动游戏窗口后，点击下方“更新游戏窗口”即可\n请选择功能以加载内容")
+                # 悬赏封印
+                thread_xuanshang = Thread(
+                    target=xuanshangfengyin.XuanShangFengYin().judge)
+                thread_xuanshang.daemon = True
+                thread_xuanshang.start()
+
+    def resources_auto(self) -> str:
+        """开启自动环境检测"""
+        log._write_to_file("resources_auto")
+        picpath = fpath / "pic"
+        handle_coor = window.getInfo_Window()  # 游戏窗口
+        level: str = ""
+        # log检测
+        if not log.init():
+            level = "log"
+        # 图片资源检测
+        elif not picpath.exists():
+            level = "no pic"
+        # 图片资源是否完整
+        elif not self.pic_is_complete():
+            level = "pic is complete"
+        # 游戏环境检测
+        elif handle_coor == (0, 0, 0, 0):
+            level = "no game"
+        elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
+            level = "no pre-game"
+        # 环境完整
+        #TODO 解除窗口大小限制，待优化
+        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
+                1] != window.absolute_window_height:
+            level = "no right size"
+
+        return level
+
     def resources(self):
         """环境检测按钮"""
         picpath = fpath / "pic"
@@ -205,7 +277,7 @@ class MainWindow(QMainWindow):
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
             self.ui.text_miaoshu.setPlaceholderText(
-                "使用过程中，请不要移动游戏窗口，会导致点击位置错误\n请选择功能以加载内容")
+                "移动游戏窗口后，点击下方“更新游戏窗口”即可\n请选择功能以加载内容")
             # 悬赏封印
             thread_xuanshang = Thread(
                 target=xuanshangfengyin.XuanShangFengYin().judge)
