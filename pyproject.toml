@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "onmyoji-python"
-version = "1.6.6"
-description = ""
+version = "1.6.7"
+description = "auto for Onmyoji"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
 packages = [{include = "onmyoji_python"}]
