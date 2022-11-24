@@ -64,7 +64,7 @@ class DaoGuanTuPo(Function):
                     # 等待倒计时自动进入
                     if self.judge_scene_daoguantupo() == "倒计时":
                         if flag_daojishi:
-                            log.info("等待倒计时自动进入",True)
+                            log.info("等待倒计时自动进入", True)
                             flag_daojishi = False
                         self.flag_fighting = True
                         break
@@ -73,17 +73,17 @@ class DaoGuanTuPo(Function):
                         break
                     # 馆主战
                     elif self.judge_scene_daoguantupo() == "馆主战":
-                        log.warn("待开发",True)
+                        log.warn("待开发", True)
                         break
                 return True
             # 已进入道馆进攻状态
             elif self.judge_scene_daoguantupo() == "进行中":
-                log.info("道馆突破进行中",True)
+                log.info("道馆突破进行中", True)
                 self.flag_fighting = True
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景")
+                log.warn("请检查游戏场景", True)
 
     def judge_scene_daoguantupo(self):
         """场景判断"""
@@ -101,7 +101,7 @@ class DaoGuanTuPo(Function):
     def guanzhan(self):
         """观战"""
         time.sleep(2)
-        log.info(f"观战中，暂无法自动退出，可手动退出",True)
+        log.info("观战中，暂无法自动退出，可手动退出", True)
         # 战报按钮
         while True:
             x, y = self.get_coor_info_picture(f"{self.picpath}/qianwang.png")
@@ -119,28 +119,29 @@ class DaoGuanTuPo(Function):
         flag_zhuwei = False  # 是否能够助威
         while True:
             x1, y1 = self.get_coor_info_picture(f"{self.picpath}/zhuwei.png")
-            x2, y2 = self.get_coor_info_picture(f"{self.picpath}/test_zhuwei_gray.png")
+            x2, y2 = self.get_coor_info_picture(
+                f"{self.picpath}/test_zhuwei_gray.png")
             # 可助威
             if x1 != 0 and y1 != 0:
                 pyautogui.moveTo(x1, y1, duration=0.5)
                 pyautogui.click()
-                log.info("助威成功",True)
+                log.info("助威成功", True)
                 flag_zhuwei = True
             # 不可助威
             elif x2 != 0 and y2 != 0:
                 if flag_zhuwei:
-                    log.info("无法助威",True)
+                    log.info("无法助威", True)
                     flag_zhuwei = False
             # 结束观战
             else:
                 x, y = self.get_coor_info_picture("victory.png")
                 if x != 0 and y != 0:
-                    log.info("胜利",True)
+                    log.info("胜利", True)
                     self.random_finish_left_right()
                     break
                 x, y = self.get_coor_info_picture("fail.png")
                 if x != 0 and y != 0:
-                    log.info("失败",True)
+                    log.info("失败", True)
                     self.random_finish_left_right()
                     break
             time.sleep(2)
@@ -176,7 +177,7 @@ class DaoGuanTuPo(Function):
                         if item == "victory.png" or item == "fail.png":
                             time.sleep(2)
                             flag_result = True
-                        log.info(scene[item],True)
+                        log.info(scene[item], True)
                         pyautogui.moveTo(x, y, duration=0.5)
                         pyautogui.click()
                         break
@@ -188,6 +189,6 @@ class DaoGuanTuPo(Function):
         text = f"已完成 道馆突破 胜利{self.m}次"
         time_progarm.end()
         text = text + " " + time_progarm.print()
-        log.info(text,True)
+        log.info(text, True)
         # 启用按钮
         log.is_fighting(False)
