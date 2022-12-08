@@ -86,6 +86,14 @@ class Log:
         """
         self._text(text, "INFO", print_to_gui)
 
+    def ui(self, text: str) -> None:
+        """基于标准日志的UI输出
+
+        Args:
+            text (str): 文本内容
+        """
+        self.info(text=text, print_to_gui=True)
+
     def scene(self, text: str):
         """场景日志
 
@@ -111,8 +119,8 @@ class Log:
             print_to_gui (bool, optional): 是否在UI界面输出. Defaults to False.
         """
         self._text(text, "WARN", print_to_gui)
-    
-    def is_fighting(self, flag:bool=True):
+
+    def is_fighting(self, flag: bool = True):
         """是否进行中，禁用按钮
 
         Args:

@@ -64,6 +64,11 @@ class YuHun(Function):
             if x != 0 and y != 0:
                 log.info("结算中", True)
                 break
+            x, y = self.get_coor_info_picture(
+                f"{self.picpath}/yuhun_victory_2000.png")
+            if x != 0 and y != 0:
+                log.ui("结算中，2000天御魂背景")
+                break
         self.random_sleep(2, 4)
         x, y = self.random_finish_left_right(False)
         while 1:
@@ -76,7 +81,12 @@ class YuHun(Function):
                     pyautogui.click()
                     self.random_sleep(1, 2)
                     x, y = self.get_coor_info_picture("victory.png")
+                    # 未检测到图像，退出循环
                     if x == 0 or y == 0:
+                        break
+                    x, y = self.get_coor_info_picture(f"{self.picpath}/victory_2000.png")
+                    if x == 0 or y == 0:
+                        log.ui("victory 2000")
                         break
                 break
             self.random_sleep(0, 1)

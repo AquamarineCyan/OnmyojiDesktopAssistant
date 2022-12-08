@@ -155,6 +155,10 @@ class Function:
             if x != 0 and y != 0:
                 log.info("胜利", True)
                 return True
+            x, y = self.get_coor_info_picture("yuhun/victory_2000.png")
+            if x != 0 and y != 0:
+                log.ui("胜利，2000天御魂背景")
+                return True
             x, y = self.get_coor_info_picture("fail.png")
             if x != 0 and y != 0:
                 log.info("失败", True)
