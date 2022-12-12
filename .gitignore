@@ -1,0 +1,17 @@
+# file
+.gitattributes
+desktop.ini
+Onmyoji_Python.exe
+*.pyc
+*.xml
+
+Onmyoji_Python.code-workspace
+
+# dir
+build
+.idle
+.idea
+log
+doc
+cache_baiguiyexing
+

@@ -4,7 +4,6 @@ version = "1.6.7"
 description = "auto for Onmyoji"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
-packages = [{include = "onmyoji_python"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
