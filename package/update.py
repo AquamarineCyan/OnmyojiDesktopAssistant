@@ -9,6 +9,9 @@ from utils.mysignal import global_ms as ms
 def update_record():
     """更新日志"""
     update = {
+        "1.6.8":
+        """修复 匹配道馆突破场景失败的提示
+适配 签到2000天奖励「鎏金圣域」""",
         "1.6.7":
         """回退 限时活动至周年庆版本前
 新增 系统通知
