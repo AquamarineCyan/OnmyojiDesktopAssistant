@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # update.py
 """
 更新日志
@@ -6,9 +7,14 @@
 from utils.mysignal import global_ms as ms
 
 
-def update_record():
+def update_record() -> None:
     """更新日志"""
     update = {
+        "1.7.0":
+        """该版本为1.7测试版
+资源文件夹由 `pic` 更新为 `resource` ，尝试兼容旧资源文件夹
+新增 配置文件及设置
+优化 悬赏封印处理方式并添加设置项""",
         "1.6.8":
         """修复 匹配道馆突破场景失败的提示
 适配 签到2000天奖励「鎏金圣域」""",

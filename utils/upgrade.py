@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# upgrade.py
 """
 更新升级
 """
@@ -7,21 +8,16 @@
 import httpx
 import requests
 import json
-from pathlib import Path
 
-
-from main import version as version_location
-
-
+from .config import config
 from .log import log
 from .toaster import toaster
-
-fpath = Path.cwd()
-"""文件路径"""
 
 
 class Upgrade:
     def __init__(self) -> None:
+        self.application_path = config.application_path
+        self.version_location = config.version
         self.version_github: str = ""
         self.browser_download_url: str = ""
         self.new_version_info: str = ""
@@ -48,7 +44,7 @@ class Upgrade:
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
                     log.info(f"version_github:{self.version_github}")
-                    if self.version_github > version_location:
+                    if self.version_github > self.version_location:
                         log.info(f"body:{data_dict['body']}")
                         self.new_version_info = data_dict["body"]
                         log.info(f"new_version_info:{self.new_version_info}")
@@ -76,7 +72,7 @@ class Upgrade:
         log.info(f"browser_download_url:{self.browser_download_url}", True)
         zip_name = './' + self.browser_download_url.split('/')[-1]
         log.info(f"zip_name:{zip_name}")
-        if fpath.joinpath(self.browser_download_url.split('/')[-1]) in fpath.iterdir():
+        if self.application_path.joinpath(self.browser_download_url.split('/')[-1]) in self.application_path.iterdir():
             log.info("存在新版本更新包", True)
             toaster("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
@@ -97,7 +93,7 @@ class Upgrade:
                 log.info("访问下载链接失败", True)
 
     def upgrade_auto(self):
-        log.info(f"当前版本:{version_location}", True)
+        log.info(f"当前版本:{self.version_location}", True)
         if self.get_browser_download_url() == "has new version":
             self.download_zip()
             log.info(f"有新版本:{self.version_github}", True)

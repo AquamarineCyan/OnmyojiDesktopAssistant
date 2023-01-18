@@ -1,5 +1,4 @@
 from package import (
-    update,
     yuhun,  # 1
     yongshengzhihai,  # 2
     yeyuanhuo,  # 3
@@ -10,6 +9,6 @@ from package import (
     baiguiyexing,  # 9
     huodong,  # 10
     rilun,  # 11
+    tansuo,  # 12
     xuanshangfengyin
 )
-# from .log import Log
