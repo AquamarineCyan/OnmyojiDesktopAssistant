@@ -7,7 +7,7 @@
 import time
 import pyautogui
 
-from utils.function import function
+from utils.function import function, time_consumption_statistics
 from utils.log import log
 from utils.window import window
 
@@ -76,6 +76,7 @@ class RiLun:
                 break
             function.random_sleep(0, 1)
 
+    @time_consumption_statistics
     def run(
         self,
         n: int,
@@ -88,8 +89,6 @@ class RiLun:
         self.flag_passengers = flag_passengers
         time.sleep(2)
         self.n = n
-        time_progarm = function.TimeProgram()  # 程序计时
-        time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             while self.m < self.n:
@@ -102,7 +101,7 @@ class RiLun:
                     while 1:
                         x, y = function.get_coor_info_picture(
                             f"{self.resource_yuhun_path}/passenger_2.png"
-                            )
+                        )
                         if x == 0 and y == 0:
                             self.flag_passenger_2 = True
                             log.info("队员2就位", True)
@@ -112,7 +111,7 @@ class RiLun:
                         while 1:
                             x, y = function.get_coor_info_picture(
                                 f"{self.resource_yuhun_path}/passenger_3.png"
-                                )
+                            )
                             if x == 0 and y == 0:
                                 self.flag_passenger_3 = True
                                 log.info("队员3就位", True)
@@ -130,8 +129,4 @@ class RiLun:
                 log.num(f"{self.m}/{self.n}")
                 time.sleep(2)
         text = f"已完成 组队日轮副本 {self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)

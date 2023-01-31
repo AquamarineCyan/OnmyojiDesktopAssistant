@@ -328,11 +328,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 flag_refresh = True
                 time.sleep(time_wait)
 
+    @time_consumption_statistics
     def run(self, n: int) -> None:
         time.sleep(2)
         self.n = n
-        time_progarm = function.TimeProgram()  # 程序计时
-        time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             function.random_sleep(1, 3)
@@ -353,11 +352,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     break
                 time.sleep(3)
         text = f"已完成 个人突破 {self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):
@@ -468,8 +463,6 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     def run(self, n: int) -> None:
         time.sleep(2)
         self.n = n
-        # time_progarm = function.TimeProgram()  # 程序计时
-        # time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             function.random_sleep(1, 3)
@@ -483,8 +476,4 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     break
                 time.sleep(3)
         text = f"已完成 阴阳寮突破 {self.m}次"
-        # time_progarm.end()
-        # text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        # log.is_fighting(False)

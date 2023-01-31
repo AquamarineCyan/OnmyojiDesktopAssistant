@@ -9,7 +9,7 @@ import random
 import pyautogui
 
 from utils.window import window
-from utils.function import function
+from utils.function import function, time_consumption_statistics
 from utils.log import log
 
 """
@@ -111,12 +111,10 @@ class BaiGuiYeXing:
                 pyautogui.click()
                 break
 
+    @time_consumption_statistics
     def run(self, n: int):
         time.sleep(2)
         self.n = n
-        # 程序计时
-        time_progarm = function.TimeProgram()
-        time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             function.random_sleep(1, 3)
@@ -135,8 +133,4 @@ class BaiGuiYeXing:
                 if self.m == 12 or self.m == 25 or self.m == 39:
                     function.random_sleep(10, 20)
         text = f"已完成 {self.scene_name} {self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)

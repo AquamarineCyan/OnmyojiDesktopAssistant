@@ -7,7 +7,7 @@
 import time
 import pyautogui
 
-from utils.function import function
+from utils.function import function, time_consumption_statistics
 from utils.log import log
 
 """
@@ -153,11 +153,10 @@ class DaoGuanTuPo:
         """馆主战"""
         pass
 
+    @time_consumption_statistics
     def run(self, flag_guanzhan: bool = False) -> None:
         time.sleep(2)
         flag_result = False  # 结束
-        time_progarm = function.TimeProgram()  # 程序计时
-        time_progarm.start()
         if self.title():
             log.num(0)
             function.random_sleep(2, 4)
@@ -191,8 +190,4 @@ class DaoGuanTuPo:
             if flag_guanzhan:
                 self.guanzhan()
         text = f"已完成 {self.scene_name} 胜利{self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)

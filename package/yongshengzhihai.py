@@ -93,9 +93,6 @@ class YongShengZhiHai:
         self.flag_driver = flag_driver
         time.sleep(2)
         self.n = n
-        # 程序计时
-        # time_progarm = function.TimeProgram()
-        # time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             while self.m < self.n:
@@ -127,8 +124,4 @@ class YongShengZhiHai:
                 log.num(f"{self.m}/{self.n}")
                 time.sleep(2)
         text = f"已完成 {self.scene_name} {self.m}次"
-        # time_progarm.end()
-        # text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        # log.is_fighting(False)

@@ -6,7 +6,7 @@
 
 import time
 
-from utils.function import function
+from utils.function import function, time_consumption_statistics
 from utils.log import log
 
 """
@@ -40,11 +40,10 @@ class YuLing:
         """挑战开始"""
         function.judge_click(f"{self.resource_path}/tiaozhan.png")
 
+    @time_consumption_statistics
     def run(self, n: int) -> None:
         time.sleep(2)
         self.n = n
-        time_progarm = function.TimeProgram()  # 程序计时
-        time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             function.random_sleep(1, 3)
@@ -64,8 +63,4 @@ class YuLing:
                 if self.m == 12 or self.m == 25 or self.m == 39 or self.m == 59 or self.m == 73:
                     function.random_sleep(10, 20)
         text = f"已完成 {self.scene_name} {self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)

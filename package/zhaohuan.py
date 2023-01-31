@@ -6,7 +6,7 @@
 
 import time
 
-from utils.function import function
+from utils.function import function, time_consumption_statistics
 from utils.log import log
 
 
@@ -45,12 +45,11 @@ class ZhaoHuan:
         function.judge_click(f"{self.resource_path}/zaicizhaohuan.png")
         function.random_sleep(6, 8)
 
+    @time_consumption_statistics
     def run(self, n: int) -> None:
         time.sleep(2)
         self.n = n
         flag = True  # 是否第一次
-        time_progarm = function.TimeProgram()  # 程序计时
-        time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             function.random_sleep(1, 3)
@@ -67,8 +66,4 @@ class ZhaoHuan:
             if self.m == self.n:
                 function.judge_click(f"{self.resource_path}/queding.png")
         text = f"已完成 普通召唤十连 {self.m}次"
-        time_progarm.end()
-        text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        log.is_fighting(False)

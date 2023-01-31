@@ -103,8 +103,6 @@ class YuHun():
         self.flag_passengers = flag_passengers
         time.sleep(2)
         self.n = n
-        # time_progarm = function.TimeProgram()  # 程序计时
-        # time_progarm.start()
         if self.title():
             log.num(f"0/{self.n}")
             while self.m < self.n:
@@ -154,11 +152,7 @@ class YuHun():
                 log.num(f"{self.m}/{self.n}")
                 time.sleep(2)
         text = f"已完成 组队御魂副本{self.m}次"
-        # time_progarm.end()
-        # text = text + " " + time_progarm.print()
         log.info(text, True)
-        # 启用按钮
-        # log.is_fighting(False)
 
 
 class Coordinate:
