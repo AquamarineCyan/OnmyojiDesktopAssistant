@@ -7,6 +7,7 @@
 import random
 import time
 from pathlib import Path
+from win11toast import toast
 
 import pyautogui
 
@@ -14,7 +15,6 @@ from package.xuanshangfengyin import xuanshangfengyin
 
 from .config import config
 from .log import log
-from .toaster import toaster
 from .window import window
 
 
@@ -141,7 +141,15 @@ class Function:
 
     # TODO
     def check_scene_multiple_once(self, scene: dict | list, resource_path: str = None) -> tuple[str, tuple[int, int]]:
-        """多场景判断，仅遍历一次"""
+        """多场景判断，仅遍历一次
+
+        Args:
+            scene (dict | list): _description_
+            resource_path (str, optional): _description_. Defaults to None.
+
+        Returns:
+            tuple[str, tuple[int, int]]: _description_
+        """
         # scene = {
         #     "tansuo_28_title.png": "少女与面具",
         #     "chuzhanxiaohao.png": "出战消耗"
@@ -396,18 +404,18 @@ def time_consumption_statistics(func):
 
         func(*args, **kwargs)
 
-        toaster("Onmyoji", "任务已完成")
         time_end = time.perf_counter()
         try:
             if time_end - time_start >= 60:
-                log.ui(
-                    f"耗时{int((time_end - time_start) // 60)}分{int((time_end - time_start) % 60)}秒"
-                )
+                log.ui(f"耗时{int((time_end - time_start) // 60)}分{int((time_end - time_start) % 60)}秒")
             else:
                 log.ui(f"耗时{int(time_end - time_start)}秒")
         except:
             log.error("耗时统计计算失败")
         # 启用按钮
         log.is_fighting(False)
+        # 系统通知
+        # 5s结束，保留至通知中心
+        toast("任务已完成")
 
     return run

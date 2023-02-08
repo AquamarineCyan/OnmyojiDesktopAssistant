@@ -8,10 +8,10 @@
 import httpx
 import requests
 import json
+from win11toast import toast
 
 from .config import config
 from .log import log
-from .toaster import toaster
 
 
 class Upgrade:
@@ -54,8 +54,7 @@ class Upgrade:
                         log.info(
                             f"browser_download_url:{self.browser_download_url}")
                         log.info(f"有新版本{self.version_github}", True)
-                        toaster(
-                            "检测到新版本", f"{self.version_github}\n{self.new_version_info}")
+                        toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
                         return "has new version"
                     else:
                         log.info("暂无更新", True)
@@ -74,7 +73,7 @@ class Upgrade:
         log.info(f"zip_name:{zip_name}")
         if self.application_path.joinpath(self.browser_download_url.split('/')[-1]) in self.application_path.iterdir():
             log.info("存在新版本更新包", True)
-            toaster("存在新版本更新包", "请关闭程序后手动解压覆盖")
+            toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
             log.info("未存在新版本更新包，即将开始下载", True)
             try:
@@ -88,7 +87,7 @@ class Upgrade:
                         if chunk:
                             f.write(chunk)
                 log.info("下载更新包完成，请关闭程序后手动解压覆盖", True)
-                toaster("下载更新包完成", "请关闭程序后手动解压覆盖")
+                toast("下载更新包完成", "请关闭程序后手动解压覆盖")
             except:
                 log.info("访问下载链接失败", True)
 

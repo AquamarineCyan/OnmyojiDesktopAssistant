@@ -8,12 +8,12 @@ from pathlib import Path
 import time
 import pyautogui
 import random
+from win11toast import toast
 
 from utils.config import config
 from utils.event import event_xuanshang
 from utils.log import log
 from utils.window import window
-from utils.toaster import toaster
 
 
 class XuanShangFengYin:
@@ -102,7 +102,7 @@ class XuanShangFengYin:
                     event_xuanshang.clear()
                     self._flag = True
                     log.warn("已暂停后台线程，等待处理", True)
-                    toaster("悬赏封印", "检测到协作")
+                    toast("悬赏封印", "检测到协作")
                     print(event_xuanshang.is_set())
                     match config.xuanshangfengyin_receive:
                         case "接受":
