@@ -1,0 +1,60 @@
+name: Test Coverage
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+        os: [windows-latest]
+      # fail-fast: false
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON_VERSION: ${{ matrix.python-version }}
+
+    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-python@v4
+#        with:
+#          python-version: ${{ matrix.python-version }}
+#      - uses: Gr1N/setup-poetry@v7
+#      - run: poetry --version
+      
+      - uses: actions/checkout@v3
+      
+      - name: Install poetry  
+        run: pipx install poetry
+        shell: bash
+      
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "poetry"
+        
+      - name: Install dependencies
+        run: poetry install
+        shell: bash
+
+#      - name: Run main.py
+#        run: poetry run python main.py
+      
+      - name: Poetry Version
+        run: poetry --version
+      
+      - name: Show Old Package
+        run: poetry show --outdated
+      
+#      - name: Add Pytest
+#        run: poetry add pytest --dev
+#        shell: bash
+        
+      - name: Run Pytest
+        run: |
+          cd tests
+          poetry run pytest
