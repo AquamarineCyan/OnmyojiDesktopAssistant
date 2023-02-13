@@ -1,7 +1,6 @@
 Python>=3.10
 PyAutoGUI
 httpx
-requests
 pywin32
 PySide6>=6.3.0
 opencv-python>=4.6.0.66
