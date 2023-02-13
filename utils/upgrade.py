@@ -18,8 +18,12 @@ class Upgrade:
     def __init__(self) -> None:
         self.application_path = config.application_path
         self.version_location = config.version
+        self.headers: dict = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.70"
+        }
         self.version_github: str = ""
         self.browser_download_url: str = ""
+        self.browser_download_url_ghproxy: str = f"https://ghproxy.com/{self.browser_download_url}"
         self.new_version_info: str = ""
 
     def get_browser_download_url(self) -> str:
@@ -29,11 +33,8 @@ class Upgrade:
             str: 更新地址
         """
         api_url = "https://api.github.com/repos/AquamarineCyan/Onmyoji_Python/releases/latest"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36"
-        }
         try:
-            result = httpx.get(api_url, headers=headers)
+            result = httpx.get(api_url, headers=self.headers)
             log.info(f"api_url.status_code:{result.status_code}")
             if result.status_code == 200:
                 data_dict = json.loads(result.text)
@@ -51,45 +52,46 @@ class Upgrade:
                         log.info(f"assets:{data_dict['assets']}")
                         log.info(f"assets[0]:{data_dict['assets'][0]}")
                         self.browser_download_url = data_dict["assets"][0]["browser_download_url"]
-                        log.info(
-                            f"browser_download_url:{self.browser_download_url}")
-                        log.info(f"有新版本{self.version_github}", True)
+                        log.info(f"browser_download_url:{self.browser_download_url}")
+                        log.ui(f"有新版本{self.version_github}")
                         toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
                         return "has new version"
                     else:
-                        log.info("暂无更新", True)
+                        log.ui("暂无更新")
                         return "the version is the latest"
         except:
             log.info("获取更新地址失败", True)
             return "cant connect"
 
-    def download_zip(self) -> None:
-        """
-        下载更新包
-        """
-        log.info("准备下载更新包", True)
-        log.info(f"browser_download_url:{self.browser_download_url}", True)
+    def download_zip(self) -> bool:
+        """下载更新包"""
+        log.ui("准备下载更新包")
+        log.ui(f"browser_download_url:{self.browser_download_url}")
         zip_name = './' + self.browser_download_url.split('/')[-1]
         log.info(f"zip_name:{zip_name}")
         if self.application_path.joinpath(self.browser_download_url.split('/')[-1]) in self.application_path.iterdir():
-            log.info("存在新版本更新包", True)
+            log.ui("存在新版本更新包")
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
-            log.info("未存在新版本更新包，即将开始下载", True)
+            log.ui("未存在新版本更新包，即将开始下载")
             try:
-                response = requests.get(self.browser_download_url, stream=True)
-                log.info(
-                    f"browser_download_url.status_code:{response.status_code}")
-                bytes_total = response.headers['Content-length']
-                log.info(f"bytes_total:{bytes_total}", True)
-                with open(zip_name, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=1024):
-                        if chunk:
-                            f.write(chunk)
-                log.info("下载更新包完成，请关闭程序后手动解压覆盖", True)
-                toast("下载更新包完成", "请关闭程序后手动解压覆盖")
+                for download_url in [self.browser_download_url, self.browser_download_url_ghproxy]:
+                    log.info(download_url)
+                    with httpx.stream("GET", download_url, headers=self.headers) as r:
+                        log.info(f"status_code:{r.status_code}")
+                        if r.status_code == 200:
+                            bytes_total = r.headers["Content-length"]
+                            log.ui(f"bytes_total:{bytes_total}")
+                            with open("download.zip", "wb") as f:
+                                for chunk in r.iter_bytes(chunk_size=1024):
+                                    if chunk:
+                                        f.write(chunk)
+                            log.ui("下载更新包完成，请关闭程序后手动解压覆盖")
+                            toast("下载更新包完成", "请关闭程序后手动解压覆盖")
+                            return True
             except:
-                log.info("访问下载链接失败", True)
+                log.ui("访问下载链接失败")
+                return False
 
     def upgrade_auto(self):
         log.info(f"当前版本:{self.version_location}", True)
