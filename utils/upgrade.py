@@ -6,7 +6,6 @@
 """
 
 import httpx
-import requests
 import json
 from win11toast import toast
 
