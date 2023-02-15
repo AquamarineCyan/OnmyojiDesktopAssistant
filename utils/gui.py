@@ -466,10 +466,7 @@ class MainWindow(QMainWindow):
                     )
                 case 10:
                     # 10.限时活动
-                    thread = Thread(
-                        target=huodong.HuoDong().run,
-                        args=(n,)
-                    )
+                    thread = Thread(target=huodong.HuoDong(n).run)
                 case 11:
                     # 11.组队日轮副本
                     # 是否司机（默认否）
