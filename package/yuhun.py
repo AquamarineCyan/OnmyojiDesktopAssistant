@@ -57,6 +57,7 @@ class YuHun():
             "tiaozhan",  # 挑战
             "yuhun_victory",  # 胜利
             "yuhun_victory_2000",  # 2000天鎏金圣域背景
+            "yuhun_victory_shenfa"  # 神罚胜利
             "finish_shenfa"  # 神罚结算
         ]
 
@@ -116,12 +117,12 @@ class YuHun():
                 break
             x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_2000.png")
             if x != 0 and y != 0:
-                log.ui("胜利，2000天御魂背景")
+                log.ui("胜利 2000天御魂背景")
                 break
             # finish_shenfa
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/finish_shenfa.png")
+            x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_shenfa.png")
             if x != 0 and y != 0:
-                log.ui("胜利，神罚副本")
+                log.ui("胜利 神罚副本")
                 break
 
         function.random_sleep(1, 3)
