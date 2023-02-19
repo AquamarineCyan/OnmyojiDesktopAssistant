@@ -57,7 +57,7 @@ class YuHun():
             "tiaozhan",  # 挑战
             "yuhun_victory",  # 胜利
             "yuhun_victory_2000",  # 2000天鎏金圣域背景
-            "yuhun_victory_shenfa"  # 神罚胜利
+            "yuhun_victory_shenfa",  # 神罚胜利
             "finish_shenfa"  # 神罚结算
         ]
 
