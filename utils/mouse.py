@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# window.py
+# mouse.py
 """
 鼠标信息
 """
