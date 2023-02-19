@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
         if text == self._list_function[0]:
             # 1.组队御魂副本
             self._choice = 1
-            log.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
+            log.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n已适配组队魂土、神罚副本\n待开发：手动第一次锁定阵容")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(1)
@@ -395,13 +395,8 @@ class MainWindow(QMainWindow):
                         flag_driver = False
                     else:
                         flag_driver = True
-                    flag_passengers = int(
-                        self.ui.buttonGroup_passengers.checkedButton().text()
-                    )
-                    thread = Thread(
-                        target=yuhun.YuHun().run,
-                        args=(n, flag_driver, flag_passengers)
-                    )
+                    flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
+                    thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers).run)
                     # 当前线程id
                     # print('main id', int(QThread.currentThreadId()))
                     # thread = MyThread(

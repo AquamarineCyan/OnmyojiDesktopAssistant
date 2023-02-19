@@ -31,16 +31,41 @@ yuhun_victory.png
 class YuHun():
     """组队御魂副本"""
 
-    def __init__(self):
-        self.resource_path = "yuhun"  # 图片路径
-        self.m = 0  # 当前次数
-        self.n = None  # 总次数
-        self.flag_driver = False  # 是否为司机（默认否）
-        self.flag_passengers = 2  # 组队人数
-        self.flag_passenger_2 = False  # 队员2就位
-        self.flag_passenger_3 = False  # 队员3就位
-        self.flag_driver_start = False  # 司机待机
-        self.flag_fighting = False  # 是否进行中对局（默认否）
+    def __init__(
+        self,
+        n: int = 0,
+        flag_driver: bool = False,
+        flag_passengers: int = 2
+    ) -> None:
+        """组队御魂副本
+
+        Args:
+            n (int): 次数，默认0次.
+            flag_driver (bool): 是否司机，默认否.
+            flag_passengers (int): 组队人数，默认2人.
+        """
+        self.scene_name = "组队御魂副本"
+        self.resource_path = "yuhun"  # 路径
+        self.n = 0  # 当前次数
+        self.max = n  # 总次数
+        self.scene_list: list = [
+            "xiezhanduiwu",  # 组队界面
+            "fighting",  # 魂土进行中
+            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
+            "passenger_2",  # 队员2
+            "passenger_3",  # 队员3
+            "tiaozhan",  # 挑战
+            "yuhun_victory",  # 胜利
+            "yuhun_victory_2000",  # 2000天鎏金圣域背景
+            "finish_shenfa"  # 神罚结算
+        ]
+
+        self.flag_driver: bool = flag_driver  # 是否为司机（默认否）
+        self.flag_passengers: int = flag_passengers  # 组队人数
+        self.flag_passenger_2: bool = False  # 队员2就位
+        self.flag_passenger_3: bool = False  # 队员3就位
+        self.flag_driver_start: bool = False  # 司机待机
+        self.flag_fighting: bool = False  # 是否进行中对局（默认否）
         self.flag_is_first: bool = True  # 是否第一次（用于接受邀请）
 
     def title(self):
@@ -57,19 +82,50 @@ class YuHun():
                 flag_title = False
                 log.warn("请检查游戏场景", True)
 
+    def result(self) -> bool:
+        """结果判断
+
+        Returns:
+            bool: Success or failure
+        """
+        log.info("result check")
+        while True:
+            x, y = function.get_coor_info_picture("victory.png")
+            if x != 0 and y != 0:
+                log.ui("胜利")
+                return True
+            x, y = function.get_coor_info_picture(f"{self.resource_path}/victory_2000.png")
+            if x != 0 and y != 0:
+                log.ui("胜利，2000天御魂背景")
+                return True
+            x, y = function.get_coor_info_picture(f"{self.resource_path}/finish_shenfa.png")
+            if x != 0 and y != 0:
+                log.ui("胜利，神罚副本")
+                return True
+            x, y = function.get_coor_info_picture("fail.png")
+            if x != 0 and y != 0:
+                log.ui("失败")
+                return False
+
     def finish(self):
         """结算"""
         while 1:
             x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory.png")
             if x != 0 and y != 0:
-                log.ui("结算中")
+                log.ui("胜利")
                 break
             x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_2000.png")
             if x != 0 and y != 0:
-                log.ui("结算中，2000天御魂背景")
+                log.ui("胜利，2000天御魂背景")
                 break
-        function.random_sleep(2, 4)
-        x, y = function.random_finish_left_right(False)
+            # finish_shenfa
+            x, y = function.get_coor_info_picture(f"{self.resource_path}/finish_shenfa.png")
+            if x != 0 and y != 0:
+                log.ui("胜利，神罚副本")
+                break
+
+        function.random_sleep(1, 3)
+        x, y = function.random_finish_left_right(False, is_shenfa=True)
         while 1:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.doubleClick()
@@ -78,34 +134,32 @@ class YuHun():
                     function.random_sleep(1, 2)
                     pyautogui.click()
                     function.random_sleep(1, 2)
-                    x, y = function.get_coor_info_picture("victory.png")
                     # 未检测到图像，退出循环
+                    x, y = function.get_coor_info_picture("victory.png")
                     if x == 0 or y == 0:
                         break
-                    x, y = function.get_coor_info_picture(
-                        f"{self.resource_path}/victory_2000.png")
+                    x, y = function.get_coor_info_picture(f"{self.resource_path}/victory_2000.png")
                     if x == 0 or y == 0:
-                        log.ui("victory 2000")
+                        log.ui("胜利 鎏金圣域")
+                        break
+                    x, y = function.get_coor_info_picture(f"{self.resource_path}/finish_shenfa.png")
+                    if x == 0 or y == 0:
+                        log.ui("胜利 神罚副本")
                         break
                 break
             function.random_sleep(0, 1)
 
     @time_consumption_statistics
-    def run(self, n: int, flag_driver: bool = False, flag_passengers: int = 2):
-        """
-        :param n: 次数
-        :param flag_driver: 是否司机（默认否）
-        :param flag_passengers: 人数（默认2人）
-        """
+    def run(self):
         x: int
         y: int
-        self.flag_driver = flag_driver
-        self.flag_passengers = flag_passengers
+        # self.flag_driver = flag_driver
+        # self.flag_passengers = flag_passengers
         time.sleep(2)
-        self.n = n
+        # self.n = n
         if self.title():
-            log.num(f"0/{self.n}")
-            while self.m < self.n:
+            log.num(f"0/{self.max}")
+            while self.n < self.max:
                 self.flag_passenger_2 = False
                 self.flag_passenger_3 = False
                 # 接受邀请
@@ -139,7 +193,7 @@ class YuHun():
                     # function.judge_click(f"{self.resource_path}/fighting.png", False)
                     while True:
                         scene, (x, y) = function.check_scene_multiple_once(
-                            ["fighting", "fighting_linshuanghanxue"],
+                            ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"],
                             self.resource_path
                         )
                         if x != 0 and y != 0:
@@ -148,10 +202,10 @@ class YuHun():
                     self.flag_fighting = False
                     log.info("对局进行中", True)
                 self.finish()
-                self.m += 1
-                log.num(f"{self.m}/{self.n}")
+                self.n += 1
+                log.num(f"{self.n}/{self.max}")
                 time.sleep(2)
-        text = f"已完成 组队御魂副本{self.m}次"
+        text = f"已完成 组队御魂副本{self.n}次"
         log.info(text, True)
 
 

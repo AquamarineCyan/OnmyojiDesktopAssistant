@@ -161,7 +161,7 @@ class Window():
                 3: "高度"
             }
             # 显示修正，对主体判断无影响
-            s = ""
+            s = "游戏窗口信息\n"
             s = s + f"{handle_infodict[0]}:{self.handle_coor[0] + 9}\n"
             s = s + f"{handle_infodict[1]}:{self.handle_coor[1]}\n"
             s = s + \

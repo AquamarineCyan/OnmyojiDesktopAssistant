@@ -280,12 +280,18 @@ class Function:
                 log.info("失败", True)
                 return False
 
-    def random_finish_left_right(self, click: bool = True, is_yuling: bool = False) -> tuple[int, int]:
+    def random_finish_left_right(
+            self, 
+            click: bool = True, 
+            is_yuling: bool = False, 
+            is_shenfa:bool=False
+            ) -> tuple[int, int]:
         """结算界面伪随机点击区域
 
         Args:
             click (bool, optional): 鼠标点击. Defaults to True.
             is_yuling (bool, optional): 是否为御灵. Defaults to False.
+            is_shenfa (bool, optional): 是否为神罚. Defaults to False.
 
         Returns:
             tuple[int, int]: 局部随机坐标
@@ -307,6 +313,9 @@ class Function:
         y: int
         if is_yuling:
             finish_y2 = finish_y2 - 200
+        if is_shenfa:
+            finish_left_x2 = 70
+            finish_right_x1 = 1070
         # 获取系统当前时间戳
         random.seed(time.time_ns())
         if random.random() * 10 > 5:
