@@ -52,6 +52,7 @@ class YuHun():
             "xiezhanduiwu",  # 组队界面
             "fighting",  # 魂土进行中
             "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
+            "fighting_shenfa",  # 神罚战斗场景
             "passenger_2",  # 队员2
             "passenger_3",  # 队员3
             "tiaozhan",  # 挑战

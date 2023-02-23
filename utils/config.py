@@ -32,12 +32,9 @@ class Config():
         }
         self.config_user: dict = None
 
-        thread_config_init = MyThread(func=self.config_yaml_init)
-        thread_config_init.daemon = True
-        thread_config_init.start()
-
     def config_yaml_init(self):
         if self.config_yaml_path.is_file():
+            self._write_to_file("file config.yaml has already.")
             data = self.config_yaml_read()
             # 更新模式
             # self.update_mode = self.check_dict_key_is_in_list(
@@ -48,7 +45,7 @@ class Config():
             data = self.check_config(data)
             # self._write_to_file(self.xuanshangfengyin_receive)
         else:
-            self._write_to_file("不存在配置文件")
+            self._write_to_file("cannot find file config.yaml.")
             data = self.config_default
             for item in data.keys():
                 value = data[item]
@@ -60,7 +57,7 @@ class Config():
                     data[item] = value
         self.config_yaml_save(data)
         self.config_user = data
-        self._write_to_file("成功创建配置文件")
+        self._write_to_file("create file config.yaml success.")
         self.setting_to_ui_qcombobox_update_func()
 
     def config_yaml_read(self) -> dict:
@@ -73,7 +70,7 @@ class Config():
             with open(self.config_yaml_path, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
-            self._write_to_file("保存失败")
+            self._write_to_file("file config.yaml save failed.")
 
     # def check_dict_key_is_in_list(self, config_dict: dict, key: str, config_list: list):
     #     """给出一个字典和键值，检查值是否包含在列表中，如包含，返回值；如未包含，返回列表第一个值
@@ -140,7 +137,6 @@ class Config():
     def setting_to_ui_qcombobox_update_func(self) -> None:
         """配置项同步gui"""
         # key = "悬赏封印"
-        self._write_to_file("*************")
         # self._write_to_file(self.config_user[key])
         for item in self.config_default.keys():
             self._write_to_file(item)
@@ -162,6 +158,14 @@ class Config():
                 f"FileNotFoundError {self.application_path}\log\log-{time.strftime('%Y%m%d')}.txt"
             )
             print("fail to create log")
+
+    def is_Chinese_Path(self) -> bool:
+        import re
+        zhPattern = re.compile(u'[\u4e00-\u9fa5]+')
+        match = zhPattern.search(str(self.application_path))
+        if not match:
+            return False
+        return True
 
 
 config = Config()

@@ -117,7 +117,6 @@ class MainWindow(QMainWindow):
             target=self.application_init,
             daemon=True
         )
-        # thread_application_init.daemon = True
         thread_application_init.start()
 
     def application_init(self) -> None:
@@ -127,13 +126,12 @@ class MainWindow(QMainWindow):
                 target=self.enviroment_testing_func,
                 daemon=True
             )
-            # thread_enviroment_testing.daemon = True
             thread_enviroment_testing.start()
             thread_enviroment_testing.join()
-
+        
+        log.info(f"application path:{config.application_path}")
+        log.info(f"resource path:{config.resource_path}")
         log.ui("未正确使用所产生的一切后果自负\n保持您的肝度与日常无较大差距\n")
-        log.ui(f"application path:{config.application_path}")
-        log.ui(f"resource path:{config.resource_path}")
         thread_upgrade = Thread(
             target=Upgrade().upgrade_auto,
             daemon=True
@@ -149,7 +147,6 @@ class MainWindow(QMainWindow):
             target=xuanshangfengyin.xuanshangfengyin.judge,
             daemon=True
         )
-        # thread_xuanshang.daemon = True
         thread_xuanshang.start()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
@@ -217,6 +214,10 @@ class MainWindow(QMainWindow):
         # log检测
         if not log.init():
             ms.qmessagbox_update.emit("ERROR", "创建log目录失败，请重试！")
+        # 中文路径
+        elif config.is_Chinese_Path():
+            log.error("Chinese Path")
+            ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
         # 图片资源检测
         elif not config.resource_path.exists():
             log.error("资源文件夹不存在")
