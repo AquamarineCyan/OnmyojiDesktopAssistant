@@ -1,17 +1,20 @@
 # file
-.gitattributes
-desktop.ini
-Onmyoji_Python.exe
 *.pyc
 *.xml
-
+.gitattributes
+.vscode/launch.json
+config.yaml
+desktop.ini
 Onmyoji_Python.code-workspace
+Onmyoji_Python.exe
 
 # dir
-build
 .idle
 .idea
-log
-doc
+build
 cache_baiguiyexing
-
+dist
+doc
+log
+test_code
+wiki
