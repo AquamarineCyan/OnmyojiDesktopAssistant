@@ -143,21 +143,25 @@ class Config():
             self._write_to_file(self.config_user[item])
             ms.setting_to_ui_update.emit(item, self.config_user[item])
 
-    def _write_to_file(self, text: str | int) -> None:
-        """write text to log.txt
+    def _write_to_file(self, text: str | int) -> bool:
+        """写入日志文件
 
         Args:
             text (str | int): 文本内容
+
+        Returns:
+            bool: 文本写入是否成功
         """
-        print(text)
+        file: Path = self.application_path / f"log/log-{time.strftime('%Y%m%d')}.txt"
+        if isinstance(text, int):
+            text = str(text)
         try:
-            with open(fr"{self.application_path}\log\log-{time.strftime('%Y%m%d')}.txt", mode="a", encoding="utf-8") as f:
+            with file.open(mode="a", encoding="utf-8") as f:
                 f.write(f"{text}\n")
+                return True
         except:
-            print(
-                f"FileNotFoundError {self.application_path}\log\log-{time.strftime('%Y%m%d')}.txt"
-            )
-            print("fail to create log")
+            print(f"FileNotFoundError {file}")
+            return False
 
     def is_Chinese_Path(self) -> bool:
         import re
