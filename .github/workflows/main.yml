@@ -44,15 +44,8 @@ jobs:
 #      - name: Run main.py
 #        run: poetry run python main.py
       
-      - name: Poetry Version
-        run: poetry --version
-      
       - name: Show Old Package
-        run: poetry show --outdated
-      
-#      - name: Add Pytest
-#        run: poetry add pytest --dev
-#        shell: bash
+        run: poetry show -o
         
       - name: Run Pytest
         run: |
