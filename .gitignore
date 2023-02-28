@@ -2,7 +2,6 @@
 *.pyc
 *.xml
 .gitattributes
-.vscode/launch.json
 config.yaml
 desktop.ini
 Onmyoji_Python.code-workspace
@@ -18,3 +17,4 @@ doc
 log
 test_code
 wiki
+.vscode

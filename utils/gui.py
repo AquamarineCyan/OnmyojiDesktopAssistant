@@ -142,6 +142,7 @@ class MainWindow(QMainWindow):
         init_enviroment_testing_func()
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
+        log.clean_up()
         # 悬赏封印
         thread_xuanshang = Thread(
             target=xuanshangfengyin.xuanshangfengyin.judge,

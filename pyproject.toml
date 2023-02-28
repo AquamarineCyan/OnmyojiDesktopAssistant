@@ -11,9 +11,9 @@ pyautogui = "^0.9.53"
 httpx = "^0.23.0"
 pywin32 = "^305"
 pyside6 = "6.3.0"
-opencv-python = "^4.6.0.66"
-numpy = "^1.23.4"
-pillow = "^9.1.1"
+opencv-python = "^4.7.0.72"
+numpy = "^1.24.2"
+pillow = "^9.4.0"
 pyinstaller = "5.6.2"
 pyyaml = "^6.0"
 win11toast = "^0.32"
@@ -26,9 +26,3 @@ pytest = "^7.2.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-# 设置poetry包管理工具的自定义pypi镜像源配置
-[[tool.poetry.source]]
-name = "aliyun"
-url = "http://mirrors.aliyun.com/pypi/simple"
-default = true

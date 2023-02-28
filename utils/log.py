@@ -6,6 +6,7 @@
 """
 
 import time
+from datetime import date
 from pathlib import Path
 from utils.config import config
 from utils.mysignal import global_ms as ms
@@ -139,18 +140,26 @@ class Log:
         """
         ms.is_fighting_update.emit(flag)
 
-    def clean(self) -> None:
+    def clean_up(self) -> bool:
         """日志清理"""
-        # TODO 自动清理
-        if Path("log").exists():
-            for filename in Path("log").iterdir():
-                print(filename)
+        log.info("log clean up...")
+        today = date.today()
+        n = 0
+        if not self.log_dir_path.is_dir():
+            log.error("Not found log dir.")
+            return False
+        for item in self.log_dir_path.iterdir():
+            log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
+            # 自动清理
+            if (today-log_date).days > 30:
                 try:
-                    Path(filename).unlink()
-                    print(f"remove {filename} successfully")
+                    item.unlink()
+                    n += 1
+                    self.info(f"Delect file: {item.absolute()} successfully.")
                 except:
-                    print(f"FileNotFoundError {filename}")
-            Path("log").rmdir()
+                    self.error(f"Delect file: {item.absolute()} failed.")
+        self.info(f"Clean up {n} log files in total.")
+        return True
 
 
 log = Log()
