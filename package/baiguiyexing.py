@@ -1,4 +1,5 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # baiguiyexing.py
 """
 百鬼夜行

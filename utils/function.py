@@ -1,4 +1,5 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # function.py
 """
 通用函数库
@@ -7,7 +8,7 @@
 import random
 import time
 from pathlib import Path
-from win11toast import toast
+# from win11toast import toast#XXX remove
 
 import pyautogui
 
@@ -15,6 +16,7 @@ from package.xuanshangfengyin import xuanshangfengyin
 
 from .config import config
 from .log import log
+from .toast import toast
 from .window import window
 
 

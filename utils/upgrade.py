@@ -7,11 +7,11 @@
 
 import httpx
 import json
-from win11toast import toast
+# from win11toast import toast#XXX remove
 
 from .config import config
 from .log import log
-
+from .toast import toast
 
 class Upgrade:
     def __init__(self) -> None:

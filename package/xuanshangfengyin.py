@@ -1,4 +1,5 @@
-#!usr/bin/env python3
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # xuanshangfengyin.py
 """
 悬赏封印
@@ -8,11 +9,12 @@ from pathlib import Path
 import time
 import pyautogui
 import random
-from win11toast import toast
+# from win11toast import toast#XXX remove
 
 from utils.config import config
 from utils.event import event_xuanshang
 from utils.log import log
+from utils.toast import toast
 from utils.window import window
 
 

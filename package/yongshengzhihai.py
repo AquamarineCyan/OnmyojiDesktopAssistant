@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 # yongshengzhihai.py
 """
 组队永生之海副本

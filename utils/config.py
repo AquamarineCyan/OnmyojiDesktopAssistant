@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # config.py
-
 """
-from utils.config import config
+配置
 """
 
 from pathlib import Path
