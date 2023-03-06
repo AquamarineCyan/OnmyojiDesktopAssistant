@@ -47,7 +47,7 @@
       <property name="title">
        <string>基本功能</string>
       </property>
-      <widget class="QPushButton" name="button_enviroment">
+      <widget class="QPushButton" name="button_game_handle">
        <property name="geometry">
         <rect>
          <x>70</x>
@@ -63,7 +63,7 @@
         </font>
        </property>
        <property name="text">
-        <string>环境检测</string>
+        <string>游戏检测</string>
        </property>
       </widget>
       <widget class="QComboBox" name="combo_choice">
@@ -480,7 +480,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>532</width>
+         <width>98</width>
          <height>1000</height>
         </rect>
        </property>

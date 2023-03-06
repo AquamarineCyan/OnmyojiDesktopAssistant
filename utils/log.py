@@ -155,9 +155,9 @@ class Log:
                 try:
                     item.unlink()
                     n += 1
-                    self.info(f"Delect file: {item.absolute()} successfully.")
+                    self.info(f"Remove file: {item.absolute()} successfully.")
                 except:
-                    self.error(f"Delect file: {item.absolute()} failed.")
+                    self.error(f"Remove file: {item.absolute()} failed.")
         self.info(f"Clean up {n} log files in total.")
         return True
 

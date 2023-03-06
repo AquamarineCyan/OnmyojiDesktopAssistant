@@ -95,7 +95,7 @@ class MainWindow(QMainWindow):
 
         # 事件连接
         # 环境检测按钮
-        self.ui.button_enviroment.clicked.connect(self.application_init)
+        self.ui.button_game_handle.clicked.connect(self.check_game_handle)
         # 开始按钮
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
@@ -128,7 +128,7 @@ class MainWindow(QMainWindow):
             )
             thread_enviroment_testing.start()
             thread_enviroment_testing.join()
-        
+
         log.info(f"application path:{config.application_path}")
         log.info(f"resource path:{config.resource_path}")
         log.ui("未正确使用所产生的一切后果自负\n保持您的肝度与日常无较大差距\n")
@@ -235,14 +235,15 @@ class MainWindow(QMainWindow):
             ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
         # 环境完整
         # TODO 解除窗口大小限制，待优化
-        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and handle_coor[3] - handle_coor[
-                1] != window.absolute_window_height:
+        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
+                handle_coor[3] - handle_coor[1] != window.absolute_window_height:
             ms.qmessagbox_update.emit("question", "强制缩放")
         else:
             log.ui("环境完整")
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
-            log.ui("移动游戏窗口后，点击下方“环境检测”即可\n请选择功能以加载内容")
+            log.ui("移动游戏窗口后，点击下方“游戏检测”即可")
+            log.ui("请选择功能以加载内容")
             # 悬赏封印
             return True
         log.ui("环境损坏")
@@ -275,6 +276,33 @@ class MainWindow(QMainWindow):
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
         log.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("悬赏封印", text)
+
+    def check_game_handle(self) -> bool:
+        """游戏窗口检测
+
+        Returns:
+            bool: 检测结果
+        """
+        log.info("游戏窗口检测中...")
+        window.get_game_window_handle()
+        handle_coor = window.handle_coor
+        if handle_coor == (0, 0, 0, 0):
+            log.error("未打开游戏")
+            ms.qmessagbox_update.emit("ERROR", "请打开游戏！")
+        elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
+            log.error("未前置游戏窗口")
+            ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
+        # TODO 解除窗口大小限制，待优化
+        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
+                handle_coor[3] - handle_coor[1] != window.absolute_window_height:
+            ms.qmessagbox_update.emit("question", "强制缩放")
+        else:
+            log.ui("游戏窗口检测成功")
+            self.ui.combo_choice.setEnabled(True)
+            self.ui.spinB_num.setEnabled(True)
+            return True
+        log.ui("游戏窗口检测失败")
+        return False
 
     def choice_text(self):
         """功能描述"""
