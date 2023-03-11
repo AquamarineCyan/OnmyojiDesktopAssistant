@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # config.py
-"""
-配置
-"""
+"""配置"""
 
 from pathlib import Path
-import time
 import yaml
 
+from .log import log
 from .mysignal import global_ms as ms
-from .mythread import MyThread
 
 
 class Config():
@@ -21,7 +18,6 @@ class Config():
             self.resource_path: Path = self.application_path / "resource"
         else:
             self.resource_path: Path = self.application_path / "pic"
-        # self._write_to_file(self.resource_path)
         self.config_yaml_path: Path = self.application_path/"config.yaml"
         self.config_default: dict = {
             # "更新模式": ["GitHub", "Gitee"],
@@ -31,9 +27,9 @@ class Config():
         }
         self.config_user: dict = None
 
-    def config_yaml_init(self):
+    def config_yaml_init(self) -> None:
         if self.config_yaml_path.is_file():
-            self._write_to_file("file config.yaml has already.")
+            log.info("file config.yaml has already.")
             data = self.config_yaml_read()
             # 更新模式
             # self.update_mode = self.check_dict_key_is_in_list(
@@ -42,9 +38,9 @@ class Config():
             # self.xuanshangfengyin_receive = self.check_dict_key_is_in_list(
             #     data, "悬赏封印", ["accept", "refuse", "ignore"])
             data = self.check_config(data)
-            # self._write_to_file(self.xuanshangfengyin_receive)
+            # log.info(self.xuanshangfengyin_receive)
         else:
-            self._write_to_file("cannot find file config.yaml.")
+            log.error("cannot find file config.yaml.")
             data = self.config_default
             for item in data.keys():
                 value = data[item]
@@ -56,7 +52,7 @@ class Config():
                     data[item] = value
         self.config_yaml_save(data)
         self.config_user = data
-        self._write_to_file("create file config.yaml success.")
+        log.info("create file config.yaml success.")
         self.setting_to_ui_qcombobox_update_func()
 
     def config_yaml_read(self) -> dict:
@@ -64,12 +60,14 @@ class Config():
             data = yaml.load(f, Loader=yaml.FullLoader)
             return data
 
-    def config_yaml_save(self, data):
+    def config_yaml_save(self, data) -> bool:
         if isinstance(data, dict):
             with open(self.config_yaml_path, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
-            self._write_to_file("file config.yaml save failed.")
+            log.error("file config.yaml save failed.")
+            return False
+        return True
 
     # def check_dict_key_is_in_list(self, config_dict: dict, key: str, config_list: list):
     #     """给出一个字典和键值，检查值是否包含在列表中，如包含，返回值；如未包含，返回列表第一个值
@@ -130,44 +128,23 @@ class Config():
             value (str): 属性
         """
         self.config_user[key] = value
-        self._write_to_file(self.config_user)
+        log.info(self.config_user)
         self.config_yaml_save(self.config_user)
 
     def setting_to_ui_qcombobox_update_func(self) -> None:
         """配置项同步gui"""
-        # key = "悬赏封印"
-        # self._write_to_file(self.config_user[key])
         for item in self.config_default.keys():
-            self._write_to_file(item)
-            self._write_to_file(self.config_user[item])
+            # log.info(f"{item} : {self.config_user[item]}")
             ms.setting_to_ui_update.emit(item, self.config_user[item])
-
-    def _write_to_file(self, text: str | int) -> bool:
-        """写入日志文件
-
-        Args:
-            text (str | int): 文本内容
-
-        Returns:
-            bool: 文本写入是否成功
-        """
-        file: Path = self.application_path / f"log/log-{time.strftime('%Y%m%d')}.txt"
-        if isinstance(text, int):
-            text = str(text)
-        try:
-            with file.open(mode="a", encoding="utf-8") as f:
-                f.write(f"{text}\n")
-                return True
-        except:
-            print(f"FileNotFoundError {file}")
-            return False
 
     def is_Chinese_Path(self) -> bool:
         import re
         zhPattern = re.compile(u'[\u4e00-\u9fa5]+')
         match = zhPattern.search(str(self.application_path))
         if not match:
+            log.info("English Path")
             return False
+        log.error("Chinese Path")
         return True
 
 

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # yuhun.py
-"""
-组队御魂副本
-仅支持进行中的组队副本
-"""
+"""组队御魂副本 仅支持进行中的组队副本"""
 
 import time
 import pyautogui
@@ -99,11 +96,11 @@ class YuHun():
                 return True
             x, y = function.get_coor_info_picture(f"{self.resource_path}/victory_2000.png")
             if x != 0 and y != 0:
-                log.ui("胜利，2000天御魂背景")
+                log.ui("胜利 鎏金圣域")
                 return True
             x, y = function.get_coor_info_picture(f"{self.resource_path}/finish_shenfa.png")
             if x != 0 and y != 0:
-                log.ui("胜利，神罚副本")
+                log.ui("胜利 神罚副本")
                 return True
             x, y = function.get_coor_info_picture("fail.png")
             if x != 0 and y != 0:
@@ -111,30 +108,33 @@ class YuHun():
                 return False
 
     def finish(self):
-        """结算"""
-        while 1:
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory.png")
-            if x != 0 and y != 0:
-                log.ui("胜利")
-                break
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_2000.png")
-            if x != 0 and y != 0:
-                log.ui("胜利 2000天御魂背景")
-                break
-            # finish_shenfa
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_shenfa.png")
-            if x != 0 and y != 0:
-                log.ui("胜利 神罚副本")
-                break
+        """结束"""
+        # while 1:
+        #     x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory.png")
+        #     if x != 0 and y != 0:
+        #         log.ui("胜利")
+        #         break
+        #     x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_2000.png")
+        #     if x != 0 and y != 0:
+        #         log.ui("胜利 鎏金圣域")
+        #         break
+        #     # finish_shenfa
+        #     x, y = function.get_coor_info_picture(f"{self.resource_path}/yuhun_victory_shenfa.png")
+        #     if x != 0 and y != 0:
+        #         log.ui("胜利 神罚副本")
+        #         break
+        self.result()
 
         function.random_sleep(1, 3)
+        # 结算
         x, y = function.random_finish_left_right(False, is_shenfa=True)
         while 1:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.doubleClick()
-            if function.result():
+            if self.result():
                 while 1:
                     function.random_sleep(1, 2)
+                    # function.screenshot("cache_yuhun")
                     pyautogui.click()
                     function.random_sleep(1, 2)
                     # 未检测到图像，退出循环

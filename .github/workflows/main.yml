@@ -1,4 +1,4 @@
-name: Test Coverage
+name: Test
 
 on:
   push:
@@ -43,9 +43,6 @@ jobs:
 
 #      - name: Run main.py
 #        run: poetry run python main.py
-      
-      - name: Package Outdated
-        run: poetry show -o
         
       - name: Run Pytest
         run: |

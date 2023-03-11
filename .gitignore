@@ -11,7 +11,7 @@ Onmyoji_Python.exe
 .idle
 .idea
 build
-cache_baiguiyexing
+cache*
 dist
 doc
 log

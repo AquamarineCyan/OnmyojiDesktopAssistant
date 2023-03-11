@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # upgrade.py
-"""
-更新升级
-"""
+"""更新升级"""
 
 import httpx
 import json
-# from win11toast import toast#XXX remove
 
 from .config import config
 from .log import log
@@ -93,8 +90,7 @@ class Upgrade:
                 return False
 
     def upgrade_auto(self):
-        log.info(f"当前版本:{self.version_location}", True)
         if self.get_browser_download_url() == "has new version":
             self.download_zip()
-            log.info(f"有新版本:{self.version_github}", True)
-            log.info(self.new_version_info, True)
+            log.ui(f"NEW VERSION:{self.version_github}")
+            log.ui(self.new_version_info)

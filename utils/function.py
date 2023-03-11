@@ -1,29 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # function.py
-"""
-通用函数库
-"""
+"""通用函数库"""
 
 import random
 import time
 from pathlib import Path
-# from win11toast import toast#XXX remove
-
 import pyautogui
 
-from package.xuanshangfengyin import xuanshangfengyin
 
 from .config import config
 from .log import log
 from .toast import toast
 from .window import window
+from package.xuanshangfengyin import xuanshangfengyin
 
 
 class Function:
     """通用函数"""
 
     def __init__(self) -> None:
+        self.application_path: Path = config.application_path
         self.resource_path: Path = config.resource_path  # 资源路径
         self.screenshot_window_width: int = 1138  # 截图宽度
         self.screenshot_window_height: int = 679  # 截图高度
@@ -283,11 +280,11 @@ class Function:
                 return False
 
     def random_finish_left_right(
-            self, 
-            click: bool = True, 
-            is_yuling: bool = False, 
-            is_shenfa:bool=False
-            ) -> tuple[int, int]:
+            self,
+            click: bool = True,
+            is_yuling: bool = False,
+            is_shenfa: bool = False
+    ) -> tuple[int, int]:
         """结算界面伪随机点击区域
 
         Args:
@@ -343,29 +340,37 @@ class Function:
             pyautogui.click()
         return x, y
 
-    def screenshot(self, screenshotpath: str) -> None:
+    def screenshot(self, screenshotpath: str = "cache") -> bool:
         """截图
 
         Args:
-            screenshotpath (str): 截图存放路径
+            screenshotpath (str): 截图文件存放路径，默认"cache".
+
+        Returns:
+            bool: 截图成功或失败
         """
+
         window_width_screenshot = 1138  # 截图宽度
         window_height_screenshot = 679  # 截图高度
-        # screenshotpath = "cache_baiguiyexing"  # 截图路径
-        fpath = Path.cwd()
-        filepath = fpath / screenshotpath
-        if not filepath.exists():
-            filepath.mkdir()
-        file = f"{screenshotpath}./screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
-        pyautogui.screenshot(
-            imageFilename=file,
-            region=(
-                window.window_left - 1,
-                window.window_top,
-                window_width_screenshot,
-                window_height_screenshot
+        self.screenshotpath = self.application_path / screenshotpath
+        self.screenshotpath.mkdir(parents=True, exist_ok=True)
+
+        file = f"{screenshotpath}/screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
+        try:
+            pyautogui.screenshot(
+                imageFilename=file,
+                region=(
+                    window.window_left - 1,
+                    window.window_top,
+                    window_width_screenshot,
+                    window_height_screenshot
+                )
             )
-        )
+            log.info(f"screenshot at {file}")
+            return True
+        except:
+            log.error("screenshot failed.")
+            return False
 
     class TimeProgram:
         """程序耗时统计"""

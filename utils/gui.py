@@ -14,9 +14,11 @@ from .event import event_thread
 from .log import log
 from .mysignal import global_ms as ms
 from .mythread import MyThread
+from .update import update_record
 from .upgrade import *
 from .window import window
 from ui.mainui import Ui_MainWindow
+from ui.updateui import Ui_Form as Ui_Update_Record
 from package import *
 
 
@@ -81,6 +83,7 @@ class MainWindow(QMainWindow):
         self.ui.setting_xuanshangfengyin_comboBox.addItems(
             config.config_default["悬赏封印"]
         )
+        self.ui.label_GitHub_address.setToolTip("open with webbrower")
 
         # 自定义信号
         # 弹窗更新
@@ -100,6 +103,10 @@ class MainWindow(QMainWindow):
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
         self.ui.combo_choice.currentIndexChanged.connect(self.choice_text)
+        # 更新记录事件
+        self.ui.button_update_record.clicked.connect(self.show_update_record_window)
+        # GitHub地址悬停事件
+        self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
 
         # 设置项
         # 更新模式
@@ -131,7 +138,10 @@ class MainWindow(QMainWindow):
 
         log.info(f"application path:{config.application_path}")
         log.info(f"resource path:{config.resource_path}")
-        log.ui("未正确使用所产生的一切后果自负\n保持您的肝度与日常无较大差距\n")
+        if config.config_user:
+            for item in config.config_user.keys():
+                log.info(f"{item} : {config.config_user[item]}")
+        log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
         thread_upgrade = Thread(
             target=Upgrade().upgrade_auto,
             daemon=True
@@ -144,11 +154,11 @@ class MainWindow(QMainWindow):
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
         log.clean_up()
         # 悬赏封印
-        thread_xuanshang = Thread(
+        Thread(
             target=xuanshangfengyin.xuanshangfengyin.judge,
+            name="thread_xuanshang",
             daemon=True
-        )
-        thread_xuanshang.start()
+        ).start()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
@@ -566,6 +576,11 @@ class MainWindow(QMainWindow):
             self.ui.button_passengers_2.hide()
             self.ui.button_passengers_3.hide()
 
+    def open_GitHub_address(self, *args) -> None:
+        import webbrowser
+        log.info("open GitHub address.")
+        webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
+
     # 关闭程序
     def closeEvent(self, event) -> None:
         try:
@@ -573,3 +588,27 @@ class MainWindow(QMainWindow):
         except:
             pass
         event.accept()
+
+    def show_update_record_window(self):
+        self.update_record_ui = UpdateRecordWindow()
+        self.update_record_ui.show()
+
+
+class UpdateRecordWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_Update_Record()
+        self.ui.setupUi(self)
+        icon = QIcon()
+        icon.addPixmap(QPixmap("buzhihuo.ico"))
+        self.setWindowIcon(icon)
+        # 关联事件
+        ms.ui_update_record_textBrowser_update.connect(self.textBrowser_update)
+        # 初始化
+        update_record()
+
+    def textBrowser_update(self, text: str):
+        print("[update record]", text)  # 控制台调试输出
+        self.ui.textBrowser.append(text)
+        self.ui.textBrowser.ensureCursorVisible()
+        self.ui.textBrowser.moveCursor(QTextCursor.Start)

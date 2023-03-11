@@ -85,7 +85,7 @@
         <string>请选择功能</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="label_function">
        <property name="geometry">
         <rect>
          <x>26</x>
@@ -123,7 +123,7 @@
         <number>999</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="label_numbers">
        <property name="geometry">
         <rect>
          <x>26</x>
@@ -418,7 +418,7 @@
         <string>输出信息</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_completion">
        <property name="geometry">
         <rect>
          <x>22</x>
@@ -480,7 +480,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>98</width>
+         <width>532</width>
          <height>1000</height>
         </rect>
        </property>
@@ -612,6 +612,38 @@
          </item>
         </layout>
        </widget>
+       <widget class="QPushButton" name="button_update_record">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>340</y>
+          <width>75</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>更新记录</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_GitHub_address">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>380</y>
+          <width>312</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;https://github.com/AquamarineCyan/Onmyoji_Python&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </widget>
      </widget>
     </widget>
@@ -621,7 +653,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_driver"/>
   <buttongroup name="buttonGroup_passengers"/>
+  <buttongroup name="buttonGroup_driver"/>
  </buttongroups>
 </ui>

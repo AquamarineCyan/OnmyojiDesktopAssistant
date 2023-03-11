@@ -1,5 +1,4 @@
 """自定义信号"""
-
 from PySide6.QtCore import QObject, Signal
 
 
@@ -15,6 +14,8 @@ class MySignals(QObject):
     text_num_update = Signal(str)
     # 配置项同步gui
     setting_to_ui_update = Signal(str, str)
+    # 更新日志文本更新
+    ui_update_record_textBrowser_update = Signal(str)
 
 
 global_ms = MySignals()
