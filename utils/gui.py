@@ -76,6 +76,7 @@ class MainWindow(QMainWindow):
         self.ui.spinB_num.setEnabled(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self.ui.text_print.document().setMaximumBlockCount(50)
+        self.ui.label_tips.hide()
         # setting
         self.ui.setting_update_comboBox.addItems(
             config.config_default["更新模式"]
@@ -107,6 +108,7 @@ class MainWindow(QMainWindow):
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
         self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
+        self.ui.buttonGroup_driver.buttonClicked.connect(self.tips_yuhun_driver)
 
         # 设置项
         # 更新模式
@@ -575,7 +577,10 @@ class MainWindow(QMainWindow):
             self.ui.label_passengers.hide()
             self.ui.button_passengers_2.hide()
             self.ui.button_passengers_3.hide()
-
+    def tips_yuhun_driver(self):
+        if self.ui.buttonGroup_driver.checkedButton().text() ==  "是":
+            self.ui.label_tips.setText("司机请在组队界面等待，\n并开始程序")
+            self.ui.label_tips.show()
     def open_GitHub_address(self, *args) -> None:
         import webbrowser
         log.info("open GitHub address.")

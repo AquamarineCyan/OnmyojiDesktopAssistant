@@ -286,6 +286,19 @@
           <string>组队人数</string>
          </property>
         </widget>
+        <widget class="QLabel" name="label_tips">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>110</y>
+           <width>141</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="jiejietupo_2">
         <widget class="QRadioButton" name="button_jiejietupo_3victory">
@@ -653,7 +666,7 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_passengers"/>
   <buttongroup name="buttonGroup_driver"/>
+  <buttongroup name="buttonGroup_passengers"/>
  </buttongroups>
 </ui>
