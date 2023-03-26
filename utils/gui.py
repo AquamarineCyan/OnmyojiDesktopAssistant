@@ -437,8 +437,9 @@ class MainWindow(QMainWindow):
                         flag_driver = False
                     else:
                         flag_driver = True
+                    flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
                     flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                    thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers).run)
+                    thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run)
                     # 当前线程id
                     # print('main id', int(QThread.currentThreadId()))
                     # thread = MyThread(

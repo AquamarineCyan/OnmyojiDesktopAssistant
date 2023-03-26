@@ -33,7 +33,8 @@ class YuHun():
         self,
         n: int = 0,
         flag_driver: bool = False,
-        flag_passengers: int = 2
+        flag_passengers: int = 2,
+        flag_drop_statistics: bool = False
     ) -> None:
         """组队御魂副本
 
@@ -41,6 +42,7 @@ class YuHun():
             n (int): 次数，默认0次.
             flag_driver (bool): 是否司机，默认否.
             flag_passengers (int): 组队人数，默认2人.
+            flag_drop_statistics (bool): 是否开启掉落统计，默认否.
         """
         self.scene_name = "组队御魂副本"
         self.resource_path = "yuhun"  # 路径
@@ -67,6 +69,8 @@ class YuHun():
         self.flag_driver_start: bool = False  # 司机待机
         self.flag_fighting: bool = False  # 是否进行中对局（默认否）
         self.flag_is_first: bool = True  # 是否第一次（用于接受邀请）
+        self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
+        log.info(f"次数:{self.max}\n司机:{self.flag_driver}\n组队人数:{self.flag_passengers}\n掉落统计:{self.flag_drop_statistics}")
 
     def title(self):
         """场景"""
@@ -134,7 +138,8 @@ class YuHun():
             if self.result():
                 while 1:
                     function.random_sleep(1, 2)
-                    # function.screenshot("cache_yuhun")
+                    if self.flag_drop_statistics:
+                        function.screenshot("cache_yuhun")
                     pyautogui.click()
                     function.random_sleep(1, 2)
                     # 未检测到图像，退出循环

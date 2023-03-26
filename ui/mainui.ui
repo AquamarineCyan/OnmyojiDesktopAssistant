@@ -230,7 +230,7 @@
          <property name="geometry">
           <rect>
            <x>128</x>
-           <y>80</y>
+           <y>73</y>
            <width>33</width>
            <height>20</height>
           </rect>
@@ -251,7 +251,7 @@
          <property name="geometry">
           <rect>
            <x>79</x>
-           <y>80</y>
+           <y>73</y>
            <width>33</width>
            <height>20</height>
           </rect>
@@ -272,7 +272,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>80</y>
+           <y>73</y>
            <width>48</width>
            <height>21</height>
           </rect>
@@ -290,13 +290,44 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>110</y>
+           <y>130</y>
            <width>141</width>
            <height>31</height>
           </rect>
          </property>
          <property name="text">
           <string>TextLabel</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="button_yuhun_drop_statistics">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>109</y>
+           <width>100</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>100</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>掉落统计beta</string>
          </property>
         </widget>
        </widget>
