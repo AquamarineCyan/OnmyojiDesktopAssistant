@@ -2,6 +2,7 @@
 *.pyc
 *.xml
 .gitattributes
+api_github.json
 config.yaml
 desktop.ini
 Onmyoji_Python.code-workspace

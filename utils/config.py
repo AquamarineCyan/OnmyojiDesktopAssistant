@@ -12,7 +12,7 @@ from .mysignal import global_ms as ms
 
 class Config():
     def __init__(self) -> None:
-        self.version: str = "1.7.1"
+        self.version: str = "1.7.2"
         self.application_path: Path = Path.cwd()
         if Path(self.application_path / "resource").is_dir():
             self.resource_path: Path = self.application_path / "resource"
