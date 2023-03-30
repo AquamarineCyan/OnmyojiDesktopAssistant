@@ -94,7 +94,7 @@
 
 ## 更新记录
 
-[更新记录wiki](https://github.com/AquamarineCyan/Onmyoji_Python/wiki)
+[CHANGELOG.MD](https://github.com/AquamarineCyan/Onmyoji_Python/blob/main/CHANGELOG.MD)
 
 
 ## Tips
