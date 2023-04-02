@@ -3,8 +3,8 @@
 # config.py
 """配置"""
 
-from pathlib import Path
 import yaml
+from pathlib import Path
 
 from .log import log
 from .mysignal import global_ms as ms
@@ -13,6 +13,7 @@ from .mysignal import global_ms as ms
 class Config():
     def __init__(self) -> None:
         self.version: str = "1.7.2"
+        self.exe_name: str = "Onmyoji_Python.exe"
         self.application_path: Path = Path.cwd()
         if Path(self.application_path / "resource").is_dir():
             self.resource_path: Path = self.application_path / "resource"

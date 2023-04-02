@@ -16,6 +16,8 @@ class MySignals(QObject):
     setting_to_ui_update = Signal(str, str)
     # 更新日志文本更新
     ui_update_record_textBrowser_update = Signal(str)
+    # 退出程序
+    sys_exit_update = Signal(bool)
 
 
 global_ms = MySignals()

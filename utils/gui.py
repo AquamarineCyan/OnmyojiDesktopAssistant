@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 # gui.py
 
+import sys
 import time
 from pathlib import Path
 from threading import Thread
@@ -15,7 +16,7 @@ from .log import log
 from .mysignal import global_ms as ms
 from .mythread import MyThread
 from .update import update_record
-from .upgrade import *
+from .upgrade import upgrade
 from .window import window
 from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form as Ui_Update_Record
@@ -96,6 +97,8 @@ class MainWindow(QMainWindow):
         # 完成情况文本更新
         ms.text_num_update.connect(self.text_num_update_func)
         ms.setting_to_ui_update.connect(self.setting_to_ui_update_func)
+        # 退出程序
+        ms.sys_exit_update.connect(self.exit)
 
         # 事件连接
         # 环境检测按钮
@@ -121,18 +124,13 @@ class MainWindow(QMainWindow):
         )
 
         # 程序开启运行
-        # application_init
-        thread_application_init = Thread(
-            target=self.application_init,
-            daemon=True
-        )
-        thread_application_init.start()
+        Thread(target=self.application_init, daemon=True).start()
 
     def application_init(self) -> None:
         """程序初始化"""
         def init_enviroment_testing_func():
             thread_enviroment_testing = Thread(
-                target=self.enviroment_testing_func,
+                target=self._check_enviroment,
                 daemon=True
             )
             thread_enviroment_testing.start()
@@ -144,17 +142,14 @@ class MainWindow(QMainWindow):
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
         log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
-        thread_upgrade = Thread(
-            target=Upgrade().upgrade_auto,
-            daemon=True
-        )
-        thread_upgrade.start()
-
+        
         window.get_game_window_handle()
-        init_enviroment_testing_func()
+        # init_enviroment_testing_func()
+        self._check_enviroment()
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
         log.clean_up()
+        Thread(target=upgrade.check_latest, daemon=True).start()
         # 悬赏封印
         Thread(
             target=xuanshangfengyin.xuanshangfengyin.judge,
@@ -176,10 +171,21 @@ class MainWindow(QMainWindow):
                             "是否强制缩放，如不缩放，请自行靠近1136*640或者替换pic文件夹中对应素材"
                         )
                         if choice == QMessageBox.Yes:
-                            log._write_to_file("用户接受强制缩放")
+                            log.info("用户接受强制缩放")
                             window.force_zoom()
                         elif choice == QMessageBox.No:
-                            log._write_to_file("用户拒绝强制缩放")
+                            log.info("用户拒绝强制缩放")
+                    case "更新重启":
+                        log.info("提示：更新重启")
+                        if QMessageBox.question(
+                            self,
+                            "检测到更新包",
+                            "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
+                        ) == QMessageBox.Yes:
+                            log.info("用户接受更新重启")
+                            Thread(target=upgrade.reload, daemon=True).start()
+                        else:
+                            log.info("用户拒绝更新重启")
 
     def text_print_update_func(self, text: str) -> None:
         """输出内容至文本框
@@ -216,7 +222,7 @@ class MainWindow(QMainWindow):
             case "悬赏封印":
                 self.ui.setting_xuanshangfengyin_comboBox.setCurrentText(text)
 
-    def enviroment_testing_func(self) -> bool:
+    def _check_enviroment(self) -> bool:
         """环境检测
 
         Returns:
@@ -578,10 +584,12 @@ class MainWindow(QMainWindow):
             self.ui.label_passengers.hide()
             self.ui.button_passengers_2.hide()
             self.ui.button_passengers_3.hide()
+
     def tips_yuhun_driver(self):
-        if self.ui.buttonGroup_driver.checkedButton().text() ==  "是":
+        if self.ui.buttonGroup_driver.checkedButton().text() == "是":
             self.ui.label_tips.setText("司机请在组队界面等待，\n并开始程序")
             self.ui.label_tips.show()
+
     def open_GitHub_address(self, *args) -> None:
         import webbrowser
         log.info("open GitHub address.")
@@ -598,6 +606,10 @@ class MainWindow(QMainWindow):
     def show_update_record_window(self):
         self.update_record_ui = UpdateRecordWindow()
         self.update_record_ui.show()
+
+    def exit(self, flag):
+        if flag:
+            sys.exit()
 
 
 class UpdateRecordWindow(QWidget):
