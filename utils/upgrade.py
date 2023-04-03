@@ -3,12 +3,14 @@
 # upgrade.py
 """更新升级"""
 
+import os
+import time
 import httpx
 import json
+import zipfile
 
 from subprocess import Popen
 from pathlib import Path
-from zipfile import ZipFile
 
 from .config import config
 from .log import log
@@ -26,7 +28,7 @@ class Upgrade:
         self.version_github: str = ""
         self.browser_download_url: str = ""
         self.new_version_info: str = ""
-        self.zip_path: str = ""
+        self.zip_path: str = None
 
     def _get_browser_download_url(self) -> str:
         """获取更新地址
@@ -40,14 +42,13 @@ class Upgrade:
             log.info(f"api_url.status_code:{result.status_code}")
             if result.status_code == 200:
                 data_dict = json.loads(result.text)
-                log.info(f"tag_name:{data_dict['tag_name']}")
+                log.info("tag_name:{}".format(data_dict["tag_name"]))
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
                     log.info(f"version_github:{self.version_github}")
                     if self.version_github > self.version_location:
                         self.new_version_info = data_dict["body"]
                         log.info(f"new_version_info:{self.new_version_info}")
-                        # log.info(f"assets:{data_dict['assets']}")
                         for item in data_dict["assets"]:
                             if item["name"] == f"Onmyoji_Python-{self.version_github}.zip":
                                 log.info(item["name"])
@@ -66,9 +67,9 @@ class Upgrade:
         """下载更新包"""
         log.ui("准备下载更新包")
         log.ui(f"browser_download_url:{self.browser_download_url}")
-        self.zip_path = self.browser_download_url.split('/')[-1]
+        self.zip_path = self.browser_download_url.split("/")[-1]
         log.info(f"zip_name:{self.zip_path}")
-        if self.application_path.joinpath(self.browser_download_url.split('/')[-1]) in self.application_path.iterdir():
+        if self.application_path.joinpath(self.browser_download_url.split("/")[-1]) in self.application_path.iterdir():
             log.ui("存在新版本更新包")
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
@@ -107,25 +108,30 @@ class Upgrade:
                 log.ui("访问更新地址失败")
             case _:
                 log.error("UPDATE ERROR", True)
-        if Path(self.zip_path).exists():
-            ms.qmessagbox_update.emit("question", "更新重启")
-
-    def _unzip_func(self) -> None:
-        log.info("start unzip")
-        # 压缩文件路径
-        # zip_path = Path.cwd() / "Onmyoji_Python-1.7.2.zip"
-        # 文件存储路径
-        self.zip_files_path: Path = self.application_path / "zip_files"
-        # 读取压缩文件
         for item_path in self.application_path.iterdir():
             if "Onmyoji_Python" in item_path.name.__str__() and item_path.suffix == ".zip":
                 self.zip_path = item_path
                 break
-        file = ZipFile(self.zip_path)
-        # 解压文件
-        log.ui('开始解压...')
-        file.extractall(self.zip_files_path)
-        log.ui('解压结束')
+        if self.zip_path and Path(self.zip_path).exists():
+            ms.qmessagbox_update.emit("question", "更新重启")
+
+    def _unzip_func(self) -> None:
+        log.info("start unzip")
+        # 解压路径
+        self.zip_files_path: Path = self.application_path / "zip_files"
+        # 压缩包文件
+        log.ui("开始解压...")
+
+        with zipfile.ZipFile(self.zip_path, "r") as f_zip:
+            f_zip.extractall(self.zip_files_path)
+            # 保留提取文件修改日期
+            for info in f_zip.infolist():
+                info.filename = info.filename.encode("cp437").decode("gbk")  # 解决中文文件名乱码问题
+                f_zip.extract(info, self.zip_files_path)
+                timestamp = time.mktime(info.date_time + (0, 0, -1))
+                os.utime(os.path.join(self.zip_files_path.__str__(), info.filename), (timestamp, timestamp))
+
+        log.ui("解压结束")
 
     def _move_files_recursive(self, source_folder: Path, target_folder: Path) -> None:
         """递归移动文件"""
@@ -177,7 +183,7 @@ start {config.exe_name}
         log.info(f"finish moving {self.move_n} files.")
         self._write_restart_bat()
         # 启动.bat文件
-        Popen(['reload.bat'])
+        Popen(["reload.bat"])
         # 关闭当前exe程序
         log.info("App Exiting...")
         ms.sys_exit_update.emit(True)

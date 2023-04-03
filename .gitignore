@@ -5,13 +5,11 @@
 api_github.json
 build.bat
 config.yaml
-desktop.ini
-Onmyoji_Python.code-workspace
 Onmyoji_Python.exe
 
 # dir
-.idle
 .idea
+.idle
 .vscode
 build
 cache*
@@ -19,4 +17,3 @@ dist
 doc
 log
 test_code
-wiki
