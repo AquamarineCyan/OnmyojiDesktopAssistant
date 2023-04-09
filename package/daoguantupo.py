@@ -1,57 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # daoguantupo.py
-"""
-道馆突破
-"""
+"""道馆突破"""
 
-import time
 import pyautogui
 
-from utils.function import function, time_consumption_statistics
+from utils.decorator import *
+from utils.function import function
 from utils.log import log
-
-"""
-标题
-title.png
-挑战
-tiaozhan.png
-倒计时
-daojishi.png
-预设1
-yushe1.png
-出战
-chuzhan.png
-准备
-zhunbei.png
-助威开关
-button_zhuwei.png
-剩余突破时间
-shengyutuposhijian.png
-观战
-zhanbao.png
-战报
-guanzhan.png
-前往
-jijie.png
-集结
-qianwang.png
-助威
-zhuwei.png
-馆主战
-guanzhuzhan.png
-胜利
-victory.png
-"""
 
 
 class DaoGuanTuPo:
     """道馆突破"""
 
-    def __init__(self) -> None:
+    def __init__(self, flag_guanzhan: bool = False):
         self.scene_name = "道馆突破"
-        self.resource_path = "daoguantupo"  # 图片路径
-        self.m = 0  # 当前次数
+        self.n = 0  # 当前次数
+        self.resource_path = "daoguantupo"  # 路径
+        self.resource_list: list = [
+            "button_zhuwei",  # TODO 助威开关
+            "chuzhan",  # 出战
+            "daojishi",  # 倒计时
+            "guanzhan",  # 观战
+            "guanzhuzhan",  # TODO 馆主战
+            "jijie",  # 集结
+            "qianwang",  # 前往-助威
+            "shengyutuposhijian",  # 剩余突破时间
+            "tiaozhan",  # 挑战
+            "title",  # 标题
+            "victory",  # 胜利-道馆
+            "zhunbei",  # 准备
+            "zhanbao"  # 战报
+        ]
+
+        self.flag_guanzhan = flag_guanzhan  # 是否观战
         self.flag_fighting = False  # 是否进行中
 
     def get_coor_info_picture(self, file: str) -> tuple[int, int]:
@@ -96,7 +78,7 @@ class DaoGuanTuPo:
             "shengyutuposhijian.png": "可进攻",
             "guanzhuzhan.png": "馆主战",
             "button_zhuwei.png": "进行中"
-        }  # "可进攻"未实现
+        }  # TODO"可进攻"未实现
         for item in scene.keys():
             x, y = self.get_coor_info_picture(item)
             if x != 0 and y != 0:
@@ -104,8 +86,7 @@ class DaoGuanTuPo:
 
     def guanzhan(self):
         """观战"""
-        time.sleep(2)
-        log.info("观战中，暂无法自动退出，可手动退出", True)
+        log.ui("观战中，暂无法自动退出，可手动退出")
         # 战报按钮
         while True:
             x, y = self.get_coor_info_picture("qianwang.png")
@@ -147,16 +128,17 @@ class DaoGuanTuPo:
                     log.info("失败", True)
                     function.random_finish_left_right()
                     break
-            time.sleep(2)
+            function.random_sleep(1, 2)
 
     # TODO 馆主战
     def guanzhuzhan(self) -> None:
         """馆主战"""
         pass
 
-    @time_consumption_statistics
-    def run(self, flag_guanzhan: bool = False) -> None:
-        time.sleep(2)
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         flag_result = False  # 结束
         if self.title():
             log.num(0)
@@ -176,10 +158,10 @@ class DaoGuanTuPo:
                     x, y = function.get_coor_info_picture(item)
                     if x != 0 and y != 0:
                         if item == f"{self.resource_path}/zhunbei.png":
-                            self.m += 1
-                            log.num(str(self.m))
+                            self.n += 1
+                            log.num(str(self.n))
                         if item == "victory.png" or item == "fail.png":
-                            time.sleep(2)
+                            function.random_sleep(1, 2)
                             flag_result = True
                         log.info(scene[item], True)
                         pyautogui.moveTo(x, y, duration=0.5)
@@ -188,7 +170,6 @@ class DaoGuanTuPo:
                 function.random_sleep(4, 6)
                 if flag_result:
                     break
-            if flag_guanzhan:
+            if self.flag_guanzhan:
                 self.guanzhan()
-        text = f"已完成 {self.scene_name} 胜利{self.m}次"
-        log.info(text, True)
+        log.ui(f"已完成 {self.scene_name} 胜利{self.n}次")

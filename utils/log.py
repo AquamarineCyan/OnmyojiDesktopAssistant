@@ -42,7 +42,7 @@ class Log:
         try:
             with file.open(mode="a", encoding="utf-8") as f:
                 f.write(f"{text}\n")
-                return True
+            return True
         except:
             print(f"FileNotFoundError {file}")
             return False

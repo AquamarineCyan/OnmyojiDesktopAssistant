@@ -11,10 +11,10 @@ from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget, QComboBox
 
 from .config import config
+from .decorator import *
 from .event import event_thread
 from .log import log
 from .mysignal import global_ms as ms
-from .mythread import MyThread
 from .update import update_record
 from .upgrade import upgrade
 from .window import window
@@ -124,27 +124,18 @@ class MainWindow(QMainWindow):
         )
 
         # 程序开启运行
-        Thread(target=self.application_init, daemon=True).start()
+        self.application_init()
 
+    @run_in_thread
     def application_init(self) -> None:
         """程序初始化"""
-        def init_enviroment_testing_func():
-            thread_enviroment_testing = Thread(
-                target=self._check_enviroment,
-                daemon=True
-            )
-            thread_enviroment_testing.start()
-            thread_enviroment_testing.join()
-
-        log.info(f"application path:{config.application_path}")
-        log.info(f"resource path:{config.resource_path}")
+        log.info(f"application path: {config.application_path}")
+        log.info(f"resource path: {config.resource_path}")
         if config.config_user:
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
         log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
-        
-        window.get_game_window_handle()
-        # init_enviroment_testing_func()
+        window.get_game_window_handle()  # 获取游戏窗口信息
         self._check_enviroment()
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
@@ -237,12 +228,8 @@ class MainWindow(QMainWindow):
         elif config.is_Chinese_Path():
             log.error("Chinese Path")
             ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
-        # 图片资源检测
-        elif not config.resource_path.exists():
-            log.error("资源文件夹不存在")
-            ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
-        # 图片资源是否完整
-        elif not self.resource_is_complete():
+        # 资源文件夹完整度
+        elif not self.is_resource_directory_complete():
             pass
         # 游戏窗口检测
         elif handle_coor == (0, 0, 0, 0):
@@ -267,20 +254,52 @@ class MainWindow(QMainWindow):
         log.ui("环境损坏")
         return False
 
-    def resource_is_complete(self) -> bool:
+    @log_function_call
+    @run_in_thread
+    def is_resource_directory_complete(self) -> bool:
         """资源文件夹完整度
 
-        Returns:
+        返回:
             bool: 是否完整
         """
-        for i in range(len(self._package_)):
-            flag = Path(config.resource_path.joinpath(
-                self._package_[i])).exists()
-            if not Path(config.resource_path.joinpath(self._package_[i])).exists():
-                # QMessageBox.critical(self, "ERROR", f"无{self._package_[i]}文件夹")
-                log.error(f"无{self._package_[i]}文件夹")
-                ms.qmessagbox_update.emit("ERROR", f"无{self._package_[i]}文件夹")
-                return False
+        class Package:
+            def __init__(self, n: int = 0) -> None:
+                self.scene_name = "tests"
+                self.n: int = 0
+                self.max: int = n
+                self.resource_path = "tests"
+                self.resource_list: list = []
+
+        log.info("开始检查资源")
+        if not Path(config.resource_path).exists():
+            return False
+        else:
+            P: Package
+            for P in [
+                baiguiyexing.BaiGuiYeXing(),
+                daoguantupo.DaoGuanTuPo(),
+                huodong.HuoDong(),
+                jiejietupo.JieJieTuPo(),
+                rilun.RiLun(),
+                xuanshangfengyin.XuanShangFengYin(),
+                yeyuanhuo.YeYuanHuo(),
+                yongshengzhihai.YongShengZhiHai(),
+                yuhun.YuHun(),
+                yuling.YuLing(),
+                zhaohuan.ZhaoHuan()
+            ]:
+                # 检查子文件夹
+                if not Path(config.resource_path/P.resource_path).exists():
+                    log.error("资源文件夹不存在！")
+                    ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
+                    return False
+                else:
+                    # 检查资源文件
+                    for item in P.resource_list:
+                        if not Path(config.resource_path/P.resource_path/f"{item}.png").exists():
+                            log.error(f"无{P.resource_path}/{item}.png资源文件")
+                            ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
+                            return False
         return True
 
     def setting_update_comboBox_func(self) -> None:
@@ -354,7 +373,7 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[2]:
             # 3.业原火副本
             self._choice = 3
-            log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换pic路径下tiaozhan.png素材")
+            log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下tiaozhan.png素材")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[3]:
@@ -405,7 +424,8 @@ class MainWindow(QMainWindow):
             # 10.限时活动
             self._choice = 10
             log.ui(
-                "适用于限时活动及其他连点，请提前确保阵容完好并锁定，替换pic文件夹huodong下的title.png、tiaozhan.png，周年庆活动素材已替换"
+                "适用于限时活动及其他连点，请提前确保阵容完好并锁定\
+                可替换resource/huodong下的title.png、tiaozhan.png"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
@@ -432,7 +452,7 @@ class MainWindow(QMainWindow):
             n = self.ui.spinB_num.value()
             self.ui.text_num.clear()
             self.is_fighting(True)
-            thread = None  # 线程
+            # thread = None  # 线程
             match self._choice:
                 case 1:
                     # 1.组队御魂副本
@@ -445,7 +465,8 @@ class MainWindow(QMainWindow):
                         flag_driver = True
                     flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
                     flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                    thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run)
+                    yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run()
+                    # thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run)
                     # 当前线程id
                     # print('main id', int(QThread.currentThreadId()))
                     # thread = MyThread(
@@ -461,56 +482,61 @@ class MainWindow(QMainWindow):
                         flag_driver = False
                     else:
                         flag_driver = True
-                    thread = Thread(
-                        target=yongshengzhihai.YongShengZhiHai().run,
-                        args=(n, flag_driver)
-                    )
+                    yongshengzhihai.YongShengZhiHai(n, flag_driver).run()
+                    # thread = Thread(
+                    #     target=yongshengzhihai.YongShengZhiHai().run,
+                    #     args=(n, flag_driver)
+                    # )
                 case 3:
                     # 3.业原火
-                    thread = Thread(
-                        target=yeyuanhuo.YeYuanHuo().run,
-                        args=(n,)
-                    )
+                    yeyuanhuo.YeYuanHuo(n).run()
+                    # thread = Thread(
+                    #     target=yeyuanhuo.YeYuanHuo().run,
+                    #     args=(n,)
+                    # )
                 case 4:
                     # 4.御灵
-                    thread = Thread(
-                        target=yuling.YuLing().run,
-                        args=(n,)
-                    )
+                    # thread = Thread(
+                    #     target=yuling.YuLing().run,
+                    #     args=(n,)
+                    # )
+                    yuling.YuLing(n).run()
                 case 5:
                     # 5.个人突破
-                    thread = Thread(
-                        target=jiejietupo.JieJieTuPoGeRen().run,
-                        args=(n,)
-                    )
+                    jiejietupo.JieJieTuPoGeRen(n).run()
+                    # thread = Thread(
+                    #     target=jiejietupo.JieJieTuPoGeRen().run,
+                    #     args=(n,)
+                    # )
                 case 6:
                     # 6.寮突破
-                    thread = Thread(
-                        target=jiejietupo.JieJieTuPoYinYangLiao().run,
-                        args=(n,)
-                    )
+                    jiejietupo.JieJieTuPoYinYangLiao(n).run()
+                    # thread = Thread(
+                    #     target=jiejietupo.JieJieTuPoYinYangLiao().run,
+                    #     args=(n,)
+                    # )
                 case 7:
                     # 7.道馆突破
                     flag_guanzhan = self.ui.button_guanzhan.isChecked()
-                    thread = Thread(
-                        target=daoguantupo.DaoGuanTuPo().run,
-                        args=(flag_guanzhan,)
-                    )
+                    daoguantupo.DaoGuanTuPo(flag_guanzhan).run()
+                    # thread = MyThread(
+                    #     func=daoguantupo.DaoGuanTuPo(flag_guanzhan).run,
+                    #     args=(flag_guanzhan,)
+                    # )
                 case 8:
                     # 8.普通召唤
-                    thread = Thread(
-                        target=zhaohuan.ZhaoHuan().run,
-                        args=(n,)
-                    )
+                    zhaohuan.ZhaoHuan(n).run()
                 case 9:
                     # 9.百鬼夜行
-                    thread = Thread(
-                        target=baiguiyexing.BaiGuiYeXing().run,
-                        args=(n,)
-                    )
+                    # thread = Thread(
+                    #     target=baiguiyexing.BaiGuiYeXing().run,
+                    #     args=(n,)
+                    # )
+                    baiguiyexing.BaiGuiYeXing(n).run()
                 case 10:
                     # 10.限时活动
-                    thread = Thread(target=huodong.HuoDong(n).run)
+                    # thread = Thread(target=huodong.HuoDong(n).run)
+                    huodong.HuoDong(n).run()
                 case 11:
                     # 11.组队日轮副本
                     # 是否司机（默认否）
@@ -523,20 +549,22 @@ class MainWindow(QMainWindow):
                     flag_passengers = int(
                         self.ui.buttonGroup_passengers.checkedButton().text()
                     )
-                    thread = Thread(
-                        target=rilun.RiLun().run,
-                        args=(n, flag_driver, flag_passengers)
-                    )
+                    # thread = Thread(
+                    #     target=rilun.RiLun().run,
+                    #     args=(n, flag_driver, flag_passengers)
+                    # )
+                    rilun.RiLun(n, flag_driver, flag_passengers).run()
                 case 12:
-                    thread = Thread(target=tansuo.TanSuo().running)
+                    # thread = Thread(target=tansuo.TanSuo().running)
+                    tansuo.TanSuo().run()
             # 线程存在
-            if thread is not None:
-                thread.daemon = True  # 线程守护
-                thread.start()
+            # if thread is not None:
+            #     thread.daemon = True  # 线程守护
+            #     thread.start()
             # 进行中
-            self.is_fighting(True)
+            # self.is_fighting(True)
 
-        def stop() -> None:
+        def stop() -> None:  # TODO unable to use
             """停止函数"""
             # ret = ctypes.windll.kernel32.TerminateThread(self._thread.handle, 0)
             # print('终止线程', self._thread.handle, ret)
@@ -595,8 +623,8 @@ class MainWindow(QMainWindow):
         log.info("open GitHub address.")
         webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
 
-    # 关闭程序
     def closeEvent(self, event) -> None:
+        """关闭程序事件（继承类）"""
         try:
             log._write_to_file("[EXIT]")
         except:
@@ -613,6 +641,8 @@ class MainWindow(QMainWindow):
 
 
 class UpdateRecordWindow(QWidget):
+    """更新信息"""
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_Update_Record()

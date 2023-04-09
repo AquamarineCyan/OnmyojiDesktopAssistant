@@ -3,15 +3,15 @@
 # function.py
 """通用函数库"""
 
+import pyautogui
 import random
 import time
-from pathlib import Path
-import pyautogui
 
+from pathlib import Path
 
 from .config import config
+from .decorator import *
 from .log import log
-from .toast import toast
 from .window import window
 from package.xuanshangfengyin import xuanshangfengyin
 
@@ -282,18 +282,18 @@ class Function:
     def random_finish_left_right(
             self,
             click: bool = True,
-            is_yuling: bool = False,
-            is_shenfa: bool = False
+            is_multiple_drops_y: bool = False,
+            is_multiple_drops_x: bool = False
     ) -> tuple[int, int]:
-        """结算界面伪随机点击区域
+        """图像识别，返回图像的局部相对坐标
 
-        Args:
-            click (bool, optional): 鼠标点击. Defaults to True.
-            is_yuling (bool, optional): 是否为御灵. Defaults to False.
-            is_shenfa (bool, optional): 是否为神罚. Defaults to False.
+        参数:
+            click (bool): 鼠标点击,默认是
+            is_multiple_drops_y (bool): 多掉落纵向区域,默认否
+            is_multiple_drops_x (bool): 多掉落横向区域,默认否
 
-        Returns:
-            tuple[int, int]: 局部随机坐标
+        返回:
+            tuple[int, int]: 局部随机坐标(x, y)
         """
         # 绝对坐标
         finish_left_x1 = 20
@@ -310,9 +310,9 @@ class Function:
         """可点击区域y2"""
         x: int
         y: int
-        if is_yuling:
+        if is_multiple_drops_y:
             finish_y2 = finish_y2 - 200
-        if is_shenfa:
+        if is_multiple_drops_x:
             finish_left_x2 = 70
             finish_right_x1 = 1070
         # 获取系统当前时间戳
@@ -343,10 +343,10 @@ class Function:
     def screenshot(self, screenshotpath: str = "cache") -> bool:
         """截图
 
-        Args:
+        参数:
             screenshotpath (str): 截图文件存放路径，默认"cache".
 
-        Returns:
+        返回:
             bool: 截图成功或失败
         """
 
@@ -372,24 +372,6 @@ class Function:
             log.error("screenshot failed.")
             return False
 
-    class TimeProgram:
-        """程序耗时统计"""
-
-        def start(self) -> None:
-            self._time_program_start = time.perf_counter()
-
-        def end(self) -> None:
-            self._time_program_end = time.perf_counter()
-
-        def print(self) -> str:
-            try:
-                if self._time_program_end - self._time_program_start >= 60:
-                    return f"耗时{int((self._time_program_end - self._time_program_start) // 60)}分{int((self._time_program_end - self._time_program_start) % 60)}秒"
-                else:
-                    return f"耗时{int(self._time_program_end - self._time_program_start)}秒"
-            except:
-                return ""
-
     # 未启用
     '''
     def fighting(self):
@@ -406,32 +388,3 @@ class Function:
 
 
 function = Function()
-
-
-def time_consumption_statistics(func):
-    """耗时统计
-
-    Args:
-        func (func): 函数
-    """
-    def run(*args, **kwargs):
-
-        time_start = time.perf_counter()
-
-        func(*args, **kwargs)
-
-        time_end = time.perf_counter()
-        try:
-            if time_end - time_start >= 60:
-                log.ui(f"耗时{int((time_end - time_start) // 60)}分{int((time_end - time_start) % 60)}秒")
-            else:
-                log.ui(f"耗时{int(time_end - time_start)}秒")
-        except:
-            log.error("耗时统计计算失败")
-        # 启用按钮
-        log.is_fighting(False)
-        # 系统通知
-        # 5s结束，保留至通知中心
-        toast("任务已完成")
-
-    return run

@@ -1,58 +1,62 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # jiejietupo.py
-"""
-结界突破
-"""
+"""结界突破"""
 
 import math
-from pathlib import Path
-import time
 import pyautogui
-from utils.config import config
-from utils.window import window
-from utils.function import function, time_consumption_statistics
-from utils.log import log
+import time
 
-"""
-突破界面
-title.png
-个人突破
-geren.png
-阴阳寮按钮
-yinyangliao.png
-攻破图标
-victory.png
-失败图标
-fail.png
-防守记录（个人突破）
-fangshoujilu.png
-突破记录（阴阳寮突破）
-yinyangliao.png
-"""
+from pathlib import Path
+
+from utils.config import config
+from utils.decorator import *
+from utils.function import function
+from utils.log import log
+from utils.window import window
 
 
 class JieJieTuPo:
     """结界突破"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.scene_name: str = "结界突破"
-        self.resource_path: str = "jiejietupo"  # 图片路径
+        self.resource_path: str = "jiejietupo"  # 路径
+        self.resource_list: list = [
+            "fail",  # 失败
+            "fangshoujilu",  # 防守记录-个人突破
+            "fighting_fail",  # TODO 战斗失败
+            "geren",  # 个人突破
+            "jingong",  # 进攻
+            "queding",
+            "shuaxin",  # 刷新-个人突破
+            "title",  # 突破界面
+            "tupojilu",  # 突破记录-阴阳寮突破
+            "victory",  # 攻破
+            "xunzhang_0",  # 勋章数0
+            "xunzhang_1",  # 勋章数1
+            "xunzhang_2",  # 勋章数2
+            "xunzhang_3",  # 勋章数3
+            "xunzhang_4",  # 勋章数4
+            "xunzhang_5",  # 勋章数5
+            "yinyangliao"  # 阴阳寮突破
+        ]
 
     def get_coor_info_picture_tupo(self, x1: int, y1: int, file: str) -> tuple[int, int]:
-        """
-        图像识别，返回图像的局部相对坐标
+        """图像识别，返回图像的局部相对坐标
 
-        :param x1: 识别区域左侧横坐标
-        :param y1: 识别区域顶部纵坐标
-        :param picname: 图像名称
-        :return: x, y
+        参数:
+            x1 (int): 识别区域左侧横坐标
+            y1 (int): 识别区域顶部纵坐标
+            file (str): 图像名称
+
+        返回:
+            tuple[int, int]: (x, y)
         """
-        # filename: str = fr".\pic\{self.picpath}\{file}"
         filename = config.resource_path / self.resource_path / file
-        log.info(filename)
+        log.info(f"looking for file: {filename}")
         if isinstance(filename, Path):
-            filename = str(filename)
+            filename = filename.__str__()
         if "xunzhang" in file:
             # 个人突破
             try:
@@ -98,12 +102,11 @@ class JieJieTuPo:
         return x, y
 
     def fighting_tupo(self, x0: int, y0: int) -> None:
-        """
-        结界突破战斗
+        """结界突破战斗        
 
-        :param x0: 左侧横坐标
-        :param y0: 顶部纵坐标
-        :return: None
+        参数:
+            x0 (int): 左侧横坐标
+            y0 (int): 顶部纵坐标
         """
         x, y = function.random_coor(x0, x0 + 185, y0, y0 + 80)
         pyautogui.moveTo(
@@ -112,37 +115,35 @@ class JieJieTuPo:
             duration=0.5
         )
         pyautogui.click()
-        while 1:
-            x, y = function.get_coor_info_picture(
-                f"{self.resource_path}/jingong.png")
+        while True:
+            x, y = function.get_coor_info_picture(f"{self.resource_path}/jingong.png")
             if x != 0 and y != 0:
                 pyautogui.moveTo(x, y, duration=0.5)
                 pyautogui.click()
                 break
 
     def fighting_fail_again(self):
-        # 主动失败
-        time.sleep(2)
+        # TODO 主动失败
+        function.random_sleep(1, 2)
         while True:
             pyautogui.press("esc")
             if function.judge_scene(f"{self.resource_path}/fighting_fail.png"):
                 pyautogui.press("enter")
-                log.info("手动退出", True)
+                log.ui("手动退出")
                 break
-            time.sleep(0.5)
+            function.random_sleep(0, 1)
 
 
 class JieJieTuPoGeRen(JieJieTuPo):
-    """个人突破"""
-    """
-    个人突破相对坐标
+    """个人突破
+    相对坐标
     宽185
     高90
     间隔宽115
     间隔高30
     """
 
-    def __init__(self) -> None:
+    def __init__(self, n: int = 0) -> None:
         super().__init__()
         self.tupo_geren_x = {
             1: 215,
@@ -154,13 +155,13 @@ class JieJieTuPoGeRen(JieJieTuPo):
             2: 295,
             3: 415
         }
-        self.m: int = 0  # 当前次数
-        self.n: int = 0  # 总次数
+        self.n: int = 0  # 当前次数
+        self.max: int = n  # 总次数
         self.list_xunzhang: list = None  # 勋章列表
         self.tupo_victory: int = None  # 攻破次数
         self.time_refresh: int = 0  # 记录刷新时间
 
-    def title(self) -> None:
+    def title(self) -> bool:
         """场景"""
         flag_title = True  # 场景提示
         while True:
@@ -169,10 +170,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     if function.judge_scene(f"{self.resource_path}/fangshoujilu.png", "个人突破"):
                         return True
                     else:
-                        time.sleep(1)
+                        function.random_sleep(0, 1)
                         function.judge_click(
                             f"{self.resource_path}/geren.png", dura=0.5)
-                        time.sleep(4)
+                        function.random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
                 log.warn("请检查游戏场景", True)
@@ -181,7 +182,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """
         创建列表，返回每个结界的勋章数
 
-        :return: 勋章个数列表
+        返回:
+            勋章个数列表
         """
         alist = [0]
         for i in range(1, 10):
@@ -250,7 +252,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             else:
                 list_xunzhang = list_xunzhang + "," + str(alist[i])
         list_xunzhang = list_xunzhang + "]"
-        log.info(list_xunzhang, True)
+        log.ui(list_xunzhang)
         return alist
 
     def fighting(self) -> None:
@@ -258,16 +260,16 @@ class JieJieTuPoGeRen(JieJieTuPo):
         for i in range(5, -1, -1):
             if self.list_xunzhang.count(i):
                 k = 1
-                for j in range(1, self.list_xunzhang.count(i) + 1):
+                for _ in range(1, self.list_xunzhang.count(i) + 1):
                     k = self.list_xunzhang.index(i, k)
-                    log.info(f"{k} 可进攻", True)
+                    log.ui(f"{k} 可进攻")
                     x, y = self.get_coor_info_picture_tupo(
                         self.tupo_geren_x[(k + 2) % 3 + 1],
                         self.tupo_geren_y[(k + 2) // 3],
                         "fail.png"
                     )
                     if x != 0 and y != 0:
-                        log.info(f"{k} 已失败", True)
+                        log.ui(f"{k} 已失败")
                         k += 1
                         continue
                     self.fighting_tupo(
@@ -280,26 +282,25 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     #     self.judge_click("zhunbei.png")
                     if function.result():
                         flag_victory = True
-                        self.m += 1
-                        log.num(f"{self.m}/{self.n}")
+                        self.n += 1
+                        log.num(f"{self.n}/{self.max}")
                     else:
                         flag_victory = False
-                    time.sleep(1)
+                    function.random_sleep(0, 1)
                     # 结束界面
                     x, y = function.random_finish_left_right()
-                    time.sleep(2)
+                    function.random_sleep(1, 2)
                     # 3胜奖励
                     if self.tupo_victory == 2 and flag_victory:
-                        time.sleep(2)
-                        while 1:
+                        function.random_sleep(1, 2)
+                        while True:
                             function.judge_click("victory.png")
                             function.random_sleep(1, 2)
-                            x, y = function.get_coor_info_picture(
-                                "victory.png")
+                            x, y = function.get_coor_info_picture("victory.png")
                             if x == 0 or y == 0:
                                 break
-                        log.info("成功攻破3次", True)
-                    time.sleep(3)
+                        log.ui("成功攻破3次")
+                    function.random_sleep(2, 3)
                     if flag_victory:
                         return
 
@@ -307,13 +308,11 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """刷新"""
         flag_refresh = False  # 刷新提醒
         function.random_sleep(4, 8)  # 强制等待
-        while 1:
+        while True:
             # 第一次刷新 或 冷却时间已过
             timenow = time.perf_counter()
-            print("time_refresh", self.time_refresh)
-            print("timenow", timenow)
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
-                log.info("刷新中", True)
+                log.ui("刷新中")
                 function.random_sleep(3, 6)
                 function.judge_click(
                     f"{self.resource_path}/shuaxin.png", sleeptime=2)
@@ -325,18 +324,18 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 break
             elif not flag_refresh:
                 time_wait = math.ceil(self.time_refresh + 5 * 60 - timenow)
-                log.info(f"等待刷新冷却，约{time_wait}秒", True)
+                log.ui(f"等待刷新冷却，约{time_wait}秒")
                 flag_refresh = True
-                time.sleep(time_wait)
+                function.random_sleep(time_wait, time_wait+5)
 
-    @time_consumption_statistics
-    def run(self, n: int) -> None:
-        time.sleep(2)
-        self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.n}")
+            log.num(f"0/{self.max}")
             function.random_sleep(1, 3)
-            while self.m < self.n:
+            while self.n < self.max:
                 function.random_sleep(2, 4)
                 self.list_xunzhang = self.list_num_xunzhang()
                 # 胜利次数
@@ -346,27 +345,25 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     self.refresh()
                 # 挑战
                 elif self.tupo_victory < 3:
-                    log.info(f"已攻破{self.tupo_victory}个", True)
+                    log.ui(f"已攻破{self.tupo_victory}个")
                     self.fighting()
                 elif self.tupo_victory > 3:
                     log.warn("暂不支持大于3个，请自行处理", True)
                     break
-                time.sleep(3)
-        text = f"已完成 个人突破 {self.m}次"
-        log.info(text, True)
+                function.random_sleep(2, 3)
+        log.ui(f"已完成 个人突破 {self.n}次")
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):
-    """阴阳寮突破"""
-    """
-    阴阳寮突破相对坐标
+    """阴阳寮突破
+    相对坐标
     宽185
     高90
     间隔宽115
     间隔高40
     """
 
-    def __init__(self) -> None:
+    def __init__(self, n: int = 0) -> None:
         super().__init__()
         self.tupo_yinyangliao_x = {
             1: 460,
@@ -378,8 +375,8 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             3: 430,
             4: 560
         }
-        self.m: int = 0  # 当前次数
-        self.n: int = None  # 总次数
+        self.n: int = 0  # 当前次数
+        self.max: int = n  # 总次数
 
     def title(self) -> bool:
         """场景"""
@@ -390,12 +387,12 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     if function.judge_scene(f"{self.resource_path}/tupojilu.png", "阴阳寮突破"):
                         return True
                     else:
-                        time.sleep(1)
+                        function.random_sleep(0, 1)
                         function.judge_click(
                             f"{self.resource_path}/yinyangliao.png",
                             dura=0.5
                         )
-                        time.sleep(4)
+                        function.random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
                 log.warn("请检查游戏场景", True)
@@ -447,34 +444,33 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 else:
                     # 失败
                     flag = 0
-                time.sleep(2)
+                function.random_sleep(1, 2)
                 # 结束界面
                 x, y = function.random_finish_left_right()
                 return flag
             else:
-                log.info(f"{i} 已失败", True)
+                log.ui(f"{i} 已失败")
                 i += 1
                 if i == 8:
                     # 单页上限8个
-                    log.info("当前页全部失败", True)
+                    log.ui("当前页全部失败")
                     flag = -1
                     return flag
 
-    @time_consumption_statistics
-    def run(self, n: int) -> None:
-        time.sleep(2)
-        self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.n}")
+            log.num(f"0/{self.max}")
             function.random_sleep(1, 3)
-            while self.m < self.n:
-                time.sleep(1)
+            while self.n < self.max:
+                function.random_sleep(0, 1)
                 flag = self.fighting()
                 if flag:
-                    self.m += 1
-                    log.num(f"{self.m}/{self.n}")
+                    self.n += 1
+                    log.num(f"{self.n}/{self.max}")
                 elif flag == -1:
                     break
-                time.sleep(3)
-        text = f"已完成 阴阳寮突破 {self.m}次"
-        log.info(text, True)
+                function.random_sleep(2, 3)
+        log.ui(f"已完成 阴阳寮突破 {self.n}次")

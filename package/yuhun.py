@@ -1,29 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # yuhun.py
-"""组队御魂副本 仅支持进行中的组队副本"""
+"""组队御魂副本"""
 
-import time
 import pyautogui
 
-from utils.window import window
-from utils.function import function, time_consumption_statistics
+from utils.decorator import *
+from utils.function import function
 from utils.log import log
-
-"""
-组队界面-协战队伍
-xiezhanduiwu.png
-挑战按钮
-tiaozhan.png
-队员2
-passenger_2.png
-队员3
-passenger_3.png
-对局进行中
-fighting.png
-御魂副本结算按钮
-yuhun_victory.png
-"""
+from utils.window import window
 
 
 class YuHun():
@@ -38,17 +23,17 @@ class YuHun():
     ) -> None:
         """组队御魂副本
 
-        Args:
-            n (int): 次数，默认0次.
-            flag_driver (bool): 是否司机，默认否.
-            flag_passengers (int): 组队人数，默认2人.
-            flag_drop_statistics (bool): 是否开启掉落统计，默认否.
+        参数:
+            n (int): 次数，默认0次
+            flag_driver (bool): 是否司机，默认否
+            flag_passengers (int): 组队人数，默认2人
+            flag_drop_statistics (bool): 是否开启掉落统计，默认否
         """
-        self.scene_name = "组队御魂副本"
-        self.resource_path = "yuhun"  # 路径
-        self.n = 0  # 当前次数
-        self.max = n  # 总次数
-        self.scene_list: list = [
+        self.scene_name: str = "组队御魂副本"
+        self.n: int = 0  # 当前次数
+        self.max: int = n  # 总次数
+        self.resource_path: str = "yuhun"  # 路径
+        self.resource_list: list = [  # 资源列表
             "xiezhanduiwu",  # 组队界面
             "fighting",  # 魂土进行中
             "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
@@ -75,7 +60,7 @@ class YuHun():
     def title(self):
         """场景"""
         flag_title = True  # 场景提示
-        while 1:
+        while True:
             if function.judge_scene(f"{self.resource_path}/xiezhanduiwu.png", "组队御魂准备中"):
                 self.flag_driver_start = True
                 return True
@@ -89,8 +74,8 @@ class YuHun():
     def result(self) -> bool:
         """结果判断
 
-        Returns:
-            bool: Success or failure
+        返回:
+            bool: 结算结果
         """
         log.info("result check")
         while True:
@@ -131,12 +116,12 @@ class YuHun():
 
         function.random_sleep(1, 3)
         # 结算
-        x, y = function.random_finish_left_right(False, is_shenfa=True)
-        while 1:
+        x, y = function.random_finish_left_right(False, is_multiple_drops_x=True)
+        while True:
             pyautogui.moveTo(x + window.window_left, y + window.window_top, duration=0.25)
             pyautogui.doubleClick()
             if self.result():
-                while 1:
+                while True:
                     function.random_sleep(1, 2)
                     if self.flag_drop_statistics:
                         function.screenshot("cache_yuhun")
@@ -157,14 +142,10 @@ class YuHun():
                 break
             function.random_sleep(0, 1)
 
-    @time_consumption_statistics
-    def run(self):
-        x: int
-        y: int
-        # self.flag_driver = flag_driver
-        # self.flag_passengers = flag_passengers
-        time.sleep(2)
-        # self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         if self.title():
             log.num(f"0/{self.max}")
             while self.n < self.max:
@@ -178,13 +159,13 @@ class YuHun():
 
                 # 司机
                 if self.flag_driver and self.flag_driver_start:
-                    log.info("等待队员", True)
+                    log.ui("等待队员")
                     # 队员2就位
-                    while 1:
+                    while True:
                         x, y = function.get_coor_info_picture(f"{self.resource_path}/passenger_2.png")
                         if x == 0 and y == 0:
                             self.flag_passenger_2 = True
-                            log.info("队员2就位", True)
+                            log.ui("队员2就位")
                             break
                     # 是否3人组队
                     if self.flag_passengers == 3:
@@ -192,11 +173,11 @@ class YuHun():
                             x, y = function.get_coor_info_picture(f"{self.resource_path}/passenger_3.png")
                             if x == 0 and y == 0:
                                 self.flag_passenger_3 = True
-                                log.info("队员3就位", True)
+                                log.ui("队员3就位")
                                 break
                     # 开始挑战
                     function.judge_click(f"{self.resource_path}/tiaozhan.png", dura=0.25)
-                    log.info("开始", True)
+                    log.ui("开始")
                 if not self.flag_fighting:
                     # function.judge_click(f"{self.resource_path}/fighting.png", False)
                     while True:
@@ -208,13 +189,12 @@ class YuHun():
                             break
                     # log.ui(scene)
                     self.flag_fighting = False
-                    log.info("对局进行中", True)
+                    log.ui("对局进行中")
                 self.finish()
                 self.n += 1
                 log.num(f"{self.n}/{self.max}")
-                time.sleep(2)
-        text = f"已完成 组队御魂副本{self.n}次"
-        log.info(text, True)
+                function.random_sleep(1, 2)
+        log.ui(f"已完成 组队御魂副本{self.n}次")
 
 
 class Coordinate:
@@ -249,7 +229,7 @@ class YuHunTest:
         self.resource_path = "yuhun"  # 图片路径
         self.n = 0  # 当前次数
         self.max = n  # 总次数
-        self.scene_list: list = [
+        self.resource_list: list = [
             'xiezhanduiwu',  # 组队界面
             'fighting',
             'fighting_linshuanghanxue',
@@ -269,17 +249,18 @@ class YuHunTest:
         self.flag_fighting = False  # 是否进行中对局（默认否）
         self.flag_is_first: bool = True  # 是否第一次（用于接受邀请）
 
-    @time_consumption_statistics
+    @run_in_thread
+    @time_count
+    @log_function_call
     def run(self):
-        time.sleep(1)
         while self.n < self.max:
-            scene = function.check_scene_multiple_while(self.scene_list, self.resource_path)
+            scene = function.check_scene_multiple_while(self.resource_list, self.resource_path)
             match scene:
                 case 'xiezhanduiwu':
                     log.ui('组队界面准备中')
                     self.flag_driver_start = True
                     if self.flag_driver:
-                        scene = function.check_scene_multiple_once(self.scene_list, self.resource_path)
+                        scene = function.check_scene_multiple_once(self.resource_list, self.resource_path)
                         match scene:
                             case '1':
                                 pass

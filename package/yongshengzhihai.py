@@ -1,41 +1,39 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # yongshengzhihai.py
-"""
-组队永生之海副本
-仅支持进行中的永生之海副本
-"""
+"""组队永生之海副本"""
 
-import time
 import pyautogui
 
-from utils.window import window
-from utils.function import function, time_consumption_statistics
+from utils.decorator import *
+from utils.function import function
 from utils.log import log
-
-"""
-组队界面
-title.png
-挑战按钮
-tiaozhan.png
-队员
-passenger.png
-对局进行中
-fighting.png
-永生之海副本结算按钮
-victory.png
-"""
+from utils.window import window
 
 
 class YongShengZhiHai:
     """组队永生之海副本"""
 
-    def __init__(self) -> None:
+    def __init__(self, n: int = 0, flag_driver: bool = False) -> None:
+        """组队永生之海副本
+
+        参数:
+            n (int): 次数,默认0次
+            flag_driver (bool): 是否司机,默认否
+        """
         self.scene_name: str = "组队永生之海副本"
-        self.resource_path: str = "yongshengzhihai"  # 图片路径
-        self.m: int = 0  # 当前次数
-        self.n: int = None  # 总次数
-        self.flag_driver: bool = False  # 是否为司机（默认否）
+        self.n: int = 0  # 当前次数
+        self.max: int = n  # 总次数
+        self.resource_path: str = "yongshengzhihai"  # 路径
+        self.resource_list: list = [  # 资源列表
+            "fighting",  # 战斗中
+            "passenger",  # 队员
+            "tiaozhan",  # 挑战
+            "title",  # 标题-四层
+            "victory"  # 成功
+        ]
+
+        self.flag_driver: bool = flag_driver  # 是否为司机（默认否）
         self.flag_passenger: bool = False  # 队员2就位
         self.flag_driver_start: bool = False  # 司机待机
         self.flag_fighting: bool = False  # 是否进行中对局（默认否）
@@ -61,7 +59,7 @@ class YongShengZhiHai:
                 f"{self.resource_path}/victory.png"
             )
             if x != 0 and y != 0:
-                log.info("结算中", True)
+                log.ui("结算中")
                 break
         function.random_sleep(2, 4)
         x, y = function.random_finish_left_right(False)
@@ -83,46 +81,38 @@ class YongShengZhiHai:
                 break
             function.random_sleep(0, 1)
 
-    @time_consumption_statistics
-    def run(self, n: int, flag_driver: bool = False) -> None:
-        """
-        :param n: 次数
-        :param flag_driver: 是否司机（默认否）
-        """
-        x: int
-        y: int
-        self.flag_driver = flag_driver
-        time.sleep(2)
-        self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.n}")
-            while self.m < self.n:
+            log.num(f"0/{self.max}")
+            while self.n < self.max:
                 self.flag_passenger = False
                 # 司机
                 if self.flag_driver and self.flag_driver_start:
-                    log.info("等待队员", True)
+                    log.ui("等待队员")
                     # 队员就位
-                    while 1:
+                    while True:
                         x, y = function.get_coor_info_picture(
                             f"{self.resource_path}/passenger.png"
                         )
                         if x == 0 and y == 0:
                             self.flag_passenger = True
-                            log.info("队员就位", True)
+                            log.ui("队员就位")
                             break
                     # 开始挑战
                     function.judge_click(f"{self.resource_path}/tiaozhan.png")
-                    log.info("开始", True)
+                    log.ui("开始")
                 if not self.flag_fighting:
                     function.judge_click(
                         f"{self.resource_path}/fighting.png",
                         False
                     )
                     self.flag_fighting = False
-                    log.info("对局进行中", True)
+                    log.ui("对局进行中")
                 self.finish()
-                self.m += 1
-                log.num(f"{self.m}/{self.n}")
-                time.sleep(2)
-        text = f"已完成 {self.scene_name} {self.m}次"
-        log.info(text, True)
+                self.n += 1
+                log.num(f"{self.n}/{self.max}")
+                function.random_sleep(1, 2)
+        log.ui(f"已完成 {self.scene_name} {self.n}次")

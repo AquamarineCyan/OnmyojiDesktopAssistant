@@ -1,30 +1,27 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # zhaohuan.py
-"""
-普通召唤
-"""
+"""普通召唤"""
 
-import time
-
-from utils.function import function, time_consumption_statistics
+from utils.decorator import *
+from utils.function import function
 from utils.log import log
 
 
 class ZhaoHuan:
-    """召唤"""
+    """普通召唤"""
 
-    def __init__(self) -> None:
-        self.scene_name: str = "召唤"
+    def __init__(self, n: int = 0) -> None:
+        self.scene_name: str = "普通召唤"
+        self.n: int = 0  # 当前次数
+        self.max: int = n  # 总次数
         self.resource_path: str = "zhaohuan"  # 路径
-        self.resource_list: list = [  # TODO resource check
-            "title.png",  # 标题
-            "putongzhaohuan.png",  # 普通召唤
-            "zaicizhaohuan.png",  # 再次召唤
-            "queding.png"  # 确定
+        self.resource_list: list = [  # 资源列表
+            "putongzhaohuan",  # 普通召唤
+            "queding",  # 确定
+            "title",  # 标题
+            "zaicizhaohuan"  # 再次召唤
         ]
-        self.m: int = 0  # 当前次数
-        self.n: int = None  # 总次数
 
     def title(self) -> bool:
         """场景"""
@@ -46,25 +43,24 @@ class ZhaoHuan:
         function.judge_click(f"{self.resource_path}/zaicizhaohuan.png")
         function.random_sleep(6, 8)
 
-    @time_consumption_statistics
-    def run(self, n: int) -> None:
-        time.sleep(2)
-        self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self) -> None:
         flag = True  # 是否第一次
         if self.title():
-            log.num(f"0/{self.n}")
+            log.num(f"0/{self.max}")
             function.random_sleep(1, 3)
-            while self.m < self.n:
+            while self.n < self.max:
                 if flag:
                     self.first()
                     flag = False
-                    self.m += 1
+                    self.n += 1
                 else:
                     self.again()
-                    self.m += 1
-                log.num(f"{self.m}/{self.n}")
+                    self.n += 1
+                log.num(f"{self.n}/{self.max}")
             # 结束
-            if self.m == self.n:
+            if self.n == self.max:
                 function.judge_click(f"{self.resource_path}/queding.png")
-        text = f"已完成 普通召唤十连 {self.m}次"
-        log.info(text, True)
+        log.ui(f"已完成 普通召唤十连 {self.n}次")

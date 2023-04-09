@@ -8,7 +8,6 @@ config.yaml
 Onmyoji_Python.exe
 
 # dir
-.idea
 .idle
 .vscode
 build

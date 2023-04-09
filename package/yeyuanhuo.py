@@ -1,31 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # yeyuanhuo.py
-"""
-业原火副本
-"""
+"""业原火副本"""
 
-import time
-
-from utils.function import function, time_consumption_statistics
+from utils.decorator import *
+from utils.function import function
 from utils.log import log
-
-"""
-业原火场景
-title.png
-挑战
-tiaozhan.png
-"""
-
 
 class YeYuanHuo:
     """业原火副本"""
 
-    def __init__(self) -> None:
+    def __init__(self,n:int = 0) -> None:
         self.scene_name: str = "业原火副本"
+        self.n: int = 0  # 当前次数
+        self.max: int = None  # 总次数
         self.resource_path: str = "yeyuanhuo"  # 路径
-        self.m: int = 0  # 当前次数
-        self.n: int = None  # 总次数
+        self.resource_list: list = [
+            "tiaozhan",  # 挑战
+            "title"  # 标题
+        ]
 
     def title(self) -> bool:
         """场景"""
@@ -41,14 +34,14 @@ class YeYuanHuo:
         """挑战开始"""
         function.judge_click(f"{self.resource_path}/tiaozhan.png")
 
-    @time_consumption_statistics
-    def run(self, n: int):
-        time.sleep(2)
-        self.n = n
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self):
         if self.title():
-            log.num(f"0/{self.n}")
+            log.num(f"0/{self.max}")
             function.random_sleep(1, 3)
-            while self.m < self.n:
+            while self.n < self.max:
                 function.random_sleep(1, 2)
                 # 开始
                 self.start()
@@ -56,9 +49,8 @@ class YeYuanHuo:
                 function.result()
                 function.random_sleep(1, 2)
                 # 结算
-                function.random_finish_left_right(is_yuling=True)
+                function.random_finish_left_right(is_multiple_drops_y=True)
                 function.random_sleep(1, 3)
-                self.m += 1
-                log.num(f"{self.m}/{self.n}")
-        text = f"已完成 业原火副本 {self.m}次"
-        log.info(text, True)
+                self.n += 1
+                log.num(f"{self.n}/{self.max}")
+        log.ui(f"已完成 业原火副本 {self.n}次")
