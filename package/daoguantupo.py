@@ -12,7 +12,8 @@ from utils.log import log
 
 class DaoGuanTuPo:
     """道馆突破"""
-
+    
+    @log_function_call
     def __init__(self, flag_guanzhan: bool = False):
         self.scene_name = "道馆突破"
         self.n = 0  # 当前次数

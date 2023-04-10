@@ -126,6 +126,7 @@ class MainWindow(QMainWindow):
         # 程序开启运行
         self.application_init()
 
+    @log_function_call
     @run_in_thread
     def application_init(self) -> None:
         """程序初始化"""
@@ -136,17 +137,21 @@ class MainWindow(QMainWindow):
                 log.info(f"{item} : {config.config_user[item]}")
         log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
         window.get_game_window_handle()  # 获取游戏窗口信息
-        self._check_enviroment()
+        if self._check_enviroment():
+            log.ui("环境完整")
+            self.ui.combo_choice.setEnabled(True)
+            self.ui.spinB_num.setEnabled(True)
+            log.ui("移动游戏窗口后，点击下方“游戏检测”即可")
+            log.ui("请选择功能以加载内容")
+        else:
+            log.error("环境损坏", True)
+
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
         log.clean_up()
-        Thread(target=upgrade.check_latest, daemon=True).start()
+        upgrade.check_latest()
         # 悬赏封印
-        Thread(
-            target=xuanshangfengyin.xuanshangfengyin.judge,
-            name="thread_xuanshang",
-            daemon=True
-        ).start()
+        xuanshangfengyin.xuanshangfengyin.judge()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
@@ -181,14 +186,16 @@ class MainWindow(QMainWindow):
     def text_print_update_func(self, text: str) -> None:
         """输出内容至文本框
 
-        WARN -> 红色
+        WARN | ERROR -> 红色
 
         SCENE -> 绿色
 
-        Args:
+        参数:
             text(str): 文本内容
         """
         if "[WARN]" in text:
+            self.ui.text_print.setTextColor("red")
+        elif "[ERROR]" in text:
             self.ui.text_print.setTextColor("red")
         elif "[SCENE]" in text:
             self.ui.text_print.setTextColor("green")
@@ -197,7 +204,7 @@ class MainWindow(QMainWindow):
         # 自动换行
         self.ui.text_print.ensureCursorVisible()
         # 自动滑动到底
-        self.ui.text_print.moveCursor(self.ui.text_print.textCursor().End)
+        self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
         self.ui.text_print.setTextColor("black")
 
     def text_num_update_func(self, text: str) -> None:
@@ -213,10 +220,11 @@ class MainWindow(QMainWindow):
             case "悬赏封印":
                 self.ui.setting_xuanshangfengyin_comboBox.setCurrentText(text)
 
+    @log_function_call
     def _check_enviroment(self) -> bool:
         """环境检测
 
-        Returns:
+        返回:
             bool: 是否完成
         """
         log.info("环境检测中...")
@@ -224,38 +232,32 @@ class MainWindow(QMainWindow):
         # log检测
         if not log.init():
             ms.qmessagbox_update.emit("ERROR", "创建log目录失败，请重试！")
+            return False
         # 中文路径
-        elif config.is_Chinese_Path():
+        if config.is_Chinese_Path():
             log.error("Chinese Path")
             ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
+            return False
         # 资源文件夹完整度
-        elif not self.is_resource_directory_complete():
-            pass
+        if not self.is_resource_directory_complete():
+            log.error("资源丢失", True)
+            return False
         # 游戏窗口检测
-        elif handle_coor == (0, 0, 0, 0):
+        if handle_coor == (0, 0, 0, 0):
             log.error("未打开游戏")
             ms.qmessagbox_update.emit("ERROR", "请打开游戏！")
-        elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
+            return False
+        if handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
             log.error("未前置游戏窗口")
             ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
+            return False
         # 环境完整
-        # TODO 解除窗口大小限制，待优化
-        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
+        if handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
                 handle_coor[3] - handle_coor[1] != window.absolute_window_height:
             ms.qmessagbox_update.emit("question", "强制缩放")
-        else:
-            log.ui("环境完整")
-            self.ui.combo_choice.setEnabled(True)
-            self.ui.spinB_num.setEnabled(True)
-            log.ui("移动游戏窗口后，点击下方“游戏检测”即可")
-            log.ui("请选择功能以加载内容")
-            # 悬赏封印
-            return True
-        log.ui("环境损坏")
-        return False
+        return True
 
     @log_function_call
-    @run_in_thread
     def is_resource_directory_complete(self) -> bool:
         """资源文件夹完整度
 
@@ -300,6 +302,7 @@ class MainWindow(QMainWindow):
                             log.error(f"无{P.resource_path}/{item}.png资源文件")
                             ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                             return False
+        log.info("资源完整")
         return True
 
     def setting_update_comboBox_func(self) -> None:
@@ -449,10 +452,9 @@ class MainWindow(QMainWindow):
 
         def start() -> None:
             """开始函数"""
-            n = self.ui.spinB_num.value()
+            _n = self.ui.spinB_num.value()
             self.ui.text_num.clear()
             self.is_fighting(True)
-            # thread = None  # 线程
             match self._choice:
                 case 1:
                     # 1.组队御魂副本
@@ -460,13 +462,16 @@ class MainWindow(QMainWindow):
                     # 组队人数（默认2人）
                     driver = self.ui.buttonGroup_driver.checkedButton().text()
                     if driver == "否":
-                        flag_driver = False
+                        _flag_driver = False
                     else:
-                        flag_driver = True
-                    flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
-                    flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                    yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run()
-                    # thread = Thread(target=yuhun.YuHun(n, flag_driver, flag_passengers, flag_drop_statistics).run)
+                        _flag_driver = True
+                    _flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
+                    _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
+                    yuhun.YuHun(n=_n,
+                                flag_driver=_flag_driver,
+                                flag_passengers=_flag_passengers,
+                                flag_drop_statistics=_flag_drop_statistics
+                                ).run()
                     # 当前线程id
                     # print('main id', int(QThread.currentThreadId()))
                     # thread = MyThread(
@@ -479,90 +484,50 @@ class MainWindow(QMainWindow):
                     # 是否司机（默认否）
                     driver = self.ui.buttonGroup_driver.checkedButton().text()
                     if driver == "否":
-                        flag_driver = False
+                        _flag_driver = False
                     else:
-                        flag_driver = True
-                    yongshengzhihai.YongShengZhiHai(n, flag_driver).run()
-                    # thread = Thread(
-                    #     target=yongshengzhihai.YongShengZhiHai().run,
-                    #     args=(n, flag_driver)
-                    # )
+                        _flag_driver = True
+                    yongshengzhihai.YongShengZhiHai(n=_n, flag_driver=_flag_driver).run()
                 case 3:
                     # 3.业原火
-                    yeyuanhuo.YeYuanHuo(n).run()
-                    # thread = Thread(
-                    #     target=yeyuanhuo.YeYuanHuo().run,
-                    #     args=(n,)
-                    # )
+                    yeyuanhuo.YeYuanHuo(n=_n).run()
                 case 4:
                     # 4.御灵
-                    # thread = Thread(
-                    #     target=yuling.YuLing().run,
-                    #     args=(n,)
-                    # )
-                    yuling.YuLing(n).run()
+                    yuling.YuLing(n=_n).run()
                 case 5:
                     # 5.个人突破
-                    jiejietupo.JieJieTuPoGeRen(n).run()
-                    # thread = Thread(
-                    #     target=jiejietupo.JieJieTuPoGeRen().run,
-                    #     args=(n,)
-                    # )
+                    jiejietupo.JieJieTuPoGeRen(n=_n).run()
                 case 6:
                     # 6.寮突破
-                    jiejietupo.JieJieTuPoYinYangLiao(n).run()
-                    # thread = Thread(
-                    #     target=jiejietupo.JieJieTuPoYinYangLiao().run,
-                    #     args=(n,)
-                    # )
+                    jiejietupo.JieJieTuPoYinYangLiao(n=_n).run()
                 case 7:
                     # 7.道馆突破
                     flag_guanzhan = self.ui.button_guanzhan.isChecked()
-                    daoguantupo.DaoGuanTuPo(flag_guanzhan).run()
-                    # thread = MyThread(
-                    #     func=daoguantupo.DaoGuanTuPo(flag_guanzhan).run,
-                    #     args=(flag_guanzhan,)
-                    # )
+                    daoguantupo.DaoGuanTuPo(flag_guanzhan=flag_guanzhan).run()
                 case 8:
                     # 8.普通召唤
-                    zhaohuan.ZhaoHuan(n).run()
+                    zhaohuan.ZhaoHuan(n=_n).run()
                 case 9:
                     # 9.百鬼夜行
-                    # thread = Thread(
-                    #     target=baiguiyexing.BaiGuiYeXing().run,
-                    #     args=(n,)
-                    # )
-                    baiguiyexing.BaiGuiYeXing(n).run()
+                    baiguiyexing.BaiGuiYeXing(n=_n).run()
                 case 10:
                     # 10.限时活动
-                    # thread = Thread(target=huodong.HuoDong(n).run)
-                    huodong.HuoDong(n).run()
+                    huodong.HuoDong(n=_n).run()
                 case 11:
                     # 11.组队日轮副本
                     # 是否司机（默认否）
                     # 组队人数（默认2人）
                     driver = self.ui.buttonGroup_driver.checkedButton().text()
                     if driver == "否":
-                        flag_driver = False
+                        _flag_driver = False
                     else:
-                        flag_driver = True
-                    flag_passengers = int(
+                        _flag_driver = True
+                    _flag_passengers = int(
                         self.ui.buttonGroup_passengers.checkedButton().text()
                     )
-                    # thread = Thread(
-                    #     target=rilun.RiLun().run,
-                    #     args=(n, flag_driver, flag_passengers)
-                    # )
-                    rilun.RiLun(n, flag_driver, flag_passengers).run()
+                    rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
                 case 12:
-                    # thread = Thread(target=tansuo.TanSuo().running)
                     tansuo.TanSuo().run()
-            # 线程存在
-            # if thread is not None:
-            #     thread.daemon = True  # 线程守护
-            #     thread.start()
-            # 进行中
-            # self.is_fighting(True)
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""
@@ -659,4 +624,4 @@ class UpdateRecordWindow(QWidget):
         print("[update record]", text)  # 控制台调试输出
         self.ui.textBrowser.append(text)
         self.ui.textBrowser.ensureCursorVisible()
-        self.ui.textBrowser.moveCursor(QTextCursor.Start)
+        self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.Start)

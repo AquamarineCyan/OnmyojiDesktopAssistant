@@ -142,7 +142,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
     间隔宽115
     间隔高30
     """
-
+    
+    @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__()
         self.tupo_geren_x = {
@@ -363,6 +364,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     间隔高40
     """
 
+    @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__()
         self.tupo_yinyangliao_x = {

@@ -14,6 +14,7 @@ from utils.window import window
 class YongShengZhiHai:
     """组队永生之海副本"""
 
+    @log_function_call
     def __init__(self, n: int = 0, flag_driver: bool = False) -> None:
         """组队永生之海副本
 

@@ -14,6 +14,7 @@ from utils.window import window
 class YuHun():
     """组队御魂副本"""
 
+    @log_function_call
     def __init__(
         self,
         n: int = 0,
@@ -55,8 +56,7 @@ class YuHun():
         self.flag_fighting: bool = False  # 是否进行中对局（默认否）
         self.flag_is_first: bool = True  # 是否第一次（用于接受邀请）
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
-        log.info(f"次数:{self.max}\n司机:{self.flag_driver}\n组队人数:{self.flag_passengers}\n掉落统计:{self.flag_drop_statistics}")
-
+        
     def title(self):
         """场景"""
         flag_title = True  # 场景提示

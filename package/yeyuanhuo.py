@@ -9,7 +9,8 @@ from utils.log import log
 
 class YeYuanHuo:
     """业原火副本"""
-
+    
+    @log_function_call
     def __init__(self,n:int = 0) -> None:
         self.scene_name: str = "业原火副本"
         self.n: int = 0  # 当前次数

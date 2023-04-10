@@ -15,4 +15,5 @@ cache*
 dist
 doc
 log
+resource/test
 test_code

@@ -11,6 +11,7 @@ from utils.log import log
 class HuoDong:
     """限时活动"""
 
+    @log_function_call
     def __init__(self, n: int = 0)-> None:
         self.scene_name: str = "限时活动"
         self.n: int = 0  # 当前次数

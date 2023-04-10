@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 
 from utils.config import config
+from utils.decorator import *
 from utils.event import event_xuanshang
 from utils.log import log
 from utils.toast import toast
@@ -89,6 +90,8 @@ class XuanShangFengYin:
                 log.ui("定位成功")
                 return
 
+    @log_function_call
+    @run_in_thread
     def judge(self) -> None:
         log.info("悬赏封印进行中...")
         while True:

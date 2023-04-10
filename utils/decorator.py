@@ -23,7 +23,9 @@ def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         log.info("{} calling".format(func.__qualname__))
-        result =  func(*args, **kwargs)
+        log.info("*args: {}".format(args))
+        log.info("**keargs: {}".format(kwargs))
+        result = func(*args, **kwargs)
         log.info("{} finish".format(func.__qualname__))
         return result
     return wrapper

@@ -16,6 +16,7 @@ from utils.window import window
 class BaiGuiYeXing:
     """百鬼夜行"""
 
+    @log_function_call
     def __init__(self, n: int = 0):
         self.scene_name: str = "百鬼夜行"
         self.n: int = 0  # 当前次数

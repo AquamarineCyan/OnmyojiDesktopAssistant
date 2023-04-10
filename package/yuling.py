@@ -11,6 +11,7 @@ from utils.log import log
 class YuLing:
     """御灵副本"""
 
+    @log_function_call
     def __init__(self, n: int = 0) -> None:
         self.scene_name: str = "御灵副本"
         self.n: int = 0  # 当前次数

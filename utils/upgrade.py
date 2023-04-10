@@ -13,6 +13,7 @@ from subprocess import Popen
 from pathlib import Path
 
 from .config import config
+from .decorator import *
 from .log import log
 from .mysignal import global_ms as ms
 from .toast import toast
@@ -92,7 +93,9 @@ class Upgrade:
             except:
                 log.ui("访问下载链接失败")
                 return False
-
+    
+    @log_function_call
+    @run_in_thread
     def check_latest(self) -> None:
         """检查更新"""
         STATUS = self._get_browser_download_url()

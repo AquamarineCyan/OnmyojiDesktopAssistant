@@ -14,6 +14,7 @@ from utils.window import window
 class RiLun:
     """日轮副本"""
 
+    @log_function_call
     def __init__(self, n: int = 0, flag_driver: bool = False, flag_passengers: int = 2) -> None:
         self.scene_name: str = "日轮副本"
         self.n: int = 0  # 当前次数
