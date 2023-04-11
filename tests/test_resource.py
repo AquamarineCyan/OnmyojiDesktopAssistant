@@ -4,6 +4,9 @@ resource_path = Path(__file__).parent.parent/"resource"
 assert resource_path.exists()
 assert resource_path.is_dir()
 
+log_path = Path(__file__).parent / "log"
+log_path.mkdir(parents=True, exist_ok=True)
+
 
 class Package:
     def __init__(self, n: int = 0) -> None:
@@ -46,7 +49,7 @@ def test_resource():
         assert Path(resource_path / T.resource_path).exists()
         assert isinstance(T.resource_list, list)
         for i in range(len(T.resource_list)):
-            resource :Path = resource_path / T.resource_path / f"{T.resource_list[i]}.png"
+            resource: Path = resource_path / T.resource_path / f"{T.resource_list[i]}.png"
             print(resource)
             assert resource.exists()
             assert resource.is_file()
