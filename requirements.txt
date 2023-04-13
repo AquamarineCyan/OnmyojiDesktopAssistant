@@ -1,11 +1,10 @@
-Python>=3.10
-PyAutoGUI
 httpx
-pywin32
-PySide6>=6.3.0
-opencv-python
 numpy
+opencv-python
 Pillow
-PyInstaller
-pyyaml
+PyAutoGUI
+pyinstaller
+PySide6>=6.5.0
+pywin32
+PyYAML
 win11toast
