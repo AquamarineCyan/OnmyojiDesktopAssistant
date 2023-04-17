@@ -2,7 +2,6 @@
 *.pyc
 *.xml
 .gitattributes
-api_github.json
 build.bat
 config.yaml
 Onmyoji_Python.exe

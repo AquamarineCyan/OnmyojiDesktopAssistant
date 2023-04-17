@@ -1,11 +1,7 @@
 from pathlib import Path
 
 resource_path = Path(__file__).parent.parent/"resource"
-assert resource_path.exists()
-assert resource_path.is_dir()
-
 log_path = Path(__file__).parent / "log"
-log_path.mkdir(parents=True, exist_ok=True)
 
 
 class Package:
@@ -18,6 +14,9 @@ class Package:
 
 
 def test_resource():
+    assert resource_path.exists()
+    assert resource_path.is_dir()
+    log_path.mkdir(parents=True, exist_ok=True)
     from package import (
         baiguiyexing,
         daoguantupo,
@@ -53,3 +52,7 @@ def test_resource():
             print(resource)
             assert resource.exists()
             assert resource.is_file()
+    # clean log files
+    for item in log_path.iterdir(): 
+        item.unlink()
+    log_path.rmdir()

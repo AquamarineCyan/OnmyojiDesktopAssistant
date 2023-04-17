@@ -16,6 +16,7 @@
 - 镜像源启用失败的问题
 - 匹配更新包空路径的问题
 - 资源检测线程问题
+- `requirements.txt` 环境问题([#3](https://github.com/AquamarineCyan/Onmyoji_Python/issues/3))
 
 ## v1.7.2 - 2023-03-26
 
