@@ -56,24 +56,31 @@ class Function:
         y = self.random_num(y1, y2)
         return x, y
 
-    def completion_picture_with_png(self, file: Path) -> str:
-        """补全图片后缀(`pyautogui` need file be `str`)
+    def _image_file_format(self, file: Path | str) -> str:
+        """补全图像文件后缀并转为`str`
 
-        Args:
-            file (Path): filename
+        `pyautogui` need file path be `str`
 
-        Returns:
+        参数:
+            file (Path | str): file
+
+        返回:
             str: filename
         """
-        if isinstance(file, Path):
-            if str(file)[-4:] not in [".png", ".jpg"]:
-                file = str(file)+".png"
-            if Path(file).exists():
-                return str(file)
+        if isinstance(file, str):
+            if file[-4:] not in [".png", ".jpg"]:
+                _file = f"{file}.png"
             else:
-                log.warn(f"no such file {file}")
+                _file = file
+        elif isinstance(file, Path):
+            if file.__str__()[-4:] not in [".png", ".jpg"]:
+                _file = f"{file.__str__()}.png"
+            else:
+                _file = file.__str__()
+        if Path(config.resource_path / _file).exists():
+            return _file
         else:
-            log.warn(f"error with file {file}")
+            log.warn(f"no such file {_file}")
 
     def get_coor_info_picture(self, file: str) -> tuple[int, int]:
         """图像识别，返回图像的全屏随机坐标
@@ -92,7 +99,7 @@ class Function:
         # filename = str(filename)
         # print("test", xuanshangfengyin.event_is_set())
         file = self.resource_path/file
-        filename = self.completion_picture_with_png(file)
+        filename = self._image_file_format(file)
         log.info(filename)
         # 等待悬赏封印判定
         xuanshangfengyin.event_wait()
