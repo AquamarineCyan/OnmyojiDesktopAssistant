@@ -12,8 +12,10 @@ from .mysignal import global_ms as ms
 
 class Config():
     def __init__(self) -> None:
+        self.application_name: str = "Onmyoji_Python"
+        self.exe_name: str = f"{self.application_name}.exe"
         self.version: str = "1.7.2"
-        self.exe_name: str = "Onmyoji_Python.exe"
+
         self.application_path: Path = Path.cwd()
         if Path(self.application_path / "resource").is_dir():
             self.resource_path: Path = self.application_path / "resource"

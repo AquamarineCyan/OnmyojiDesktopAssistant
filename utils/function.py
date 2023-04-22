@@ -10,6 +10,7 @@ import time
 from pathlib import Path
 
 from .config import config
+from .coordinate import Coor
 from .decorator import *
 from .log import log
 from .window import window
@@ -25,36 +26,48 @@ class Function:
         self.screenshot_window_width: int = 1138  # 截图宽度
         self.screenshot_window_height: int = 679  # 截图高度
 
-    def random_num(self, minimum: int, maximun: int) -> int:
-        """返回给定范围的随机值
+    def random_num(self, minimum: int | float, maximum: int | float) -> float:
+        """返回给定范围的随机值        
 
-        Args:
-            minimum (int): 下限（包含）
-            maximun (int): 上限（不含）
+        参数:
+            minimum (int | float): 最小值（含）
+            maximum (int | float): 最大值（不含）
 
-        Returns:
-            int: 随机值
+        返回:
+            float: 随机值
         """
         # 获取系统当前时间戳
         random.seed(time.time_ns())
-        return random.random() * (maximun - minimum) + minimum
+        return random.random() * (maximum - minimum) + minimum
 
     def random_coor(self, x1: int, x2: int, y1: int, y2: int) -> tuple[int, int]:
         """伪随机坐标，返回给定坐标区间的随机值
 
-        Args:
+        参数:
             x1 (int): 左侧横坐标
             x2 (int): 右侧横坐标
             y1 (int): 顶部纵坐标
             y2 (int): 底部纵坐标
 
-        Returns:
-            tuple[int, int]: 矩形区域内随机值
+        返回:
+            tuple[int, int]: 矩形区域内随机值 #TODO 适配`Coor`
         """
         # TODO 返回坐标偏中心
         x = self.random_num(x1, x2)
         y = self.random_num(y1, y2)
+        log.info(f"random_coor: {x},{y}")
         return x, y
+
+    def random_sleep(self, minimum: int | float, maximum: int | float):
+        """随机延时（秒）
+
+        参数:
+            minimum (int): 最小值（含）
+            maximum (int): 最大值（不含）
+        """
+        sleeptime = self.random_num(minimum, maximum)
+        log.info(f"sleep for {sleeptime} seconds")
+        time.sleep(sleeptime)
 
     def _image_file_format(self, file: Path | str) -> str:
         """补全图像文件后缀并转为`str`
@@ -82,6 +95,7 @@ class Function:
         else:
             log.warn(f"no such file {_file}")
 
+        # TODO 旧代码，使用新函数`get_coor_info()`
     def get_coor_info_picture(self, file: str) -> tuple[int, int]:
         """图像识别，返回图像的全屏随机坐标
 
@@ -126,69 +140,117 @@ class Function:
             log.info(f"random_coor_x_y:{x},{y}")
             return x, y
 
+    def get_coor_info(self, file: Path | str) -> Coor:
+        """图像识别，返回图像的全屏随机坐标
+
+        参数:
+            file (str): 图像名称
+
+        返回:
+            Coor: 成功，返回图像的随机坐标；失败，返回(0,0)
+        """
+        _file_name = self._image_file_format(config.resource_path / file)
+        log.info(_file_name)
+        # 等待悬赏封印判定
+        xuanshangfengyin.event_wait()
+        try:
+            button_location = pyautogui.locateOnScreen(
+                _file_name,
+                region=(
+                    window.window_left,
+                    window.window_top,
+                    window.absolute_window_width,
+                    window.absolute_window_height
+                ),
+                confidence=0.8
+            )
+            log.info(f"button_location:{button_location}")
+            x, y = self.random_coor(
+                button_location[0],
+                button_location[0] + button_location[2],
+                button_location[1],
+                button_location[1] + button_location[3]
+            )
+            log.info(f"random_coor_x_y:{x},{y}")
+            return Coor(x, y)
+        except:
+            return Coor(0, 0)
+
     def judge_scene(self, file: str, scene_name: str = None) -> bool:
         """场景判断
 
         Args:
-            file (str): 文件路径&图像名称(*.png)
-            scene_name (str, optional): 场景描述. Defaults to None.
+            file (str): 图像文件
+            scene_name (str): 场景描述
 
-        Returns:
+        返回:
             bool: 是否为指定场景
         """
         while True:
-            x, y = self.get_coor_info_picture(file)
-            if x != 0 and y != 0:
-                if scene_name is not None:
+            coor = self.get_coor_info(file)
+            if coor.is_effective:
+                if scene_name:
                     log.scene(scene_name)
                 return True
             else:
                 return False
 
-    # TODO
     def check_scene_multiple_once(self, scene: dict | list, resource_path: str = None) -> tuple[str, tuple[int, int]]:
         """多场景判断，仅遍历一次
 
-        Args:
-            scene (dict | list): _description_
-            resource_path (str, optional): _description_. Defaults to None.
+        参数:
+            scene (dict | list): 多场景列表
+            resource_path (str): 路径
 
-        Returns:
-            tuple[str, tuple[int, int]]: _description_
+        返回:
+            tuple[str, tuple[int, int]]: 场景名称,坐标 #TODO 适配`Coor`，涉及御魂副本
         """
-        # scene = {
-        #     "tansuo_28_title.png": "少女与面具",
-        #     "chuzhanxiaohao.png": "出战消耗"
-        # }
+        # XXX 移除对字典的适配
         if isinstance(scene, dict):
-            for item in scene.keys():
-                if resource_path is not None:
-                    file = f"{self.resource_path}/{item}"
+            for key, value in scene.items():
+                if resource_path:
+                    file = f"{self.resource_path}/{key}"
                 else:
-                    file = item
-                x, y = self.get_coor_info_picture(file)
-                if x != 0 and y != 0:
-                    return scene[item], (x, y)
+                    file = key
+                coor = self.get_coor_info(file)
+                if coor.is_effective:
+                    return value, coor.coor
         elif isinstance(scene, list):
-            for item in range(len(scene)):
-                # log.ui(scene[item])
-                x, y = self.get_coor_info_picture(
-                    f"{resource_path}/{scene[item]}"
-                )
-                if x != 0 and y != 0:
-                    return scene[item], (x, y)
-            return "none", (0, 0)
+            for item in scene:
+                coor = self.get_coor_info(f"{resource_path}/{item}")
+                if coor.is_effective:
+                    return item, coor.coor
+            return None, (0, 0)
 
-    def check_scene_multiple_while(self, scene: dict | list, resource_path: str = None) -> tuple[str, tuple[int, int]]:
-        """多场景判断，循环遍历，直至符合任意一个场景"""
+    def check_scene_multiple_while(self,
+                                   scene: dict | list = None,
+                                   resource_path: str = None,
+                                   text: str = None
+                                   ) -> tuple[str, tuple[int, int]]:
+        """多场景判断，循环遍历，直至符合任意一个场景
+
+        参数:
+            scene (dict | list): 多场景列表
+            resource_path (str): 路径 
+            text (str): 提示
+
+        返回:
+            tuple[str, tuple[int, int]]: 场景名称, (x,y)
+        """
+        _flag: bool = True  # 提示
+        _text = text if text else "请检查游戏场景"
         while True:
             scene, (x, y) = self.check_scene_multiple_once(self, scene, resource_path)
-            if x != 0 and y != 0:
+            if Coor(x, y).is_effective():
+                log.info(f"{scene}, ({x},{y})")
                 return scene, (x, y)
+            elif _flag:
+                _flag = False
+                log.warn(_text, True)
 
     def click(self, x: int, y: int, dura: float = 0.5, sleeptime: float = 0.0):
         # 延迟
-        if sleeptime is not None:
+        if sleeptime:
             time.sleep(sleeptime)
         # 补间移动，默认启用
         list_tween = [
@@ -196,102 +258,89 @@ class Function:
             pyautogui.easeOutQuad,
             pyautogui.easeInOutQuad
         ]
-        # XXX random for list
         random.seed(time.time_ns())
         pyautogui.moveTo(
             x,
             y,
             duration=dura,
-            tween=list_tween[random.randint(0, 2)]
+            tween=random.choice(list_tween)
         )
         log.info(f"complete for (x,y):({x},{y})")
         pyautogui.click()
 
-    def judge_click(
+    def judge_click(  # TODO 使用`check`替换`judge`
         self,
-        file: str,
+        file: str = None,
         click: bool = True,
         dura: float = 0.5,
-        sleeptime: float = 0.0
+        sleeptime: float = 0
     ) -> None:
         """图像识别，并点击
 
-        Args:
-            file (str): 文件路径&图像名称(*.png)
-            click (bool, optional): 是否点击. Defaults to True.
-            dura (float, optional): 移动速度. Defaults to 0.5.
-            sleeptime (float, optional): 延迟时间. Defaults to 0.0.
+        参数:
+            file (str): 图像名称
+            click (bool): 是否点击，默认是
+            dura (float): 移动速度，默认0.5
+            sleeptime (float): 延迟时间，默认0
         """
-        # TODO use "identify" to replace "judge" in function name
-        flag = False
         while True:
-            x, y = self.get_coor_info_picture(file)
-            if x != 0 and y != 0:
+            coor = self.get_coor_info(file)
+            if coor.is_effective:
                 if click:
-                    self.click(x, y, dura, sleeptime)
-                    # # 延迟
-                    # if sleeptime is not None:
-                    #     time.sleep(sleeptime)
-                    # # 补间移动，默认启用
-                    # list_tween = [
-                    #     pyautogui.easeInQuad,
-                    #     pyautogui.easeOutQuad,
-                    #     pyautogui.easeInOutQuad
-                    # ]
-                    # # XXX random for list
-                    # random.seed(time.time_ns())
-                    # pyautogui.moveTo(
-                    #     x,
-                    #     y,
-                    #     duration=dura,
-                    #     tween=list_tween[random.randint(0, 2)]
-                    # )
-                    # log.info(f"x,y:{x},{y}")
-                    # pyautogui.click()
+                    self.click(coor.x, coor.y, dura, sleeptime)
                 log.info("move to right coor successfully")
-                time.sleep(1)
-                flag = True
                 return
-            # elif (x == 0 or y == 0) and flag:
-            # log.info("等待加载", True)
-            # return
 
-    def random_sleep(self, m: int, n: int) -> None:
-        """随机延时(s)
-
-        Args:
-            m (int): 左区间（含）
-            n (int): 右区间（不含）
-        """
-        time.sleep(self.random_num(m, n))
-
+    @log_function_call
     def result(self) -> bool:
         """结果判断
 
-        Returns:
-            bool: Success or failure
+        返回:
+            bool: Success or Fail
         """
-        log.info("result judgment")
         while True:
-            x, y = self.get_coor_info_picture("victory.png")
-            if x != 0 and y != 0:
-                log.info("胜利", True)
+            coor = self.get_coor_info("victory.png")
+            if coor.is_effective:
+                log.ui("胜利")
                 return True
-            x, y = self.get_coor_info_picture("yuhun/victory_2000.png")
-            if x != 0 and y != 0:
-                log.ui("胜利，2000天御魂背景")
-                return True
-            x, y = self.get_coor_info_picture("fail.png")
-            if x != 0 and y != 0:
-                log.info("失败", True)
+            coor = self.get_coor_info("fail.png")
+            if coor.is_effective:
+                log.ui("失败")
                 return False
+
+    def result_once(self) -> bool | None:
+        """结果判断，遍历一次
+
+        返回:
+            bool | None: Success or Fail or None
+        """
+        coor = self.get_coor_info("victory.png")
+        if coor.is_effective:
+            log.ui("胜利")
+            return True
+        coor = self.get_coor_info("fail.png")
+        if coor.is_effective:
+            log.ui("失败")
+            return False
+        return None
+
+    def result_while(self) -> bool | None:
+        """结果判断，循环遍历
+
+        返回:
+            bool | None: Success or Fail
+        """
+        while True:
+            result = self.result_once()
+            if result != None: # 可能Fail
+                break
 
     def random_finish_left_right(
             self,
             click: bool = True,
             is_multiple_drops_y: bool = False,
             is_multiple_drops_x: bool = False
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int]:  # TODO 适配`Coor`
         """图像识别，返回图像的局部相对坐标
 
         参数:
@@ -339,12 +388,7 @@ class Function:
                 finish_y2
             )
         if click:
-            pyautogui.moveTo(
-                x + window.window_left,
-                y + window.window_top,
-                duration=0.5
-            )
-            pyautogui.click()
+            self.click(x + window.window_left, y + window.window_top)
         return x, y
 
     def screenshot(self, screenshotpath: str = "cache") -> bool:
@@ -378,20 +422,6 @@ class Function:
         except:
             log.error("screenshot failed.")
             return False
-
-    # 未启用
-    '''
-    def fighting(self):
-        """战斗场景"""
-
-        def ready(self):
-            """准备"""
-            self.judge_click('zhunbei.png')
-
-        def finish(self):
-            self.result()
-            x, y = self.random_finish_left_right()
-    '''
 
 
 function = Function()

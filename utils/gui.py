@@ -37,6 +37,7 @@ class MainWindow(QMainWindow):
         "10.限时活动",
         "11.组队日轮副本",
         # "12.探索beta"
+        "13.御魂副本beta"
     ]
     _package_ = [  # 图片素材文件夹
         "yuhun",
@@ -444,8 +445,17 @@ class MainWindow(QMainWindow):
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[11]:
             # 12.探索beta
-            self._choice = 12
-            log.warn("测试功能", True)
+            # self._choice = 12
+            # log.warn("测试功能", True)
+            # 13.御魂副本beta
+            self._choice = 13
+            log.warn("测试功能，默认组队，提高识别效率\n请确保该设备上已手动锁定邀请提示的“不再提醒”", True)
+            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+            # 默认值
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 200)
+            self.ui.button_driver_False.setChecked(True)
+            self.ui.button_passengers_2.setChecked(True)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -528,6 +538,22 @@ class MainWindow(QMainWindow):
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
                 case 12:
                     tansuo.TanSuo().run()
+                case 13:
+                    driver = self.ui.buttonGroup_driver.checkedButton().text()
+                    if driver == "否":
+                        _flag_driver = False
+                    else:
+                        _flag_driver = True
+                    _flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
+                    _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
+                    # 组队挑战
+                    yuhun.YuHunTest(n=_n,
+                                    flag_driver=_flag_driver,
+                                    flag_passengers=_flag_passengers,
+                                    flag_drop_statistics=_flag_drop_statistics
+                                    ).run_team()
+                    # 单人挑战
+                    # yuhun.YuHunTest(n=_n).run_simple()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""

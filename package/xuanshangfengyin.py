@@ -23,7 +23,6 @@ class XuanShangFengYin:
     def __init__(self) -> None:
         self.scene_name: str = "悬赏封印"
         self.resource_path: str = "xuanshangfengyin"  # 图片路径
-        self.m: int = None
         self._flag_is_first: bool = True
         self._flag: bool = False
         self.resource_list: list = [
