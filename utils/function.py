@@ -152,7 +152,8 @@ class Function:
         _file_name = self._image_file_format(config.resource_path / file)
         log.info(_file_name)
         # 等待悬赏封印判定
-        xuanshangfengyin.event_wait()
+        if xuanshangfengyin.is_working():
+            xuanshangfengyin.event_wait()
         try:
             button_location = pyautogui.locateOnScreen(
                 _file_name,

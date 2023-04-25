@@ -152,7 +152,10 @@ class MainWindow(QMainWindow):
         log.clean_up()
         upgrade.check_latest()
         # 悬赏封印
-        xuanshangfengyin.xuanshangfengyin.judge()
+        if config.xuanshangfengyin_mode == "关闭":
+            xuanshangfengyin.xuanshangfengyin.flag_work = False
+        else:
+            xuanshangfengyin.xuanshangfengyin.judge()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
@@ -315,6 +318,8 @@ class MainWindow(QMainWindow):
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
+        if text == "关闭":
+            log.ui("成功关闭悬赏封印，重启程序后生效")
         log.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("悬赏封印", text)
 

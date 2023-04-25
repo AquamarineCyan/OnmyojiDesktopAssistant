@@ -20,17 +20,24 @@ from utils.window import window
 class XuanShangFengYin:
     """悬赏封印"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.scene_name: str = "悬赏封印"
         self.resource_path: str = "xuanshangfengyin"  # 图片路径
         self._flag_is_first: bool = True
         self._flag: bool = False
+        self.flag_work: bool = True  # 是否启用
         self.resource_list: list = [
             "title",  # 特征图像
             "xuanshang_accept",  # 接受
             "xuanshang_refuse",  # 拒绝
             "xuanshang_ignore"  # 忽略
         ]
+    
+    def is_working(self)-> bool:
+        if self.flag_work:
+            return True
+        else:
+            return False
 
     def event_is_set(self) -> bool:
         return event_xuanshang.is_set()
@@ -105,7 +112,7 @@ class XuanShangFengYin:
                     self._flag = True
                     log.warn("已暂停后台线程，等待处理", True)
                     print(event_xuanshang.is_set())
-                    match config.xuanshangfengyin_receive:
+                    match config.xuanshangfengyin_mode:
                         case "接受":
                             log.ui("接受协作")
                             self.check_click("xuanshang_accept.png")
