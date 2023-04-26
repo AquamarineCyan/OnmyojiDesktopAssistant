@@ -37,7 +37,8 @@ class MainWindow(QMainWindow):
         "10.限时活动",
         "11.组队日轮副本",
         # "12.探索beta"
-        "13.御魂副本beta"
+        "13.御魂副本beta",
+        "14.单人御魂副本beta",
     ]
     _package_ = [  # 图片素材文件夹
         "yuhun",
@@ -461,6 +462,13 @@ class MainWindow(QMainWindow):
             self.ui.spinB_num.setRange(1, 200)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
+        elif text == self._list_function[12]:
+            self._choice = 14
+            log.warn("测试功能，单人御魂副本，提高识别效率", True)
+            self.ui.stackedWidget.setCurrentIndex(0)
+            # 默认值
+            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setRange(1, 200)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -557,8 +565,9 @@ class MainWindow(QMainWindow):
                                     flag_passengers=_flag_passengers,
                                     flag_drop_statistics=_flag_drop_statistics
                                     ).run_team()
+                case 14:
                     # 单人挑战
-                    # yuhun.YuHunTest(n=_n).run_simple()
+                    yuhun.YuHunTest(n=_n).run_single()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""

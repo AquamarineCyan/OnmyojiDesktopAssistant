@@ -220,7 +220,7 @@ class YuHunTest:
         self.scene_name: str = "组队御魂副本"
         self.n: int = 0  # 当前次数
         self.max: int = n  # 总次数
-        self.fast_time: int = 10  # 最快通关速度，用于中途等待
+        self.fast_time: int = 13 - 2  # 最快通关速度，用于中途等待
         self.resource_path: str = "yuhun"  # 路径
         self.resource_list: list = [  # 资源列表
             "title_10",  # 魂十
@@ -230,7 +230,7 @@ class YuHunTest:
             "passenger_2",  # 队员2
             "passenger_3",  # 队员3
             "start_team",  # 组队挑战
-            "start_simple",  # 单人挑战
+            "start_single",  # 单人挑战
             "fighting",  # 魂土进行中
             "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
             "fighting_shenfa",  # 神罚战斗场景
@@ -268,9 +268,9 @@ class YuHunTest:
         function.judge_click(f"{self.resource_path}/start_team")
 
     @log_function_call
-    def start_simple(self):
+    def start_single(self):
         """单人挑战"""
-        function.judge_click(f"{self.resource_path}/start_simple")
+        function.judge_click(f"{self.resource_path}/start_single")
 
     @log_function_call
     def result(self) -> bool:
@@ -343,7 +343,7 @@ class YuHunTest:
             _resource_list = _g_resource_list if _resource_list == None else _resource_list
             scene, (x, y) = function.check_scene_multiple_once(_resource_list, self.resource_path)
             if scene:
-                log.ui(f"scene: {scene}")
+                log.info(f"当前场景: {scene}")
             match scene:
                 case "xiezhanduiwu":
                     log.ui('组队界面准备中')
@@ -372,13 +372,13 @@ class YuHunTest:
     @run_in_thread
     @time_count
     @log_function_call
-    def run_simple(self):
+    def run_single(self):
         """单人"""
         _g_resource_list: list = [
             "title_10",  # 魂十
             "title_11",  # 魂土
             "title_12",  # 神罚
-            "start_simple",  # 单人挑战
+            "start_single",  # 单人挑战
             "fighting",  # 魂土进行中
             "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
             "fighting_shenfa"  # 神罚战斗场景
@@ -394,10 +394,10 @@ class YuHunTest:
                 log.ui(f"scene: {scene}")
             match scene:
                 case "title_10" | "title_11" | "title_12":
-                    self.start_simple()
+                    self.start_single()
                     function.random_sleep(self.fast_time, self.fast_time+1)
                     _flag_title_msg = False
-                case "start_simple":
+                case "start_single":
                     function.click(x, y)
                     function.random_sleep(self.fast_time, self.fast_time+1)
                     # 只判断下列图像，提高效率
