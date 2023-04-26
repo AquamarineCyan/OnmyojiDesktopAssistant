@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         icon = QIcon()
         icon.addPixmap(QPixmap("buzhihuo.ico"))
         self.setWindowIcon(icon)
-        self.setWindowTitle(f"Onmyoji_Python - v{config.version}")  # 版本号显示
+        self.setWindowTitle(f"{config.application_name} - v{config.version}")  # 版本号显示
         timenow = time.strftime("%H:%M:%S")
         try:
             log._write_to_file("[START]")
@@ -80,13 +80,15 @@ class MainWindow(QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self.ui.text_print.document().setMaximumBlockCount(50)
         self.ui.label_tips.hide()
-        # setting
+        # 设置界面
         self.ui.setting_update_comboBox.addItems(
             config.config_default["更新模式"]
         )
         self.ui.setting_xuanshangfengyin_comboBox.addItems(
             config.config_default["悬赏封印"]
         )
+        self.ui.setting_update_comboBox.setCurrentText(config.config_user.get("更新模式"))
+        self.ui.setting_xuanshangfengyin_comboBox.setCurrentText(config.config_user.get("悬赏封印"))
         self.ui.label_GitHub_address.setToolTip("open with webbrower")
 
         # 自定义信号
@@ -98,7 +100,6 @@ class MainWindow(QMainWindow):
         ms.is_fighting_update.connect(self.is_fighting)
         # 完成情况文本更新
         ms.text_num_update.connect(self.text_num_update_func)
-        ms.setting_to_ui_update.connect(self.setting_to_ui_update_func)
         # 退出程序
         ms.sys_exit_update.connect(self.exit)
 
@@ -138,7 +139,6 @@ class MainWindow(QMainWindow):
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
         log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
-        window.get_game_window_handle()  # 获取游戏窗口信息
         if self._check_enviroment():
             log.ui("环境完整")
             self.ui.combo_choice.setEnabled(True)
@@ -153,7 +153,7 @@ class MainWindow(QMainWindow):
         log.clean_up()
         upgrade.check_latest()
         # 悬赏封印
-        if config.xuanshangfengyin_mode == "关闭":
+        if config.config_user.get("悬赏封印") == "关闭":
             xuanshangfengyin.xuanshangfengyin.flag_work = False
         else:
             xuanshangfengyin.xuanshangfengyin.judge()
@@ -220,11 +220,6 @@ class MainWindow(QMainWindow):
         """
         self.ui.text_num.setText(text)
 
-    def setting_to_ui_update_func(self, key: str, text: str) -> None:
-        match key:
-            case "悬赏封印":
-                self.ui.setting_xuanshangfengyin_comboBox.setCurrentText(text)
-
     @log_function_call
     def _check_enviroment(self) -> bool:
         """环境检测
@@ -233,7 +228,6 @@ class MainWindow(QMainWindow):
             bool: 是否完成
         """
         log.info("环境检测中...")
-        handle_coor = window.handle_coor
         # log检测
         if not log.init():
             ms.qmessagbox_update.emit("ERROR", "创建log目录失败，请重试！")
@@ -248,18 +242,8 @@ class MainWindow(QMainWindow):
             log.error("资源丢失", True)
             return False
         # 游戏窗口检测
-        if handle_coor == (0, 0, 0, 0):
-            log.error("未打开游戏")
-            ms.qmessagbox_update.emit("ERROR", "请打开游戏！")
+        if not self.check_game_handle():
             return False
-        if handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
-            log.error("未前置游戏窗口")
-            ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
-            return False
-        # 环境完整
-        if handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
-                handle_coor[3] - handle_coor[1] != window.absolute_window_height:
-            ms.qmessagbox_update.emit("question", "强制缩放")
         return True
 
     @log_function_call
@@ -323,7 +307,8 @@ class MainWindow(QMainWindow):
             log.ui("成功关闭悬赏封印，重启程序后生效")
         log.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("悬赏封印", text)
-
+    
+    @log_function_call
     def check_game_handle(self) -> bool:
         """游戏窗口检测
 
@@ -331,6 +316,7 @@ class MainWindow(QMainWindow):
             bool: 检测结果
         """
         log.info("游戏窗口检测中...")
+        # 获取游戏窗口信息
         window.get_game_window_handle()
         handle_coor = window.handle_coor
         if handle_coor == (0, 0, 0, 0):

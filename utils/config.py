@@ -17,7 +17,6 @@ class Config():
         self.application_name: str = "Onmyoji_Python"
         self.exe_name: str = f"{self.application_name}.exe"
         self.version: str = "1.7.2"
-
         self.application_path: Path = Path.cwd()
         if Path(self.application_path / "resource").is_dir():
             self.resource_path: Path = self.application_path / "resource"
@@ -25,10 +24,8 @@ class Config():
             self.resource_path: Path = self.application_path / "pic"
         self.config_yaml_path: Path = self.application_path/"config.yaml"
         self.config_default: dict = {
-            # "更新模式": ["GitHub", "Gitee"],
-            "更新模式": ["GitHub"],  # TODO Gitee
-            # "悬赏封印": ["accept", "refuse", "ignore"]
-            "悬赏封印": ["接受", "拒绝", "忽略", "关闭"]
+            "更新模式": ["ghproxy", "GitHub"],  # TODO 修改更新优先级
+            "悬赏封印": ["接受", "拒绝", "忽略", "关闭"],
         }
         self.config_user: dict = None
 

@@ -6,12 +6,14 @@
 import time
 from datetime import date
 from pathlib import Path
-# from utils.config import config
-from utils.mysignal import global_ms as ms
+
+from .mysignal import global_ms as ms
 
 
 class Log:
-    def __init__(self) -> None:
+    """日志"""
+
+    def __init__(self):
         self.application_path: Path = Path.cwd()
         self.log_dir_path = self.application_path / "log"
 
