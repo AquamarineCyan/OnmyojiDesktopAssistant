@@ -8,7 +8,11 @@ from pathlib import Path
 from threading import Thread
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget, QComboBox
+from PySide6.QtWidgets import QComboBox, QMainWindow, QMessageBox, QWidget
+
+from package import *
+from ui.mainui import Ui_MainWindow
+from ui.updateui import Ui_Form as Ui_Update_Record
 
 from .config import config
 from .decorator import *
@@ -18,9 +22,6 @@ from .mysignal import global_ms as ms
 from .update import update_record
 from .upgrade import upgrade
 from .window import window
-from ui.mainui import Ui_MainWindow
-from ui.updateui import Ui_Form as Ui_Update_Record
-from package import *
 
 
 class MainWindow(QMainWindow):
@@ -342,7 +343,6 @@ class MainWindow(QMainWindow):
         text = self.ui.combo_choice.currentText()
         self.ui.button_start.setEnabled(True)
         self.ui.spinB_num.setEnabled(True)
-        # self.is_fighting_yuhun(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         if text == self._list_function[0]:
             # 1.组队御魂副本
@@ -352,7 +352,6 @@ class MainWindow(QMainWindow):
             # 默认值
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
-            # self.is_fighting_yuhun(True)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[1]:
@@ -363,7 +362,6 @@ class MainWindow(QMainWindow):
             # 默认值
             self.ui.spinB_num.setValue(30)
             self.ui.spinB_num.setRange(1, 100)
-            # self.is_fighting_yuhun(True)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[2]:
@@ -584,25 +582,6 @@ class MainWindow(QMainWindow):
         self.ui.button_driver_True.setEnabled(not flag)
         self.ui.button_passengers_2.setEnabled(not flag)
         self.ui.button_passengers_3.setEnabled(not flag)
-
-    def is_fighting_yuhun(self, flag: bool):
-        """初始化组队御魂副本默认配置，显示/隐藏其他控件"""
-        if flag:
-            self.ui.label_driver.show()
-            self.ui.button_driver_False.show()
-            self.ui.button_driver_True.show()
-            self.ui.label_passengers.show()
-            self.ui.button_passengers_2.show()
-            self.ui.button_passengers_3.show()
-            self.ui.button_driver_False.setChecked(True)
-            self.ui.button_passengers_2.setChecked(True)
-        else:
-            self.ui.label_driver.hide()
-            self.ui.button_driver_False.hide()
-            self.ui.button_driver_True.hide()
-            self.ui.label_passengers.hide()
-            self.ui.button_passengers_2.hide()
-            self.ui.button_passengers_3.hide()
 
     def tips_yuhun_driver(self):
         if self.ui.buttonGroup_driver.checkedButton().text() == "是":
