@@ -3,14 +3,14 @@
 # upgrade.py
 """更新升级"""
 
+import json
 import os
 import time
-import httpx
-import json
 import zipfile
-
-from subprocess import Popen
 from pathlib import Path
+from subprocess import Popen
+
+import httpx
 
 from .config import config
 from .decorator import *

@@ -4,13 +4,13 @@
 """普通召唤"""
 
 from utils.decorator import *
-from utils.function import function
+from utils.function import check_click, check_scene, random_sleep
 from utils.log import log
 
 
 class ZhaoHuan:
     """普通召唤"""
-    
+
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         self.scene_name: str = "普通召唤"
@@ -28,21 +28,21 @@ class ZhaoHuan:
         """场景"""
         flag_title = True  # 场景提示
         while True:
-            if function.judge_scene(f"{self.resource_path}/title.png", self.scene_name):
+            if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                log.warn("请检查游戏场景")
 
     def first(self) -> None:
         """第一次召唤"""
-        function.judge_click(f"{self.resource_path}/putongzhaohuan.png")
-        function.random_sleep(6, 8)
+        check_click(f"{self.resource_path}/putongzhaohuan")
+        random_sleep(6, 8)
 
     def again(self) -> None:
         """非第一次召唤"""
-        function.judge_click(f"{self.resource_path}/zaicizhaohuan.png")
-        function.random_sleep(6, 8)
+        check_click(f"{self.resource_path}/zaicizhaohuan")
+        random_sleep(6, 8)
 
     @run_in_thread
     @time_count
@@ -51,17 +51,15 @@ class ZhaoHuan:
         flag = True  # 是否第一次
         if self.title():
             log.num(f"0/{self.max}")
-            function.random_sleep(1, 3)
             while self.n < self.max:
                 if flag:
                     self.first()
                     flag = False
-                    self.n += 1
                 else:
                     self.again()
-                    self.n += 1
+                self.n += 1
                 log.num(f"{self.n}/{self.max}")
             # 结束
             if self.n == self.max:
-                function.judge_click(f"{self.resource_path}/queding.png")
+                check_click(f"{self.resource_path}/queding")
         log.ui(f"已完成 普通召唤十连 {self.n}次")

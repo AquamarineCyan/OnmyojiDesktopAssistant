@@ -4,7 +4,13 @@
 """御灵副本"""
 
 from utils.decorator import *
-from utils.function import function
+from utils.function import (
+    check_click,
+    check_scene,
+    finish,
+    finish_random_left_right,
+    random_sleep
+)
 from utils.log import log
 
 
@@ -19,22 +25,22 @@ class YuLing:
         self.resource_path: str = "yuling"  # 路径
         self.resource_list: list = [  # 资源列表
             "title",  # 限时活动特征图像
-            "tiaozhan"  # 挑战
+            "start"  # 挑战
         ]
 
     def title(self) -> bool:
         """场景"""
         flag_title = True  # 场景提示
         while True:
-            if function.judge_scene(f"{self.resource_path}/title.png", self.scene_name):
+            if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                log.warn("请检查游戏场景")
 
     def start(self) -> None:
-        """挑战开始"""
-        function.judge_click(f"{self.resource_path}/tiaozhan.png")
+        """开始"""
+        check_click(f"{self.resource_path}/start")
 
     @run_in_thread
     @time_count
@@ -42,20 +48,19 @@ class YuLing:
     def run(self) -> None:
         if self.title():
             log.num(f"0/{self.max}")
-            function.random_sleep(1, 3)
             while self.n < self.max:
-                function.random_sleep(1, 2)
+                random_sleep(1, 2)
                 # 开始
                 self.start()
                 # 结束
-                function.result()
-                function.random_sleep(1, 2)
+                finish()
+                random_sleep(1, 2)
                 # 结算
-                function.random_finish_left_right(is_multiple_drops_y=True)
-                function.random_sleep(1, 3)
+                finish_random_left_right(is_multiple_drops_y=True)
+                random_sleep(1, 3)
                 self.n += 1
                 log.num(f"{self.n}/{self.max}")
                 # TODO 强制等待，后续优化
-                if self.n == 12 or self.n == 25 or self.n == 39 or self.n == 59 or self.n == 73:
-                    function.random_sleep(10, 20)
+                if self.n in {12, 25, 39, 59, 73}:
+                    random_sleep(10, 20)
         log.ui(f"已完成 {self.scene_name} {self.n}次")

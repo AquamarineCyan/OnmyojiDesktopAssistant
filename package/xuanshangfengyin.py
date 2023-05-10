@@ -3,11 +3,11 @@
 # xuanshangfengyin.py
 """悬赏封印"""
 
-import pyautogui
 import random
 import time
-
 from pathlib import Path
+
+import pyautogui
 
 from utils.config import config
 from utils.decorator import *

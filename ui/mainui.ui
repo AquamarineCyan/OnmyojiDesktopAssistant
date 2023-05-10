@@ -142,7 +142,7 @@
        <rect>
         <x>6</x>
         <y>156</y>
-        <width>221</width>
+        <width>231</width>
         <height>201</height>
        </rect>
       </property>
@@ -154,7 +154,7 @@
         <rect>
          <x>10</x>
          <y>20</y>
-         <width>201</width>
+         <width>211</width>
          <height>161</height>
         </rect>
        </property>
@@ -167,7 +167,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>40</y>
+           <y>55</y>
            <width>48</width>
            <height>21</height>
           </rect>
@@ -185,7 +185,7 @@
          <property name="geometry">
           <rect>
            <x>78</x>
-           <y>40</y>
+           <y>55</y>
            <width>38</width>
            <height>20</height>
           </rect>
@@ -209,7 +209,7 @@
          <property name="geometry">
           <rect>
            <x>128</x>
-           <y>40</y>
+           <y>55</y>
            <width>38</width>
            <height>20</height>
           </rect>
@@ -230,7 +230,7 @@
          <property name="geometry">
           <rect>
            <x>128</x>
-           <y>73</y>
+           <y>81</y>
            <width>33</width>
            <height>20</height>
           </rect>
@@ -251,7 +251,7 @@
          <property name="geometry">
           <rect>
            <x>79</x>
-           <y>73</y>
+           <y>81</y>
            <width>33</width>
            <height>20</height>
           </rect>
@@ -272,7 +272,7 @@
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>73</y>
+           <y>81</y>
            <width>48</width>
            <height>21</height>
           </rect>
@@ -328,6 +328,69 @@
          </property>
          <property name="text">
           <string>掉落统计beta</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="button_mode_single">
+         <property name="geometry">
+          <rect>
+           <x>128</x>
+           <y>28</y>
+           <width>51</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>单人</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroup_mode</string>
+         </attribute>
+        </widget>
+        <widget class="QRadioButton" name="button_mode_team">
+         <property name="geometry">
+          <rect>
+           <x>78</x>
+           <y>28</y>
+           <width>51</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="mouseTracking">
+          <bool>true</bool>
+         </property>
+         <property name="text">
+          <string>组队</string>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroup_mode</string>
+         </attribute>
+        </widget>
+        <widget class="QLabel" name="label_mode">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>28</y>
+           <width>48</width>
+           <height>21</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>模式</string>
          </property>
         </widget>
        </widget>
@@ -699,5 +762,6 @@
  <buttongroups>
   <buttongroup name="buttonGroup_driver"/>
   <buttongroup name="buttonGroup_passengers"/>
+  <buttongroup name="buttonGroup_mode"/>
  </buttongroups>
 </ui>

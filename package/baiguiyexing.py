@@ -3,12 +3,20 @@
 # baiguiyexing.py
 """百鬼夜行"""
 
-import time
 import random
+import time
+
 import pyautogui
 
 from utils.decorator import *
-from utils.function import function
+from utils.function import (
+    check_click,
+    check_scene,
+    get_coor_info,
+    random_coor,
+    random_sleep,
+    screenshot
+)
 from utils.log import log
 from utils.window import window
 
@@ -34,8 +42,8 @@ class BaiGuiYeXing:
     def title(self) -> bool:
         """场景"""
         flag_title = True  # 场景提示
-        while 1:
-            if function.judge_scene(f'{self.resource_path}/title.png', self.scene_name):
+        while True:
+            if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
                 flag_title = False
@@ -43,7 +51,7 @@ class BaiGuiYeXing:
 
     def start(self):
         """开始"""
-        function.judge_click(f"{self.resource_path}/jinru.png")
+        check_click(f"{self.resource_path}/jinru")
 
     def choose(self):
         """鬼王选择"""
@@ -68,7 +76,7 @@ class BaiGuiYeXing:
             else:
                 x1 = _x3_left
                 x2 = _x3_right
-            x, y = function.random_coor(x1, x2, _y1, _y2)
+            x, y = random_coor(x1, x2, _y1, _y2).coor
             pyautogui.moveTo(
                 x + window.window_left,
                 y + window.window_top,
@@ -76,24 +84,24 @@ class BaiGuiYeXing:
             )
             pyautogui.click()
             time.sleep(2)
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/ya.png")
+            x, y = get_coor_info(f"{self.resource_path}/ya").coor
             if x != 0 and y != 0:
                 log.ui("已选择鬼王")
                 break
-        function.judge_click(f"{self.resource_path}/kaishi.png", dura=0.5)
+        check_click(f"{self.resource_path}/kaishi", dura=0.5)
 
     def fighting(self):
         """砸豆子"""
         n = 250  # 豆子数量
         time.sleep(2)
         while n > 0:
-            function.random_sleep(0, 1)
-            x, y = function.random_coor(
+            random_sleep(0.2, 1)
+            x, y = random_coor(
                 60,
                 window.absolute_window_width - 120,
                 300,
                 window.absolute_window_height - 100
-            )
+            ).coor
             pyautogui.moveTo(
                 x + window.window_left,
                 y + window.window_top,
@@ -104,12 +112,12 @@ class BaiGuiYeXing:
 
     def finish(self):
         """结束"""
-        while 1:
-            x, y = function.get_coor_info_picture(f'{self.resource_path}/baiguiqiyueshu.png')
+        while True:
+            coor = get_coor_info(f'{self.resource_path}/baiguiqiyueshu')
             time.sleep(2)
-            if x != 0 and y != 0:
-                function.screenshot(self.screenshotpath)
-                pyautogui.moveTo(x, y, duration=0.5)
+            if coor.is_effective:
+                screenshot(self.screenshotpath)
+                pyautogui.moveTo(coor.x, coor.y, duration=0.5)
                 pyautogui.click()
                 break
 
@@ -119,20 +127,20 @@ class BaiGuiYeXing:
     def run(self):
         if self.title():
             log.num(f"0/{self.max}")
-            function.random_sleep(1, 3)
+            random_sleep(1, 3)
             while self.n < self.max:
-                function.random_sleep(0, 2)
+                random_sleep(0, 2)
                 self.start()
-                function.random_sleep(1, 3)
+                random_sleep(1, 3)
                 self.choose()
-                function.random_sleep(2, 4)
+                random_sleep(2, 4)
                 self.fighting()
-                function.random_sleep(2, 4)
+                random_sleep(2, 4)
                 self.finish()
                 self.n += 1
                 log.num(f"{self.n}/{self.max}")
                 time.sleep(4)
                 # TODO 更新随机判断
                 if self.n == 12 or self.n == 25 or self.n == 39:
-                    function.random_sleep(10, 20)
+                    random_sleep(10, 20)
         log.ui(f"已完成 {self.scene_name} {self.n}次")

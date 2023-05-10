@@ -3,7 +3,7 @@
 # update.py
 """更新日志"""
 
-from utils.mysignal import global_ms as ms
+from .mysignal import global_ms as ms
 
 
 def update_record():

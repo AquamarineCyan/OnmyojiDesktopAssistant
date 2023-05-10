@@ -3,8 +3,9 @@
 # config.py
 """配置"""
 
-import yaml
 from pathlib import Path
+
+import yaml
 
 from .log import log
 from .mysignal import global_ms as ms

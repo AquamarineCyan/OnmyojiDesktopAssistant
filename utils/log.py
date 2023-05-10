@@ -114,7 +114,7 @@ class Log:
         ms.text_num_update.emit(text)  # 输出至完成情况UI界面
         self._text_format(text, "NUM", True)
 
-    def warn(self, text: str, print_to_gui: bool = False) -> None:
+    def warn(self, text: str, print_to_gui: bool = True) -> None:
         """警告日志
 
         Args:

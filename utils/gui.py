@@ -26,7 +26,7 @@ from .window import window
 
 class MainWindow(QMainWindow):
     _list_function = [  # 功能列表
-        "1.组队御魂副本",
+        "1.御魂副本",
         "2.组队永生之海副本",
         "3.业原火副本",
         "4.御灵副本",
@@ -38,8 +38,8 @@ class MainWindow(QMainWindow):
         "10.限时活动",
         "11.组队日轮副本",
         # "12.探索beta"
-        "13.御魂副本beta",
-        "14.单人御魂副本beta",
+        # "13.御魂副本beta",
+        # "14.单人御魂副本beta",
     ]
     _package_ = [  # 图片素材文件夹
         "yuhun",
@@ -116,6 +116,7 @@ class MainWindow(QMainWindow):
         # GitHub地址悬停事件
         self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
         self.ui.buttonGroup_driver.buttonClicked.connect(self.tips_yuhun_driver)
+        self.ui.buttonGroup_mode.buttonClicked.connect(self._yuhun_mode_change)
 
         # 设置项
         # 更新模式
@@ -345,13 +346,15 @@ class MainWindow(QMainWindow):
         self.ui.spinB_num.setEnabled(True)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         if text == self._list_function[0]:
-            # 1.组队御魂副本
+            # 1.御魂副本
             self._choice = 1
-            log.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n已适配组队魂土、神罚副本\n待开发：手动第一次锁定阵容")
+            log.ui("请确保阵容稳定，已适配组队/单人 魂土、神罚副本\
+                   新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
+            self.ui.button_mode_team.setChecked(True)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[1]:
@@ -419,7 +422,8 @@ class MainWindow(QMainWindow):
             self._choice = 10
             log.ui(
                 "适用于限时活动及其他连点，请提前确保阵容完好并锁定\
-                可替换resource/huodong下的title.png、tiaozhan.png"
+                可替换resource/huodong下的title.png、start.png\
+                当前为百面归一"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
@@ -439,20 +443,14 @@ class MainWindow(QMainWindow):
             # log.warn("测试功能", True)
             # 13.御魂副本beta
             self._choice = 13
-            log.warn("测试功能，默认组队，提高识别效率\n请确保该设备上已手动锁定邀请提示的“不再提醒”", True)
+            log.warn("测试功能，提高识别效率\n请确保该设备上已手动锁定邀请提示的“不再提醒”")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 200)
+            self.ui.button_mode_team.setChecked(True)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
-        elif text == self._list_function[12]:
-            self._choice = 14
-            log.warn("测试功能，单人御魂副本，提高识别效率", True)
-            self.ui.stackedWidget.setCurrentIndex(0)
-            # 默认值
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 200)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -463,22 +461,24 @@ class MainWindow(QMainWindow):
             self.ui.text_num.clear()
             self.is_fighting(True)
             match self._choice:
-                case 1:
-                    # 1.组队御魂副本
-                    # 是否司机（默认否）
-                    # 组队人数（默认2人）
-                    driver = self.ui.buttonGroup_driver.checkedButton().text()
-                    if driver == "否":
-                        _flag_driver = False
-                    else:
-                        _flag_driver = True
+                case 1:  # 御魂副本
                     _flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
-                    _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                    yuhun.YuHun(n=_n,
+                    match self.ui.buttonGroup_mode.checkedButton().text():
+                        case "组队":
+                            if self.ui.buttonGroup_driver.checkedButton().text() == "否":
+                                _flag_driver = False
+                            else:
+                                _flag_driver = True
+                            _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
+                            # 组队挑战
+                            yuhun.YuHunTeam(
+                                n=_n,
                                 flag_driver=_flag_driver,
                                 flag_passengers=_flag_passengers,
                                 flag_drop_statistics=_flag_drop_statistics
-                                ).run()
+                            ).run()
+                        case "单人":
+                            yuhun.YuHunSingle(n=_n, flag_drop_statistics=_flag_drop_statistics).run()
                     # 当前线程id
                     # print('main id', int(QThread.currentThreadId()))
                     # thread = MyThread(
@@ -519,7 +519,8 @@ class MainWindow(QMainWindow):
                     baiguiyexing.BaiGuiYeXing(n=_n).run()
                 case 10:
                     # 10.限时活动
-                    huodong.HuoDong(n=_n).run()
+                    # huodong.HuoDong(n=_n).run()
+                    huodong.BaiMianGuiYi(n=_n).run()
                 case 11:
                     # 11.组队日轮副本
                     # 是否司机（默认否）
@@ -535,23 +536,6 @@ class MainWindow(QMainWindow):
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
                 case 12:
                     tansuo.TanSuo().run()
-                case 13:
-                    driver = self.ui.buttonGroup_driver.checkedButton().text()
-                    if driver == "否":
-                        _flag_driver = False
-                    else:
-                        _flag_driver = True
-                    _flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
-                    _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                    # 组队挑战
-                    yuhun.YuHunTest(n=_n,
-                                    flag_driver=_flag_driver,
-                                    flag_passengers=_flag_passengers,
-                                    flag_drop_statistics=_flag_drop_statistics
-                                    ).run_team()
-                case 14:
-                    # 单人挑战
-                    yuhun.YuHunTest(n=_n).run_single()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""
@@ -574,19 +558,37 @@ class MainWindow(QMainWindow):
             self.ui.button_start.setText("进行中")
         else:
             self.ui.button_start.setText("开始")
-        self.ui.combo_choice.setEnabled(not flag)
-        self.ui.spinB_num.setEnabled(not flag)
-        self.ui.button_start.setEnabled(not flag)
-        # 御魂类小按钮
-        self.ui.button_driver_False.setEnabled(not flag)
-        self.ui.button_driver_True.setEnabled(not flag)
-        self.ui.button_passengers_2.setEnabled(not flag)
-        self.ui.button_passengers_3.setEnabled(not flag)
+        for item in [
+            self.ui.combo_choice,
+            self.ui.spinB_num,
+            self.ui.button_start,
+            self.ui.button_mode_team,
+            self.ui.button_mode_single,
+            self.ui.button_driver_False,
+            self.ui.button_driver_True,
+            self.ui.button_passengers_2,
+            self.ui.button_passengers_3,
+            self.ui.button_yuhun_drop_statistics,
+        ]:
+            item.setEnabled(not flag)
+        return
+
+    def _yuhun_mode_change(self):
+        if self.ui.buttonGroup_mode.checkedButton().text() == "组队":
+            _flag = True
+        if self.ui.buttonGroup_mode.checkedButton().text() == "单人":
+            _flag = False
+        self.ui.button_driver_False.setEnabled(_flag)
+        self.ui.button_driver_True.setEnabled(_flag)
+        self.ui.button_passengers_2.setEnabled(_flag)
+        self.ui.button_passengers_3.setEnabled(_flag)
 
     def tips_yuhun_driver(self):
         if self.ui.buttonGroup_driver.checkedButton().text() == "是":
             self.ui.label_tips.setText("司机请在组队界面等待，\n并开始程序")
             self.ui.label_tips.show()
+        else:
+            self.ui.label_tips.hide()
 
     def open_GitHub_address(self, *args) -> None:
         import webbrowser

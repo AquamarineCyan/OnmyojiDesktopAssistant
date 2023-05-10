@@ -4,14 +4,25 @@
 """结界突破"""
 
 import math
-import pyautogui
 import time
-
 from pathlib import Path
 
+import pyautogui
+
 from utils.config import config
+from utils.coordinate import Coor
 from utils.decorator import *
-from utils.function import function
+from utils.function import (
+    RESOURCE_FIGHT_PATH,
+    check_click,
+    check_scene,
+    click,
+    finish,
+    finish_random_left_right,
+    get_coor_info,
+    image_file_format,
+    random_coor,
+    random_sleep)
 from utils.log import log
 from utils.window import window
 
@@ -42,26 +53,24 @@ class JieJieTuPo:
             "yinyangliao"  # 阴阳寮突破
         ]
 
-    def get_coor_info_picture_tupo(self, x1: int, y1: int, file: str) -> tuple[int, int]:
+    def get_coor_info_tupo(self, x1: int, y1: int, file: Path | str) -> Coor:
         """图像识别，返回图像的局部相对坐标
 
         参数:
             x1 (int): 识别区域左侧横坐标
             y1 (int): 识别区域顶部纵坐标
-            file (str): 图像名称
+            file (Path | str): 图像名称
 
         返回:
-            tuple[int, int]: (x, y)
+            Coor: 坐标
         """
-        filename = config.resource_path / self.resource_path / file
-        log.info(f"looking for file: {filename}")
-        if isinstance(filename, Path):
-            filename = filename.__str__()
+        _file_name = image_file_format(config.resource_path / self.resource_path / file)
+        log.info(f"looking for file: {_file_name}")
         if "xunzhang" in file:
             # 个人突破
             try:
                 button_location = pyautogui.locateOnScreen(
-                    filename,
+                    _file_name,
                     region=(
                         x1 + window.window_left - 25,
                         y1 + window.window_top + 40,
@@ -70,19 +79,19 @@ class JieJieTuPo:
                     ),
                     confidence=0.9
                 )
-                x, y = function.random_coor(
+                x, y = random_coor(
                     button_location[0],
                     button_location[0] + button_location[2],
                     button_location[1],
                     button_location[1] + button_location[3]
                 )
-            except:
+            except Exception:
                 x = y = 0
         else:
             # 阴阳寮突破
             try:
                 button_location = pyautogui.locateOnScreen(
-                    filename,
+                    _file_name,
                     region=(
                         x1 + window.window_left,
                         y1 - 40 + window.window_top,
@@ -91,15 +100,15 @@ class JieJieTuPo:
                     ),
                     confidence=0.8
                 )
-                x, y = function.random_coor(
+                x, y = random_coor(
                     button_location[0],
                     button_location[0] + button_location[2],
                     button_location[1],
                     button_location[1] + button_location[3]
                 )
-            except:
+            except Exception:
                 x = y = 0
-        return x, y
+        return Coor(x, y)
 
     def fighting_tupo(self, x0: int, y0: int) -> None:
         """结界突破战斗        
@@ -108,30 +117,29 @@ class JieJieTuPo:
             x0 (int): 左侧横坐标
             y0 (int): 顶部纵坐标
         """
-        x, y = function.random_coor(x0, x0 + 185, y0, y0 + 80)
+        coor = random_coor(x0, x0 + 185, y0, y0 + 80)
         pyautogui.moveTo(
-            x + window.window_left,
-            y + window.window_top,
+            coor.x + window.window_left,
+            coor.y + window.window_top,
             duration=0.5
         )
-        pyautogui.click()
+        click()
         while True:
-            x, y = function.get_coor_info_picture(f"{self.resource_path}/jingong.png")
-            if x != 0 and y != 0:
-                pyautogui.moveTo(x, y, duration=0.5)
-                pyautogui.click()
+            coor = get_coor_info(f"{self.resource_path}/jingong")
+            if coor.is_effective:
+                click(coor)
                 break
 
     def fighting_fail_again(self):
         # TODO 主动失败
-        function.random_sleep(1, 2)
+        random_sleep(1, 2)
         while True:
             pyautogui.press("esc")
-            if function.judge_scene(f"{self.resource_path}/fighting_fail.png"):
+            if check_scene(f"{self.resource_path}/fighting_fail"):
                 pyautogui.press("enter")
                 log.ui("手动退出")
                 break
-            function.random_sleep(0, 1)
+            random_sleep(0, 1)
 
 
 class JieJieTuPoGeRen(JieJieTuPo):
@@ -142,7 +150,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     间隔宽115
     间隔高30
     """
-    
+
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__()
@@ -166,15 +174,13 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """场景"""
         flag_title = True  # 场景提示
         while True:
-            if function.judge_scene(f"{self.resource_path}/title.png", "结界突破"):
+            if check_scene(f"{self.resource_path}/title", "结界突破"):
                 while True:
-                    if function.judge_scene(f"{self.resource_path}/fangshoujilu.png", "个人突破"):
+                    if check_scene(f"{self.resource_path}/fangshoujilu.png", "个人突破"):
                         return True
-                    else:
-                        function.random_sleep(0, 1)
-                        function.judge_click(
-                            f"{self.resource_path}/geren.png", dura=0.5)
-                        function.random_sleep(3, 4)
+                    random_sleep(0, 1)
+                    check_click(f"{self.resource_path}/geren.png")
+                    random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
                 log.warn("请检查游戏场景", True)
@@ -188,55 +194,60 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """
         alist = [0]
         for i in range(1, 10):
-            x5, y5 = self.get_coor_info_picture_tupo(
+            coor5 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_5.png"
             )
-            x4, y4 = self.get_coor_info_picture_tupo(
+            coor4 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_4.png"
             )
-            x3, y3 = self.get_coor_info_picture_tupo(
+            coor3 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_3.png"
             )
-            x2, y2 = self.get_coor_info_picture_tupo(
+            coor2 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_2.png"
             )
-            x1, y1 = self.get_coor_info_picture_tupo(
+            coor1 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_1.png"
             )
-            x0, y0 = self.get_coor_info_picture_tupo(
+            coor0 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
                 "xunzhang_0.png"
             )
-            if x5 != 0 and y5 != 0:
+            if coor5.is_effective:
                 alist.append(5)
                 continue
-            if x4 != 0 and y4 != 0:
+            if coor4.is_effective:
                 alist.append(4)
                 continue
-            if x3 != 0 and y3 != 0:
+            if coor3.is_effective:
                 alist.append(3)
                 continue
-            if x2 != 0 and y2 != 0:
+            if coor2.is_effective:
                 alist.append(2)
                 continue
-            if x1 != 0 and y1 != 0:
+            if coor1.is_effective:
                 alist.append(1)
                 continue
-            if x0 != 0 and y0 != 0:
+            if coor0.is_effective:
                 alist.append(0)
                 continue
-            if x0 == 0 and x1 == 0 and x2 == 0 and x4 == 0 and x5 == 0:
+            if coor5.is_zero \
+                    and coor4.is_zero \
+                    and coor3.is_zero \
+                    and coor2.is_zero \
+                    and coor1.is_zero \
+                    and coor0.is_zero:
                 # print(i, "已攻破")
                 alist.append(-1)
         """
@@ -251,8 +262,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
             if i == 1:
                 list_xunzhang = list_xunzhang + str(alist[i])
             else:
-                list_xunzhang = list_xunzhang + "," + str(alist[i])
-        list_xunzhang = list_xunzhang + "]"
+                list_xunzhang = f"{list_xunzhang},{str(alist[i])}"
+        list_xunzhang = f"{list_xunzhang}]"
         log.ui(list_xunzhang)
         return alist
 
@@ -264,12 +275,12 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 for _ in range(1, self.list_xunzhang.count(i) + 1):
                     k = self.list_xunzhang.index(i, k)
                     log.ui(f"{k} 可进攻")
-                    x, y = self.get_coor_info_picture_tupo(
+                    coor = self.get_coor_info_tupo(
                         self.tupo_geren_x[(k + 2) % 3 + 1],
                         self.tupo_geren_y[(k + 2) // 3],
                         "fail.png"
                     )
-                    if x != 0 and y != 0:
+                    if coor.is_effective:
                         log.ui(f"{k} 已失败")
                         k += 1
                         continue
@@ -281,53 +292,51 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     # time.sleep(4)
                     # if self.judge_click("zhunbei.png",click=False):
                     #     self.judge_click("zhunbei.png")
-                    if function.result():
+                    if finish():
                         flag_victory = True
                         self.n += 1
                         log.num(f"{self.n}/{self.max}")
                     else:
                         flag_victory = False
-                    function.random_sleep(0, 1)
+                    random_sleep(0, 1)
                     # 结束界面
-                    x, y = function.random_finish_left_right()
-                    function.random_sleep(1, 2)
+                    coor = finish_random_left_right()
+                    random_sleep(1, 2)
                     # 3胜奖励
                     if self.tupo_victory == 2 and flag_victory:
-                        function.random_sleep(1, 2)
+                        random_sleep(1, 2)
                         while True:
-                            function.judge_click("victory.png")
-                            function.random_sleep(1, 2)
-                            x, y = function.get_coor_info_picture("victory.png")
-                            if x == 0 or y == 0:
+                            check_click(f"{RESOURCE_FIGHT_PATH}/finish")
+                            random_sleep(1, 2)
+                            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+                            if coor.is_zero:
                                 break
                         log.ui("成功攻破3次")
-                    function.random_sleep(2, 3)
+                    random_sleep(2, 3)
                     if flag_victory:
                         return
 
     def refresh(self) -> None:
         """刷新"""
         flag_refresh = False  # 刷新提醒
-        function.random_sleep(4, 8)  # 强制等待
+        random_sleep(4, 8)  # 强制等待
         while True:
             # 第一次刷新 或 冷却时间已过
             timenow = time.perf_counter()
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
                 log.ui("刷新中")
-                function.random_sleep(3, 6)
-                function.judge_click(
-                    f"{self.resource_path}/shuaxin.png", sleeptime=2)
-                function.random_sleep(2, 4)
-                function.judge_click(
-                    f"{self.resource_path}/queding.png", sleeptime=0.5)
+                random_sleep(3, 6)
+                check_click(f"{self.resource_path}/shuaxin", sleeptime=2)
+                random_sleep(2, 4)
+                check_click(f"{self.resource_path}/queding", sleeptime=0.5)
                 self.time_refresh = timenow
-                function.random_sleep(2, 6)
+                random_sleep(2, 6)
                 break
             elif not flag_refresh:
                 time_wait = math.ceil(self.time_refresh + 5 * 60 - timenow)
                 log.ui(f"等待刷新冷却，约{time_wait}秒")
                 flag_refresh = True
-                function.random_sleep(time_wait, time_wait+5)
+                random_sleep(time_wait, time_wait+5)
 
     @run_in_thread
     @time_count
@@ -335,9 +344,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
     def run(self) -> None:
         if self.title():
             log.num(f"0/{self.max}")
-            function.random_sleep(1, 3)
             while self.n < self.max:
-                function.random_sleep(2, 4)
+                random_sleep(2, 4)
                 self.list_xunzhang = self.list_num_xunzhang()
                 # 胜利次数
                 self.tupo_victory = self.list_xunzhang.count(-1)
@@ -349,9 +357,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     log.ui(f"已攻破{self.tupo_victory}个")
                     self.fighting()
                 elif self.tupo_victory > 3:
-                    log.warn("暂不支持大于3个，请自行处理", True)
+                    log.warn("暂不支持大于3个，请自行处理")
                     break
-                function.random_sleep(2, 3)
+                random_sleep(2, 3)
         log.ui(f"已完成 个人突破 {self.n}次")
 
 
@@ -384,20 +392,16 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         """场景"""
         flag_title = True  # 场景提示
         while True:
-            if function.judge_scene(f"{self.resource_path}/title.png", "结界突破"):
+            if check_scene(f"{self.resource_path}/title", "结界突破"):
                 while True:
-                    if function.judge_scene(f"{self.resource_path}/tupojilu.png", "阴阳寮突破"):
+                    if check_scene(f"{self.resource_path}/tupojilu", "阴阳寮突破"):
                         return True
-                    else:
-                        function.random_sleep(0, 1)
-                        function.judge_click(
-                            f"{self.resource_path}/yinyangliao.png",
-                            dura=0.5
-                        )
-                        function.random_sleep(3, 4)
+                    random_sleep(0, 1)
+                    check_click(f"{self.resource_path}/yinyangliao.png")
+                    random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                log.warn("请检查游戏场景")
 
     def jibaicishu(self) -> bool:
         """剩余次数判断"""
@@ -420,7 +424,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     )
                     print("find")
                     return False
-                except:
+                except Exception:
                     print("not found")
                     print("仍有剩余次数")
                     return True
@@ -429,26 +433,26 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         """战斗"""
         i = 1
         while True:
-            x, y = self.get_coor_info_picture_tupo(
+            coor = self.get_coor_info_tupo(
                 self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                 self.tupo_yinyangliao_y[(i + 1) // 2],
                 "fail.png"
             )
-            if x == 0 or y == 0:
+            if coor.is_zero:
                 log.info(f"{i} 可进攻", True)
                 self.fighting_tupo(
                     self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                     self.tupo_yinyangliao_y[(i + 1) // 2]
                 )
-                if function.result():
+                if finish():
                     # 胜利
                     flag = 1
                 else:
                     # 失败
                     flag = 0
-                function.random_sleep(1, 2)
+                random_sleep(1, 2)
                 # 结束界面
-                x, y = function.random_finish_left_right()
+                coor = finish_random_left_right()
                 return flag
             else:
                 log.ui(f"{i} 已失败")
@@ -465,14 +469,13 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     def run(self) -> None:
         if self.title():
             log.num(f"0/{self.max}")
-            function.random_sleep(1, 3)
+            random_sleep(1, 3)
             while self.n < self.max:
-                function.random_sleep(0, 1)
-                flag = self.fighting()
-                if flag:
+                random_sleep(0, 1)
+                if flag := self.fighting():
                     self.n += 1
                     log.num(f"{self.n}/{self.max}")
                 elif flag == -1:
                     break
-                function.random_sleep(2, 3)
+                random_sleep(2, 3)
         log.ui(f"已完成 阴阳寮突破 {self.n}次")
