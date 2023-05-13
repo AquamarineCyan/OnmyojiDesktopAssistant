@@ -20,5 +20,5 @@ runs:
         architecture: "x64"
         cache: "poetry"
 
-    - run: poetry install --no-dev
+    - run: poetry install --only main
       shell: bash

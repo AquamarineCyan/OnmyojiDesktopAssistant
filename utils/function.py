@@ -21,7 +21,7 @@ RESOURCE_FIGHT_PATH = config.resource_path / "fight"
 """通用战斗资源路径"""
 
 
-class FightSource:
+class FightResource:
     """通用战斗资源"""
 
     def __init__(self):

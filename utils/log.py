@@ -61,23 +61,26 @@ class Log:
             str: 日志内容
         """
         time_now = time.strftime("%H:%M:%S")
+        _color: str = "black"
         match level:
             case "INFO":
                 text = f"{time_now} [INFO] {text}"
             case "SCENE":
                 text = f"{time_now} [SCENE] {text}"
+                _color = "green"
             case "NUM":
                 text = f"{time_now} [NUM] {text}"
             case "WARN":
                 text = f"{time_now} [WARN] {text}"
+                _color = "red"
             case "ERROR":
                 text = f"{time_now} [ERROR] {text}"
+                _color = "red"
             case _:
                 text = f"{time_now} [INFO] {text}"
         print(text)  # 输出至控制台调试
-        if print_to_gui:
-            if "[NUM]" not in text:
-                ms.text_print_update.emit(text)  # 输出至UI界面
+        if print_to_gui and "[NUM]" not in text:
+            ms.text_print_update.emit(text, _color)  # 输出至UI界面
         self._write_to_file(text)
 
     def info(self, text: str, print_to_gui: bool = False) -> None:

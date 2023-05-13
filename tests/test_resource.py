@@ -13,6 +13,22 @@ class Package:
         self.resource_list: list = []
 
 
+class FightResource(Package):
+    def __init__(self, n: int = 0) -> None:
+        super().__init__(n)
+        self.resource_path: str = "fight"
+        self.resource_list: list = [
+            "passenger_2",
+            "passenger_3",
+            "victory",
+            "fail",
+            "finish",
+            "tanchigui",
+            "accept_invitation",
+            "zhunbei",
+        ]
+
+
 def test_resource():
     assert resource_path.exists()
     assert resource_path.is_dir()
@@ -33,6 +49,7 @@ def test_resource():
 
     T: Package
     for T in [
+        FightResource(),
         baiguiyexing.BaiGuiYeXing(),
         daoguantupo.DaoGuanTuPo(),
         huodong.HuoDong(),
@@ -53,6 +70,6 @@ def test_resource():
             assert resource.exists()
             assert resource.is_file()
     # clean log files
-    for item in log_path.iterdir(): 
+    for item in log_path.iterdir():
         item.unlink()
     log_path.rmdir()

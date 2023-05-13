@@ -20,6 +20,8 @@ from .toast import toast
 
 
 class Upgrade:
+    """更新升级"""
+
     def __init__(self) -> None:
         self.application_path = config.application_path
         self.version_location = config.version
@@ -48,8 +50,8 @@ class Upgrade:
                     self.version_github = data_dict["tag_name"][1:]
                     log.info(f"version_github:{self.version_github}")
                     if self.version_github > self.version_location:
-                        self.new_version_info = data_dict["body"]
-                        log.info(f"new_version_info:{self.new_version_info}")
+                        _info: str = data_dict["body"]
+                        self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
                         for item in data_dict["assets"]:
                             if item["name"] == f"Onmyoji_Python-{self.version_github}.zip":
                                 log.info(item["name"])
@@ -58,16 +60,15 @@ class Upgrade:
                         return "NEW VERSION"
                     else:
                         return "LATEST"
-        except:
+        except Exception:
             return "CONNECT ERROR"
 
     def _get_ghproxy_url(self) -> str:
         return f"https://ghproxy.com/{self.browser_download_url}"
 
-    def _download_zip(self) -> bool:
-        """下载更新包"""
-        log.ui("准备下载更新包")
-        log.ui(f"browser_download_url:{self.browser_download_url}")
+    def _check_download_zip(self):
+        self.browser_download_url = "https://github.com/AquamarineCyan/Onmyoji_Python/releases/download/v1.7.1/Onmyoji_Python-1.7.1.zip"
+        log.info(f"browser_download_url:{self.browser_download_url}")
         self.zip_path = self.browser_download_url.split("/")[-1]
         log.info(f"zip_name:{self.zip_path}")
         if self.application_path.joinpath(self.browser_download_url.split("/")[-1]) in self.application_path.iterdir():
@@ -75,25 +76,36 @@ class Upgrade:
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
             log.ui("未存在新版本更新包，即将开始下载")
-            try:
-                for download_url in [self._get_ghproxy_url(), self.browser_download_url]:
-                    log.info(download_url)
-                    with httpx.stream("GET", download_url, headers=self.headers) as r:
-                        log.info(f"status_code:{r.status_code}")
-                        if r.status_code == 200:
-                            bytes_total = r.headers["Content-length"]
-                            log.ui(f"bytes_total:{bytes_total}")
-                            with open(self.zip_path, "wb") as f:
-                                for chunk in r.iter_bytes(chunk_size=1024):
-                                    if chunk:
-                                        f.write(chunk)
-                            log.ui("更新包下载完成，请关闭程序后手动解压覆盖")
-                            toast("更新包下载完成", "请关闭程序后手动解压覆盖")
-                            return True
-            except:
-                log.ui("访问下载链接失败")
-                return False
-    
+            for download_url in [self._get_ghproxy_url(), self.browser_download_url]:
+                log.ui(f"下载链接:\n{download_url}")
+                if self._download_zip(download_url):
+                    break
+
+    def _download_zip(self, download_url: str) -> bool:
+        """下载更新包"""
+        try:
+            with httpx.stream("GET", download_url, headers=self.headers, follow_redirects=True) as r:
+                log.info(f"status_code: {r.status_code}")
+                print(r.headers)
+                if r.status_code != 200:
+                    return False
+                _bytes_total = int(r.headers["Content-length"])
+                log.ui(f"更新包大小:{hum_convert(_bytes_total)}")
+                download_zip_percentage_update(self.zip_path, _bytes_total)
+                with open(self.zip_path, "wb") as f:
+                    for chunk in r.iter_bytes(chunk_size=1024):
+                        if chunk:
+                            f.write(chunk)
+                log.ui("更新包下载完成，请关闭程序后手动解压覆盖")
+                toast("更新包下载完成", "请关闭程序后手动解压覆盖")
+                return True
+        except httpx.ConnectTimeout:
+            log.ui("超时，尝试更换源")
+            return False
+        except Exception:
+            log.ui("访问下载链接失败")
+            return False
+
     @log_function_call
     @run_in_thread
     def check_latest(self) -> None:
@@ -104,7 +116,7 @@ class Upgrade:
                 log.ui(f"新版本{self.version_github}")
                 toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
                 log.ui(self.new_version_info)
-                self._download_zip()
+                self._check_download_zip()
             case "LATEST":
                 log.ui("暂无更新")
             case "CONNECT ERROR":
@@ -193,3 +205,23 @@ start {config.exe_name}
 
 
 upgrade = Upgrade()
+
+
+def hum_convert(value):
+    units = ["B", "KB", "MB", "GB", "TB", "PB"]
+    value = int(value)
+    size = 1024.0
+    for unit in units:
+        if (value / size) < 1:
+            return "%.2f%s" % (value, unit)
+        value = value / size
+
+
+@run_in_thread
+def download_zip_percentage_update(file, max: int):
+    while True:
+        curr = Path(file).stat().st_size if Path(file).exists() else 0
+        ms.text_print_insert_update.emit(f"{hum_convert(curr)}/{hum_convert(max)}")
+        time.sleep(0.05)
+        if (curr >= max):
+            break
