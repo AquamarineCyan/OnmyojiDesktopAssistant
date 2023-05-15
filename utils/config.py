@@ -25,7 +25,7 @@ class Config():
             self.resource_path: Path = self.application_path / "pic"
         self.config_yaml_path: Path = self.application_path/"config.yaml"
         self.config_default: dict = {
-            "更新模式": ["ghproxy", "GitHub"],  # TODO 修改更新优先级
+            "更新模式": ["ghproxy", "GitHub"],
             "悬赏封印": ["接受", "拒绝", "忽略", "关闭"],
         }
         self.config_user: dict = None

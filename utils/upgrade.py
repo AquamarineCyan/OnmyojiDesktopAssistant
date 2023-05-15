@@ -67,7 +67,6 @@ class Upgrade:
         return f"https://ghproxy.com/{self.browser_download_url}"
 
     def _check_download_zip(self):
-        self.browser_download_url = "https://github.com/AquamarineCyan/Onmyoji_Python/releases/download/v1.7.1/Onmyoji_Python-1.7.1.zip"
         log.info(f"browser_download_url:{self.browser_download_url}")
         self.zip_path = self.browser_download_url.split("/")[-1]
         log.info(f"zip_name:{self.zip_path}")
@@ -76,7 +75,14 @@ class Upgrade:
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
             log.ui("未存在新版本更新包，即将开始下载")
-            for download_url in [self._get_ghproxy_url(), self.browser_download_url]:
+            _download_url_default_list = [self.browser_download_url, self._get_ghproxy_url()]
+            # 使用用户配置的优先级
+            if config.config_user.get("更新模式") == "ghproxy":
+                _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[1])
+            else:
+                # 默认顺序
+                _download_url_user_list = _download_url_default_list
+            for download_url in _download_url_user_list:
                 log.ui(f"下载链接:\n{download_url}")
                 if self._download_zip(download_url):
                     break
@@ -208,6 +214,7 @@ upgrade = Upgrade()
 
 
 def hum_convert(value):
+    """转换文件大小"""
     units = ["B", "KB", "MB", "GB", "TB", "PB"]
     value = int(value)
     size = 1024.0
@@ -219,9 +226,22 @@ def hum_convert(value):
 
 @run_in_thread
 def download_zip_percentage_update(file, max: int):
+    """
+    下载进度条
+
+    xxMB/xxMB
+    """
     while True:
         curr = Path(file).stat().st_size if Path(file).exists() else 0
         ms.text_print_insert_update.emit(f"{hum_convert(curr)}/{hum_convert(max)}")
         time.sleep(0.05)
         if (curr >= max):
             break
+
+
+def list_change_first(_list: list = None, _value: str = None):
+    """提取元素置于列表首位"""
+    if _value in _list:
+        copy_list = _list.copy()
+        copy_list.remove(_value)
+        return [_value, *copy_list]
