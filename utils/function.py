@@ -102,6 +102,7 @@ def image_file_format(file: Path | str) -> str:
             _file = f"{file.__str__()}.png"
         else:
             _file = file.__str__()
+    # 即使传了RESOURCE_FIGHT_PATH，Pathlib会自动合并相同路径
     if Path(config.resource_path / _file).exists():
         return _file
     else:

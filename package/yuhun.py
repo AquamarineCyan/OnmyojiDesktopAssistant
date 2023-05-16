@@ -119,7 +119,11 @@ class YuHunTeam(YuHun):
         pyautogui.doubleClick()
         while True:
             # 检测到任一图像
-            scene, coor = check_scene_multiple_once(["finish", f"{self.resource_path}/finish_2000", "tanchigui"])
+            scene, coor = check_scene_multiple_once([
+                f"{RESOURCE_FIGHT_PATH}/finish",
+                f"{self.resource_path}/finish_2000",
+                f"{RESOURCE_FIGHT_PATH}/tanchigui"
+            ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
                     screenshot("cache_yuhun")
@@ -140,34 +144,34 @@ class YuHunTeam(YuHun):
     def run(self):
         # 保留必需图像，提高识别效率
         _g_resource_list: list = [
-            "xiezhanduiwu",  # 组队界面
-            # "start_team",  # 组队挑战
-            "fighting",  # 魂土进行中
-            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa",  # 神罚战斗场景
-            "accept_invitation"  # 接受邀请
+            f"{self.resource_path}/xiezhanduiwu",  # 组队界面
+            # f"{RESOURCE_FIGHT_PATH}/start_team",  # 组队挑战
+            f"{RESOURCE_FIGHT_PATH}/emoji",  # 进行中
+            f"{RESOURCE_FIGHT_PATH}/accept_invitation"  # 接受邀请
         ]
         if self.flag_driver:
-            _g_resource_list.append("start_team")
+            _g_resource_list.append(f"{RESOURCE_FIGHT_PATH}/start_team")
         _resource_list: list = None
         _flag_title_msg: bool = True
 
         log.num(f"0/{self.max}")
         while self.n < self.max:
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
-            scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-            if scene:
-                log.info(f"当前场景: {scene}")
+            scene, coor = check_scene_multiple_once(_resource_list)
+            if scene is None:
+                continue
+            log.info(f"当前场景: {scene}")
+            if "/" in scene:
+                scene = scene.split("/")[-1]
             match scene:
                 case "xiezhanduiwu":
                     log.ui('组队界面准备中')
                     if self.flag_driver:
                         is_passengers_on_position(self.flag_passengers)
                         self.start("team")
-                    # 只判断下列图像，提高效率
-                    _resource_list = ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"]
+                        random_sleep(1, 2)
                     _flag_title_msg = False
-                case "fighting" | "fighting_linshuanghanxue" | "fighting_shenfa":
+                case "emoji":
                     log.ui("对局进行中")
                     self.finish()
                     self.n += 1
@@ -291,8 +295,11 @@ class YuHunSingle(YuHun):
         while self.n < self.max:
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-            if scene:
-                log.ui(f"scene: {scene}")
+            if scene is None:
+                continue
+            log.info(f"当前场景: {scene}")
+            if "/" in scene:
+                scene = scene.split("/")[-1]
             match scene:
                 case "title_10" | "title_11" | "title_12":
                     self.start("single")
