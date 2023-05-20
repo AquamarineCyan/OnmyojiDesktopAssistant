@@ -18,6 +18,7 @@ from ui.updateui import Ui_Form as Ui_Update_Record
 from .config import config
 from .decorator import *
 from .event import event_thread
+from .function import app_reboot
 from .log import log
 from .mysignal import global_ms as ms
 from .update import update_record
@@ -109,6 +110,8 @@ class MainWindow(QMainWindow):
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
         self.ui.combo_choice.currentIndexChanged.connect(self.choice_text)
+        # reboot
+        self.ui.button_reboot.clicked.connect(app_reboot)
         # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
@@ -360,9 +363,16 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 200)
+            self.ui.spinB_num.setRange(1, 999)
+            
+            self.ui.button_mode_team.setEnabled(True)
+            self.ui.button_mode_single.setEnabled(True)
             self.ui.button_mode_team.setChecked(True)
+
             self.ui.button_driver_False.setChecked(True)
+            
+            self.ui.button_passengers_2.setEnabled(True)
+            self.ui.button_passengers_3.setEnabled(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[1]:
             # 2.组队永生之海副本
@@ -372,12 +382,18 @@ class MainWindow(QMainWindow):
             # 默认值
             self.ui.spinB_num.setValue(30)
             self.ui.spinB_num.setRange(1, 100)
+            self.ui.button_mode_team.setChecked(True)
+            # TODO
+            self.ui.button_mode_team.setEnabled(False)
+            self.ui.button_mode_single.setEnabled(False)
             self.ui.button_driver_False.setChecked(True)
             self.ui.button_passengers_2.setChecked(True)
+            self.ui.button_passengers_2.setEnabled(False)
+            self.ui.button_passengers_3.setEnabled(False)
         elif text == self._list_function[2]:
             # 3.业原火副本
             self._choice = 3
-            log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下tiaozhan.png素材")
+            log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[3]:
@@ -440,9 +456,17 @@ class MainWindow(QMainWindow):
             log.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
-            self.ui.spinB_num.setValue(1)
+            self.ui.spinB_num.setValue(50)
             self.ui.spinB_num.setRange(1, 100)
+
+            self.ui.button_mode_team.setEnabled(True)
+            self.ui.button_mode_single.setEnabled(True)
+            self.ui.button_mode_team.setChecked(True)
+
             self.ui.button_driver_False.setChecked(True)
+            
+            self.ui.button_passengers_2.setEnabled(True)
+            self.ui.button_passengers_3.setEnabled(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[11]:
             # 12.探索beta

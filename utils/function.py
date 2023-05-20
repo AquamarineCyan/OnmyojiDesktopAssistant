@@ -6,6 +6,7 @@
 import random
 import time
 from pathlib import Path
+from subprocess import Popen
 
 import pyautogui
 
@@ -15,6 +16,7 @@ from .config import config
 from .coordinate import Coor
 from .decorator import *
 from .log import log
+from .mysignal import global_ms as ms
 from .window import window
 
 RESOURCE_FIGHT_PATH = config.resource_path / "fight"
@@ -27,14 +29,19 @@ class FightResource:
     def __init__(self):
         self.resource_path: str = "fight"  # 路径
         self.resource_list: list = [  # 资源列表
-            "passenger_2",  # 队员2
-            "passenger_3",  # 队员3
-            "victory",  # 成功
+            "accept_invitation",  # 接受邀请
             "fail",  # 失败
             "finish",  # 结束
+            "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
+            "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
+            "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
+            "passenger_2",  # 队员2
+            "passenger_3",  # 队员3
+            "start_single",  # 单人挑战
+            "start_team",  # 组队挑战
             "tanchigui",  # 贪吃鬼
-            "accept_invitation",  # 接受邀请
-            "zhunbei",  # 准备
+            "victory",  # 成功
+            "zhunbei",  # 准备-怀旧主题
         ]
 
 
@@ -414,3 +421,38 @@ def screenshot(screenshot_path: str = "cache") -> bool:
     except Exception:
         log.error("screenshot failed.")
         return False
+
+
+def write_reboot_bat() -> None:
+    """编写bat脚本"""
+    bat_text = f"""@echo off
+@echo 当前为reboot程序，等待自动完成
+set "program_name={config.exe_name}"
+
+:a
+tasklist | findstr /I /C:"%program_name%" > nul
+if errorlevel 1 (
+    echo %program_name% is closed.
+    goto :b
+) else (
+    echo %program_name% is still running, waiting...
+    ping 123.45.67.89 -n 1 -w 1000 > nul
+    goto :a
+)
+
+:b
+echo Continue reboot...
+timeout /T 3 /NOBREAK
+start {config.exe_name}
+"""
+    with open("reboot.bat", "w", encoding="ANSI") as f:
+        f.write(bat_text)
+
+
+def app_reboot():
+    write_reboot_bat()
+    # 启动.bat文件
+    Popen(["reboot.bat"])
+    # 关闭当前exe程序
+    log.info("App Exiting...")
+    ms.sys_exit_update.emit(True)

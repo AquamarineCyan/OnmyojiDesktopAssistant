@@ -587,7 +587,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>532</width>
+         <width>528</width>
          <height>1000</height>
         </rect>
        </property>
@@ -601,9 +601,9 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>20</y>
+          <y>60</y>
           <width>451</width>
-          <height>80</height>
+          <height>51</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_setting_update">
@@ -626,19 +626,6 @@
             <string>更新方式</string>
            </property>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
          <item>
           <widget class="QComboBox" name="setting_update_comboBox"/>
@@ -664,7 +651,7 @@
           <x>40</x>
           <y>110</y>
           <width>451</width>
-          <height>80</height>
+          <height>51</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_setting_xuanshangfengyin">
@@ -689,19 +676,6 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QComboBox" name="setting_xuanshangfengyin_comboBox"/>
          </item>
          <item>
@@ -722,7 +696,7 @@
        <widget class="QPushButton" name="button_update_record">
         <property name="geometry">
          <rect>
-          <x>220</x>
+          <x>310</x>
           <y>340</y>
           <width>75</width>
           <height>24</height>
@@ -735,17 +709,55 @@
        <widget class="QLabel" name="label_GitHub_address">
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>106</x>
           <y>380</y>
           <width>312</width>
           <height>16</height>
          </rect>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="layoutDirection">
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;https://github.com/AquamarineCyan/Onmyoji_Python&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="button_reboot">
+        <property name="geometry">
+         <rect>
+          <x>155</x>
+          <y>340</y>
+          <width>75</width>
+          <height>24</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>重启</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_tip_setting_reboot">
+        <property name="geometry">
+         <rect>
+          <x>191</x>
+          <y>22</y>
+          <width>141</width>
+          <height>21</height>
+         </rect>
+        </property>
+        <property name="mouseTracking">
+         <bool>false</bool>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>部分设置需要重启生效</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

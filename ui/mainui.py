@@ -198,11 +198,11 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 532, 1000))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 528, 1000))
         self.scrollAreaWidgetContents.setMinimumSize(QSize(0, 1000))
         self.horizontalLayoutWidget = QWidget(self.scrollAreaWidgetContents)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(40, 20, 451, 80))
+        self.horizontalLayoutWidget.setGeometry(QRect(40, 60, 451, 51))
         self.horizontalLayout_setting_update = QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout_setting_update.setObjectName(u"horizontalLayout_setting_update")
         self.horizontalLayout_setting_update.setContentsMargins(0, 0, 0, 0)
@@ -215,10 +215,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_update.addWidget(self.setting_update_label)
 
-        self.horizontalSpacer_2 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_setting_update.addItem(self.horizontalSpacer_2)
-
         self.setting_update_comboBox = QComboBox(self.horizontalLayoutWidget)
         self.setting_update_comboBox.setObjectName(u"setting_update_comboBox")
 
@@ -230,7 +226,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayoutWidget_2 = QWidget(self.scrollAreaWidgetContents)
         self.horizontalLayoutWidget_2.setObjectName(u"horizontalLayoutWidget_2")
-        self.horizontalLayoutWidget_2.setGeometry(QRect(40, 110, 451, 80))
+        self.horizontalLayoutWidget_2.setGeometry(QRect(40, 110, 451, 51))
         self.horizontalLayout_setting_xuanshangfengyin = QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_setting_xuanshangfengyin.setObjectName(u"horizontalLayout_setting_xuanshangfengyin")
         self.horizontalLayout_setting_xuanshangfengyin.setContentsMargins(0, 0, 0, 0)
@@ -243,10 +239,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_xuanshangfengyin.addWidget(self.setting_xuanshangfengyin_label)
 
-        self.horizontalSpacer_5 = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
-
-        self.horizontalLayout_setting_xuanshangfengyin.addItem(self.horizontalSpacer_5)
-
         self.setting_xuanshangfengyin_comboBox = QComboBox(self.horizontalLayoutWidget_2)
         self.setting_xuanshangfengyin_comboBox.setObjectName(u"setting_xuanshangfengyin_comboBox")
 
@@ -258,12 +250,22 @@ class Ui_MainWindow(object):
 
         self.button_update_record = QPushButton(self.scrollAreaWidgetContents)
         self.button_update_record.setObjectName(u"button_update_record")
-        self.button_update_record.setGeometry(QRect(220, 340, 75, 24))
+        self.button_update_record.setGeometry(QRect(310, 340, 75, 24))
         self.label_GitHub_address = QLabel(self.scrollAreaWidgetContents)
         self.label_GitHub_address.setObjectName(u"label_GitHub_address")
-        self.label_GitHub_address.setGeometry(QRect(100, 380, 312, 16))
+        self.label_GitHub_address.setGeometry(QRect(106, 380, 312, 16))
+        self.label_GitHub_address.setFocusPolicy(Qt.NoFocus)
         self.label_GitHub_address.setLayoutDirection(Qt.LeftToRight)
         self.label_GitHub_address.setAlignment(Qt.AlignCenter)
+        self.button_reboot = QPushButton(self.scrollAreaWidgetContents)
+        self.button_reboot.setObjectName(u"button_reboot")
+        self.button_reboot.setGeometry(QRect(155, 340, 75, 24))
+        self.label_tip_setting_reboot = QLabel(self.scrollAreaWidgetContents)
+        self.label_tip_setting_reboot.setObjectName(u"label_tip_setting_reboot")
+        self.label_tip_setting_reboot.setGeometry(QRect(191, 22, 141, 21))
+        self.label_tip_setting_reboot.setMouseTracking(False)
+        self.label_tip_setting_reboot.setLayoutDirection(Qt.LeftToRight)
+        self.label_tip_setting_reboot.setAlignment(Qt.AlignCenter)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.tabWidget.addTab(self.tab_setting, "")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -311,6 +313,8 @@ class Ui_MainWindow(object):
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
         self.button_update_record.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u8bb0\u5f55", None))
         self.label_GitHub_address.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" text-decoration: underline;\">https://github.com/AquamarineCyan/Onmyoji_Python</span></p></body></html>", None))
+        self.button_reboot.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
+        self.label_tip_setting_reboot.setText(QCoreApplication.translate("MainWindow", u"\u90e8\u5206\u8bbe\u7f6e\u9700\u8981\u91cd\u542f\u751f\u6548", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_setting), QCoreApplication.translate("MainWindow", u"\u8bbe\u7f6e", None))
     # retranslateUi
 
