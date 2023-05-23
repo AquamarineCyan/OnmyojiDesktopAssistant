@@ -29,7 +29,7 @@ from .window import window
 class MainWindow(QMainWindow):
     _list_function = [  # 功能列表
         "1.御魂副本",
-        "2.组队永生之海副本",
+        "2.永生之海副本",
         "3.业原火副本",
         "4.御灵副本",
         "5.个人突破",
@@ -191,7 +191,7 @@ class MainWindow(QMainWindow):
                         else:
                             log.info("用户拒绝更新重启")
 
-    def text_print_update_func(self, text: str, color:str) -> None:
+    def text_print_update_func(self, text: str, color: str) -> None:
         """输出内容至文本框
 
         WARN | ERROR -> 红色
@@ -208,8 +208,8 @@ class MainWindow(QMainWindow):
         # 自动滑动到底
         self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
         self.ui.text_print.setTextColor("black")
-        
-    def text_print_insert_func(self,text:str):
+
+    def text_print_insert_func(self, text: str):
         cursor = self.ui.text_print.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
         cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
@@ -319,7 +319,7 @@ class MainWindow(QMainWindow):
             log.ui("成功关闭悬赏封印，重启程序后生效")
         log.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("悬赏封印", text)
-    
+
     @log_function_call
     def check_game_handle(self) -> bool:
         """游戏窗口检测
@@ -364,13 +364,13 @@ class MainWindow(QMainWindow):
             # 默认值
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
-            
+
             self.ui.button_mode_team.setEnabled(True)
             self.ui.button_mode_single.setEnabled(True)
             self.ui.button_mode_team.setChecked(True)
 
             self.ui.button_driver_False.setChecked(True)
-            
+
             self.ui.button_passengers_2.setEnabled(True)
             self.ui.button_passengers_3.setEnabled(True)
             self.ui.button_passengers_2.setChecked(True)
@@ -464,7 +464,7 @@ class MainWindow(QMainWindow):
             self.ui.button_mode_team.setChecked(True)
 
             self.ui.button_driver_False.setChecked(True)
-            
+
             self.ui.button_passengers_2.setEnabled(True)
             self.ui.button_passengers_3.setEnabled(True)
             self.ui.button_passengers_2.setChecked(True)
@@ -493,39 +493,52 @@ class MainWindow(QMainWindow):
             self.is_fighting(True)
             match self._choice:
                 case 1:  # 御魂副本
-                    _flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
+                    _flag_drop_statistics = (
+                        self.ui.button_yuhun_drop_statistics.isChecked()
+                    )
                     match self.ui.buttonGroup_mode.checkedButton().text():
                         case "组队":
-                            if self.ui.buttonGroup_driver.checkedButton().text() == "否":
-                                _flag_driver = False
-                            else:
-                                _flag_driver = True
-                            _flag_passengers = int(self.ui.buttonGroup_passengers.checkedButton().text())
-                            # 组队挑战
+                            _flag_driver = (
+                                self.ui.buttonGroup_driver.checkedButton().text()
+                                != "否"
+                            )
+                            _flag_passengers = int(
+                                self.ui.buttonGroup_passengers.checkedButton().text()
+                            )
                             yuhun.YuHunTeam(
                                 n=_n,
                                 flag_driver=_flag_driver,
                                 flag_passengers=_flag_passengers,
-                                flag_drop_statistics=_flag_drop_statistics
+                                flag_drop_statistics=_flag_drop_statistics,
                             ).run()
                         case "单人":
-                            yuhun.YuHunSingle(n=_n, flag_drop_statistics=_flag_drop_statistics).run()
-                    # 当前线程id
-                    # print('main id', int(QThread.currentThreadId()))
-                    # thread = MyThread(
-                    #     func=yuhun.YuHun().run,
-                    #     args=(n, flag_driver, flag_passengers)
-                    # )
-                    # self._thread.finished.connect(self._thread.deleteLater())
-                case 2:
-                    # 2.组队永生之海副本
-                    # 是否司机（默认否）
-                    driver = self.ui.buttonGroup_driver.checkedButton().text()
-                    if driver == "否":
-                        _flag_driver = False
-                    else:
-                        _flag_driver = True
-                    yongshengzhihai.YongShengZhiHai(n=_n, flag_driver=_flag_driver).run()
+                            yuhun.YuHunSingle(
+                                n=_n, flag_drop_statistics=_flag_drop_statistics
+                            ).run()
+                            # 当前线程id
+                            # print('main id', int(QThread.currentThreadId()))
+                            # thread = MyThread(
+                            #     func=yuhun.YuHun().run,
+                            #     args=(n, flag_driver, flag_passengers)
+                            # )
+                            # self._thread.finished.connect(self._thread.deleteLater())
+                case 2:  # 永生之海副本
+                    _flag_drop_statistics = (
+                        self.ui.button_yuhun_drop_statistics.isChecked()
+                    )
+                    match self.ui.buttonGroup_mode.checkedButton().text():
+                        case "组队":
+                            _flag_driver = (
+                                self.ui.buttonGroup_driver.checkedButton().text()
+                                != "否"
+                            )
+                            yongshengzhihai.YongShengZhiHaiTeam(
+                                n=_n,
+                                flag_driver=_flag_driver,
+                                flag_drop_statistics=_flag_drop_statistics,
+                            ).run()
+                        case "单人":
+                            pass
                 case 3:
                     # 3.业原火
                     yeyuanhuo.YeYuanHuo(n=_n).run()
