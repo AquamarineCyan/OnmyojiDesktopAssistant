@@ -252,12 +252,17 @@ def result() -> bool:
         if coor.is_effective:
             log.ui("胜利")
             return True
+        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")  # 手快导致提前结束
+        if coor.is_effective:
+            log.ui("结束")
+            return True
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")  # TODO `fail` 需要更新素材
         if coor.is_effective:
             log.ui("失败")
             return False
 
 
+@log_function_call
 def result_once() -> bool | None:
     """结果判断，遍历一次
 
@@ -275,6 +280,7 @@ def result_once() -> bool | None:
     return None
 
 
+@log_function_call
 def result_while() -> bool | None:
     """结果判断，循环遍历
 
