@@ -21,6 +21,8 @@ from .window import window
 
 RESOURCE_FIGHT_PATH = config.resource_path / "fight"
 """通用战斗资源路径"""
+RESTART_BAT_PATH: str = "restart.bat"
+"""重启脚本路径"""
 
 
 class FightResource:
@@ -429,10 +431,10 @@ def screenshot(screenshot_path: str = "cache") -> bool:
         return False
 
 
-def write_reboot_bat() -> None:
-    """编写bat脚本"""
+def write_restart_bat() -> None:
+    """编写通用重启脚本"""
     bat_text = f"""@echo off
-@echo 当前为reboot程序，等待自动完成
+@echo 当前为重启程序，等待自动完成
 set "program_name={config.exe_name}"
 
 :a
@@ -447,18 +449,64 @@ if errorlevel 1 (
 )
 
 :b
-echo Continue reboot...
+echo Continue restart...
 timeout /T 3 /NOBREAK
 start {config.exe_name}
 """
-    with open("reboot.bat", "w", encoding="ANSI") as f:
+    with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
         f.write(bat_text)
 
 
-def app_reboot():
-    write_reboot_bat()
+def write_upgrage_restart_bat(zip_path: str = None) -> None:
+    """编写更新重启脚本"""
+    bat_text = f"""@echo off
+@echo 当前为更新程序，等待自动完成
+set "program_name={config.exe_name}"
+
+:a
+tasklist | findstr /I /C:"%program_name%" > nul
+if errorlevel 1 (
+    echo %program_name% is closed.
+    goto :b
+) else (
+    echo %program_name% is still running, waiting...
+    ping 123.45.67.89 -n 1 -w 1000 > nul
+    goto :a
+)
+
+:b
+echo Continue updating...
+
+if not exist zip_files\{config.exe_name} exit
+timeout /T 3 /NOBREAK
+move /y zip_files\{config.exe_name} .
+rd /s /q zip_files
+del {zip_path}
+start {config.exe_name}
+"""
+
+    with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
+        f.write(bat_text)
+
+
+def app_restart(is_upgrade: bool = False) -> None:
+    """程序重启
+
+    参数:
+        is_upgrade (bool): 是否更新重启，默认否
+    """
+    log.info("重启中")
+    # 更新重启有独立的脚本
+    if not is_upgrade:
+        write_restart_bat()
     # 启动.bat文件
-    Popen(["reboot.bat"])
+    Popen([RESTART_BAT_PATH])
     # 关闭当前exe程序
     log.info("App Exiting...")
     ms.sys_exit_update.emit(True)
+
+
+def remove_restart_bat_file() -> None:
+    """删除重启脚本"""
+    Path(RESTART_BAT_PATH).unlink(missing_ok=True)
+    Path("reload.bat").unlink(missing_ok=True)  # FIXME v1.7.3引入的更新重启脚本未被删除

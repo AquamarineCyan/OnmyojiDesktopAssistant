@@ -8,12 +8,12 @@ import os
 import time
 import zipfile
 from pathlib import Path
-from subprocess import Popen
 
 import httpx
 
 from .config import config
-from .decorator import *
+from .decorator import run_in_thread, log_function_call
+from .function import app_restart, write_upgrage_restart_bat
 from .log import log
 from .mysignal import global_ms as ms
 from .toast import toast
@@ -165,49 +165,14 @@ class Upgrade:
                 target_path.mkdir(exist_ok=True)
                 self._move_files_recursive(item_path, target_path)
 
-    def _write_restart_bat(self) -> None:
-        """编写bat脚本"""
-        bat_text = f"""@echo off
-@echo 当前为更新程序，等待自动完成
-set "program_name={config.exe_name}"
-
-:a
-tasklist | findstr /I /C:"%program_name%" > nul
-if errorlevel 1 (
-    echo %program_name% is closed.
-    goto :b
-) else (
-    echo %program_name% is still running, waiting...
-    ping 123.45.67.89 -n 1 -w 1000 > nul
-    goto :a
-)
-
-:b
-echo Continue updating...
-
-if not exist zip_files\{config.exe_name} exit
-timeout /T 3 /NOBREAK
-move /y zip_files\{config.exe_name} .
-rd /s /q zip_files
-del {self.zip_path}
-start {config.exe_name}
-"""
-
-        with open("reload.bat", "w", encoding="ANSI") as f:
-            f.write(bat_text)
-
-    def reload(self) -> None:
+    def restart(self) -> None:
         """解压更新包并重启应用程序"""
         self._unzip_func()
         self.move_n: int = 0
         self._move_files_recursive(self.zip_files_path, self.application_path)
         log.info(f"finish moving {self.move_n} files.")
-        self._write_restart_bat()
-        # 启动.bat文件
-        Popen(["reload.bat"])
-        # 关闭当前exe程序
-        log.info("App Exiting...")
-        ms.sys_exit_update.emit(True)
+        write_upgrage_restart_bat(self.zip_path)
+        app_restart(is_upgrade=True)
 
 
 upgrade = Upgrade()

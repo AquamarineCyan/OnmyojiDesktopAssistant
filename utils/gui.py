@@ -18,7 +18,7 @@ from ui.updateui import Ui_Form as Ui_Update_Record
 from .config import config
 from .decorator import *
 from .event import event_thread
-from .function import app_reboot
+from .function import app_restart, remove_restart_bat_file
 from .log import log
 from .mysignal import global_ms as ms
 from .update import update_record
@@ -110,8 +110,8 @@ class MainWindow(QMainWindow):
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
         self.ui.combo_choice.currentIndexChanged.connect(self.choice_text)
-        # reboot
-        self.ui.button_reboot.clicked.connect(app_reboot)
+        # restart
+        self.ui.button_restart.clicked.connect(app_restart)
         # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
@@ -154,6 +154,7 @@ class MainWindow(QMainWindow):
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
         log.clean_up()
+        remove_restart_bat_file()
         upgrade.check_latest()
         # 悬赏封印
         if config.config_user.get("悬赏封印") == "关闭":
@@ -187,7 +188,7 @@ class MainWindow(QMainWindow):
                             "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
                         ) == QMessageBox.Yes:
                             log.info("用户接受更新重启")
-                            Thread(target=upgrade.reload, daemon=True).start()
+                            Thread(target=upgrade.restart, daemon=True).start()
                         else:
                             log.info("用户拒绝更新重启")
 

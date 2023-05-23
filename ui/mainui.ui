@@ -728,7 +728,7 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QPushButton" name="button_reboot">
+       <widget class="QPushButton" name="button_restart">
         <property name="geometry">
          <rect>
           <x>155</x>
@@ -741,7 +741,7 @@
          <string>重启</string>
         </property>
        </widget>
-       <widget class="QLabel" name="label_tip_setting_reboot">
+       <widget class="QLabel" name="label_tip_setting_restart">
         <property name="geometry">
          <rect>
           <x>191</x>
