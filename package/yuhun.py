@@ -146,7 +146,9 @@ class YuHunTeam(YuHun):
         _g_resource_list: list = [
             f"{self.resource_path}/xiezhanduiwu",  # 组队界面
             # f"{RESOURCE_FIGHT_PATH}/start_team",  # 组队挑战
-            f"{RESOURCE_FIGHT_PATH}/emoji",  # 进行中
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_default",  # 战斗中好友图标
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_linshuanghanxue",
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_chunlvhanqing",
             f"{RESOURCE_FIGHT_PATH}/accept_invitation"  # 接受邀请
         ]
         if self.flag_driver:
@@ -160,9 +162,9 @@ class YuHunTeam(YuHun):
             scene, coor = check_scene_multiple_once(_resource_list)
             if scene is None:
                 continue
-            log.info(f"当前场景: {scene}")
             if "/" in scene:
                 scene = scene.split("/")[-1]
+            log.info(f"当前场景: {scene}")
             match scene:
                 case "xiezhanduiwu":
                     log.ui('组队界面准备中')
@@ -171,7 +173,7 @@ class YuHunTeam(YuHun):
                         self.start("team")
                         random_sleep(1, 2)
                     _flag_title_msg = False
-                case "emoji":
+                case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
                     log.ui("对局进行中")
                     self.finish()
                     self.n += 1
