@@ -60,8 +60,7 @@ class Config():
 
     def config_yaml_read(self) -> dict:
         with open(self.config_yaml_path, encoding="utf-8") as f:
-            data = yaml.load(f, Loader=yaml.FullLoader)
-            return data
+            return yaml.load(f, Loader=yaml.FullLoader)
 
     def config_yaml_save(self, data) -> bool:
         if isinstance(data, dict):
@@ -113,13 +112,12 @@ class Config():
         """
         value = self.config_default.get(key)
         if isinstance(value, list):
-            if not data.setdefault(key) in value:
+            if data.setdefault(key) not in value:
                 data.pop(key)
                 data.setdefault(key, value[0])
-        else:
-            if data.setdefault(key) != value:
-                data.pop(key)
-                data.setdefault(key, value)
+        elif data.setdefault(key) != value:
+            data.pop(key)
+            data.setdefault(key, value)
         return data, data.get(key)
 
     def config_user_changed(self, key: str, value: str) -> None:

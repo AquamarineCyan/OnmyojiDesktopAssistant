@@ -26,7 +26,7 @@ class Log:
         try:
             self.log_dir_path.mkdir(parents=True, exist_ok=True)
             return True
-        except:
+        except Exception:
             return False
 
     def _write_to_file(self, text: str | int) -> bool:
@@ -45,7 +45,7 @@ class Log:
             with file.open(mode="a", encoding="utf-8") as f:
                 f.write(f"{text}\n")
             return True
-        except:
+        except Exception:
             print(f"FileNotFoundError {file}")
             return False
 
@@ -159,7 +159,7 @@ class Log:
                     item.unlink()
                     n += 1
                     self.info(f"Remove file: {item.absolute()} successfully.")
-                except:
+                except Exception:
                     self.error(f"Remove file: {item.absolute()} failed.")
         self.info(f"Clean up {n} log files in total.")
         return True

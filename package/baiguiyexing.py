@@ -92,9 +92,8 @@ class BaiGuiYeXing:
 
     def fighting(self):
         """砸豆子"""
-        n = 250  # 豆子数量
         time.sleep(2)
-        while n > 0:
+        for _ in range(250, 0, -5):
             random_sleep(0.2, 1)
             x, y = random_coor(
                 60,
@@ -108,7 +107,6 @@ class BaiGuiYeXing:
                 duration=0.25
             )
             pyautogui.click()
-            n -= 5
 
     def finish(self):
         """结束"""
@@ -141,6 +139,6 @@ class BaiGuiYeXing:
                 log.num(f"{self.n}/{self.max}")
                 time.sleep(4)
                 # TODO 更新随机判断
-                if self.n == 12 or self.n == 25 or self.n == 39:
+                if self.n in {12, 25, 39}:
                     random_sleep(10, 20)
         log.ui(f"已完成 {self.scene_name} {self.n}次")

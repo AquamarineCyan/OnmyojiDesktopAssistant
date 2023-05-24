@@ -33,11 +33,8 @@ class XuanShangFengYin:
             "xuanshang_ignore"  # 忽略
         ]
     
-    def is_working(self)-> bool:
-        if self.flag_work:
-            return True
-        else:
-            return False
+    def is_working(self) -> bool:
+        return bool(self.flag_work)
 
     def event_is_set(self) -> bool:
         return event_xuanshang.is_set()
@@ -70,7 +67,7 @@ class XuanShangFengYin:
                 confidence=0.8
             )
             x, y = button_location
-        except:
+        except Exception:
             x = y = 0
         finally:
             return x, y

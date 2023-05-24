@@ -52,7 +52,7 @@ class Window():
             # 返回窗口信息（x1,y1,x2,y2）
             self.handle_coor = win32gui.GetWindowRect(self.handle)
             log.info(f"handle_coor:{self.handle_coor}")
-        except:
+        except Exception:
             self.handle_coor = (0, 0, 0, 0)
         else:
             # 返回数据类型

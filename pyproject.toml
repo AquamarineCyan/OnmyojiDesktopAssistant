@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "onmyoji-python"
-version = "1.7.3"
+version = "1.7.4"
 description = "auto for Onmyoji"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
@@ -9,7 +9,7 @@ repository = "https://github.com/AquamarineCyan/Onmyoji_Python"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 pyautogui = "^0.9.53"
-httpx = "^0.24.0"
+httpx = "^0.24.1"
 pywin32 = "^305"
 pyside6 = "^6.5.0"
 opencv-python = {extras = ["numpy"], version = "^4.7.0.72"}

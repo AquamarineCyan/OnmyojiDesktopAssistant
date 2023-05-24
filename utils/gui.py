@@ -141,13 +141,14 @@ class MainWindow(QMainWindow):
         if config.config_user:
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
-        log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距")
+        log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
+使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止")
         if self._check_enviroment():
             log.ui("环境完整")
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
             log.ui("移动游戏窗口后，点击下方“游戏检测”即可")
-            log.ui("请选择功能以加载内容")
+            log.ui("请选择功能以加载内容，请确保锁定阵容")
         else:
             log.error("环境损坏", True)
 
@@ -445,9 +446,9 @@ class MainWindow(QMainWindow):
             # 10.限时活动
             self._choice = 10
             log.ui(
-                "适用于限时活动及其他连点，请提前确保阵容完好并锁定\
-                可替换resource/huodong下的title.png、start.png\
-                当前为百面归一"
+                "适用于限时活动及其他连点，请提前确保阵容完好并锁定\n\
+可替换resource/huodong下的素材\n\
+当前为「宴场维和」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
@@ -564,8 +565,8 @@ class MainWindow(QMainWindow):
                     baiguiyexing.BaiGuiYeXing(n=_n).run()
                 case 10:
                     # 10.限时活动
-                    # huodong.HuoDong(n=_n).run()
-                    huodong.BaiMianGuiYi(n=_n).run()
+                    huodong.HuoDong(n=_n).run()
+                    # huodong.BaiMianGuiYi(n=_n).run()
                 case 11:
                     # 11.组队日轮副本
                     # 是否司机（默认否）
