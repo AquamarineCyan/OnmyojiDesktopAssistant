@@ -17,7 +17,7 @@ class Config():
     def __init__(self):
         self.application_name: str = "Onmyoji_Python"
         self.exe_name: str = f"{self.application_name}.exe"
-        self.version: str = "1.7.3"
+        self.version: str = "1.7.4"
         self.application_path: Path = Path.cwd()
         if Path(self.application_path / "resource").is_dir():
             self.resource_path: Path = self.application_path / "resource"
