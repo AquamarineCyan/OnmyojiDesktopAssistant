@@ -7,14 +7,16 @@ import random
 
 import pyautogui
 
-from utils.decorator import *
+from utils.decorator import run_in_thread, time_count, log_function_call
 from utils.function import (
+    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene,
     check_scene_multiple_once,
     click,
     finish,
     finish_random_left_right,
+    get_coor_info,
     random_sleep
 )
 from utils.log import log
@@ -45,29 +47,59 @@ class HuoDong:
                 flag_title = False
                 log.warn("请检查游戏场景")
 
-    def start(self):
-        """挑战开始"""
+    def start(self) -> None:
+        """开始"""
         check_click(f"{self.resource_path}/start")
+
+    def finish(self):
+        if finish():
+            random_sleep(0.4, 0.8)
+            finish_random_left_right(is_multiple_drops_y=True)
+            random_sleep(0.4, 0.8)
+            while True:
+                coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+                if coor.is_zero:
+                    return
+                click()
+                random_sleep(0.4, 0.8)
 
     @run_in_thread
     @time_count
     @log_function_call
     def run(self) -> None:
-        if self.title():
-            log.num(f"0/{self.max}")
-            random_sleep(1, 3)
-            while self.n < self.max:
-                random_sleep(1, 2)
-                # 开始
-                check_click(f"{self.resource_path}/tiaozhan")
-                # 结束
-                finish()
-                random_sleep(1, 2)
-                # 结算
-                finish_random_left_right(is_multiple_drops_y=True)
-                random_sleep(1, 3)
-                self.n += 1
-                log.num(f"{self.n}/{self.max}")
+        _g_resource_list: list = [
+            f"{self.resource_path}/title",
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_default",
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_linshuanghanxue",
+            f"{RESOURCE_FIGHT_PATH}/fighting_friend_chunlvhanqing",
+        ]
+        _flag_title_msg: bool = True
+
+        log.num(f"0/{self.max}")
+        while self.n < self.max:
+            scene, coor = check_scene_multiple_once(_g_resource_list)
+            if scene is None:
+                continue
+            if "/" in scene:
+                scene = scene.split("/")[-1]
+            log.info(f"当前场景: {scene}")
+            match scene:
+                case "title":
+                    log.ui("宴场维和")
+                    _flag_title_msg = False
+                    self.start()
+                    random_sleep(0.4, 0.8)
+                case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
+                    log.ui("对局进行中")
+                    self.finish()
+                    self.n += 1
+                    log.num(f"{self.n}/{self.max}")
+                    random_sleep(1, 3)
+                case _:
+                    if _flag_title_msg:
+                        log.warn("请检查游戏场景")
+                        _flag_title_msg = False
+
         log.ui(f"已完成 {self.scene_name} {self.n}次")
 
 
