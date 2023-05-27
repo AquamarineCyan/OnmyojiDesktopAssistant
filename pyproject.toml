@@ -8,15 +8,16 @@ repository = "https://github.com/AquamarineCyan/Onmyoji_Python"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-pyautogui = "^0.9.53"
+pyautogui = "^0.9.54"
 httpx = "^0.24.1"
 pywin32 = "^305"
-pyside6 = "^6.5.0"
+pyside6 = "^6.5.1"
 opencv-python = {extras = ["numpy"], version = "^4.7.0.72"}
 pillow = "^9.5.0"
-pyinstaller = "^5.10.1"
+pyinstaller = "^5.11.0"
 pyyaml = "^6.0"
 win11toast = "^0.32"
+numpy = "^1.24.3"
 
 
 [tool.poetry.group.dev.dependencies]
