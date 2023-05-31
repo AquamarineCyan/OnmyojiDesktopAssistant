@@ -23,8 +23,10 @@ def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         log.info("{}() calling".format(func.__qualname__))
-        log.info("*args: {}".format(args))
-        log.info("**kwargs: {}".format(kwargs))
+        if len(args) > 1:
+            log.info("*args: {}".format(args))
+        if kwargs:
+            log.info("**kwargs: {}".format(kwargs))
         result = func(*args, **kwargs)
         log.info("{}() finish".format(func.__qualname__))
         return result
@@ -44,7 +46,7 @@ def time_count(func):
                 log.ui(f"耗时{int((end - start) // 60)}分{int((end - start) % 60)}秒")
             else:
                 log.ui(f"耗时{int(end - start)}秒")
-        except:
+        except Exception:
             log.error("耗时统计计算失败")
         # 启用按钮
         log.is_fighting(False)

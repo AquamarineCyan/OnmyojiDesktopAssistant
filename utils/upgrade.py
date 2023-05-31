@@ -45,7 +45,6 @@ class Upgrade:
             log.info(f"api_url.status_code:{result.status_code}")
             if result.status_code == 200:
                 data_dict = json.loads(result.text)
-                log.info("tag_name:{}".format(data_dict["tag_name"]))
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
                     log.info(f"version_github:{self.version_github}")

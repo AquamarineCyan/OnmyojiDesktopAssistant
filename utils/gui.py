@@ -300,7 +300,6 @@ class MainWindow(QMainWindow):
             else:
                 # 检查资源文件
                 for item in P.resource_list:
-                    log.info(f"{P.resource_path}/{item}.png")
                     if not Path(config.resource_path/P.resource_path/f"{item}.png").exists():
                         log.error(f"无{P.resource_path}/{item}.png资源文件")
                         ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
