@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 # gui.py
 
-import contextlib
 import sys
 import time
+from contextlib import suppress
 from pathlib import Path
 from threading import Thread
 
@@ -15,8 +15,9 @@ from package import *
 from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form as Ui_Update_Record
 
-from .config import config
-from .decorator import *
+from .application import app
+from .config import config, is_Chinese_Path
+from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import app_restart, remove_restart_bat_file
 from .log import log
@@ -41,17 +42,6 @@ class MainWindow(QMainWindow):
         "11.组队日轮副本",
         # "12.探索beta"
     ]
-    _package_ = [  # 图片素材文件夹
-        "yuhun",
-        "yongshengzhihai",
-        "yeyuanhuo",
-        "yuling",
-        "jiejietupo",
-        "daoguantupo",
-        "zhaohuan",
-        "baiguiyexing",
-        "huodong"
-    ]
     _choice: int  # 功能
 
     def __init__(self):
@@ -65,11 +55,7 @@ class MainWindow(QMainWindow):
         icon = QIcon()
         icon.addPixmap(QPixmap("buzhihuo.ico"))
         self.setWindowIcon(icon)
-        self.setWindowTitle(f"{config.application_name} - v{config.version}")  # 版本号显示
-        timenow = time.strftime("%H:%M:%S")
-        with contextlib.suppress(Exception):
-            log._write_to_file("[START]")
-            log._write_to_file(f"{timenow} [VERSION] {config.version}")
+        self.setWindowTitle(f"{app.APP_NAME} - v{app.VERSION}")  # 版本号显示
         # 初始化控件
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
@@ -136,8 +122,9 @@ class MainWindow(QMainWindow):
     @run_in_thread
     def application_init(self) -> None:
         """程序初始化"""
-        log.info(f"application path: {config.application_path}")
-        log.info(f"resource path: {config.resource_path}")
+        log.info(f"application path: {app.APP_PATH}")
+        log.info(f"resource path: {app.RESOURCE_DIR_PATH}")
+        log._write_to_file(f"[VERSION] {app.VERSION}")
         if config.config_user:
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
@@ -245,8 +232,7 @@ class MainWindow(QMainWindow):
             ms.qmessagbox_update.emit("ERROR", "创建log目录失败，请重试！")
             return False
         # 中文路径
-        if config.is_Chinese_Path():
-            log.error("Chinese Path")
+        if is_Chinese_Path():
             ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
             return False
         # 资源文件夹完整度
@@ -274,7 +260,7 @@ class MainWindow(QMainWindow):
                 self.resource_list: list = []
 
         log.info("开始检查资源")
-        if not Path(config.resource_path).exists():
+        if not Path(app.RESOURCE_DIR_PATH).exists():
             return False
         P: Package
         from utils.function import FightResource
@@ -293,15 +279,15 @@ class MainWindow(QMainWindow):
             zhaohuan.ZhaoHuan()
         ]:
             # 检查子文件夹
-            if not Path(config.resource_path/P.resource_path).exists():
-                log.error("资源文件夹不存在！")
+            if not Path(app.RESOURCE_DIR_PATH/P.resource_path).exists():
+                log.error("资源文件夹不存在！", True)
                 ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
                 return False
             else:
                 # 检查资源文件
                 for item in P.resource_list:
-                    if not Path(config.resource_path/P.resource_path/f"{item}.png").exists():
-                        log.error(f"无{P.resource_path}/{item}.png资源文件")
+                    if not Path(app.RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
+                        log.error(f"无{P.resource_path}/{item}.png资源文件", True)
                         ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                         return False
         log.info("资源完整")
@@ -642,7 +628,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
-        with contextlib.suppress(Exception):
+        with suppress(Exception):
             log._write_to_file("[EXIT]")
         event.accept()
 

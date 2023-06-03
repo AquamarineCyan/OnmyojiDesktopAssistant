@@ -9,8 +9,9 @@ from pathlib import Path
 
 import pyautogui
 
+from utils.application import app
 from utils.config import config
-from utils.decorator import *
+from utils.decorator import log_function_call, run_in_thread
 from utils.event import event_xuanshang
 from utils.log import log
 from utils.toast import toast
@@ -32,7 +33,7 @@ class XuanShangFengYin:
             "xuanshang_refuse",  # 拒绝
             "xuanshang_ignore"  # 忽略
         ]
-    
+
     def is_working(self) -> bool:
         return bool(self.flag_work)
 
@@ -51,7 +52,7 @@ class XuanShangFengYin:
         返回:
             tuple[int, int]: 识别成功，返回图像的随机坐标，识别失败，返回(0,0)
         """
-        filename = config.resource_path / file
+        filename = app.RESOURCE_DIR_PATH / file
         if isinstance(filename, Path):
             filename = filename.__str__()
 

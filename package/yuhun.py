@@ -5,7 +5,7 @@
 
 import pyautogui
 
-from utils.decorator import *
+from utils.decorator import run_in_thread, time_count, log_function_call
 from utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -299,9 +299,10 @@ class YuHunSingle(YuHun):
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue
-            log.info(f"当前场景: {scene}")
             if "/" in scene:
                 scene = scene.split("/")[-1]
+            log.info(f"当前场景: {scene}")
+
             match scene:
                 case "title_10" | "title_11" | "title_12":
                     self.start("single")

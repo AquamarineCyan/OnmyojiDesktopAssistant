@@ -9,9 +9,9 @@ from pathlib import Path
 
 import pyautogui
 
-from utils.config import config
+from utils.application import app
 from utils.coordinate import Coor
-from utils.decorator import *
+from utils.decorator import run_in_thread, time_count, log_function_call
 from utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -22,7 +22,8 @@ from utils.function import (
     get_coor_info,
     image_file_format,
     random_coor,
-    random_sleep)
+    random_sleep
+)
 from utils.log import log
 from utils.window import window
 
@@ -64,7 +65,7 @@ class JieJieTuPo:
         返回:
             Coor: 坐标
         """
-        _file_name = image_file_format(config.resource_path / self.resource_path / file)
+        _file_name = image_file_format(app.RESOURCE_DIR_PATH / self.resource_path / file)
         log.info(f"looking for file: {_file_name}")
         if "xunzhang" in file:
             # 个人突破
@@ -409,7 +410,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         if self.title():
             while True:
                 try:
-                    filename = config.resource_path / self.resource_path / "jibaicishu.png"
+                    filename = app.RESOURCE_DIR_PATH / self.resource_path / "jibaicishu.png"
                     log.info(filename)
                     if isinstance(filename, Path):
                         filename = str(filename)

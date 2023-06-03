@@ -3,7 +3,7 @@
 # yeyuanhuo.py
 """业原火副本"""
 
-from utils.decorator import *
+from utils.decorator import run_in_thread, time_count, log_function_call
 from utils.function import (
     check_click,
     check_scene_multiple_once,
@@ -42,6 +42,11 @@ class YeYuanHuo:
         """挑战开始"""
         check_click(f"{self.resource_path}/start")
 
+    def done(self) -> None:
+        """更新一次完成情况"""
+        self.n += 1
+        log.num(f"{self.n}/{self.max}")
+
     @run_in_thread
     @time_count
     @log_function_call
@@ -49,7 +54,12 @@ class YeYuanHuo:
         log.num(f"0/{self.max}")
         while self.n < self.max:
             scene, coor = check_scene_multiple_once(self.resource_list, self.resource_path)
+            if scene is None:
+                continue
+            if "/" in scene:
+                scene = scene.split("/")[-1]
             log.info(f"当前场景: {scene}")
+
             if coor.is_effective:
                 match scene:
                     case "title":
@@ -59,12 +69,11 @@ class YeYuanHuo:
                         click(coor)
                         random_sleep(self.fast_time, self.fast_time+1)
             if result := result_once():
-                self.n += 1
-                log.num(f"{self.n}/{self.max}")
+                self.done()
                 random_sleep(1, 2)
                 finish_random_left_right()
                 random_sleep(2, 4)
                 continue
             elif result == False:
                 log.error("失败，需要手动处理", True)
-        log.ui(f"已完成 业原火副本 {self.n}次")
+        log.ui(f"已完成 {self.scene_name} {self.n}次")

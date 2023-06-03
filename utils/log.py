@@ -7,14 +7,11 @@ from datetime import date, datetime
 from pathlib import Path
 
 from .mysignal import global_ms as ms
+from .application import app
 
 
 class Log:
     """日志"""
-
-    def __init__(self) -> None:
-        self.application_path: Path = Path(__file__).parents[1]
-        self.log_dir_path = self.application_path / "log"
 
     def init(self) -> bool:
         """初始化
@@ -23,7 +20,7 @@ class Log:
             bool: 创建日志文件夹是否成功
         """
         try:
-            self.log_dir_path.mkdir(parents=True, exist_ok=True)
+            app.LOG_DIR_PATH.mkdir(parents=True, exist_ok=True)
             return True
         except Exception:
             return False
@@ -37,7 +34,7 @@ class Log:
         返回:
             bool: 文本写入是否成功
         """
-        file: Path = self.log_dir_path / f"log-{datetime.now().strftime('%Y%m%d')}.txt"
+        file: Path = app.LOG_DIR_PATH / f"log-{datetime.now().strftime('%Y%m%d')}.txt"
         if isinstance(text, int):
             text = str(text)
         now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
@@ -140,10 +137,10 @@ class Log:
         log.info("log clean up...")
         today = date.today()
         n = 0
-        if not self.log_dir_path.is_dir():
+        if not app.LOG_DIR_PATH.is_dir():
             log.error("Not found log dir.")
             return False
-        for item in self.log_dir_path.iterdir():
+        for item in app.LOG_DIR_PATH.iterdir():
             log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
             # 自动清理
             if (today-log_date).days > 30:

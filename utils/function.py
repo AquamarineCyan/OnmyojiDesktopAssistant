@@ -12,14 +12,14 @@ import pyautogui
 
 from package.xuanshangfengyin import xuanshangfengyin
 
-from .config import config
+from .application import app
 from .coordinate import Coor
-from .decorator import *
+from .decorator import log_function_call
 from .log import log
 from .mysignal import global_ms as ms
 from .window import window
 
-RESOURCE_FIGHT_PATH = config.resource_path / "fight"
+RESOURCE_FIGHT_PATH = app.RESOURCE_DIR_PATH / "fight"
 """通用战斗资源路径"""
 RESTART_BAT_PATH: str = "restart.bat"
 """重启脚本路径"""
@@ -112,7 +112,7 @@ def image_file_format(file: Path | str) -> str:
         else:
             _file = file.__str__()
     # 即使传了RESOURCE_FIGHT_PATH，Pathlib会自动合并相同路径
-    if Path(config.resource_path / _file).exists():
+    if Path(app.RESOURCE_DIR_PATH / _file).exists():
         return _file
     else:
         log.warn(f"no such file {_file}", False)
@@ -127,7 +127,7 @@ def get_coor_info(file: Path | str) -> Coor:
     返回:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
-    _file_name = image_file_format(config.resource_path / file)
+    _file_name = image_file_format(app.RESOURCE_DIR_PATH / file)
     log.info(_file_name)
     # 等待悬赏封印判定
     if xuanshangfengyin.is_working():
@@ -174,31 +174,34 @@ def check_scene(file: str, scene_name: str = None) -> bool:
         return True
 
 
-def check_scene_multiple_once(scene: dict | list, resource_path: str = None) -> tuple[str | None, Coor]:
-    """多场景判断，仅遍历一次
+def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[str | None, Coor]:
+    """
+    多场景判断，仅遍历一次
+
+    可传带RESOURCE_FIGHT_PATH资源，
 
     参数:
-        scene (dict | list): 多场景列表
+        scene (list): 多场景列表
         resource_path (str): 路径
 
     返回:
         tuple[str | None, Coor]: 场景名称, 坐标
     """
-    # XXX 移除对字典的适配
-    if isinstance(scene, dict):
-        for key, value in scene.items():
-            file = f"{config.resource_path}/{key}" if resource_path else key
-            coor = get_coor_info(file)
-            if coor.is_effective:
-                return str(value), coor
-    elif isinstance(scene, list):
-        for item in scene:
-            # 如果没传路径，说明文件名自带路径
-            _file = item if resource_path is None else f"{resource_path}/{item}"
-            coor = get_coor_info(_file)
-            if coor.is_effective:
-                return str(item), coor
-        return None, Coor(0, 0)
+    for item in scene:
+        """
+        1.如果没传路径，说明全部文件名自带路径
+        2.传参路径，可能存在RESOURCE_FIGHT_PAHT的资源，用斜杠判断列表值
+        3.剩下的便是普通情况，即路径+文件
+        多数情况下会是第2种
+        """
+        if (resource_path is None) or (resource_path and "/" in item):
+            _file = item
+        else:
+            _file = f"{resource_path}/{item}"
+        coor = get_coor_info(_file)
+        if coor.is_effective:
+            return str(item), coor
+    return None, Coor(0, 0)
 
 
 def check_scene_multiple_while(scene: dict | list = None, resource_path: str = None, text: str = None) -> tuple[str, Coor]:
@@ -295,6 +298,7 @@ def result_while() -> bool | None:
             break
 
 
+@log_function_call
 def finish() -> bool:
     """结束/掉落判断
 
@@ -310,6 +314,24 @@ def finish() -> bool:
         if coor.is_effective:
             log.ui("失败")
             return False
+
+
+@log_function_call
+def check_finish_once() -> bool | None:
+    """结束/掉落判断，遍历一次
+
+    返回:
+        bool: 结束/失败/None
+    """
+    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+    if coor.is_effective:
+        log.ui("胜利")
+        return True
+    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+    if coor.is_effective:
+        log.ui("失败")
+        return False
+    return None
 
 
 def finish_random_left_right(
@@ -410,7 +432,7 @@ def screenshot(screenshot_path: str = "cache") -> bool:
 
     window_width_screenshot = 1138  # 截图宽度
     window_height_screenshot = 679  # 截图高度
-    _screenshot_path = config.application_path / screenshot_path
+    _screenshot_path = app.APP_PATH / screenshot_path
     _screenshot_path.mkdir(parents=True, exist_ok=True)
 
     _file = f"{_screenshot_path}/screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
@@ -435,7 +457,7 @@ def write_restart_bat() -> None:
     """编写通用重启脚本"""
     bat_text = f"""@echo off
 @echo 当前为重启程序，等待自动完成
-set "program_name={config.exe_name}"
+set "program_name={app.APP_EXE_NAME}"
 
 :a
 tasklist | findstr /I /C:"%program_name%" > nul
@@ -451,7 +473,7 @@ if errorlevel 1 (
 :b
 echo Continue restart...
 timeout /T 3 /NOBREAK
-start {config.exe_name}
+start {app.APP_EXE_NAME}
 """
     with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
         f.write(bat_text)
@@ -461,7 +483,7 @@ def write_upgrage_restart_bat(zip_path: str = None) -> None:
     """编写更新重启脚本"""
     bat_text = f"""@echo off
 @echo 当前为更新程序，等待自动完成
-set "program_name={config.exe_name}"
+set "program_name={app.APP_EXE_NAME}"
 
 :a
 tasklist | findstr /I /C:"%program_name%" > nul
@@ -477,12 +499,12 @@ if errorlevel 1 (
 :b
 echo Continue updating...
 
-if not exist zip_files\{config.exe_name} exit
+if not exist zip_files\{app.APP_EXE_NAME} exit
 timeout /T 3 /NOBREAK
-move /y zip_files\{config.exe_name} .
+move /y zip_files\{app.APP_EXE_NAME} .
 rd /s /q zip_files
 del {zip_path}
-start {config.exe_name}
+start {app.APP_EXE_NAME}
 """
 
     with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
