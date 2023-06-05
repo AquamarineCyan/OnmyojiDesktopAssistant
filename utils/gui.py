@@ -15,7 +15,7 @@ from package import *
 from ui.mainui import Ui_MainWindow
 from ui.updateui import Ui_Form as Ui_Update_Record
 
-from .application import app
+from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         icon = QIcon()
         icon.addPixmap(QPixmap("buzhihuo.ico"))
         self.setWindowIcon(icon)
-        self.setWindowTitle(f"{app.APP_NAME} - v{app.VERSION}")  # 版本号显示
+        self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
         # 初始化控件
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
@@ -122,9 +122,9 @@ class MainWindow(QMainWindow):
     @run_in_thread
     def application_init(self) -> None:
         """程序初始化"""
-        log.info(f"application path: {app.APP_PATH}")
-        log.info(f"resource path: {app.RESOURCE_DIR_PATH}")
-        log._write_to_file(f"[VERSION] {app.VERSION}")
+        log.info(f"application path: {APP_PATH}")
+        log.info(f"resource path: {RESOURCE_DIR_PATH}")
+        log._write_to_file(f"[VERSION] {VERSION}")
         if config.config_user:
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
@@ -260,7 +260,7 @@ class MainWindow(QMainWindow):
                 self.resource_list: list = []
 
         log.info("开始检查资源")
-        if not Path(app.RESOURCE_DIR_PATH).exists():
+        if not Path(RESOURCE_DIR_PATH).exists():
             return False
         P: Package
         from utils.function import FightResource
@@ -279,14 +279,14 @@ class MainWindow(QMainWindow):
             zhaohuan.ZhaoHuan()
         ]:
             # 检查子文件夹
-            if not Path(app.RESOURCE_DIR_PATH/P.resource_path).exists():
+            if not Path(RESOURCE_DIR_PATH/P.resource_path).exists():
                 log.error("资源文件夹不存在！", True)
                 ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
                 return False
             else:
                 # 检查资源文件
                 for item in P.resource_list:
-                    if not Path(app.RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
+                    if not Path(RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
                         log.error(f"无{P.resource_path}/{item}.png资源文件", True)
                         ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                         return False

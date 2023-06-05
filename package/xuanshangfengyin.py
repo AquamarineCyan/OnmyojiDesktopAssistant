@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pyautogui
 
-from utils.application import app
+from utils.application import RESOURCE_DIR_PATH
 from utils.config import config
 from utils.decorator import log_function_call, run_in_thread
 from utils.event import event_xuanshang
@@ -52,7 +52,7 @@ class XuanShangFengYin:
         返回:
             tuple[int, int]: 识别成功，返回图像的随机坐标，识别失败，返回(0,0)
         """
-        filename = app.RESOURCE_DIR_PATH / file
+        filename = RESOURCE_DIR_PATH / file
         if isinstance(filename, Path):
             filename = filename.__str__()
 

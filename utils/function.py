@@ -12,14 +12,14 @@ import pyautogui
 
 from package.xuanshangfengyin import xuanshangfengyin
 
-from .application import app
+from .application import APP_EXE_NAME, RESOURCE_DIR_PATH, SCREENSHOT_DIR_PATH
 from .coordinate import Coor
 from .decorator import log_function_call
 from .log import log
 from .mysignal import global_ms as ms
 from .window import window
 
-RESOURCE_FIGHT_PATH = app.RESOURCE_DIR_PATH / "fight"
+RESOURCE_FIGHT_PATH = RESOURCE_DIR_PATH / "fight"
 """通用战斗资源路径"""
 RESTART_BAT_PATH: str = "restart.bat"
 """重启脚本路径"""
@@ -112,7 +112,7 @@ def image_file_format(file: Path | str) -> str:
         else:
             _file = file.__str__()
     # 即使传了RESOURCE_FIGHT_PATH，Pathlib会自动合并相同路径
-    if Path(app.RESOURCE_DIR_PATH / _file).exists():
+    if Path(RESOURCE_DIR_PATH / _file).exists():
         return _file
     else:
         log.warn(f"no such file {_file}", False)
@@ -124,10 +124,13 @@ def get_coor_info(file: Path | str) -> Coor:
     参数:
         file (Path | str): 图像名称
 
+    用法：
+        `self.resource_path / filename`
+
     返回:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
-    _file_name = image_file_format(app.RESOURCE_DIR_PATH / file)
+    _file_name = image_file_format(RESOURCE_DIR_PATH / file)
     log.info(_file_name)
     # 等待悬赏封印判定
     if xuanshangfengyin.is_working():
@@ -432,7 +435,7 @@ def screenshot(screenshot_path: str = "cache") -> bool:
 
     window_width_screenshot = 1138  # 截图宽度
     window_height_screenshot = 679  # 截图高度
-    _screenshot_path = app.APP_PATH / screenshot_path
+    _screenshot_path = SCREENSHOT_DIR_PATH / screenshot_path
     _screenshot_path.mkdir(parents=True, exist_ok=True)
 
     _file = f"{_screenshot_path}/screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
@@ -457,7 +460,7 @@ def write_restart_bat() -> None:
     """编写通用重启脚本"""
     bat_text = f"""@echo off
 @echo 当前为重启程序，等待自动完成
-set "program_name={app.APP_EXE_NAME}"
+set "program_name={APP_EXE_NAME}"
 
 :a
 tasklist | findstr /I /C:"%program_name%" > nul
@@ -473,7 +476,7 @@ if errorlevel 1 (
 :b
 echo Continue restart...
 timeout /T 3 /NOBREAK
-start {app.APP_EXE_NAME}
+start {APP_EXE_NAME}
 """
     with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
         f.write(bat_text)
@@ -483,7 +486,7 @@ def write_upgrage_restart_bat(zip_path: str = None) -> None:
     """编写更新重启脚本"""
     bat_text = f"""@echo off
 @echo 当前为更新程序，等待自动完成
-set "program_name={app.APP_EXE_NAME}"
+set "program_name={APP_EXE_NAME}"
 
 :a
 tasklist | findstr /I /C:"%program_name%" > nul
@@ -499,12 +502,12 @@ if errorlevel 1 (
 :b
 echo Continue updating...
 
-if not exist zip_files\{app.APP_EXE_NAME} exit
+if not exist zip_files\{APP_EXE_NAME} exit
 timeout /T 3 /NOBREAK
-move /y zip_files\{app.APP_EXE_NAME} .
+move /y zip_files\{APP_EXE_NAME} .
 rd /s /q zip_files
 del {zip_path}
-start {app.APP_EXE_NAME}
+start {APP_EXE_NAME}
 """
 
     with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:

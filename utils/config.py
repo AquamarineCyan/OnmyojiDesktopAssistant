@@ -8,7 +8,7 @@ from re import compile
 
 import yaml
 
-from .application import app
+from .application import APP_PATH, CONFIG_PATH
 from .log import log
 from .mysignal import global_ms as ms
 
@@ -26,7 +26,7 @@ class Config():
         self.data_error: bool = False
 
     def config_yaml_init(self) -> None:
-        if app.CONFIG_PATH.is_file():
+        if CONFIG_PATH.is_file():
             log.info("Find config file.")
             data = self._read_config_yaml()
             data = self._check_config_data(data)
@@ -42,12 +42,12 @@ class Config():
         self.setting_to_ui_qcombobox_update_func()
 
     def _read_config_yaml(self) -> dict:
-        with open(app.CONFIG_PATH, encoding="utf-8") as f:
+        with open(CONFIG_PATH, encoding="utf-8") as f:
             return yaml.load(f, Loader=yaml.FullLoader)
 
     def _save_config_yaml(self, data) -> bool:
         if isinstance(data, dict):
-            with open(app.CONFIG_PATH, "w", encoding="utf-8") as f:
+            with open(CONFIG_PATH, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
             log.error("file config.yaml save failed.")
@@ -119,7 +119,7 @@ def is_Chinese_Path() -> bool:
     `opencv` 需要英文路径
     """
     zhPattern = compile(u'[\u4e00-\u9fa5]+')
-    match = zhPattern.search(str(app.APP_PATH))
+    match = zhPattern.search(str(APP_PATH))
     if not match:
         log.info("English Path")
         return False

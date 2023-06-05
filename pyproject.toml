@@ -10,7 +10,7 @@ repository = "https://github.com/AquamarineCyan/Onmyoji_Python"
 python = ">=3.10,<3.11"
 pyautogui = "^0.9.54"
 httpx = "^0.24.1"
-pywin32 = "^305"
+pywin32 = "^306"
 pyside6 = "^6.5.1"
 opencv-python = {extras = ["numpy"], version = "^4.7.0.72"}
 pillow = "^9.5.0"

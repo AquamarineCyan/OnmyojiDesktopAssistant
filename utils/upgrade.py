@@ -11,7 +11,7 @@ from pathlib import Path
 
 import httpx
 
-from .application import app
+from .application import APP_EXE_NAME, APP_PATH, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .function import app_restart, write_upgrage_restart_bat
@@ -47,7 +47,7 @@ class Upgrade:
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
                     log.info(f"version_github:{self.version_github}")
-                    if self.version_github > app.VERSION:
+                    if self.version_github > VERSION:
                         _info: str = data_dict["body"]
                         self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
                         for item in data_dict["assets"]:
@@ -68,7 +68,7 @@ class Upgrade:
         log.info(f"browser_download_url:{self.browser_download_url}")
         self.zip_path = self.browser_download_url.split("/")[-1]
         log.info(f"zip_name:{self.zip_path}")
-        if app.APP_PATH.joinpath(self.browser_download_url.split("/")[-1]) in app.APP_PATH.iterdir():
+        if APP_PATH.joinpath(self.browser_download_url.split("/")[-1]) in APP_PATH.iterdir():
             log.ui("存在新版本更新包")
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
@@ -127,7 +127,7 @@ class Upgrade:
                 log.error("访问更新地址失败")
             case _:
                 log.error("UPDATE ERROR")
-        for item_path in app.APP_PATH.iterdir():
+        for item_path in APP_PATH.iterdir():
             if "Onmyoji_Python" in item_path.name.__str__() and item_path.suffix == ".zip":
                 self.zip_path = item_path
                 break
@@ -137,7 +137,7 @@ class Upgrade:
     def _unzip_func(self) -> None:
         log.info("start unzip")
         # 解压路径
-        self.zip_files_path: Path = app.APP_PATH / "zip_files"
+        self.zip_files_path: Path = APP_PATH / "zip_files"
         # 压缩包文件
         log.ui("开始解压...")
 
@@ -156,7 +156,7 @@ class Upgrade:
         """递归移动文件"""
         for item_path in source_folder.iterdir():
             target_path = target_folder / item_path.name
-            if item_path.is_file() and item_path.name != app.APP_EXE_NAME:  # 排除exe
+            if item_path.is_file() and item_path.name != APP_EXE_NAME:  # 排除exe
                 item_path.replace(target_path)
                 self.move_n += 1
             elif item_path.is_dir():
@@ -167,7 +167,7 @@ class Upgrade:
         """解压更新包并重启应用程序"""
         self._unzip_func()
         self.move_n: int = 0
-        self._move_files_recursive(self.zip_files_path, app.APP_PATH)
+        self._move_files_recursive(self.zip_files_path, APP_PATH)
         log.info(f"finish moving {self.move_n} files.")
         write_upgrage_restart_bat(self.zip_path)
         app_restart(is_upgrade=True)
