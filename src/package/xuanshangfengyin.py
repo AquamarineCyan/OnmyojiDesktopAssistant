@@ -9,13 +9,13 @@ from pathlib import Path
 
 import pyautogui
 
-from utils.application import RESOURCE_DIR_PATH
-from utils.config import config
-from utils.decorator import log_function_call, run_in_thread
-from utils.event import event_xuanshang
-from utils.log import log
-from utils.toast import toast
-from utils.window import window
+from ..utils.application import RESOURCE_DIR_PATH
+from ..utils.config import config
+from ..utils.decorator import log_function_call, run_in_thread
+from ..utils.event import event_xuanshang
+from ..utils.log import log
+from ..utils.toast import toast
+from ..utils.window import window
 
 
 class XuanShangFengYin:
@@ -54,7 +54,7 @@ class XuanShangFengYin:
         """
         filename = RESOURCE_DIR_PATH / file
         if isinstance(filename, Path):
-            filename = filename.__str__()
+            filename = str(filename)
 
         try:
             button_location = pyautogui.locateCenterOnScreen(

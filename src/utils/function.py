@@ -10,8 +10,7 @@ from subprocess import Popen
 
 import pyautogui
 
-from package.xuanshangfengyin import xuanshangfengyin
-
+from ..package.xuanshangfengyin import xuanshangfengyin
 from .application import APP_EXE_NAME, RESOURCE_DIR_PATH, SCREENSHOT_DIR_PATH
 from .coordinate import Coor
 from .decorator import log_function_call

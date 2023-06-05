@@ -1,4 +1,4 @@
-from package import (
+from . import (
     yuhun,  # 1
     yongshengzhihai,  # 2
     yeyuanhuo,  # 3

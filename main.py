@@ -4,10 +4,11 @@
 
 import sys
 from ctypes import windll
+
 from PySide6.QtWidgets import QApplication
 
-from utils.config import config
-from utils.gui import MainWindow
+from src.utils.config import config
+from src.utils.gui import MainWindow
 
 if __name__ == "__main__":
     # Is Admin

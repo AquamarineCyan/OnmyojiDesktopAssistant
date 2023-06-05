@@ -6,8 +6,8 @@
 from datetime import date, datetime
 from pathlib import Path
 
-from .mysignal import global_ms as ms
 from .application import LOG_DIR_PATH
+from .mysignal import global_ms as ms
 
 
 class Log:

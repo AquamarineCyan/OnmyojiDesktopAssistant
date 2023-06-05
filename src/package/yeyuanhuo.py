@@ -3,8 +3,8 @@
 # yeyuanhuo.py
 """业原火副本"""
 
-from utils.decorator import run_in_thread, time_count, log_function_call
-from utils.function import (
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
     check_click,
     check_scene_multiple_once,
     check_scene_multiple_while,
@@ -13,7 +13,7 @@ from utils.function import (
     random_sleep,
     result_once
 )
-from utils.log import log
+from ..utils.log import log
 
 
 class YeYuanHuo:

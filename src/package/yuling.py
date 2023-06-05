@@ -3,15 +3,15 @@
 # yuling.py
 """御灵副本"""
 
-from utils.decorator import *
-from utils.function import (
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
     check_click,
     check_scene,
     finish,
     finish_random_left_right,
     random_sleep
 )
-from utils.log import log
+from ..utils.log import log
 
 
 class YuLing:

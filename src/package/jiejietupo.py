@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pyautogui
 
-from utils.application import RESOURCE_DIR_PATH
-from utils.coordinate import Coor
-from utils.decorator import run_in_thread, time_count, log_function_call
-from utils.function import (
+from ..utils.application import RESOURCE_DIR_PATH
+from ..utils.coordinate import Coor
+from ..utils.decorator import run_in_thread, time_count, log_function_call
+from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
     check_scene,
@@ -24,8 +24,8 @@ from utils.function import (
     random_coor,
     random_sleep
 )
-from utils.log import log
-from utils.window import window
+from ..utils.log import log
+from ..utils.window import window
 
 
 class JieJieTuPo:

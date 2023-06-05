@@ -5,8 +5,8 @@
 
 import pyautogui
 
-from utils.decorator import *
-from utils.function import (
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
     check_click,
     check_scene,
     click,
@@ -18,8 +18,8 @@ from utils.function import (
     result,
     RESOURCE_FIGHT_PATH
 )
-from utils.log import log
-from utils.window import window
+from ..utils.log import log
+from ..utils.window import window
 
 
 class RiLun:

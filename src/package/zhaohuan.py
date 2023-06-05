@@ -3,9 +3,9 @@
 # zhaohuan.py
 """普通召唤"""
 
-from utils.decorator import *
-from utils.function import check_click, check_scene, random_sleep
-from utils.log import log
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import check_click, check_scene, random_sleep
+from ..utils.log import log
 
 
 class ZhaoHuan:

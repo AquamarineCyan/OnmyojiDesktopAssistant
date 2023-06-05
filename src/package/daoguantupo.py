@@ -3,8 +3,8 @@
 # daoguantupo.py
 """道馆突破"""
 
-from utils.decorator import *
-from utils.function import (
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
     check_scene,
@@ -14,7 +14,7 @@ from utils.function import (
     get_coor_info,
     random_sleep
 )
-from utils.log import log
+from ..utils.log import log
 
 
 class DaoGuanTuPo:

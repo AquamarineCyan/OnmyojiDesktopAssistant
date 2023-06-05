@@ -5,8 +5,8 @@
 
 import pyautogui
 
-from utils.decorator import run_in_thread, time_count, log_function_call
-from utils.function import (
+from ..utils.decorator import run_in_thread, time_count, log_function_call
+from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
@@ -17,8 +17,8 @@ from utils.function import (
     result,
     screenshot
 )
-from utils.log import log
-from utils.window import window
+from ..utils.log import log
+from ..utils.window import window
 
 
 class YuHun:

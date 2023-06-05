@@ -5,21 +5,20 @@
 
 import pyautogui
 
-from utils.decorator import run_in_thread, time_count, log_function_call
-from utils.function import (
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
     finish_random_left_right,
     get_coor_info,
-    is_passengers_on_position,
     random_sleep,
     result,
     screenshot
 )
-from utils.log import log
-from utils.window import window
+from ..utils.log import log
+from ..utils.window import window
 
 
 class YongShengZhiHai:

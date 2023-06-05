@@ -11,15 +11,14 @@ from threading import Thread
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget
 
-from package import *
-from ui.mainui import Ui_MainWindow
-from ui.updateui import Ui_Form as Ui_Update_Record
-
+from ..package import *
+from ..ui.mainui import Ui_MainWindow
+from ..ui.updateui import Ui_Form as Ui_Update_Record
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
-from .function import app_restart, remove_restart_bat_file
+from .function import FightResource, app_restart, remove_restart_bat_file
 from .log import log
 from .mysignal import global_ms as ms
 from .update import update_record
@@ -40,7 +39,7 @@ class MainWindow(QMainWindow):
         "9.百鬼夜行",
         "10.限时活动",
         "11.组队日轮副本",
-        # "12.探索beta"
+        "12.探索beta"
     ]
     _choice: int  # 功能
 
@@ -263,7 +262,6 @@ class MainWindow(QMainWindow):
         if not Path(RESOURCE_DIR_PATH).exists():
             return False
         P: Package
-        from utils.function import FightResource
         for P in [
             FightResource(),
             baiguiyexing.BaiGuiYeXing(),
