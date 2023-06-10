@@ -11,6 +11,7 @@ from ..utils.function import (
     check_click,
     check_scene_multiple_once,
     click,
+    finish,
     finish_random_left_right,
     is_passengers_on_position,
     random_sleep,
@@ -251,7 +252,7 @@ class YuHunSingle(YuHun):
         """
         结束 等待自动掉落
         """
-        result()
+        finish()
         random_sleep(0.4, 0.8)
         # 结算
         coor = finish_random_left_right(False, is_multiple_drops_x=True)

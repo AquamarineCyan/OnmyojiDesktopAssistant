@@ -11,7 +11,7 @@ python = ">=3.10,<3.11"
 pyautogui = "^0.9.54"
 httpx = "^0.24.1"
 pywin32 = "^306"
-pyside6 = "^6.5.1"
+pyside6 = "^6.5.1.1"
 opencv-python = {extras = ["numpy"], version = "^4.7.0.72"}
 pillow = "^9.5.0"
 pyinstaller = "^5.11.0"
@@ -23,6 +23,11 @@ numpy = "^1.24.3"
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.2"
 pytest = "^7.3.1"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+priority = "default"
 
 [build-system]
 requires = ["poetry-core"]

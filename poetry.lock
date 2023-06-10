@@ -11,25 +11,36 @@ files = [
     {file = "altgraph-0.17.3.tar.gz", hash = "sha256:ad33358114df7c9416cdb8fa1eaa5852166c505118717021c6a8c7c7abbd03dd"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "anyio"
-version = "3.6.2"
+version = "3.7.0"
 description = "High level compatibility layer for multiple asynchronous event loop implementations"
 optional = false
-python-versions = ">=3.6.2"
+python-versions = ">=3.7"
 files = [
-    {file = "anyio-3.6.2-py3-none-any.whl", hash = "sha256:fbbe32bd270d2a2ef3ed1c5d45041250284e31fc0a4df4a5a6071842051a51e3"},
-    {file = "anyio-3.6.2.tar.gz", hash = "sha256:25ea0d673ae30af41a0c442f81cf3b38c7e79fdc7b60335a4c14e05eb0947421"},
+    {file = "anyio-3.7.0-py3-none-any.whl", hash = "sha256:eddca883c4175f14df8aedce21054bfca3adb70ffe76a9f607aef9d7fa2ea7f0"},
+    {file = "anyio-3.7.0.tar.gz", hash = "sha256:275d9973793619a5374e1c89a4f4ad3f4b0a5510a2b5b939444bee8f4c4d37ce"},
 ]
 
 [package.dependencies]
+exceptiongroup = {version = "*", markers = "python_version < \"3.11\""}
 idna = ">=2.8"
 sniffio = ">=1.1"
 
 [package.extras]
-doc = ["packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme"]
-test = ["contextlib2", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=4)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (<0.15)", "uvloop (>=0.15)"]
-trio = ["trio (>=0.16,<0.22)"]
+doc = ["Sphinx (>=6.1.0)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme", "sphinxcontrib-jquery"]
+test = ["anyio[trio]", "coverage[toml] (>=4.5)", "hypothesis (>=4.0)", "mock (>=4)", "psutil (>=5.9)", "pytest (>=7.0)", "pytest-mock (>=3.6.1)", "trustme", "uvloop (>=0.17)"]
+trio = ["trio (<0.22)"]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "autopep8"
@@ -46,6 +57,11 @@ files = [
 pycodestyle = ">=2.10.0"
 tomli = {version = "*", markers = "python_version < \"3.11\""}
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "certifi"
 version = "2023.5.7"
@@ -56,6 +72,11 @@ files = [
     {file = "certifi-2023.5.7-py3-none-any.whl", hash = "sha256:c6c2e98f5c7869efca1f8916fed228dd91539f9f1b444c314c06eef02980c716"},
     {file = "certifi-2023.5.7.tar.gz", hash = "sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "colorama"
@@ -68,6 +89,11 @@ files = [
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "easyprocess"
 version = "1.1"
@@ -79,6 +105,11 @@ files = [
     {file = "EasyProcess-1.1.tar.gz", hash = "sha256:885898302a57aab948973e8b5d32a4229392b9fb2d986ab1d4ffd590e5ba90ec"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "entrypoint2"
 version = "1.1"
@@ -89,6 +120,11 @@ files = [
     {file = "entrypoint2-1.1-py2.py3-none-any.whl", hash = "sha256:eeb8c327bdb65cdd1668c023a6b110b7e3d1a046fb05e043861ebd9264b3a257"},
     {file = "entrypoint2-1.1.tar.gz", hash = "sha256:fc0b7fe7b21acdab47a585ab9407ca7e5c4f96cb6888575db6b0ceb91f0e105a"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "exceptiongroup"
@@ -104,6 +140,11 @@ files = [
 [package.extras]
 test = ["pytest (>=6)"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "h11"
 version = "0.14.0"
@@ -114,6 +155,11 @@ files = [
     {file = "h11-0.14.0-py3-none-any.whl", hash = "sha256:e3fe4ac4b851c468cc8363d500db52c2ead036020723024a109d37346efaa761"},
     {file = "h11-0.14.0.tar.gz", hash = "sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "httpcore"
@@ -135,6 +181,11 @@ sniffio = "==1.*"
 [package.extras]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "httpx"
@@ -159,6 +210,11 @@ cli = ["click (==8.*)", "pygments (==2.*)", "rich (>=10,<14)"]
 http2 = ["h2 (>=3,<5)"]
 socks = ["socksio (==1.*)"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "idna"
 version = "3.4"
@@ -170,6 +226,11 @@ files = [
     {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "iniconfig"
 version = "2.0.0"
@@ -180,6 +241,11 @@ files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
     {file = "iniconfig-2.0.0.tar.gz", hash = "sha256:2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "jeepney"
@@ -196,6 +262,11 @@ files = [
 test = ["async-timeout", "pytest", "pytest-asyncio (>=0.17)", "pytest-trio", "testpath", "trio"]
 trio = ["async_generator", "trio"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "macholib"
 version = "1.16.2"
@@ -209,6 +280,11 @@ files = [
 
 [package.dependencies]
 altgraph = ">=0.17"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "mouseinfo"
@@ -225,6 +301,11 @@ pyperclip = "*"
 python3-Xlib = {version = "*", markers = "platform_system == \"Linux\" and python_version >= \"3.0\""}
 rubicon-objc = {version = "*", markers = "platform_system == \"Darwin\""}
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "mss"
 version = "9.0.1"
@@ -235,6 +316,11 @@ files = [
     {file = "mss-9.0.1-py3-none-any.whl", hash = "sha256:7ee44db7ab14cbea6a3eb63813c57d677a109ca5979d3b76046e4bddd3ca1a0b"},
     {file = "mss-9.0.1.tar.gz", hash = "sha256:6eb7b9008cf27428811fa33aeb35f3334db81e3f7cc2dd49ec7c6e5a94b39f12"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "numpy"
@@ -273,6 +359,11 @@ files = [
     {file = "numpy-1.24.3.tar.gz", hash = "sha256:ab344f1bf21f140adab8e47fdbc7c35a477dc01408791f8ba00d018dd0bc5155"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "opencv-python"
 version = "4.7.0.72"
@@ -298,6 +389,11 @@ numpy = [
     {version = ">=1.17.3", markers = "python_version >= \"3.8\""},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "packaging"
 version = "23.1"
@@ -309,6 +405,11 @@ files = [
     {file = "packaging-23.1.tar.gz", hash = "sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pefile"
 version = "2023.2.7"
@@ -319,6 +420,11 @@ files = [
     {file = "pefile-2023.2.7-py3-none-any.whl", hash = "sha256:da185cd2af68c08a6cd4481f7325ed600a88f6a813bad9dea07ab3ef73d8d8d6"},
     {file = "pefile-2023.2.7.tar.gz", hash = "sha256:82e6114004b3d6911c77c3953e3838654b04511b8b66e8583db70c65998017dc"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pillow"
@@ -399,6 +505,11 @@ files = [
 docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-inline-tabs", "sphinx-removed-in", "sphinxext-opengraph"]
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pluggy"
 version = "1.0.0"
@@ -413,6 +524,11 @@ files = [
 [package.extras]
 dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyautogui"
@@ -434,6 +550,11 @@ pyscreeze = ">=0.1.21"
 python3-Xlib = {version = "*", markers = "platform_system == \"Linux\" and python_version >= \"3.0\""}
 pytweening = ">=1.0.4"
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pycodestyle"
 version = "2.10.0"
@@ -444,6 +565,11 @@ files = [
     {file = "pycodestyle-2.10.0-py2.py3-none-any.whl", hash = "sha256:8a4eaf0d0495c7395bdab3589ac2db602797d76207242c17d470186815706610"},
     {file = "pycodestyle-2.10.0.tar.gz", hash = "sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pygetwindow"
@@ -458,25 +584,30 @@ files = [
 [package.dependencies]
 pyrect = "*"
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyinstaller"
-version = "5.11.0"
+version = "5.12.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "pyinstaller-5.11.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:8454bac8f3cb2219a3ce2227fd039bdaf943dcba60e8c55732958ea3a6d81263"},
-    {file = "pyinstaller-5.11.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:b3c6299fd7526c6ca87ea5f9017fb1928d47046df0b9f983d6bbd893801010dc"},
-    {file = "pyinstaller-5.11.0-py3-none-manylinux2014_i686.whl", hash = "sha256:e359571327bbef434fc61324891399f9117efbb685b5065234eebb01713650a8"},
-    {file = "pyinstaller-5.11.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:a445a91b85c9a1ea3985268643a674900dd86f244cc4be4ff4ec4c6367ff99a9"},
-    {file = "pyinstaller-5.11.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:2a1fe6d0da22f207cfa4b3221fe365503cba071c77aac19f76a75503f67d9ff9"},
-    {file = "pyinstaller-5.11.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:b4cac0e7b0d63c6a869843113008f59fd5b38b2959ffa6059e7fac4bb05de92b"},
-    {file = "pyinstaller-5.11.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:0af9d11a09ce217d32f95c79c984054457b310671387ff32bae1496876308556"},
-    {file = "pyinstaller-5.11.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:b8a4f6834e5c85150948e22c74dd3ab8b98aa4ccdf964d880ac14d2f78d9c1a4"},
-    {file = "pyinstaller-5.11.0-py3-none-win32.whl", hash = "sha256:049cdc3524aefb5ca015a63d2c81b6bf1567cc818ac066859fbfde702c6165d3"},
-    {file = "pyinstaller-5.11.0-py3-none-win_amd64.whl", hash = "sha256:42fdea67e4c2217cedd54d17d1d402736df3ba718db2b497df65df5a68ae4f93"},
-    {file = "pyinstaller-5.11.0-py3-none-win_arm64.whl", hash = "sha256:036a062a228af41f6bb6370a4e87cef34858cc839200a07ace7f8738ef64ad86"},
-    {file = "pyinstaller-5.11.0.tar.gz", hash = "sha256:cb87cee0b3c81ccd74d4bf3f4faf03b5e1e39bb91f1a894b2ce4cd22363bf779"},
+    {file = "pyinstaller-5.12.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:edcb6eb6618f3b763c11487db1d3516111d54bd5598b9470e295c1f628a95496"},
+    {file = "pyinstaller-5.12.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:303952c2a8ece894b655c2a0783a0bdc844282f47790707446bde3eaf355f0da"},
+    {file = "pyinstaller-5.12.0-py3-none-manylinux2014_i686.whl", hash = "sha256:7eed9996c12aeee7530cbc7c57350939f46391ecf714ac176579190dbd3ec7bf"},
+    {file = "pyinstaller-5.12.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:96ad645347671c9fce190506c09523c02f01a503fe3ea65f79bb0cfe22a8c83e"},
+    {file = "pyinstaller-5.12.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:c3ceb6c3a34b9407ba16fb68a32f83d5fd94f21d43d9fe38d8f752feb75ca5bb"},
+    {file = "pyinstaller-5.12.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:92eeacd052092a0a4368f50ddecbeb6e020b5a70cdf113243fbd6bd8ee25524e"},
+    {file = "pyinstaller-5.12.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:3605ac72311318455907a88efb4a4b334b844659673a2a371bbaac2d8b52843a"},
+    {file = "pyinstaller-5.12.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:d14c1c2b753af5efed96584f075a6740ea634ca55789113d325dc8c32aef50fe"},
+    {file = "pyinstaller-5.12.0-py3-none-win32.whl", hash = "sha256:b64d8a3056e6c7e4ed4d1f95e793ef401bf5b166ef00ad544b5812be0ac63b4b"},
+    {file = "pyinstaller-5.12.0-py3-none-win_amd64.whl", hash = "sha256:62d75bb70cdbeea1a0d55067d7201efa2f7d7c19e56c241291c03d551b531684"},
+    {file = "pyinstaller-5.12.0-py3-none-win_arm64.whl", hash = "sha256:2f70e2d9b032e5f24a336f41affcb4624e66a84cd863ba58f6a92bd6040653bb"},
+    {file = "pyinstaller-5.12.0.tar.gz", hash = "sha256:a1c2667120730604c3ad1e0739a45bb72ca4a502a91e2f5c5b220fbfbb05f0d4"},
 ]
 
 [package.dependencies]
@@ -491,6 +622,11 @@ setuptools = ">=42.0.0"
 encryption = ["tinyaes (>=1.0.0)"]
 hook-testing = ["execnet (>=1.5.0)", "psutil", "pytest (>=2.7.3)"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyinstaller-hooks-contrib"
 version = "2023.3"
@@ -502,6 +638,11 @@ files = [
     {file = "pyinstaller_hooks_contrib-2023.3-py2.py3-none-any.whl", hash = "sha256:062ad7a1746e1cfc24d3a8c4be4e606fced3b123bda7d419f14fcf7507804b07"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pymsgbox"
 version = "1.0.9"
@@ -512,60 +653,83 @@ files = [
     {file = "PyMsgBox-1.0.9.tar.gz", hash = "sha256:2194227de8bff7a3d6da541848705a155dcbb2a06ee120d9f280a1d7f51263ff"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyobjc-core"
-version = "9.1.1"
+version = "9.2"
 description = "Python<->ObjC Interoperability Module"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyobjc-core-9.1.1.tar.gz", hash = "sha256:4b6cb9053b5fcd3c0e76b8c8105a8110786b20f3403c5643a688c5ec51c55c6b"},
-    {file = "pyobjc_core-9.1.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:4bd07049fd9fe5b40e4b7c468af9cf942508387faf383a5acb043d20627bad2c"},
-    {file = "pyobjc_core-9.1.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:1a8307527621729ff2ab67860e7ed84f76ad0da881b248c2ef31e0da0088e4ba"},
-    {file = "pyobjc_core-9.1.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:083004d28b92ccb483a41195c600728854843b0486566aba2d6e63eef51f80e6"},
-    {file = "pyobjc_core-9.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:d61e9517d451bc062a7fae8b3648f4deba4fa54a24926fa1cf581b90ef4ced5a"},
-    {file = "pyobjc_core-9.1.1-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:1626909916603a3b04c07c721cf1af0e0b892cec85bb3db98d05ba024f1786fc"},
-    {file = "pyobjc_core-9.1.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:2dde96462b52e952515d142e2afbb6913624a02c13582047e06211e6c3993728"},
+    {file = "pyobjc-core-9.2.tar.gz", hash = "sha256:d734b9291fec91ff4e3ae38b9c6839debf02b79c07314476e87da8e90b2c68c3"},
+    {file = "pyobjc_core-9.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fa674a39949f5cde8e5c7bbcd24496446bfc67592b028aedbec7f81dc5fc4daa"},
+    {file = "pyobjc_core-9.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:bbc8de304ee322a1ee530b4d2daca135a49b4a49aa3cedc6b2c26c43885f4842"},
+    {file = "pyobjc_core-9.2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:0fa950f092673883b8bd28bc18397415cabb457bf410920762109b411789ade9"},
+    {file = "pyobjc_core-9.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:586e4cae966282eaa61b21cae66ccdcee9d69c036979def26eebdc08ddebe20f"},
+    {file = "pyobjc_core-9.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:41189c2c680931c0395a55691763c481fc681f454f21bb4f1644f98c24a45954"},
+    {file = "pyobjc_core-9.2-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:2d23ee539f2ba5e9f5653d75a13f575c7e36586fc0086792739e69e4c2617eda"},
+    {file = "pyobjc_core-9.2-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:b9809cf96678797acb72a758f34932fe8e2602d5ab7abec15c5ac68ddb481720"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyobjc-framework-cocoa"
-version = "9.1.1"
+version = "9.2"
 description = "Wrappers for the Cocoa frameworks on macOS"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyobjc-framework-Cocoa-9.1.1.tar.gz", hash = "sha256:345c32b6d1f3db45f635e400f2d0d6c0f0f7349d45ec823f76fc1df43d13caeb"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9176a4276f3b4b4758e9b9ca10698be5341ceffaeaa4fa055133417179e6bc37"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:5e1e96fb3461f46ff951413515f2029e21be268b0e033db6abee7b64ec8e93d3"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:083b195c496d30c6b9dd86126a6093c4b95e0138e9b052b13e54103fcc0b4872"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:a1b3333b1aa045608848bd68bbab4c31171f36aeeaa2fabeb4527c6f6f1e33cd"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:54c017354671f0d955432986c42218e452ca69906a101c8e7acde8510432303a"},
-    {file = "pyobjc_framework_Cocoa-9.1.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:10c0075688ce95b92caf59e368585fffdcc98c919bc345067af070222f5d01d2"},
+    {file = "pyobjc-framework-Cocoa-9.2.tar.gz", hash = "sha256:efd78080872d8c8de6c2b97e0e4eac99d6203a5d1637aa135d071d464eb2db53"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:9e02d8a7cc4eb7685377c50ba4f17345701acf4c05b1e7480d421bff9e2f62a4"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:3b1e6287b3149e4c6679cdbccd8e9ef6557a4e492a892e80a77df143f40026d2"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:312977ce2e3989073c6b324c69ba24283de206fe7acd6dbbbaf3e29238a22537"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:aae7841cf40c26dd915f4dd828f91c6616e6b7998630b72e704750c09e00f334"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:739a421e14382a46cbeb9a883f192dceff368ad28ec34d895c48c0ad34cf2c1d"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:32d9ac1033fac1b821ddee8c68f972a7074ad8c50bec0bea9a719034c1c2fb94"},
+    {file = "pyobjc_framework_Cocoa-9.2-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:b236bb965e41aeb2e215d4e98a5a230d4b63252c6d26e00924ea2e69540a59d6"},
 ]
 
 [package.dependencies]
-pyobjc-core = ">=9.1.1"
+pyobjc-core = ">=9.2"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyobjc-framework-quartz"
-version = "9.1.1"
+version = "9.2"
 description = "Wrappers for the Quartz frameworks on macOS"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyobjc-framework-Quartz-9.1.1.tar.gz", hash = "sha256:8d03bc52bd6d90f00f274fd709b82e53dc5dfca19f3fc744997634e03faaa159"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:32602f46353a5eadb0843a0940635c8ec103f47d5b1ce84284604e01c6393fa8"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:7b3a56f52f9bb7fbd45c5a5f0de312ee9c104dfce6e1731015048d9e65a95e43"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:b3138773dfb269e6e3894e20dcfaf90102bad84ba44aa2bba8683b8426a69cdd"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:3b583e6953e9c65525db908c33c1c97cead3ac8aa0cf2759fcc568666a1b7373"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:c3efcbba62e9c5351c2a9469faabb7f400f214cd8cf98f57798d6b6c93c76efb"},
-    {file = "pyobjc_framework_Quartz-9.1.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:a82d43c6c5fe0f5d350cfc97212bef7c572e345aa9c6e23909d23dace6448c99"},
+    {file = "pyobjc-framework-Quartz-9.2.tar.gz", hash = "sha256:f586183b9b9ef7f165f0444a7b714ed965d79f6e92617caaf869150dcfd5a72b"},
+    {file = "pyobjc_framework_Quartz-9.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fb700b24088c8fe126dc0fb5ab4caa156e1e48c1a94839e6bd31c18b570ed53a"},
+    {file = "pyobjc_framework_Quartz-9.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:6f983d26720f5f9786db5b525fc61b981be50d0456da1686fc533867d8990bb9"},
+    {file = "pyobjc_framework_Quartz-9.2-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:5c512837c211df6a5214d4015f1f85524607952b0619789861c490900e3d5fb9"},
+    {file = "pyobjc_framework_Quartz-9.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:0f81de8c846034e725b7ceaa2fec0cca16463a56bdbe099d1d44f20112182431"},
+    {file = "pyobjc_framework_Quartz-9.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:ab346bbf410a0eaeca26d713ac1f13c014346cd1b7e195017c9502a17f6273db"},
+    {file = "pyobjc_framework_Quartz-9.2-cp38-cp38-macosx_11_0_universal2.whl", hash = "sha256:16a0e0677dae6db858cf19943e34deb0424776c9a90a7b67564d0e216861b20d"},
+    {file = "pyobjc_framework_Quartz-9.2-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:67909baadcfc3ad2864539af3e94c2c024a29d01d9d6da22bbf9b84eac50064e"},
 ]
 
 [package.dependencies]
-pyobjc-core = ">=9.1.1"
-pyobjc-framework-Cocoa = ">=9.1.1"
+pyobjc-core = ">=9.2"
+pyobjc-framework-Cocoa = ">=9.2"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyperclip"
@@ -577,6 +741,11 @@ files = [
     {file = "pyperclip-1.8.2.tar.gz", hash = "sha256:105254a8b04934f0bc84e9c24eb360a591aaf6535c9def5f29d92af107a9bf57"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyrect"
 version = "0.2.0"
@@ -586,6 +755,11 @@ python-versions = "*"
 files = [
     {file = "PyRect-0.2.0.tar.gz", hash = "sha256:f65155f6df9b929b67caffbd57c0947c5ae5449d3b580d178074bffb47a09b78"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyscreenshot"
@@ -604,6 +778,11 @@ entrypoint2 = "*"
 jeepney = {version = "*", markers = "python_version > \"3.4\" and platform_system == \"Linux\""}
 mss = {version = "*", markers = "python_version > \"3.4\""}
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyscreeze"
 version = "0.1.29"
@@ -618,62 +797,82 @@ files = [
 Pillow = {version = ">=9.2.0", markers = "python_version == \"3.10\""}
 pyscreenshot = "*"
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pyside6"
-version = "6.5.1"
+version = "6.5.1.1"
 description = "Python bindings for the Qt cross-platform application and UI framework"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "PySide6-6.5.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:00069045509a0d7274ad9cf79bd935a126b2d73ef9f9ae81bb5d62ca8b79ea00"},
-    {file = "PySide6-6.5.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:0236f3cc2d293fe755be9d1c85a3d955738d3e8667d55a7e76889366b0a31122"},
-    {file = "PySide6-6.5.1-cp37-abi3-win_amd64.whl", hash = "sha256:e1f46b654048f83a14705447564536024cbb9eccd8a60116f557a5d10725c85e"},
-    {file = "PySide6-6.5.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:365022e61bbcbcec9dde6a0afa5375948054edb5e38e06ddf4f902ac3dd6f50c"},
-    {file = "PySide6-6.5.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:e45a60044ddf663920506cac6f92b6eff08b436465a752a444fed4dd35aed6eb"},
-    {file = "PySide6-6.5.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:e85dc1b14f9dbaa322099c56ab75c09dbe40429c6918b8a3e8901333d8f73722"},
+    {file = "PySide6-6.5.1.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:dc2d249ea2486526d1bb74e6cf96e2b49f2089cf069ab289a168aa48b5c251d5"},
+    {file = "PySide6-6.5.1.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:b7b6588527eb1ca45afb8918f109d827f7d248beaec14e7acdaea18883680aee"},
+    {file = "PySide6-6.5.1.1-cp37-abi3-win_amd64.whl", hash = "sha256:1517dd56f7235a98f3e1fcc983d3c8cf3d539b33164815c6e06442a297d2ab0d"},
+    {file = "PySide6-6.5.1.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:a55403254ff7421bea5b8e2196fded24e4a0357d3b1f10d5f01ffc3ae937c71a"},
+    {file = "PySide6-6.5.1.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:25c83843de0aa562631620721e4599eed55bc96747ed869caa631ecf92070951"},
+    {file = "PySide6-6.5.1.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:645c1a99c37a0ce045b23fb35faacf54d98442cc16f621fe1dad2a1d2880e5e3"},
 ]
 
 [package.dependencies]
-PySide6-Addons = "6.5.1"
-PySide6-Essentials = "6.5.1"
-shiboken6 = "6.5.1"
+PySide6-Addons = "6.5.1.1"
+PySide6-Essentials = "6.5.1.1"
+shiboken6 = "6.5.1.1"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyside6-addons"
-version = "6.5.1"
+version = "6.5.1.1"
 description = "Python bindings for the Qt cross-platform application and UI framework (Addons)"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "PySide6_Addons-6.5.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:fb76a18708f4f1eb6be52255e27f33ea9d4a303efd9c2ce204c6d578692de699"},
-    {file = "PySide6_Addons-6.5.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:dd8cb8ac79685f48e442a2683206fe75d7cb8cbeeda9e9c2504fca86932d532a"},
-    {file = "PySide6_Addons-6.5.1-cp37-abi3-win_amd64.whl", hash = "sha256:d208d1558845c9cb1185d720f7ae0dbe584bedda9cfd163af693952d6922f70a"},
-    {file = "PySide6_Addons-6.5.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:48792783d43408e905c483f64cfea684f79bac1245cfb14c9d42ad2ab3a38f8f"},
-    {file = "PySide6_Addons-6.5.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:72a7ef1d38cc09541c8d277851c17c3b34c5fe9f766e71224122d0e382d1ac26"},
-    {file = "PySide6_Addons-6.5.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:68f72db78f2f0daa73382a079788cd1ce7d4f1a10ea58a69dcbf1eaa3c2699d7"},
+    {file = "PySide6_Addons-6.5.1.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:aadda3376a81dbead867380f7ae81d2fe0fb1ffd482bfc10212be8b0d06c2c4c"},
+    {file = "PySide6_Addons-6.5.1.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:cf18c88274d6c9c29cccbecb11c72b1f0b0bb077dc044f9b40354f13d0c1c52e"},
+    {file = "PySide6_Addons-6.5.1.1-cp37-abi3-win_amd64.whl", hash = "sha256:d6370dfd03329cdcc91288d64bd1e26a5fc1908958b8a81fea5010a5849db441"},
+    {file = "PySide6_Addons-6.5.1.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:e3ab22776e620d9467ffb2d76be06d5a3b8b3859d77e2e73f65f2b29018645e7"},
+    {file = "PySide6_Addons-6.5.1.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:4e1bc141a7aa9488dc77c9b29ad412e417e601cc8e23050517f7c6c8634feb46"},
+    {file = "PySide6_Addons-6.5.1.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:441f8797d6b01c9dd9b848d0e156b2b5042d71d9266d0a6ded48c9b1cd337821"},
 ]
 
 [package.dependencies]
-PySide6-Essentials = "6.5.1"
-shiboken6 = "6.5.1"
+PySide6-Essentials = "6.5.1.1"
+shiboken6 = "6.5.1.1"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyside6-essentials"
-version = "6.5.1"
+version = "6.5.1.1"
 description = "Python bindings for the Qt cross-platform application and UI framework (Essentials)"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "PySide6_Essentials-6.5.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:09884ace7574b64d33a0fe53b6185d1ffcd8cc5fa3451169b12b9ac1ea7e9951"},
-    {file = "PySide6_Essentials-6.5.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:b893e901724376c556abc6e4e7a88ec2b60483752c4af62692f71ae01d8c6824"},
-    {file = "PySide6_Essentials-6.5.1-cp37-abi3-win_amd64.whl", hash = "sha256:6169239731646b81a7b325562f4e99dee4160db757370914c77030538de4dd47"},
-    {file = "PySide6_Essentials-6.5.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:dd2d5fe5af688090849e59ca4afa11330b9236913bf18f84825b0d074f553e16"},
-    {file = "PySide6_Essentials-6.5.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:475d32118242aea4236ce5a77f9eeb027a34cf05684763d24a8abe112f24029c"},
-    {file = "PySide6_Essentials-6.5.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:a7d2ec3ec43ca76c21bcc4a807e0e5d64a3376ba0c9fe1e90fb7cda923b6784c"},
+    {file = "PySide6_Essentials-6.5.1.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:c0cc3b1e7ca0e6b7a0cb8190a8538242972df43c1f9014cc0cd066d4ed7fc83a"},
+    {file = "PySide6_Essentials-6.5.1.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:bfd8900b1bf6a595b7d63539817bc825941f737486a093d519514c5b67af789f"},
+    {file = "PySide6_Essentials-6.5.1.1-cp37-abi3-win_amd64.whl", hash = "sha256:1346e6a4e97d97f54e6c0805150c6dead4cc0e7914d77167f836eb36b83acb5c"},
+    {file = "PySide6_Essentials-6.5.1.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:0111386918064fa84a498ed7a6e93ec4155fe96e8d4f9c9e3ac54a5b65ddfadf"},
+    {file = "PySide6_Essentials-6.5.1.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:6264b00099a9bed0020460033e2a4369513e0e69f7abe3f436c3c6390164bcea"},
+    {file = "PySide6_Essentials-6.5.1.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:620cefb6c954d59f941f06acecfe5cdf42bf470f2f3e6b9d023f49f93d740080"},
 ]
 
 [package.dependencies]
-shiboken6 = "6.5.1"
+shiboken6 = "6.5.1.1"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pytest"
@@ -697,6 +896,11 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 [package.extras]
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "xmlschema"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "python3-xlib"
 version = "0.15"
@@ -707,6 +911,11 @@ files = [
     {file = "python3-xlib-0.15.tar.gz", hash = "sha256:dc4245f3ae4aa5949c1d112ee4723901ade37a96721ba9645f2bfa56e5b383f8"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pytweening"
 version = "1.0.7"
@@ -716,6 +925,11 @@ python-versions = "*"
 files = [
     {file = "pytweening-1.0.7.tar.gz", hash = "sha256:767134f1bf57b76c1ce9f692dd1cfc776d9a279de6724e8d04854508fd7ededb"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pywin32"
@@ -740,6 +954,11 @@ files = [
     {file = "pywin32-306-cp39-cp39-win_amd64.whl", hash = "sha256:39b61c15272833b5c329a2989999dcae836b1eed650252ab1b7bfbe1d59f30f4"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "pywin32-ctypes"
 version = "0.2.0"
@@ -750,6 +969,11 @@ files = [
     {file = "pywin32-ctypes-0.2.0.tar.gz", hash = "sha256:24ffc3b341d457d48e8922352130cf2644024a4ff09762a2261fd34c36ee5942"},
     {file = "pywin32_ctypes-0.2.0-py2.py3-none-any.whl", hash = "sha256:9dc2d991b3479cc2df15930958b674a48a227d5361d413827a4cfd0b5876fc98"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "pyyaml"
@@ -800,6 +1024,11 @@ files = [
     {file = "PyYAML-6.0.tar.gz", hash = "sha256:68fb519c14306fec9720a2a5b45bc9f0c8d1b9c72adf45c37baedfcd949c35a2"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "rubicon-objc"
 version = "0.4.6"
@@ -814,6 +1043,11 @@ files = [
 [package.extras]
 dev = ["pre-commit (==2.21.0)", "pre-commit (==3.2.2)", "pytest (==7.3.0)", "pytest-tldr (==0.2.5)", "setuptools-scm[toml] (==7.1.0)", "tox (==4.4.11)"]
 docs = ["furo (==2023.3.27)", "pyenchant (==3.2.2)", "sphinx (==6.1.3)", "sphinx-autobuild (==2021.3.14)", "sphinx-tabs (==3.4.1)", "sphinxcontrib-spelling (==8.0.0)"]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "setuptools"
@@ -831,20 +1065,30 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "pygments-g
 testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pip (>=19.1)", "pip-run (>=8.8)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "shiboken6"
-version = "6.5.1"
+version = "6.5.1.1"
 description = "Python/C++ bindings helper module"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "shiboken6-6.5.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:3a832110f752228e3e0c30a86a6c3fc2770148c2999c15c8fc259c03cce1e065"},
-    {file = "shiboken6-6.5.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:d9b3724772d5e98868ea6718a8d866ab3591ee3300febc74b00b32aaa0e4d295"},
-    {file = "shiboken6-6.5.1-cp37-abi3-win_amd64.whl", hash = "sha256:40313ea1c940e7c6fd26651b166b5ddb3db850374d29c74342a74dbba92ba61b"},
-    {file = "shiboken6-6.5.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:0f8744f06a8518476626230c85b1246a95f650cf739c06ee2b6f8a9124f1e8c0"},
-    {file = "shiboken6-6.5.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:8a0828ed237d16124376a97888a62ffe8243f3c623c87d204483d1d5b4511968"},
-    {file = "shiboken6-6.5.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:5619e6318228e85194cbb7966e3e05bf815305e85edf0f02af19156ba8506d5d"},
+    {file = "shiboken6-6.5.1.1-cp37-abi3-macosx_10_9_universal2.whl", hash = "sha256:59fc1797df38c9e8c89cc43d5996a4c0331d0258087fa9d6466b03822aba6ff2"},
+    {file = "shiboken6-6.5.1.1-cp37-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:4338a8eb00e8d6f5b27edf85ab689ada905a4490c73ed3f23ff3b3c5f72a563e"},
+    {file = "shiboken6-6.5.1.1-cp37-abi3-win_amd64.whl", hash = "sha256:aa6289cdbaa12f364f1c45d60d9d483c3842ee9cf6e9acdc3efd21cd460c2eb5"},
+    {file = "shiboken6-6.5.1.1-pp39-pypy39_pp73-macosx_10_9_universal2.whl", hash = "sha256:db029b9d895052c1f42b1f929af3a5f6e688a88c5862aed24d5094086b034ab2"},
+    {file = "shiboken6-6.5.1.1-pp39-pypy39_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:1c7ba82093d66ace5c7a07ed9c7b4ea57a311ddbfecbe44aff7ed023efc8a380"},
+    {file = "shiboken6-6.5.1.1-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:34cacba2954bff632476fbead190868c6f068a6dd9e5c8fd7d2ed4f8f5cfade4"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "sniffio"
@@ -857,6 +1101,11 @@ files = [
     {file = "sniffio-1.3.0.tar.gz", hash = "sha256:e60305c5e5d314f5389259b7f22aaa33d8f7dee49763119234af3755c55b9101"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "tomli"
 version = "2.0.1"
@@ -867,6 +1116,11 @@ files = [
     {file = "tomli-2.0.1-py3-none-any.whl", hash = "sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc"},
     {file = "tomli-2.0.1.tar.gz", hash = "sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f"},
 ]
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "win11toast"
@@ -881,6 +1135,11 @@ files = [
 
 [package.dependencies]
 winsdk = "*"
+
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
 
 [[package]]
 name = "winsdk"
@@ -905,7 +1164,12 @@ files = [
     {file = "winsdk-1.0.0b9.tar.gz", hash = "sha256:207d35f9ab445521d4f060b5c1f2181660390cd3db27b32961af7438478fb226"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "c9eab6139dc0058ecca8076aa9af14a29cd8f2e6bf3d3635a831fd9aaf1bc366"
+content-hash = "60ae076df935eed746d62348745be9e1ba3cdce8d8c61bb4010a6114bd43e151"
