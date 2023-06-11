@@ -458,6 +458,7 @@ class MainWindow(QMainWindow):
             self._choice = 12
             log.warn("测试功能")
             log.ui("提前准备好自动轮换和加成，仅单人探索")
+            self.ui.spinB_num.setValue(1)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -555,7 +556,7 @@ class MainWindow(QMainWindow):
                     )
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
                 case 12:
-                    tansuo.TanSuo().run()
+                    tansuo.TanSuo(n=_n).run()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""
