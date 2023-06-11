@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# tansuo.py
+"""探索副本-单人"""
+
+import pyautogui
+
+from ..utils.application import RESOURCE_DIR_PATH
+from ..utils.coordinate import Coor
+from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.function import (
+    check_click,
+    check_finish_once,
+    check_scene_multiple_once,
+    click,
+    drag_in_window,
+    finish_random_left_right,
+    get_coor_info,
+    image_file_format,
+    random_sleep
+)
+from ..utils.log import log
+from ..utils.window import window
+from .utils import Package
+
+
+class TanSuo(Package):
+    """探索"""
+
+    scene_name = "探索"
+    resource_path = "tansuo"
+    resource_list: list = [
+        # "boss_finish",
+        "chuzhanxiaohao",
+        "fighting",
+        "fighting_boss",
+        "kunnan_big",
+        # "kunnan_small",
+        # "putong_big",
+        # "putong_small",
+        "quit",
+        "quit_true",
+        # "quit_true_false",
+        "tansuo",
+        "tansuo_28",
+        "tansuo_28_0",
+        "tansuo_28_title",
+        "treasure_box",
+        # "zidonglunhuan",
+    ]
+
+    def __init__(self, n: int = 0) -> None:
+        self.n = 0  # 当前次数
+        self.max = n  # 总次数
+        self.flag_boss_done: bool = False  # boss战结束
+
+    def get_all_coor_info_tansuo_center(self, file: str):
+        """图像识别，返回匹配到的第一个图像的中心坐标
+
+        参数:
+            file (Path | str): 图像名称
+
+        用法：
+            `file` without `self.resource_path`
+
+        返回:
+            Coor: 识别成功，返回匹配到的第一个图像的全局中心坐标，识别失败，返回(0,0)
+        """
+        _file_name = image_file_format(RESOURCE_DIR_PATH / self.resource_path / file)
+        log.info(_file_name)
+        try:
+            for button_location in pyautogui.locateAllOnScreen(
+                _file_name,
+                region=(
+                    window.window_left,
+                    window.window_top,
+                    window.absolute_window_width,
+                    window.absolute_window_height
+                ),
+                confidence=0.8
+            ):
+                log.info(f"button_location: {button_location}")
+                button_location_center = pyautogui.center(button_location)
+                log.info(f"button_location_center: {button_location_center}")
+                return Coor(button_location_center.x, button_location_center.y)
+            # 未匹配到一个
+            return Coor(0, 0)
+        except Exception:
+            return Coor(0, 0)
+
+    @log_function_call
+    def title(self) -> bool:
+        flag_title = True  # 场景提示
+        flag_fighting = False  # 进行中
+        while True:
+            scene_list: list = [
+                "chuzhanxiaohao",
+                "tansuo_28",
+                "tansuo_28_0",
+                "tansuo_28_title"
+            ]
+            scene, coor = check_scene_multiple_once(scene_list, self.resource_path)
+            if scene is None:
+                continue
+            if "/" in scene:
+                scene = scene.split("/")[-1]
+            log.info(f"当前场景: {scene}")
+
+            match scene:
+                case "chuzhanxiaohao" | "tansuo_28" | "tansuo_28_0" | "tansuo_28_title":
+                    return True
+                case _:
+                    if flag_title:
+                        flag_title = False
+                        log.warn("请检查游戏场景", True)
+
+    @log_function_call
+    def fighting(self, flag_boss=False):
+        _flag_first: bool = False
+        while True:
+            if check_finish_once():
+                _flag_first = True
+                random_sleep(0.5, 0.8)
+                finish_random_left_right()
+            elif _flag_first:
+                if flag_boss:
+                    self.flag_boss_done = True
+                return
+            random_sleep(1, 1.5)
+
+    @log_function_call
+    def finish(self):
+        """boss战后的结束阶段
+
+        1.有掉落物，不需要点击，直接左上角退出即可
+        2.无掉落物，系统自动跳转出去
+        3.1、2出来之后，存在宝箱/妖气封印的可能，当前章节的小界面被关闭，需要右侧列表重新点开
+        """
+        # 等待加载完毕
+        random_sleep(1.5, 2)
+        coor = get_coor_info(f"{self.resource_path}/chuzhanxiaohao")
+        if coor.is_effective:
+            check_click(f"{self.resource_path}/quit")
+            random_sleep(0.4, 0.8)
+            check_click(f"{self.resource_path}/quit_true")
+        else:
+            coor = get_coor_info(f"{self.resource_path}/tansuo")
+            # FIXME 宝箱
+            if coor.is_zero:
+                coor_2 = get_coor_info(f"{self.resource_path}/treasure_box")
+                if coor_2.is_effective:
+                    click(coor_2)
+                    random_sleep(1.5, 2)
+                    click()
+                    return
+
+    @run_in_thread
+    @time_count
+    @log_function_call
+    def run(self):
+        log.ui("单人探索，测试功能，未完成")
+        while self.n < self.max and self.title():
+            _scene_list = [
+                "tansuo_28_0",
+                "tansuo_28_title",
+                "kunnan_big",
+                "tansuo",
+                "chuzhanxiaohao",
+            ]
+            scene, coor = check_scene_multiple_once(_scene_list, self.resource_path)
+            if scene is None:
+                continue
+            self.scene_print(scene)
+
+            match scene:
+                case "tansuo_28_0":  # 右侧列表按钮
+                    # function.judge_click(f"{self.resource_path}/tansuo")
+                    click(coor)
+                    random_sleep(1, 2)
+                    # self.n += 1
+                case "tansuo_28_title":
+                    check_click(f"{self.resource_path}/tansuo")
+                    # self.n += 1
+                    random_sleep(2, 3)
+                case "chuzhanxiaohao":
+                    random_sleep(0.5, 1)
+                    # 先判断boss面灵气
+                    coor = get_coor_info(f"{self.resource_path}/fighting_boss")
+                    if coor.is_effective:
+                        click(coor)
+                        self.fighting(flag_boss=True)
+                    else:  # FIXME 打完一次普通的就会退出整场探索
+                        coor = self.get_all_coor_info_tansuo_center("fighting")
+                        if coor.is_effective:
+                            click(coor)
+                            self.fighting()
+                        else:
+                            drag_in_window(-400, 0)
+                    random_sleep(1, 2)
+                    if self.flag_boss_done:
+                        self.flag_boss_done = False
+                        self.finish()
+                        self.done()

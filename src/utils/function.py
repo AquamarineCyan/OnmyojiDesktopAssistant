@@ -422,6 +422,33 @@ def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, slee
             return
 
 
+@log_function_call
+def drag_in_window(x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+    """在当前窗口内移动
+
+    参数:
+        x_offset (int): 横轴偏移值
+        y_offset (int): 纵轴偏移值
+        duration (float): 移动速度，默认0.5
+    """
+    # 160,300
+    # 930,550
+    x1 = 160
+    x2 = 930
+    y1 = 300
+    y2 = 550
+    x = random_num(x1, x2)
+    y = random_num(y1, y2)
+    # TODO 需要先判断当前鼠标是否在移动区域内，减少不必要的移动
+    pyautogui.moveTo(
+        x+window.window_left,
+        y+window.window_top,
+        duration=random_num(0.5, 0.8)
+    )
+    pyautogui.drag(x_offset, y_offset, duration, button="left")
+    # pyautogui.drag(-400,0, 1,button="left")
+
+
 def screenshot(screenshot_path: str = "cache") -> bool:
     """截图
 

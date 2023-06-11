@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
         "9.百鬼夜行",
         "10.限时活动",
         "11.组队日轮副本",
-        "12.探索beta"
+        "12.单人探索"
     ]
     _choice: int  # 功能
 
@@ -454,19 +454,10 @@ class MainWindow(QMainWindow):
             self.ui.button_passengers_3.setEnabled(True)
             self.ui.button_passengers_2.setChecked(True)
         elif text == self._list_function[11]:
-            # 12.探索beta
-            # self._choice = 12
-            # log.warn("测试功能", True)
-            # 13.御魂副本beta
-            self._choice = 13
-            log.warn("测试功能，提高识别效率\n请确保该设备上已手动锁定邀请提示的“不再提醒”")
-            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
-            # 默认值
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 200)
-            self.ui.button_mode_team.setChecked(True)
-            self.ui.button_driver_False.setChecked(True)
-            self.ui.button_passengers_2.setChecked(True)
+            # 12.单人探索
+            self._choice = 12
+            log.warn("测试功能")
+            log.ui("提前准备好自动轮换和加成，仅单人探索")
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -563,8 +554,8 @@ class MainWindow(QMainWindow):
                         self.ui.buttonGroup_passengers.checkedButton().text()
                     )
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
-                # case 12:
-                #     tansuo.TanSuo().run()
+                case 12:
+                    tansuo.TanSuo().run()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""
