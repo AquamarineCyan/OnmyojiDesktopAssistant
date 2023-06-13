@@ -172,7 +172,7 @@ class YuHunTeam(YuHun):
                     if self.flag_driver:
                         is_passengers_on_position(self.flag_passengers)
                         self.start("team")
-                        random_sleep(1, 2)
+                    random_sleep(1, 2)
                     _flag_title_msg = False
                 case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
                     log.ui("对局进行中")
