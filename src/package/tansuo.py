@@ -136,22 +136,26 @@ class TanSuo(Package):
         2.无掉落物，系统自动跳转出去
         3.1、2出来之后，存在宝箱/妖气封印的可能，当前章节的小界面被关闭，需要右侧列表重新点开
         """
-        # 等待加载完毕
-        random_sleep(1.5, 2)
-        coor = get_coor_info(f"{self.resource_path}/chuzhanxiaohao")
-        if coor.is_effective:
-            check_click(f"{self.resource_path}/quit")
-            random_sleep(0.4, 0.8)
-            check_click(f"{self.resource_path}/quit_true")
-        else:
-            coor = get_coor_info(f"{self.resource_path}/tansuo")
-            # FIXME 宝箱
-            if coor.is_zero:
-                coor_2 = get_coor_info(f"{self.resource_path}/treasure_box")
-                if coor_2.is_effective:
-                    click(coor_2)
-                    random_sleep(1.5, 2)
-                    click()
+        while True:
+            # 等待加载完毕
+            random_sleep(1.5, 2)
+            coor = get_coor_info(f"{self.resource_path}/chuzhanxiaohao")
+            if coor.is_effective:
+                check_click(f"{self.resource_path}/quit")
+                random_sleep(0.4, 0.8)
+                check_click(f"{self.resource_path}/quit_true")
+            else:
+                coor = get_coor_info(f"{self.resource_path}/tansuo")
+                if coor.is_effective:
+                    return
+                if coor.is_zero:
+                    # 宝箱
+                    coor_treasure_box = get_coor_info(f"{self.resource_path}/treasure_box")
+                    if coor_treasure_box.is_effective:
+                        click(coor_treasure_box)
+                        random_sleep(1.5, 2)
+                        click()
+                    # 妖气封印
                     return
 
     @run_in_thread
@@ -187,6 +191,7 @@ class TanSuo(Package):
                     # 先判断boss面灵气
                     coor = get_coor_info(f"{self.resource_path}/fighting_boss")
                     if coor.is_effective:
+                        log.ui("BOSS")
                         click(coor)
                         self.fighting(flag_boss=True)
                     else:  # FIXME 打完一次普通的就会退出整场探索
