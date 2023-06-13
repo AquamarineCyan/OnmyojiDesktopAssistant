@@ -37,8 +37,6 @@ class Log:
         file: Path = LOG_DIR_PATH / f"log-{datetime.now().strftime('%Y%m%d')}.txt"
         if isinstance(text, int):
             text = str(text)
-        now = datetime.now().strftime("%H:%M:%S.%f")[:-3]
-        text = f"[{now}] {text}"
         try:
             with file.open(mode="a", encoding="utf-8") as f:
                 f.write(f"{text}\n")
@@ -62,15 +60,20 @@ class Log:
                 _color = "green"
             case "WARN" | "ERROR":
                 _color = "red"
+
+        now = datetime.now()
+
+        # 输出至UI界面
+        if print_to_gui and "[NUM]" not in text:
+            _now = now.strftime("%H:%M:%S")
+            ms.text_print_update.emit(f"{_now} {text}", _color)
+
+        _now = now.strftime("%H:%M:%S.%f")[:-3]
+        text = f"[{_now}] {text}"
+        # 输出至控制台调试
+        print(text)
         # 输出至日志，使用毫秒记录
         self._write_to_file(text)
-        now = datetime.now().strftime("%H:%M:%S")
-        # 输出至控制台调试
-        print(f"[{now}] {text}")
-        # 输出至UI界面
-        text = f"{now} {text}"
-        if print_to_gui and "[NUM]" not in text:
-            ms.text_print_update.emit(text, _color)
 
     def info(self, text: str, print_to_gui: bool = False) -> None:
         """标准日志
