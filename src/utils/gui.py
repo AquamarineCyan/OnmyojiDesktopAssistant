@@ -39,7 +39,8 @@ class MainWindow(QMainWindow):
         "9.百鬼夜行",
         "10.限时活动",
         "11.组队日轮副本",
-        "12.单人探索"
+        "12.单人探索",
+        "13.契灵-探查",
     ]
     _choice: int  # 功能
 
@@ -459,6 +460,12 @@ class MainWindow(QMainWindow):
             log.warn("测试功能")
             log.ui("提前准备好自动轮换和加成，仅单人探索")
             self.ui.spinB_num.setValue(1)
+        elif text == self._list_function[12]:
+            # 13.契灵-探查
+            self._choice = 13
+            log.warn("测试功能")
+            # log.ui("提前准备好自动轮换和加成，仅单人探索")
+            self.ui.spinB_num.setValue(1)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -557,6 +564,8 @@ class MainWindow(QMainWindow):
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
                 case 12:
                     tansuo.TanSuo(n=_n).run()
+                case 13:
+                    qiling.QiLing(n=_n).run()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""

@@ -10,5 +10,6 @@ from . import (
     huodong,  # 10
     rilun,  # 11
     tansuo,  # 12
+    qiling, #13
     xuanshangfengyin
 )
