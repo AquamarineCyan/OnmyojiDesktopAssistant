@@ -401,7 +401,10 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     x, y = pyautogui.position() if coor is None else (coor.x, coor.y)
     pyautogui.moveTo(x, y, duration=dura, tween=random.choice(list_tween))
     log.info(f"complete for (x,y): ({x},{y})")
-    pyautogui.click()
+    try:
+        pyautogui.click()
+    except pyautogui.FailSafeException:
+        log.error("安全错误，可能是您点击了屏幕左上角，请重启后使用", True)
 
 
 def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, sleep_time: float = 0.5) -> None:
