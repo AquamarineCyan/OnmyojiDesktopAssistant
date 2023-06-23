@@ -62,7 +62,6 @@ class MainWindow(QMainWindow):
         self.ui.combo_choice.setEnabled(False)
         self.ui.spinB_num.setEnabled(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
-        self.ui.text_print.document().setMaximumBlockCount(50)
         self.ui.label_tips.hide()
         # 设置界面
         self.ui.setting_update_comboBox.addItems(
