@@ -80,14 +80,14 @@ class JieJieTuPo:
                     ),
                     confidence=0.9
                 )
-                x, y = random_coor(
+                coor = random_coor(
                     button_location[0],
                     button_location[0] + button_location[2],
                     button_location[1],
                     button_location[1] + button_location[3]
                 )
             except Exception:
-                x = y = 0
+                coor = Coor(0, 0)
         else:
             # 阴阳寮突破
             try:
@@ -101,15 +101,15 @@ class JieJieTuPo:
                     ),
                     confidence=0.8
                 )
-                x, y = random_coor(
+                coor = random_coor(
                     button_location[0],
                     button_location[0] + button_location[2],
                     button_location[1],
                     button_location[1] + button_location[3]
                 )
             except Exception:
-                x = y = 0
-        return Coor(x, y)
+                coor = Coor(0, 0)
+        return coor
 
     def fighting_tupo(self, x0: int, y0: int) -> None:
         """结界突破战斗        
@@ -430,6 +430,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     print("仍有剩余次数")
                     return True
 
+    @log_function_call
     def fighting(self) -> int:
         """战斗"""
         i = 1
@@ -440,7 +441,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 "fail.png"
             )
             if coor.is_zero:
-                log.info(f"{i} 可进攻", True)
+                log.info(f"{i} 可进攻")
                 self.fighting_tupo(
                     self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                     self.tupo_yinyangliao_y[(i + 1) // 2]
