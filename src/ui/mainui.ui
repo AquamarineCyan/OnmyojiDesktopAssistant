@@ -161,8 +161,8 @@
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="none_0"/>
-       <widget class="QWidget" name="yuhun_1">
+       <widget class="QWidget" name="_0_none"/>
+       <widget class="QWidget" name="_1_yuhun">
         <widget class="QLabel" name="label_driver">
          <property name="geometry">
           <rect>
@@ -394,7 +394,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="jiejietupo_2">
+       <widget class="QWidget" name="_2_jiejietupo">
         <widget class="QRadioButton" name="button_jiejietupo_3victory">
          <property name="geometry">
           <rect>
@@ -453,7 +453,7 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="daoguantupo_3">
+       <widget class="QWidget" name="_3_daoguantupo">
         <widget class="QCheckBox" name="button_guanzhan">
          <property name="geometry">
           <rect>
@@ -465,6 +465,34 @@
          </property>
          <property name="text">
           <string>观战</string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="_4_qiling">
+        <widget class="QCheckBox" name="button_qiling_tancha">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>40</y>
+           <width>51</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>探查</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="button_qiling_jieqi">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>80</y>
+           <width>51</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>结契</string>
          </property>
         </widget>
        </widget>

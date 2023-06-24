@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
         "10.限时活动",
         "11.组队日轮副本",
         "12.单人探索",
-        "13.契灵-探查",
+        "13.契灵",
     ]
     _choice: int  # 功能
 
@@ -460,11 +460,12 @@ class MainWindow(QMainWindow):
             log.ui("提前准备好自动轮换和加成，仅单人探索")
             self.ui.spinB_num.setValue(1)
         elif text == self._list_function[12]:
-            # 13.契灵-探查
+            # 13.契灵
             self._choice = 13
-            log.warn("测试功能")
-            # log.ui("提前准备好自动轮换和加成，仅单人探索")
+            log.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动结契场上的契灵")
+            self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
             self.ui.spinB_num.setValue(1)
+            self.ui.button_qiling_tancha.setChecked(True)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
@@ -564,7 +565,13 @@ class MainWindow(QMainWindow):
                 case 12:
                     tansuo.TanSuo(n=_n).run()
                 case 13:
-                    qiling.QiLing(n=_n).run()
+                    _flag_tancha = self.ui.button_qiling_tancha.isChecked()
+                    _flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
+                    qiling.QiLing(
+                        n=_n,
+                        _flag_tancha=_flag_tancha,
+                        _flag_jieqi=_flag_jieqi
+                    ).run()
 
         def stop() -> None:  # TODO unable to use
             """停止函数"""
