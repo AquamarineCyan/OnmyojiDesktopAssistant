@@ -21,7 +21,7 @@ runs:
         cache: "poetry"
     
     - name: PEP 517
-    - run: poetry run pip install pyperclip==1.8.2
+      run: poetry run pip install pyperclip==1.8.2
       shell: bash
       
     - run: poetry install

@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
             log.ui(
                 "适用于限时活动及其他连点，请提前确保阵容完好并锁定\n\
 可替换resource/huodong下的素材\n\
-当前为「宴场维和」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
+当前为「森间试炼」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
