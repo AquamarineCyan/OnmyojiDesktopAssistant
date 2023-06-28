@@ -17,7 +17,9 @@ class Config():
     """配置"""
 
     config_default: dict = {
-        "更新模式": ["ghproxy", "GitHub"],
+        # "更新模式": ["ghproxy", "GitHub"],
+        "更新模式": ["自动更新", "关闭"],  # TODO  ["自动更新", "仅提醒", "关闭"],
+        "下载线路": ["ghproxy", "GitHub"],
         "悬赏封印": ["接受", "拒绝", "忽略", "关闭"],
     }
 
@@ -64,9 +66,11 @@ class Config():
             dict: 符合配置要求的字典
         """
         data, self.update_mode = self.dict_set_default(data, "更新模式")
+        data, self.download_mode = self.dict_set_default(data, "下载线路")
         data, self.xuanshangfengyin_mode = self.dict_set_default(data, "悬赏封印")
         # TODO config.mode() for more config setting
         print("self.update_mode", self.update_mode)
+        print("self.download_mode", self.download_mode)
         print("self.xuanshangfengyin_mode", self.xuanshangfengyin_mode)
         return data
 

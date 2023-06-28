@@ -114,6 +114,10 @@ class Upgrade:
     @run_in_thread
     def check_latest(self) -> None:
         """检查更新"""
+        if config.config_user.get("更新模式") == "关闭":
+            log.info("skip for upgrade")
+            return
+        
         STATUS = self._get_browser_download_url()
         match STATUS:
             case "NEW VERSION":

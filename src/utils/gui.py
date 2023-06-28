@@ -64,15 +64,15 @@ class MainWindow(QMainWindow):
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self.ui.label_tips.hide()
         # 设置界面
-        self.ui.setting_update_comboBox.addItems(
-            config.config_default["更新模式"]
-        )
-        self.ui.setting_xuanshangfengyin_comboBox.addItems(
-            config.config_default["悬赏封印"]
-        )
-        self.ui.setting_update_comboBox.setCurrentText(config.config_user.get("更新模式"))
-        self.ui.setting_xuanshangfengyin_comboBox.setCurrentText(config.config_user.get("悬赏封印"))
-        self.ui.label_GitHub_address.setToolTip("open with webbrower")
+        _setting_QComboBox_dict: dict = {
+            self.ui.setting_update_comboBox: "更新模式",
+            self.ui.setting_download_comboBox: "下载线路",
+            self.ui.setting_xuanshangfengyin_comboBox: "悬赏封印",
+        }
+        for key, value in _setting_QComboBox_dict.items():
+            key.addItems(config.config_default[value])
+            key.setCurrentText(config.config_user.get(value))
+        self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
 
         # 自定义信号
         # 弹窗更新
@@ -108,6 +108,10 @@ class MainWindow(QMainWindow):
         # 更新模式
         self.ui.setting_update_comboBox.currentIndexChanged.connect(
             self.setting_update_comboBox_func
+        )
+        # 下载线路
+        self.ui.setting_download_comboBox.currentIndexChanged.connect(
+            self.setting_download_comboBox_func
         )
         # 悬赏封印
         self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
@@ -296,6 +300,12 @@ class MainWindow(QMainWindow):
         text = self.ui.setting_update_comboBox.currentText()
         log.info(f"设置项：更新模式已更改为 {text}")
         config.config_user_changed("更新模式", text)
+
+    def setting_download_comboBox_func(self) -> None:
+        """设置-下载线路-更改"""
+        text = self.ui.setting_download_comboBox.currentText()
+        log.info(f"设置项：下载线路已更改为 {text}")
+        config.config_user_changed("下载线路", text)
 
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""

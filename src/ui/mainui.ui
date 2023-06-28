@@ -23,6 +23,11 @@
       <height>451</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>宋体</family>
+     </font>
+    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
@@ -97,7 +102,7 @@
        <property name="font">
         <font>
          <family>宋体</family>
-         <pointsize>10</pointsize>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="text">
@@ -146,6 +151,11 @@
         <height>201</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>宋体</family>
+       </font>
+      </property>
       <property name="title">
        <string>高级设置</string>
       </property>
@@ -174,6 +184,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -192,6 +203,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -216,6 +228,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -237,6 +250,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -258,6 +272,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -279,6 +294,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -341,6 +357,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -362,6 +379,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -386,6 +404,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -445,6 +464,7 @@
          </property>
          <property name="font">
           <font>
+           <family>宋体</family>
            <pointsize>9</pointsize>
           </font>
          </property>
@@ -507,6 +527,11 @@
         <height>411</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>宋体</family>
+       </font>
+      </property>
       <property name="title">
        <string>信息</string>
       </property>
@@ -562,6 +587,11 @@
          <height>17</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <family>宋体</family>
+        </font>
+       </property>
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;完成情况&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
@@ -615,7 +645,7 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>528</width>
+         <width>532</width>
          <height>1000</height>
         </rect>
        </property>
@@ -634,9 +664,9 @@
           <height>51</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_update">
+        <layout class="QHBoxLayout" name="horizontalLayout_setting_update" stretch="4,2,0,2,4">
          <item>
-          <spacer name="horizontalSpacer">
+          <spacer name="horizontalSpacer_setting_update_left">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -651,15 +681,31 @@
          <item>
           <widget class="QLabel" name="setting_update_label">
            <property name="text">
-            <string>更新方式</string>
+            <string>更新模式</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_setting_update_middle">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QComboBox" name="setting_update_comboBox"/>
          </item>
          <item>
-          <spacer name="horizontalSpacer_3">
+          <spacer name="horizontalSpacer_setting_update_right">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -677,14 +723,14 @@
         <property name="geometry">
          <rect>
           <x>40</x>
-          <y>110</y>
+          <y>158</y>
           <width>451</width>
           <height>51</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_xuanshangfengyin">
+        <layout class="QHBoxLayout" name="horizontalLayout_setting_xuanshangfengyin" stretch="4,2,0,2,4">
          <item>
-          <spacer name="horizontalSpacer_4">
+          <spacer name="horizontalSpacer_setting_xuanshangfengyin_left">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -701,13 +747,29 @@
            <property name="text">
             <string>悬赏封印</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_setting_xuanshangfengyin_middle">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
          </item>
          <item>
           <widget class="QComboBox" name="setting_xuanshangfengyin_comboBox"/>
          </item>
          <item>
-          <spacer name="horizontalSpacer_6">
+          <spacer name="horizontalSpacer_setting_xuanshangfengyin_right">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -791,6 +853,70 @@
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
+       <widget class="QWidget" name="horizontalLayoutWidget_3">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>110</y>
+          <width>451</width>
+          <height>49</height>
+         </rect>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_setting_download" stretch="4,2,0,2,4">
+         <item>
+          <spacer name="horizontalSpacer_setting_download_left">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="setting_download_label">
+           <property name="text">
+            <string>下载线路</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_setting_download_middle">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="setting_download_comboBox"/>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_setting_download_right">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </widget>
     </widget>
@@ -801,7 +927,7 @@
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_driver"/>
-  <buttongroup name="buttonGroup_passengers"/>
   <buttongroup name="buttonGroup_mode"/>
+  <buttongroup name="buttonGroup_passengers"/>
  </buttongroups>
 </ui>
