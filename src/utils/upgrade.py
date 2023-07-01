@@ -11,7 +11,7 @@ from pathlib import Path
 
 import httpx
 
-from .application import APP_EXE_NAME, APP_PATH, VERSION
+from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .function import app_restart, write_upgrage_restart_bat
@@ -117,7 +117,7 @@ class Upgrade:
         if config.config_user.get("更新模式") == "关闭":
             log.info("skip for upgrade")
             return
-        
+
         STATUS = self._get_browser_download_url()
         match STATUS:
             case "NEW VERSION":
@@ -125,18 +125,18 @@ class Upgrade:
                 toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
                 log.ui(self.new_version_info)
                 self._check_download_zip()
+                for item_path in APP_PATH.iterdir():
+                    if APP_NAME in item_path.name.__str__() and item_path.suffix == ".zip":
+                        self.zip_path = item_path
+                        break
+                if self.zip_path and Path(self.zip_path).exists():
+                    ms.qmessagbox_update.emit("question", "更新重启")
             case "LATEST":
                 log.info("暂无更新")
             case "CONNECT ERROR":
                 log.error("访问更新地址失败")
             case _:
                 log.error("UPDATE ERROR")
-        for item_path in APP_PATH.iterdir():
-            if "Onmyoji_Python" in item_path.name.__str__() and item_path.suffix == ".zip":
-                self.zip_path = item_path
-                break
-        if self.zip_path and Path(self.zip_path).exists():
-            ms.qmessagbox_update.emit("question", "更新重启")
 
     def _unzip_func(self) -> None:
         log.info("start unzip")
