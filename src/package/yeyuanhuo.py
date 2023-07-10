@@ -6,30 +6,30 @@
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     check_click,
+    check_finish_once,
     check_scene_multiple_once,
     check_scene_multiple_while,
     click,
     finish_random_left_right,
-    random_sleep,
-    result_once
+    random_sleep
 )
 from ..utils.log import log
+from .utils import Package
 
 
-class YeYuanHuo:
+class YeYuanHuo(Package):
     """业原火副本"""
+    scene_name: str = "业原火副本"
+    resource_path: str = "yeyuanhuo"
+    resource_list: list = [
+        "title",  # 标题
+        "start"  # 挑战
+    ]
+    fast_time: int = 13  # 最快通关速度，用于中途等待
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
-        self.scene_name: str = "业原火副本"
-        self.n: int = 0  # 当前次数
-        self.max: int = n  # 总次数
-        self.fast_time: int = 13  # 最快通关速度，用于中途等待
-        self.resource_path: str = "yeyuanhuo"  # 路径
-        self.resource_list: list = [
-            "title",  # 标题
-            "start"  # 挑战
-        ]
+        super().__init__(n)
 
     @log_function_call
     def title(self) -> bool:
@@ -42,11 +42,6 @@ class YeYuanHuo:
         """挑战开始"""
         check_click(f"{self.resource_path}/start")
 
-    def done(self) -> None:
-        """更新一次完成情况"""
-        self.n += 1
-        log.num(f"{self.n}/{self.max}")
-
     @run_in_thread
     @time_count
     @log_function_call
@@ -54,11 +49,10 @@ class YeYuanHuo:
         log.num(f"0/{self.max}")
         while self.n < self.max:
             scene, coor = check_scene_multiple_once(self.resource_list, self.resource_path)
-            if scene is None:
-                continue
-            if "/" in scene:
-                scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            # if scene is None:
+            #     continue
+            if scene:
+                self.scene_print(scene)
 
             if coor.is_effective:
                 match scene:
@@ -68,7 +62,7 @@ class YeYuanHuo:
                     case "start":
                         click(coor)
                         random_sleep(self.fast_time, self.fast_time+1)
-            if result := result_once():
+            if result := check_finish_once():
                 self.done()
                 random_sleep(1, 2)
                 finish_random_left_right()
