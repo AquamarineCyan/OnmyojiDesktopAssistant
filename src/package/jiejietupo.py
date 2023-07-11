@@ -327,9 +327,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
                 log.ui("刷新中")
                 random_sleep(3, 6)
-                check_click(f"{self.resource_path}/shuaxin", sleeptime=2)
+                check_click(f"{self.resource_path}/shuaxin", sleep_time=2)
                 random_sleep(2, 4)
-                check_click(f"{self.resource_path}/queding", sleeptime=0.5)
+                check_click(f"{self.resource_path}/queding", sleep_time=0.5)
                 self.time_refresh = timenow
                 random_sleep(2, 6)
                 break

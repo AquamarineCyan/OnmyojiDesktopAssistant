@@ -58,7 +58,7 @@ def random_num(minimum: int | float, maximum: int | float) -> float:
     """
     # 获取系统当前时间戳
     random.seed(time.time_ns())
-    return random.random() * (maximum - minimum) + minimum
+    return round((random.random() * (maximum - minimum) + minimum), 2)
 
 
 def random_coor(x1: int, x2: int, y1: int, y2: int) -> Coor:
@@ -407,7 +407,7 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
         log.error("安全错误，可能是您点击了屏幕左上角，请重启后使用", True)
 
 
-def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, sleep_time: float = 0.5) -> None:
+def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, sleep_time: float = 0) -> None:
     """图像识别，并点击
 
     参数:
