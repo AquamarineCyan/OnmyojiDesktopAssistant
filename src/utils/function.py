@@ -11,14 +11,14 @@ from subprocess import Popen
 import pyautogui
 
 from ..package.xuanshangfengyin import xuanshangfengyin
-from .application import APP_EXE_NAME, RESOURCE_DIR_PATH, SCREENSHOT_DIR_PATH
+from .application import APP_EXE_NAME, RESOURCE_DIR_PATH, RESOURCE_FIGHT_PATH,SCREENSHOT_DIR_PATH
 from .coordinate import Coor
 from .decorator import log_function_call
 from .log import log
 from .mysignal import global_ms as ms
 from .window import window
 
-RESOURCE_FIGHT_PATH = RESOURCE_DIR_PATH / "fight"
+RESOURCE_FIGHT_PATH = RESOURCE_FIGHT_PATH
 """通用战斗资源路径"""
 RESTART_BAT_PATH: str = "restart.bat"
 """重启脚本路径"""

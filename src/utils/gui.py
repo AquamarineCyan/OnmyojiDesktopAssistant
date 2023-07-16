@@ -19,7 +19,7 @@ from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import FightResource, app_restart, remove_restart_bat_file
-from .log import log
+from .log import log, log_clean_up
 from .mysignal import global_ms as ms
 from .update import update_record
 from .upgrade import upgrade
@@ -127,7 +127,7 @@ class MainWindow(QMainWindow):
         """程序初始化"""
         log.info(f"application path: {APP_PATH}")
         log.info(f"resource path: {RESOURCE_DIR_PATH}")
-        log._write_to_file(f"[VERSION] {VERSION}")
+        log.info(f"[VERSION] {VERSION}")
         if config.config_user:
             for item in config.config_user.keys():
                 log.info(f"{item} : {config.config_user[item]}")
@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
 
         log.ui("初始化完成")
         log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
-        log.clean_up()
+        log_clean_up()
         remove_restart_bat_file()
         upgrade.check_latest()
         # 悬赏封印
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
                         else:
                             log.info("用户拒绝更新重启")
 
-    def text_print_update_func(self, text: str, color: str) -> None:
+    def text_print_update_func(self, msg: str, color: str) -> None:
         """输出内容至文本框
 
         WARN | ERROR -> 红色
@@ -191,22 +191,22 @@ class MainWindow(QMainWindow):
         SCENE -> 绿色
 
         参数:
-            text(str): 文本内容
+            msg(str): 文本内容
         """
         self.ui.text_print.setTextColor(color)
-        self.ui.text_print.append(text)
+        self.ui.text_print.append(msg)
         # 自动换行
         self.ui.text_print.ensureCursorVisible()
         # 自动滑动到底
         self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
         self.ui.text_print.setTextColor("black")
 
-    def text_print_insert_func(self, text: str):
+    def text_print_insert_func(self, msg: str):
         cursor = self.ui.text_print.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
         cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
         cursor.removeSelectedText()
-        cursor.insertText(text)
+        cursor.insertText(msg)
 
         # 自动换行
         # self.ui.text_print.ensureCursorVisible()
@@ -214,13 +214,13 @@ class MainWindow(QMainWindow):
         # self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
         # self.ui.text_print.setTextColor("black")
 
-    def text_num_update_func(self, text: str) -> None:
+    def text_num_update_func(self, msg: str) -> None:
         """输出内容至文本框“完成情况”
 
-        Args:
-            text (str): 文本
+        参数:
+            msg (str): 文本
         """
-        self.ui.text_num.setText(text)
+        self.ui.text_num.setText(msg)
 
     @log_function_call
     def _check_enviroment(self) -> bool:
@@ -230,10 +230,6 @@ class MainWindow(QMainWindow):
             bool: 是否完成
         """
         log.info("环境检测中...")
-        # log检测
-        if not log.init():
-            ms.qmessagbox_update.emit("ERROR", "创建log目录失败，请重试！")
-            return False
         # 中文路径
         if is_Chinese_Path():
             ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
@@ -644,7 +640,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
         with suppress(Exception):
-            log._write_to_file("[EXIT]")
+            log.info("[EXIT]")
         event.accept()
 
     def show_update_record_window(self):

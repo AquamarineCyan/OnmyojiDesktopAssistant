@@ -13,13 +13,18 @@ CONFIG_PATH: Path = APP_PATH / "config.yaml"
 """配置文件路径"""
 LOG_DIR_PATH: Path = APP_PATH / "log"
 """日志文件夹路径"""
+LOG_DIR_PATH.mkdir(parents=True, exist_ok=True)
 
 RESOURCE_DIR_PATH: Path = None
 """资源/素材文件夹路径"""
-for _ in [Path(APP_PATH/"resource"), Path(APP_PATH/"src/resource")]:
-    # 实际路径/开发路径
+for _ in [Path(APP_PATH/"src/resource"), Path(APP_PATH/"resource")]:
+    # 开发路径/实际路径
+    RESOURCE_DIR_PATH = _
     if _.exists():
-        RESOURCE_DIR_PATH = _
-
+        break
+    elif _ == Path(APP_PATH/"resource"):
+        RESOURCE_DIR_PATH.mkdir(parents=True, exist_ok=True)
+RESOURCE_FIGHT_PATH = RESOURCE_DIR_PATH / "fight"
+"""通用战斗资源路径"""
 SCREENSHOT_DIR_PATH: Path = APP_PATH / "screenshot"
 """截图文件夹路径"""

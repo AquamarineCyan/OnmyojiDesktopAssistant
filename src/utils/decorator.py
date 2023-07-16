@@ -14,7 +14,8 @@
 import functools
 import time
 
-from .log import log
+from .log import log, logger
+from .mysignal import global_ms as ms
 from .mythread import MyThread
 from .toast import toast
 
@@ -22,13 +23,13 @@ from .toast import toast
 def log_function_call(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        log.info("{}() calling".format(func.__qualname__))
+        logger.info("{}() calling".format(func.__qualname__))
         if len(args) > 1:
-            log.info("*args: {}".format(args))
+            logger.info("*args: {}".format(args))
         if kwargs:
-            log.info("**kwargs: {}".format(kwargs))
+            logger.info("**kwargs: {}".format(kwargs))
         result = func(*args, **kwargs)
-        log.info("{}() finish".format(func.__qualname__))
+        logger.info("{}() finish".format(func.__qualname__))
         return result
     return wrapper
 
@@ -37,7 +38,7 @@ def time_count(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # 禁用按钮
-        log.is_fighting(True)
+        ms.is_fighting_update.emit(True)
         start = time.perf_counter()
         result = func(*args, **kwargs)
         end = time.perf_counter()
@@ -47,9 +48,9 @@ def time_count(func):
             else:
                 log.ui(f"耗时{int(end - start)}秒")
         except Exception:
-            log.error("耗时统计计算失败")
+            logger.error("耗时统计计算失败")
         # 启用按钮
-        log.is_fighting(False)
+        ms.is_fighting_update.emit(False)
         # 系统通知
         # 5s结束，保留至通知中心
         toast("任务已完成")
