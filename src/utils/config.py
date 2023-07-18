@@ -9,7 +9,7 @@ from re import compile
 import yaml
 
 from .application import APP_PATH, CONFIG_PATH
-from .log import log
+from .log import log, logger
 from .mysignal import global_ms as ms
 
 
@@ -69,9 +69,9 @@ class Config():
         data, self.download_mode = self.dict_set_default(data, "下载线路")
         data, self.xuanshangfengyin_mode = self.dict_set_default(data, "悬赏封印")
         # TODO config.mode() for more config setting
-        print("self.update_mode", self.update_mode)
-        print("self.download_mode", self.download_mode)
-        print("self.xuanshangfengyin_mode", self.xuanshangfengyin_mode)
+        logger.debug(f"self.update_mode: {self.update_mode}")
+        logger.debug(f"self.download_mode: {self.download_mode}")
+        logger.debug(f"self.xuanshangfengyin_mode: {self.xuanshangfengyin_mode}")
         return data
 
     def dict_set_default(self, data: dict, key: str) -> tuple[dict, str]:

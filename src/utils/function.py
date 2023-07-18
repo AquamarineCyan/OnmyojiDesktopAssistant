@@ -10,11 +10,12 @@ from subprocess import Popen
 
 import pyautogui
 
-from ..package.xuanshangfengyin import xuanshangfengyin
-from .application import APP_EXE_NAME, RESOURCE_DIR_PATH, RESOURCE_FIGHT_PATH,SCREENSHOT_DIR_PATH
+from .application import (APP_EXE_NAME, RESOURCE_DIR_PATH, RESOURCE_FIGHT_PATH,
+                          SCREENSHOT_DIR_PATH)
 from .coordinate import Coor
 from .decorator import log_function_call
-from .log import log
+from .event import event_thread, event_xuanshang, event_xuanshang_enable
+from .log import log, logger
 from .mysignal import global_ms as ms
 from .window import window
 
@@ -130,10 +131,13 @@ def get_coor_info(file: Path | str) -> Coor:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
     _file_name = image_file_format(RESOURCE_DIR_PATH / file)
-    log.info(_file_name)
+    log.info(f"looking for file: {_file_name}")
     # 等待悬赏封印判定
-    if xuanshangfengyin.is_working():
-        xuanshangfengyin.event_wait()
+    if event_thread.is_set():
+        return Coor(0, 0)
+    if event_xuanshang_enable.is_set():
+        event_xuanshang.wait()
+
     try:
         button_location = pyautogui.locateOnScreen(
             _file_name,
@@ -145,7 +149,9 @@ def get_coor_info(file: Path | str) -> Coor:
             ),
             confidence=0.8
         )
-        log.info(f"button_location: {button_location}")
+        logger.debug(f"button_location: {button_location}")
+        if button_location:
+            log.info(f"button_location: {button_location}")
         coor = random_coor(
             button_location[0],
             button_location[0] + button_location[2],
@@ -153,6 +159,41 @@ def get_coor_info(file: Path | str) -> Coor:
             button_location[1] + button_location[3]
         )
         return coor
+    except Exception:
+        return Coor(0, 0)
+
+
+def get_coor_info_center(file: Path | str, is_log: bool = True) -> Coor:
+    """图像识别，返回图像的中心坐标
+
+    参数:
+        file (Path | str): 图像名称
+
+    用法：
+        `self.resource_path / filename`
+
+    返回:
+        Coor: 识别成功，返回图像的随机坐标，识别失败，返回(0,0)
+    """
+    _file_name = image_file_format(RESOURCE_DIR_PATH / file)
+    if is_log:
+        logger.info(f"looking for file: {_file_name}")
+    try:
+        button_location = pyautogui.locateCenterOnScreen(
+            _file_name,
+            region=(
+                window.window_left,
+                window.window_top,
+                window.absolute_window_width,
+                window.absolute_window_height
+            ),
+            confidence=0.8
+        )
+        if is_log:
+            logger.debug(f"button_location: {button_location}")
+        if button_location:
+            logger.info(f"button_location: {button_location}")
+        return Coor(button_location.x, button_location.y)
     except Exception:
         return Coor(0, 0)
 
@@ -168,6 +209,8 @@ def check_scene(file: str, scene_name: str = None) -> bool:
         bool: 是否为指定场景
     """
     while True:
+        if event_thread.is_set():
+            return
         coor = get_coor_info(file)
         if coor.is_zero:
             return False
@@ -190,6 +233,8 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
         tuple[str | None, Coor]: 场景名称, 坐标
     """
     for item in scene:
+        if event_thread.is_set():
+            return
         """
         1.如果没传路径，说明全部文件名自带路径
         2.传参路径，可能存在RESOURCE_FIGHT_PAHT的资源，用斜杠判断列表值
@@ -220,6 +265,8 @@ def check_scene_multiple_while(scene: dict | list = None, resource_path: str = N
     _flag: bool = True  # 提示
     _text = text if text is not None else "请检查游戏场景"
     while True:
+        if event_thread.is_set():
+            return
         scene, coor = check_scene_multiple_once(scene, resource_path)
         if coor.is_effective():
             log.info(f"{scene}, ({coor.x},{coor.y})")
@@ -234,6 +281,8 @@ def is_passengers_on_position(flag_passengers: int = 2):
     """队员就位"""
     log.ui("等待队员")
     while True:
+        if event_thread.is_set():
+            return
         # 是否3人组队
         if flag_passengers == 3:
             coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/passenger_3")
@@ -255,6 +304,8 @@ def result() -> bool:
         bool: Success or Fail
     """
     while True:
+        if event_thread.is_set():
+            return
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
         if coor.is_effective:
             log.ui("胜利")
@@ -295,6 +346,8 @@ def result_while() -> bool | None:
         bool | None: Success or Fail
     """
     while True:
+        if event_thread.is_set():
+            return
         result = result_once()
         if result != None:  # 可能Fail
             break
@@ -318,7 +371,6 @@ def finish() -> bool:
             return False
 
 
-@log_function_call
 def check_finish_once() -> bool | None:
     """结束/掉落判断，遍历一次
 
@@ -388,6 +440,8 @@ def finish_random_left_right(
 
 
 def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
+    if event_thread.is_set():
+        return
     # 延迟
     if sleeptime:
         time.sleep(sleeptime)
@@ -417,6 +471,8 @@ def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, slee
         sleep_time (float): 延迟时间，默认0
     """
     while True:
+        if event_thread.is_set():
+            return
         coor = get_coor_info(file)
         if coor.is_effective:
             if is_click:

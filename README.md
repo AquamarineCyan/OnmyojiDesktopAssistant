@@ -43,6 +43,8 @@
    - 截图，默认启用
 10. 限时活动
 11. 组队日轮副本
+12. 个人突破 🚧
+13. 契灵 🚧
 
 
 ## 环境安装
@@ -56,16 +58,30 @@
 
 1. 前往 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 下载解压打包完成的应用程序，点开即用
 2. 需要一定的基础，更新较勤，可能存在bug  
-   - 使用`git`命令下载源码  
-     `git close https://github.com/AquamarineCyan/Onmyoji_Python.git`  
-     后续只需`git pull`
+   - 使用 `git` 命令下载源码  
+     ```bash
+     git close https://ghproxy.com/https://github.com/AquamarineCyan/Onmyoji_Python.git --depth=1 --single-branch
+     ```
+     后续只需 `git pull`
    - 安装依赖 
-     - venv 方式 
+     - venv 方式  
        `pip install -r requestments.txt`
-     - poetry 方式
+     - poetry 方式  
        `poetry install`
-   - 自行打包，打包配置已存在`main.spec`    
+   - 自行打包，打包配置已存在 `main.spec`  
      `pyinstaller main.spec`
+     <details><summary>提供 build.bat 需要poetry环境</summary>
+
+      ```bash
+      @echo off
+      echo building
+      poetry run pyinstaller --clean main.spec
+      rem robocopy dist . Onmyoji_Python.exe /z /eta
+      move dist\Onmyoji_Python.exe .
+      rmdir /s /q "build" "dist"
+      pause
+      ```
+      </details>
    - 或者不打包，直接运行（理论上能够生成UI）  
      `python main.py`
 
@@ -84,10 +100,15 @@
     - 9.百鬼夜行
     - 10.限时活动
     - 11.组队日轮副本
+    - 12.单人探索
+    - 13.契灵
 - 游戏检测
     - 手动更新游戏窗口信息，适合窗口移动，或双开
+- 中途停止 🚧
 - 设置
-    - 更新方式
+    - 更新模式
+      - 自动更新/关闭
+    - 下载线路
       - ghproxy/GitHub
     - 悬赏封印
       - 接受/拒绝/忽略/关闭

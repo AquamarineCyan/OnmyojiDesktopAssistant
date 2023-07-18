@@ -17,9 +17,9 @@ from ..ui.updateui import Ui_Form as Ui_Update_Record
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
-from .event import event_thread
+from .event import event_thread, event_xuanshang_enable
 from .function import FightResource, app_restart, remove_restart_bat_file
-from .log import log, log_clean_up
+from .log import log, log_clean_up, logger
 from .mysignal import global_ms as ms
 from .update import update_record
 from .upgrade import upgrade
@@ -149,9 +149,9 @@ class MainWindow(QMainWindow):
         upgrade.check_latest()
         # 悬赏封印
         if config.config_user.get("悬赏封印") == "关闭":
-            xuanshangfengyin.xuanshangfengyin.flag_work = False
+            event_xuanshang_enable.clear()
         else:
-            xuanshangfengyin.xuanshangfengyin.judge()
+            xuanshangfengyin.xuanshangfengyin.run()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
@@ -323,8 +323,8 @@ class MainWindow(QMainWindow):
         window.get_game_window_handle()
         handle_coor = window.handle_coor
         if handle_coor == (0, 0, 0, 0):
-            log.error("未打开游戏")
-            ms.qmessagbox_update.emit("ERROR", "请打开游戏！")
+            logger.error("Game is not open!")
+            ms.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
         elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
             log.error("未前置游戏窗口")
             ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
@@ -505,13 +505,6 @@ class MainWindow(QMainWindow):
                             yuhun.YuHunSingle(
                                 n=_n, flag_drop_statistics=_flag_drop_statistics
                             ).run()
-                            # 当前线程id
-                            # print('main id', int(QThread.currentThreadId()))
-                            # thread = MyThread(
-                            #     func=yuhun.YuHun().run,
-                            #     args=(n, flag_driver, flag_passengers)
-                            # )
-                            # self._thread.finished.connect(self._thread.deleteLater())
                 case 2:  # 永生之海副本
                     _flag_drop_statistics = (
                         self.ui.button_yuhun_drop_statistics.isChecked()
@@ -529,34 +522,24 @@ class MainWindow(QMainWindow):
                             ).run()
                         case "单人":
                             pass
-                case 3:
-                    # 3.业原火
+                case 3:  # 业原火
                     yeyuanhuo.YeYuanHuo(n=_n).run()
-                case 4:
-                    # 4.御灵
+                case 4:  # 御灵
                     yuling.YuLing(n=_n).run()
-                case 5:
-                    # 5.个人突破
+                case 5:  # 个人突破
                     jiejietupo.JieJieTuPoGeRen(n=_n).run()
-                case 6:
-                    # 6.寮突破
+                case 6:  # 寮突破
                     jiejietupo.JieJieTuPoYinYangLiao(n=_n).run()
-                case 7:
-                    # 7.道馆突破
+                case 7:  # 道馆突破
                     flag_guanzhan = self.ui.button_guanzhan.isChecked()
                     daoguantupo.DaoGuanTuPo(flag_guanzhan=flag_guanzhan).run()
-                case 8:
-                    # 8.普通召唤
+                case 8:  # 普通召唤
                     zhaohuan.ZhaoHuan(n=_n).run()
-                case 9:
-                    # 9.百鬼夜行
+                case 9:  # 百鬼夜行
                     baiguiyexing.BaiGuiYeXing(n=_n).run()
-                case 10:
-                    # 10.限时活动
+                case 10:  # 限时活动
                     huodong.HuoDong(n=_n).run()
-                    # huodong.BaiMianGuiYi(n=_n).run()
-                case 11:
-                    # 11.组队日轮副本
+                case 11:  # 组队日轮副本
                     # 是否司机（默认否）
                     # 组队人数（默认2人）
                     driver = self.ui.buttonGroup_driver.checkedButton().text()
@@ -568,9 +551,9 @@ class MainWindow(QMainWindow):
                         self.ui.buttonGroup_passengers.checkedButton().text()
                     )
                     rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
-                case 12:
+                case 12:  # 单人探索
                     tansuo.TanSuo(n=_n).run()
-                case 13:
+                case 13:  # 契灵
                     _flag_tancha = self.ui.button_qiling_tancha.isChecked()
                     _flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
                     qiling.QiLing(
@@ -579,31 +562,28 @@ class MainWindow(QMainWindow):
                         _flag_jieqi=_flag_jieqi
                     ).run()
 
-        def stop() -> None:  # TODO unable to use
+        def stop() -> None:
             """停止函数"""
-            # ret = ctypes.windll.kernel32.TerminateThread(self._thread.handle, 0)
-            # print('终止线程', self._thread.handle, ret)
             event_thread.set()
-            print("尝试停止线程")
+            log.ui("停止中，请稍候")
 
         match self.ui.button_start.text():
             case "开始":
+                event_thread.clear()
                 start()
-            case "停止":  # TODO unable to use
+            case "停止":
                 stop()
-            case _:
-                pass
 
     def is_fighting(self, flag: bool):
         """程序是否运行中，启用/禁用其他控件"""
         if flag:
-            self.ui.button_start.setText("进行中")
+            self.ui.button_start.setText("停止")  # 进行中
         else:
             self.ui.button_start.setText("开始")
         for item in [
             self.ui.combo_choice,
             self.ui.spinB_num,
-            self.ui.button_start,
+            # self.ui.button_start,
             self.ui.button_mode_team,
             self.ui.button_mode_single,
             self.ui.button_driver_False,
@@ -640,7 +620,7 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
         with suppress(Exception):
-            log.info("[EXIT]")
+            logger.info("[EXIT]")
         event.accept()
 
     def show_update_record_window(self):

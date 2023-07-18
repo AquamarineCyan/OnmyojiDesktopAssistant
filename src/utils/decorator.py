@@ -16,7 +16,7 @@ import time
 
 from .log import log, logger
 from .mysignal import global_ms as ms
-from .mythread import MyThread
+from .mythread import WorkThread
 from .toast import toast
 
 
@@ -61,7 +61,7 @@ def time_count(func):
 def run_in_thread(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        t = MyThread(func=func, args=args, kwargs=kwargs)
+        t = WorkThread(func=func, args=args, kwargs=kwargs)
         t.start()
         return t.get_result()
     return wrapper
