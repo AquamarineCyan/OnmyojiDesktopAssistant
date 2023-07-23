@@ -5,6 +5,7 @@
 
 import pyautogui
 
+from src.utils.event import event_thread
 from ..utils.application import RESOURCE_DIR_PATH
 from ..utils.coordinate import Coor
 from ..utils.decorator import log_function_call, run_in_thread, time_count
@@ -93,6 +94,8 @@ class TanSuo(Package):
         flag_title = True  # 场景提示
         flag_fighting = False  # 进行中
         while True:
+            if event_thread.is_set():
+                return
             scene_list: list = [
                 "chuzhanxiaohao",
                 "tansuo_28",
@@ -118,6 +121,8 @@ class TanSuo(Package):
     def fighting(self, flag_boss=False):
         _flag_first: bool = False
         while True:
+            if event_thread.is_set():
+                return
             if check_finish_once():
                 _flag_first = True
                 random_sleep(0.5, 0.8)
@@ -137,6 +142,8 @@ class TanSuo(Package):
         3.1、2出来之后，存在宝箱/妖气封印的可能，当前章节的小界面被关闭，需要右侧列表重新点开
         """
         while True:
+            if event_thread.is_set():
+                return
             # 等待加载完毕
             random_sleep(1.5, 2)
             coor = get_coor_info(f"{self.resource_path}/chuzhanxiaohao")
@@ -162,15 +169,19 @@ class TanSuo(Package):
     @time_count
     @log_function_call
     def run(self):
-        log.ui("单人探索，测试功能，未完成")
-        while self.n < self.max and self.title():
-            _scene_list = [
+        _scene_list = [
                 "tansuo_28_0",
                 "tansuo_28_title",
                 "kunnan_big",
                 "tansuo",
                 "chuzhanxiaohao",
             ]
+        log.ui("单人探索，测试功能，未完成")
+
+        while self.n < self.max and self.title():
+            if event_thread.is_set():
+                return
+            
             scene, coor = check_scene_multiple_once(_scene_list, self.resource_path)
             if scene is None:
                 continue
@@ -206,3 +217,4 @@ class TanSuo(Package):
                         self.flag_boss_done = False
                         self.finish()
                         self.done()
+        log.ui(f"已完成 {self.scene_name} {self.n}次")

@@ -6,6 +6,7 @@
 import pyautogui
 
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -19,9 +20,10 @@ from ..utils.function import (
 )
 from ..utils.log import log
 from ..utils.window import window
+from .utils import Package
 
 
-class YongShengZhiHai:
+class YongShengZhiHai(Package):
     """永生之海副本"""
 
     @log_function_call
@@ -41,13 +43,14 @@ class YongShengZhiHai:
             # "accept_invitation",  # 接受邀请
         ]
 
-    @log_function_call
-    def start(self, mode: str = None) -> None:
-        """挑战"""
-        if mode == "team":
-            check_click(f"{self.resource_path}/start_team")
-        elif mode == "single":
-            check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
+    # @log_function_call
+    # def start(self, mode: str = None) -> None:
+        # """挑战"""
+        # click(Coor(1067,602),sleeptime=0.4)
+        # if mode == "team":
+        #     check_click(f"{self.resource_path}/start_team")
+        # elif mode == "single":
+        #     check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
@@ -89,6 +92,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         """队员就位"""
         log.ui("等待队员")
         while True:
+            if event_thread.is_set():
+                return
             coor = get_coor_info(f"{self.resource_path}/passenger")
             if coor.is_zero:
                 log.ui("队员就位")
@@ -115,6 +120,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
         pyautogui.doubleClick()
         while True:
+            if event_thread.is_set():
+                return
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -152,6 +159,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
 
         log.num(f"0/{self.max}")
         while self.n < self.max:
+            if event_thread.is_set():
+                return
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list)
             if scene is None:
@@ -164,7 +173,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                     log.ui("组队界面准备中")
                     if self.flag_driver:
                         self.is_passengers_on_position()
-                        self.start("team")
+                        # self.start("team")
+                        self.start()
                     random_sleep(1, 2)
                     _flag_title_msg = False
                 case "fighting":

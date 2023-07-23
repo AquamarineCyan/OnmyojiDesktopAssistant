@@ -3,6 +3,7 @@
 # yeyuanhuo.py
 """业原火副本"""
 
+from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     check_click,
@@ -48,6 +49,9 @@ class YeYuanHuo(Package):
     def run(self):
         log.num(f"0/{self.max}")
         while self.n < self.max:
+            if event_thread.is_set():
+                return
+            
             scene, coor = check_scene_multiple_once(self.resource_list, self.resource_path)
             # if scene is None:
             #     continue

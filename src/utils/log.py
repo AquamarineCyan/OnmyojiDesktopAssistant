@@ -22,7 +22,7 @@ class Log:
         logger.setLevel(logging.DEBUG)
 
         # 创建文件处理程序
-        file_handler = logging.FileHandler(str(_log_file), encoding="utf-8")
+        file_handler = logging.FileHandler(_log_file, encoding="utf-8")
         file_handler.setLevel(logging.INFO)
 
         # 创建屏幕处理程序

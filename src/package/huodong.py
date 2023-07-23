@@ -7,6 +7,7 @@ import random
 
 import pyautogui
 
+from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
@@ -41,6 +42,8 @@ class HuoDong:
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
@@ -57,6 +60,8 @@ class HuoDong:
             finish_random_left_right(is_multiple_drops_y=True)
             random_sleep(0.4, 0.8)
             while True:
+                if event_thread.is_set():
+                    return
                 coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
                 if coor.is_zero:
                     return
@@ -75,6 +80,8 @@ class HuoDong:
 
         log.num(f"0/{self.max}")
         while self.n < self.max:
+            if event_thread.is_set():
+                return
             scene, coor = check_scene_multiple_once(_g_resource_list)
             if scene is None:
                 continue
@@ -118,6 +125,8 @@ class BaiMianGuiYi(HuoDong):
             _flag_title_msg: bool = True
 
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
                 _resource_list = ["title", "start", "hechengbiao", "finish", "money"]
                 scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
                 if scene:
@@ -135,6 +144,7 @@ class BaiMianGuiYi(HuoDong):
                         _y = window.absolute_window_height / 2
                         # 移至正中心
                         pyautogui.moveTo(_x + window.window_left, _y+window.window_top)
+                        import time
                         random.seed(time.time_ns())
                         x, y = random.choice([(0, 50), (0, -50), (50, 0), (-50, 0)])
                         pyautogui.drag(x, y, button="left")

@@ -5,6 +5,7 @@
 
 import pyautogui
 
+from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     check_click,
@@ -45,6 +46,8 @@ class RiLun:
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_yuhun_path}/xiezhanduiwu", "组队御魂准备中"):
                 self.flag_driver_start = True
                 return True
@@ -61,6 +64,8 @@ class RiLun:
         random_sleep(1.5, 3)
         coor = finish_random_left_right(is_click=False)
         while True:
+            if event_thread.is_set():
+                return
             pyautogui.moveTo(
                 coor.x + window.window_left,
                 coor.y + window.window_top,
@@ -69,6 +74,8 @@ class RiLun:
             pyautogui.doubleClick()
             if finish():
                 while True:
+                    if event_thread.is_set():
+                        return
                     random_sleep(1, 2)
                     click()
                     random_sleep(1, 2)
@@ -85,6 +92,8 @@ class RiLun:
         if self.title():
             log.num(f"0/{self.max}")
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
                 # 司机
                 if self.flag_driver and self.flag_driver_start:
                     is_passengers_on_position(self.flag_passengers)

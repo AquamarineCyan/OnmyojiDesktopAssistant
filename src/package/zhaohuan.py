@@ -3,6 +3,8 @@
 # zhaohuan.py
 """普通召唤"""
 
+from src.utils.event import event_thread
+
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import check_click, check_scene, random_sleep
 from ..utils.log import log
@@ -28,6 +30,8 @@ class ZhaoHuan:
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
@@ -52,6 +56,8 @@ class ZhaoHuan:
         if self.title():
             log.num(f"0/{self.max}")
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
                 if flag:
                     self.first()
                     flag = False

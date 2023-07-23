@@ -9,6 +9,7 @@ import time
 import pyautogui
 
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from src.utils.event import event_thread
 from ..utils.function import (
     check_click,
     check_scene,
@@ -43,6 +44,8 @@ class BaiGuiYeXing:
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
@@ -64,6 +67,8 @@ class BaiGuiYeXing:
         _y1 = 300
         _y2 = 550
         while True:
+            if event_thread.is_set():
+                return
             # 获取系统当前时间戳
             random.seed(time.time_ns())
             m = random.random() * 3 + 1
@@ -94,6 +99,8 @@ class BaiGuiYeXing:
         """砸豆子"""
         time.sleep(2)
         for _ in range(250, 0, -5):
+            if event_thread.is_set():
+                return
             random_sleep(0.2, 1)
             x, y = random_coor(
                 60,
@@ -111,6 +118,8 @@ class BaiGuiYeXing:
     def finish(self):
         """结束"""
         while True:
+            if event_thread.is_set():
+                return
             coor = get_coor_info(f'{self.resource_path}/baiguiqiyueshu')
             time.sleep(2)
             if coor.is_effective:
@@ -127,6 +136,8 @@ class BaiGuiYeXing:
             log.num(f"0/{self.max}")
             random_sleep(1, 3)
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
                 random_sleep(0, 2)
                 self.start()
                 random_sleep(1, 3)

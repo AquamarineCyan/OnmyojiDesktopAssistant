@@ -3,6 +3,7 @@
 # daoguantupo.py
 """道馆突破"""
 
+from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
@@ -53,8 +54,12 @@ class DaoGuanTuPo:
         self.flag_fighting = False  # 进行中
         flag_daojishi = True  # 倒计时
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", self.scene_name):
                 while True:
+                    if event_thread.is_set():
+                        return
                     # 等待倒计时自动进入
                     if self.judge_scene_daoguantupo() == "倒计时":
                         if flag_daojishi:
@@ -88,6 +93,8 @@ class DaoGuanTuPo:
             "button_zhuwei.png": "进行中"
         }  # TODO"可进攻"未实现
         for item in scene:
+            if event_thread.is_set():
+                return
             coor = self.get_coor_info(item)
             if coor.is_effective:
                 return scene[item]
@@ -97,6 +104,8 @@ class DaoGuanTuPo:
         log.ui("观战中，暂无法自动退出，可手动退出")
         # 战报按钮
         while True:
+            if event_thread.is_set():
+                return
             coor = self.get_coor_info("qianwang")
             if coor.is_effective:
                 break
@@ -104,6 +113,8 @@ class DaoGuanTuPo:
             random_sleep(1, 2)
         # 前往按钮
         while True:
+            if event_thread.is_set():
+                return
             coor = self.get_coor_info("jijie")
             if coor.is_effective:
                 break
@@ -111,6 +122,8 @@ class DaoGuanTuPo:
             random_sleep(1, 2)
         flag_zhuwei = False  # 是否能够助威
         while True:
+            if event_thread.is_set():
+                return
             coor1 = self.get_coor_info("zhuwei")
             coor2 = self.get_coor_info("test_zhuwei_gray")
             # 可助威
@@ -155,6 +168,8 @@ class DaoGuanTuPo:
             # TODO调整预设队伍
             # 开始
             while True:
+                if event_thread.is_set():
+                    return
                 _resource_list = [
                     f"{self.resource_path}/zhunbei",
                     f"{RESOURCE_FIGHT_PATH}/victory",

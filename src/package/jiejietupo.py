@@ -9,9 +9,11 @@ from pathlib import Path
 
 import pyautogui
 
+from src.utils.event import event_thread
+
 from ..utils.application import RESOURCE_DIR_PATH
 from ..utils.coordinate import Coor
-from ..utils.decorator import run_in_thread, time_count, log_function_call
+from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -126,6 +128,8 @@ class JieJieTuPo:
         )
         click()
         while True:
+            if event_thread.is_set():
+                return
             coor = get_coor_info(f"{self.resource_path}/jingong")
             if coor.is_effective:
                 click(coor)
@@ -135,6 +139,8 @@ class JieJieTuPo:
         # TODO 主动失败
         random_sleep(1, 2)
         while True:
+            if event_thread.is_set():
+                return
             pyautogui.press("esc")
             if check_scene(f"{self.resource_path}/fighting_fail"):
                 pyautogui.press("enter")
@@ -175,6 +181,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", "结界突破"):
                 while True:
                     if check_scene(f"{self.resource_path}/fangshoujilu.png", "个人突破"):
@@ -195,6 +203,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """
         alist = [0]
         for i in range(1, 10):
+            if event_thread.is_set():
+                return
             coor5 = self.get_coor_info_tupo(
                 self.tupo_geren_x[(i + 2) % 3 + 1],
                 self.tupo_geren_y[(i + 2) // 3],
@@ -271,9 +281,13 @@ class JieJieTuPoGeRen(JieJieTuPo):
     def fighting(self) -> None:
         """战斗"""
         for i in range(5, -1, -1):
+            if event_thread.is_set():
+                return
             if self.list_xunzhang.count(i):
                 k = 1
                 for _ in range(1, self.list_xunzhang.count(i) + 1):
+                    if event_thread.is_set():
+                        return
                     k = self.list_xunzhang.index(i, k)
                     log.ui(f"{k} 可进攻")
                     coor = self.get_coor_info_tupo(
@@ -307,6 +321,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     if self.tupo_victory == 2 and flag_victory:
                         random_sleep(1, 2)
                         while True:
+                            if event_thread.is_set():
+                                return
                             check_click(f"{RESOURCE_FIGHT_PATH}/finish")
                             random_sleep(1, 2)
                             coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
@@ -322,6 +338,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         flag_refresh = False  # 刷新提醒
         random_sleep(4, 8)  # 强制等待
         while True:
+            if event_thread.is_set():
+                return
             # 第一次刷新 或 冷却时间已过
             timenow = time.perf_counter()
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
@@ -346,6 +364,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         if self.title():
             log.num(f"0/{self.max}")
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
                 random_sleep(2, 4)
                 self.list_xunzhang = self.list_num_xunzhang()
                 # 胜利次数

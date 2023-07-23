@@ -268,7 +268,9 @@ class MainWindow(QMainWindow):
             daoguantupo.DaoGuanTuPo(),
             huodong.HuoDong(),
             jiejietupo.JieJieTuPo(),
+            qiling.QiLing(),
             rilun.RiLun(),
+            tansuo.TanSuo(),
             xuanshangfengyin.XuanShangFengYin(),
             yeyuanhuo.YeYuanHuo(),
             yongshengzhihai.YongShengZhiHai(),
@@ -323,10 +325,10 @@ class MainWindow(QMainWindow):
         window.get_game_window_handle()
         handle_coor = window.handle_coor
         if handle_coor == (0, 0, 0, 0):
-            logger.error("Game is not open!")
+            logger.error("Game is close!")
             ms.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
         elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
-            log.error("未前置游戏窗口")
+            logger.error(f"Game is background, handle_coor:{handle_coor}")
             ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
         # TODO 解除窗口大小限制，待优化
         elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
@@ -372,7 +374,7 @@ class MainWindow(QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(30)
-            self.ui.spinB_num.setRange(1, 100)
+            self.ui.spinB_num.setRange(1, 999)
             self.ui.button_mode_team.setChecked(True)
             # TODO
             self.ui.button_mode_team.setEnabled(False)
@@ -386,13 +388,13 @@ class MainWindow(QMainWindow):
             self._choice = 3
             log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
             self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 100)
+            self.ui.spinB_num.setRange(1, 999)
         elif text == self._list_function[3]:
             # 4.御灵副本
             self._choice = 4
             log.ui("暗神龙-周二六日\n暗白藏主-周三六日\n暗黑豹-周四六\n暗孔雀-周五六日\n绘卷期间请减少使用")
             self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 100)
+            self.ui.spinB_num.setRange(1, 400)  # 桌面版上限300
         elif text == self._list_function[4]:
             # 5.个人突破
             self._choice = 5
@@ -412,7 +414,7 @@ class MainWindow(QMainWindow):
                 log.ui("默认6次，可在每日21时后无限挑战")
             log.ui("待开发：滚轮翻页")
             self.ui.spinB_num.setValue(6)
-            self.ui.spinB_num.setRange(1, 200)
+            self.ui.spinB_num.setRange(1, 200)  # 桌面版上限100
         elif text == self._list_function[6]:
             # 7.道馆突破
             self._choice = 7
@@ -543,14 +545,15 @@ class MainWindow(QMainWindow):
                     # 是否司机（默认否）
                     # 组队人数（默认2人）
                     driver = self.ui.buttonGroup_driver.checkedButton().text()
-                    if driver == "否":
-                        _flag_driver = False
-                    else:
-                        _flag_driver = True
+                    _flag_driver = driver != "否"
                     _flag_passengers = int(
                         self.ui.buttonGroup_passengers.checkedButton().text()
                     )
-                    rilun.RiLun(n=_n, flag_driver=_flag_driver, flag_passengers=_flag_passengers).run()
+                    rilun.RiLun(
+                        n=_n,
+                        flag_driver=_flag_driver,
+                        flag_passengers=_flag_passengers,
+                    ).run()
                 case 12:  # 单人探索
                     tansuo.TanSuo(n=_n).run()
                 case 13:  # 契灵

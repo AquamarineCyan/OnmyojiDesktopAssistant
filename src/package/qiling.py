@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # qiling.py
-"""契灵-探查"""
+"""契灵"""
 
 from threading import Timer
 
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_finish_once,
@@ -33,6 +34,7 @@ class QiLing(Package):
         "ciqiu",
     ]
 
+    @log_function_call
     def __init__(self, n: int = 0, _flag_tancha: bool = True, _flag_jieqi: bool = False) -> None:
         super().__init__(n)
         self._flag_tancha = _flag_tancha
@@ -45,6 +47,8 @@ class QiLing(Package):
     def fighting(self):
         _flag_first: bool = False
         while True:
+            if event_thread.is_set():
+                return
             if self._flag_finish:
                 return
             if check_finish_once():
@@ -64,6 +68,13 @@ class QiLing(Package):
 
     @log_function_call
     def check_pokemon(self) -> bool:
+        """
+        220,528
+        378,485
+        635,505
+        815,484
+        935,490
+        """
         _resource_list: list = [
             "zhenmushou",
             "xiaohei",
@@ -87,6 +98,8 @@ class QiLing(Package):
         log.ui("仅限探查，地图最多支持刷出5只契灵，测试功能，未完成")
         _resource_list = ["start_tancha"]
         while self.n < self.max:
+            if event_thread.is_set():
+                return
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue
@@ -120,6 +133,8 @@ class QiLing(Package):
         _flag_done_once: bool = False
 
         while _n <= 5:
+            if event_thread.is_set():
+                return
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue

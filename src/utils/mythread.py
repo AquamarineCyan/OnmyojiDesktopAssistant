@@ -7,7 +7,7 @@ class WorkThread(Thread):
     目前只能用事件类 `Event` 实现停止，需要在每个循环里插入
 
     ```python
-    from ..utils.event import event_thread
+    from src.utils.event import event_thread
     if event_thread.is_set():
         return
     ```
@@ -32,9 +32,6 @@ class WorkThread(Thread):
         except Exception:
             return None
 
-
-MyThread = WorkThread
-"""use `WorkThread` replace `MyThread` """
 
 """
 class WorkThread(Thread):

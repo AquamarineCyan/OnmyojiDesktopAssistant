@@ -31,6 +31,7 @@ class Upgrade:
         self.browser_download_url: str = ""
         self.new_version_info: str = ""
         self.zip_path: str = None
+        """更新包路径"""
 
     def _get_browser_download_url(self) -> str:
         """获取更新地址
@@ -155,6 +156,8 @@ class Upgrade:
                 os.utime(os.path.join(self.zip_files_path.__str__(), info.filename), (timestamp, timestamp))
 
         log.ui("解压结束")
+        Path(self.zip_path).unlink()
+        log.ui("删除更新包")
 
     def _move_files_recursive(self, source_folder: Path, target_folder: Path) -> None:
         """递归移动文件"""

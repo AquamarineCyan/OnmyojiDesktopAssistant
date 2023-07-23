@@ -3,6 +3,8 @@
 # yuling.py
 """御灵副本"""
 
+from src.utils.event import event_thread
+
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     check_click,
@@ -32,6 +34,8 @@ class YuLing:
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", self.scene_name):
                 return True
             elif flag_title:
@@ -49,6 +53,9 @@ class YuLing:
         if self.title():
             log.num(f"0/{self.max}")
             while self.n < self.max:
+                if event_thread.is_set():
+                    return
+            
                 random_sleep(1, 2)
                 # 开始
                 self.start()

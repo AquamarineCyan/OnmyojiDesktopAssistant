@@ -5,7 +5,9 @@
 
 import pyautogui
 
-from ..utils.decorator import run_in_thread, time_count, log_function_call
+from src.utils.event import event_thread
+
+from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -119,6 +121,8 @@ class YuHunTeam(YuHun):
         pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
         pyautogui.doubleClick()
         while True:
+            if event_thread.is_set():
+                return
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -159,6 +163,8 @@ class YuHunTeam(YuHun):
 
         log.num(f"0/{self.max}")
         while self.n < self.max:
+            if event_thread.is_set():
+                return
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list)
             if scene is None:
@@ -231,6 +237,9 @@ class YuHunSingle(YuHun):
         pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
         pyautogui.doubleClick()
         while True:
+            if event_thread.is_set():
+                return
+            
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -260,6 +269,9 @@ class YuHunSingle(YuHun):
         pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
         # pyautogui.doubleClick()
         while True:
+            if event_thread.is_set():
+                return
+            
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -296,6 +308,9 @@ class YuHunSingle(YuHun):
 
         log.num(f"0/{self.max}")
         while self.n < self.max:
+            if event_thread.is_set():
+                return
+            
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
