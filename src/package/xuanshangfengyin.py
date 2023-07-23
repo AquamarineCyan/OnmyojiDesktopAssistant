@@ -44,10 +44,12 @@ class XuanShangFengYin:
     @run_in_thread
     def run(self) -> None:
         logger.info("悬赏封印进行中...")
+        # 第一次进入，确保不会阻塞function.get_coor_info()
+        if self._flag_is_first:
+            event_xuanshang.set()
+            self._flag_is_first = False
+
         while True:
-            if self._flag_is_first:
-                event_xuanshang.set()
-                self._flag_is_first = False
             coor = get_coor_info_center(f"{self.resource_path}/title.png", is_log=False)
             if coor.is_effective:
                 if not self._flag:
@@ -55,7 +57,7 @@ class XuanShangFengYin:
                     event_xuanshang.clear()
                     self._flag = True
                     log.warn("已暂停后台线程，等待处理", True)
-                    logger.info(f"event_xuanshang: {event_xuanshang.is_set()})")
+                    logger.info(f"event_xuanshang by coor_effective: {event_xuanshang.is_set()}")
                     match config.config_user.get("悬赏封印"):
                         case "接受":
                             log.ui("接受协作")
@@ -69,13 +71,14 @@ class XuanShangFengYin:
                         case _:
                             log.ui("用户配置出错，自动接受协作")
                             self.check_click("xuanshang_accept.png")
+                    event_xuanshang.set()
                     toast("悬赏封印", "检测到协作")
             else:
                 event_xuanshang.set()
                 if self._flag:
                     self._flag = False
                     log.ui("悬赏封印已消失，恢复线程")
-                    print(event_xuanshang.is_set())
+                    logger.info(f"event_xuanshang by coor_zero: {event_xuanshang.is_set()}")
             time.sleep(1)
 
 
