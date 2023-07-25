@@ -17,14 +17,14 @@ from ..utils.function import (
     finish_random_left_right,
     is_passengers_on_position,
     random_sleep,
-    result,
-    screenshot
+    result
 )
 from ..utils.log import log
 from ..utils.window import window
+from .utils import Package
 
 
-class YuHun:
+class YuHun(Package):
     """御魂副本"""
 
     @log_function_call
@@ -131,7 +131,7 @@ class YuHunTeam(YuHun):
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
-                    screenshot("cache_yuhun")
+                    self.screenshot()
                     _flag_screenshot = False
                 click()
                 _flag_first = False
@@ -239,7 +239,7 @@ class YuHunSingle(YuHun):
         while True:
             if event_thread.is_set():
                 return
-            
+
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -248,7 +248,7 @@ class YuHunSingle(YuHun):
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
-                    screenshot("cache_yuhun")
+                    self.screenshot()
                     _flag_screenshot = False
                 click()
                 random_sleep(0.6, 1)
@@ -271,7 +271,7 @@ class YuHunSingle(YuHun):
         while True:
             if event_thread.is_set():
                 return
-            
+
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
                 f"{RESOURCE_FIGHT_PATH}/finish",
@@ -280,7 +280,7 @@ class YuHunSingle(YuHun):
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
-                    screenshot("cache_yuhun")
+                    self.screenshot()
                     _flag_screenshot = False
                 click()
                 random_sleep(0.6, 1)
@@ -310,14 +310,15 @@ class YuHunSingle(YuHun):
         while self.n < self.max:
             if event_thread.is_set():
                 return
-            
+
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue
-            if "/" in scene:
-                scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            # if "/" in scene:
+                # scene = scene.split("/")[-1]
+            # log.info(f"当前场景: {scene}")
+            self.scene_print(scene)
 
             match scene:
                 case "title_10" | "title_11" | "title_12":
@@ -325,7 +326,7 @@ class YuHunSingle(YuHun):
                     random_sleep(self.fast_time, self.fast_time+1)
                     _flag_title_msg = False
                 case "start_single":
-                    click()
+                    click(coor)
                     random_sleep(self.fast_time, self.fast_time+1)
                     # 只判断下列图像，提高效率
                     _resource_list = ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"]

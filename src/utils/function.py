@@ -10,8 +10,12 @@ from subprocess import Popen
 
 import pyautogui
 
-from .application import (APP_EXE_NAME, RESOURCE_DIR_PATH, RESOURCE_FIGHT_PATH,
-                          SCREENSHOT_DIR_PATH)
+from .application import (
+    APP_EXE_NAME,
+    RESOURCE_DIR_PATH,
+    RESOURCE_FIGHT_PATH,
+    SCREENSHOT_DIR_PATH
+)
 from .coordinate import Coor
 from .decorator import log_function_call
 from .event import event_thread, event_xuanshang, event_xuanshang_enable
@@ -234,7 +238,7 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
     """
     for item in scene:
         if event_thread.is_set():
-            return
+            return None, Coor(0, 0)
         """
         1.如果没传路径，说明全部文件名自带路径
         2.传参路径，可能存在RESOURCE_FIGHT_PAHT的资源，用斜杠判断列表值
@@ -414,7 +418,7 @@ def finish_random_left_right(
     """右侧可点击区域x2"""
     finish_y1 = 190
     """可点击区域y1"""
-    finish_y2 = 570
+    finish_y2 = 530
     """可点击区域y2"""
 
     # 永生之海/神罚
@@ -454,7 +458,7 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     random.seed(time.time_ns())
     x, y = pyautogui.position() if coor is None else (coor.x, coor.y)
     pyautogui.moveTo(x, y, duration=dura, tween=random.choice(list_tween))
-    log.info(f"complete for (x,y): ({x},{y})")
+    logger.info(f"click at ({x},{y})")
     try:
         pyautogui.click()
     except pyautogui.FailSafeException:
@@ -523,7 +527,7 @@ def screenshot(screenshot_path: str = "cache") -> bool:
     _screenshot_path = SCREENSHOT_DIR_PATH / screenshot_path
     _screenshot_path.mkdir(parents=True, exist_ok=True)
 
-    _file = f"{_screenshot_path}/screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
+    _file = _screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
     try:
         pyautogui.screenshot(
             imageFilename=_file,
@@ -534,10 +538,10 @@ def screenshot(screenshot_path: str = "cache") -> bool:
                 window_height_screenshot
             )
         )
-        log.info(f"screenshot at {_file}")
+        logger.info(f"screenshot at {_file}")
         return True
     except Exception:
-        log.error("screenshot failed.")
+        logger.error("screenshot failed.")
         return False
 
 

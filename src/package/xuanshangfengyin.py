@@ -39,6 +39,7 @@ class XuanShangFengYin:
             coor = get_coor_info_center(f"{self.resource_path}/{file}", is_log=False)
             if coor.is_effective:
                 click(coor)
+                return
 
     @log_function_call
     @run_in_thread

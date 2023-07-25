@@ -8,25 +8,27 @@ import time
 
 import pyautogui
 
-from ..utils.decorator import log_function_call, run_in_thread, time_count
 from src.utils.event import event_thread
+
+from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import (
     check_click,
     check_scene,
     get_coor_info,
     random_coor,
-    random_sleep,
-    screenshot
+    random_sleep
 )
 from ..utils.log import log
 from ..utils.window import window
+from .utils import Package
 
 
-class BaiGuiYeXing:
+class BaiGuiYeXing(Package):
     """百鬼夜行"""
 
     @log_function_call
-    def __init__(self, n: int = 0):
+    def __init__(self, n: int = 0) -> None:
+        super().__init__(n)
         self.scene_name: str = "百鬼夜行"
         self.n: int = 0  # 当前次数
         self.max: int = n  # 总次数
@@ -38,7 +40,6 @@ class BaiGuiYeXing:
             "kaishi",  # 开始
             "baiguiqiyueshu"  # 百鬼契约书
         ]
-        self.screenshotpath = "cache_baiguiyexing"  # 截图路径
 
     def title(self) -> bool:
         """场景"""
@@ -123,7 +124,7 @@ class BaiGuiYeXing:
             coor = get_coor_info(f'{self.resource_path}/baiguiqiyueshu')
             time.sleep(2)
             if coor.is_effective:
-                screenshot(self.screenshotpath)
+                self.screenshot()
                 pyautogui.moveTo(coor.x, coor.y, duration=0.5)
                 pyautogui.click()
                 break

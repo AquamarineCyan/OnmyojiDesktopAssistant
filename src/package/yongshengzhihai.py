@@ -15,8 +15,7 @@ from ..utils.function import (
     finish_random_left_right,
     get_coor_info,
     random_sleep,
-    result,
-    screenshot
+    result
 )
 from ..utils.log import log
 from ..utils.window import window
@@ -43,14 +42,13 @@ class YongShengZhiHai(Package):
             # "accept_invitation",  # 接受邀请
         ]
 
-    # @log_function_call
-    # def start(self, mode: str = None) -> None:
-        # """挑战"""
-        # click(Coor(1067,602),sleeptime=0.4)
-        # if mode == "team":
-        #     check_click(f"{self.resource_path}/start_team")
-        # elif mode == "single":
-        #     check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
+    @log_function_call
+    def start(self, mode: str = None) -> None:
+        """挑战"""
+        if mode == "team":
+            check_click(f"{self.resource_path}/start_team")
+        elif mode == "single":
+            check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
@@ -129,7 +127,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
-                    screenshot("cache_yongshengzhihai")
+                    self.screenshot()
                     _flag_screenshot = False
                 click()
                 _flag_first = False
@@ -173,8 +171,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                     log.ui("组队界面准备中")
                     if self.flag_driver:
                         self.is_passengers_on_position()
-                        # self.start("team")
-                        self.start()
+                        self.start("team")
+                        # self.start()
                     random_sleep(1, 2)
                     _flag_title_msg = False
                 case "fighting":
