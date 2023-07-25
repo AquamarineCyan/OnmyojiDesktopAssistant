@@ -5,8 +5,11 @@ from src.utils.log import log
 class Package:
 
     scene_name: str = None
-    resource_path: str = None  # 路径
-    resource_list: list = []  # 资源列表
+    """名称"""
+    resource_path: str = None 
+    """路径"""
+    resource_list: list = []  
+    """资源列表"""
 
     def __init__(self, n: int = 0) -> None:
         self.n: int = 0
