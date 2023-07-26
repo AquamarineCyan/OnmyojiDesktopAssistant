@@ -22,13 +22,15 @@ from ..utils.function import (
 )
 from ..utils.log import log
 from ..utils.window import window
+from .utils import Package
 
 
-class HuoDong:
+class HuoDong(Package):
     """限时活动"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
+        super().__init__(n)
         self.scene_name: str = "限时活动"
         self.n: int = 0  # 当前次数
         self.max: int = n  # 总次数
@@ -90,7 +92,7 @@ class HuoDong:
             log.info(f"当前场景: {scene}")
             match scene:
                 case "title":
-                    log.ui("森间试炼")
+                    log.ui("守缘合战")
                     _flag_title_msg = False
                     self.start()
                     random_sleep(1, 2)
@@ -98,8 +100,7 @@ class HuoDong:
                 # case "fighting_back_default":
                     # log.ui("对局进行中")
                     self.finish()
-                    self.n += 1
-                    log.num(f"{self.n}/{self.max}")
+                    self.done()
                     random_sleep(2, 4)
                 case _:
                     if _flag_title_msg:
