@@ -19,7 +19,7 @@ from ..utils.function import (
     result,
     RESOURCE_FIGHT_PATH
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 
 
@@ -56,7 +56,7 @@ class RiLun:
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                logger.ui("请检查游戏场景", "warn")
 
     def finish(self) -> None:
         """结束"""
@@ -90,7 +90,7 @@ class RiLun:
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             while self.n < self.max:
                 if event_thread.is_set():
                     return
@@ -99,13 +99,13 @@ class RiLun:
                     is_passengers_on_position(self.flag_passengers)
                     # 开始挑战
                     check_click(f"{RESOURCE_FIGHT_PATH}/start_team", dura=0.25)
-                    log.ui("开始")
+                    logger.ui("开始")
                 if not self.flag_fighting:
                     check_click(f"{self.resource_path}/fighting", False)
                     self.flag_fighting = False
-                    log.ui("对局进行中")
+                    logger.ui("对局进行中")
                 self.finish()
                 self.n += 1
-                log.num(f"{self.n}/{self.max}")
+                logger.num(f"{self.n}/{self.max}")
                 random_sleep(1, 2)
-        log.ui(f"已完成 组队日轮副本 {self.n}次")
+        logger.ui(f"已完成 组队日轮副本 {self.n}次")

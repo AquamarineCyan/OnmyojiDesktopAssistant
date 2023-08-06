@@ -13,7 +13,7 @@ from ..utils.function import (
     finish_random_left_right,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 
 
 class YuLing:
@@ -40,7 +40,7 @@ class YuLing:
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景")
+                logger.ui("请检查游戏场景", "warn")
 
     def start(self) -> None:
         """开始"""
@@ -51,11 +51,11 @@ class YuLing:
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             while self.n < self.max:
                 if event_thread.is_set():
                     return
-            
+
                 random_sleep(1, 2)
                 # 开始
                 self.start()
@@ -66,8 +66,8 @@ class YuLing:
                 finish_random_left_right(is_multiple_drops_y=True)
                 random_sleep(1, 3)
                 self.n += 1
-                log.num(f"{self.n}/{self.max}")
+                logger.num(f"{self.n}/{self.max}")
                 # TODO 强制等待，后续优化
                 if self.n in {12, 25, 39, 59, 73}:
                     random_sleep(10, 20)
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")

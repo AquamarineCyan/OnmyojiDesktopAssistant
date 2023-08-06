@@ -15,7 +15,7 @@ from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .function import app_restart, write_upgrage_restart_bat
-from .log import log
+from .log import logger
 from .mysignal import global_ms as ms
 from .toast import toast
 
@@ -42,20 +42,20 @@ class Upgrade:
         api_url = "https://api.github.com/repos/AquamarineCyan/Onmyoji_Python/releases/latest"
         try:
             result = httpx.get(api_url, headers=self.headers)
-            log.info(f"api_url.status_code:{result.status_code}")
+            logger.info(f"api_url.status_code:{result.status_code}")
             if result.status_code == 200:
                 data_dict = json.loads(result.text)
                 if "v" in data_dict["tag_name"]:
                     self.version_github = data_dict["tag_name"][1:]
-                    log.info(f"version_github:{self.version_github}")
+                    logger.info(f"version_github:{self.version_github}")
                     if self.version_github > VERSION:
                         _info: str = data_dict["body"]
                         self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
                         for item in data_dict["assets"]:
                             if item["name"] == f"Onmyoji_Python-{self.version_github}.zip":
-                                log.info(item["name"])
+                                logger.info(item["name"])
                                 self.browser_download_url = item["browser_download_url"]
-                                log.info(f"browser_download_url:{self.browser_download_url}")
+                                logger.info(f"browser_download_url:{self.browser_download_url}")
                         return "NEW VERSION"
                     else:
                         return "LATEST"
@@ -66,14 +66,14 @@ class Upgrade:
         return f"https://ghproxy.com/{self.browser_download_url}"
 
     def _check_download_zip(self):
-        log.info(f"browser_download_url:{self.browser_download_url}")
+        logger.info(f"browser_download_url:{self.browser_download_url}")
         self.zip_path = self.browser_download_url.split("/")[-1]
-        log.info(f"zip_name:{self.zip_path}")
+        logger.info(f"zip_name:{self.zip_path}")
         if APP_PATH.joinpath(self.browser_download_url.split("/")[-1]) in APP_PATH.iterdir():
-            log.ui("存在新版本更新包")
+            logger.ui("存在新版本更新包")
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
-            log.ui("未存在新版本更新包，即将开始下载")
+            logger.ui("未存在新版本更新包，即将开始下载")
             _download_url_default_list = [self.browser_download_url, self._get_ghproxy_url()]
             # 使用用户配置的优先级
             if config.config_user.get("更新模式") == "ghproxy":
@@ -82,7 +82,7 @@ class Upgrade:
                 # 默认顺序
                 _download_url_user_list = _download_url_default_list
             for download_url in _download_url_user_list:
-                log.ui(f"下载链接:\n{download_url}")
+                logger.ui(f"下载链接:\n{download_url}")
                 if self._download_zip(download_url):
                     break
 
@@ -90,25 +90,25 @@ class Upgrade:
         """下载更新包"""
         try:
             with httpx.stream("GET", download_url, headers=self.headers, follow_redirects=True) as r:
-                log.info(f"status_code: {r.status_code}")
+                logger.info(f"status_code: {r.status_code}")
                 print(r.headers)
                 if r.status_code != 200:
                     return False
                 _bytes_total = int(r.headers["Content-length"])
-                log.ui(f"更新包大小:{hum_convert(_bytes_total)}")
+                logger.ui(f"更新包大小:{hum_convert(_bytes_total)}")
                 download_zip_percentage_update(self.zip_path, _bytes_total)
                 with open(self.zip_path, "wb") as f:
                     for chunk in r.iter_bytes(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-                log.ui("更新包下载完成，请关闭程序后手动解压覆盖")
+                logger.ui("更新包下载完成，请关闭程序后手动解压覆盖")
                 toast("更新包下载完成", "请关闭程序后手动解压覆盖")
                 return True
         except httpx.ConnectTimeout:
-            log.ui("超时，尝试更换源")
+            logger.ui("超时，尝试更换源", "warn")
             return False
         except Exception:
-            log.ui("访问下载链接失败")
+            logger.ui("访问下载链接失败", "warn")
             return False
 
     @log_function_call
@@ -116,15 +116,15 @@ class Upgrade:
     def check_latest(self) -> None:
         """检查更新"""
         if config.config_user.get("更新模式") == "关闭":
-            log.info("skip for upgrade")
+            logger.info("skip for upgrade")
             return
 
         STATUS = self._get_browser_download_url()
         match STATUS:
             case "NEW VERSION":
-                log.ui(f"新版本{self.version_github}")
+                logger.ui(f"新版本{self.version_github}")
                 toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
-                log.ui(self.new_version_info)
+                logger.ui(self.new_version_info)
                 self._check_download_zip()
                 for item_path in APP_PATH.iterdir():
                     if APP_NAME in item_path.name.__str__() and item_path.suffix == ".zip":
@@ -133,18 +133,18 @@ class Upgrade:
                 if self.zip_path and Path(self.zip_path).exists():
                     ms.qmessagbox_update.emit("question", "更新重启")
             case "LATEST":
-                log.info("暂无更新")
+                logger.info("暂无更新")
             case "CONNECT ERROR":
-                log.error("访问更新地址失败")
+                logger.ui("访问更新地址失败", "warn")
             case _:
-                log.error("UPDATE ERROR")
+                logger.ui("UPDATE ERROR", "warn")
 
     def _unzip_func(self) -> None:
-        log.info("start unzip")
+        logger.info("start unzip")
         # 解压路径
         self.zip_files_path: Path = APP_PATH / "zip_files"
         # 压缩包文件
-        log.ui("开始解压...")
+        logger.ui("开始解压...")
 
         with zipfile.ZipFile(self.zip_path, "r") as f_zip:
             f_zip.extractall(self.zip_files_path)
@@ -155,9 +155,9 @@ class Upgrade:
                 timestamp = time.mktime(info.date_time + (0, 0, -1))
                 os.utime(os.path.join(self.zip_files_path.__str__(), info.filename), (timestamp, timestamp))
 
-        log.ui("解压结束")
+        logger.ui("解压结束")
         Path(self.zip_path).unlink()
-        log.ui("删除更新包")
+        logger.ui("删除更新包")
 
     def _move_files_recursive(self, source_folder: Path, target_folder: Path) -> None:
         """递归移动文件"""
@@ -175,7 +175,7 @@ class Upgrade:
         self._unzip_func()
         self.move_n: int = 0
         self._move_files_recursive(self.zip_files_path, APP_PATH)
-        log.info(f"finish moving {self.move_n} files.")
+        logger.info(f"finish moving {self.move_n} files.")
         write_upgrage_restart_bat(self.zip_path)
         app_restart(is_upgrade=True)
 

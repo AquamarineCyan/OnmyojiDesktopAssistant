@@ -18,7 +18,7 @@ from ..utils.function import (
     random_coor,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
 
@@ -51,7 +51,7 @@ class BaiGuiYeXing(Package):
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                logger.ui("请检查游戏场景", "warn")
 
     def start(self):
         """开始"""
@@ -92,7 +92,7 @@ class BaiGuiYeXing(Package):
             time.sleep(2)
             x, y = get_coor_info(f"{self.resource_path}/ya").coor
             if x != 0 and y != 0:
-                log.ui("已选择鬼王")
+                logger.ui("已选择鬼王")
                 break
         check_click(f"{self.resource_path}/kaishi", dura=0.5)
 
@@ -134,7 +134,7 @@ class BaiGuiYeXing(Package):
     @log_function_call
     def run(self):
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             random_sleep(1, 3)
             while self.n < self.max:
                 if event_thread.is_set():
@@ -148,9 +148,9 @@ class BaiGuiYeXing(Package):
                 random_sleep(2, 4)
                 self.finish()
                 self.n += 1
-                log.num(f"{self.n}/{self.max}")
+                logger.num(f"{self.n}/{self.max}")
                 time.sleep(4)
                 # TODO 更新随机判断
                 if self.n in {12, 25, 39}:
                     random_sleep(10, 20)
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")

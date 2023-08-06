@@ -9,7 +9,7 @@ from re import compile
 import yaml
 
 from .application import APP_PATH, CONFIG_PATH
-from .log import log, logger
+from .log import logger
 from .mysignal import global_ms as ms
 
 
@@ -29,13 +29,13 @@ class Config():
 
     def config_yaml_init(self) -> None:
         if CONFIG_PATH.is_file():
-            log.info("Find config file.")
+            logger.info("Find config file.")
             data = self._read_config_yaml()
             data = self._check_config_data(data)
             if self.data_error:
                 self._save_config_yaml(data)
         else:
-            log.error("Cannot find config file.")
+            logger.ui("Cannot find config file.", "warn")
             data = deepcopy(self.config_default)
             for key, value in data.items():
                 data[key] = value[0] if isinstance(value, list) else value
@@ -52,7 +52,7 @@ class Config():
             with open(CONFIG_PATH, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
-            log.error("file config.yaml save failed.")
+            logger.ui("file config.yaml save failed.", "error")
             return False
         return True
 
@@ -104,13 +104,13 @@ class Config():
             value (str): 属性
         """
         self.config_user[key] = value
-        log.info(self.config_user)
+        logger.info(self.config_user)
         self._save_config_yaml(self.config_user)
 
     def setting_to_ui_qcombobox_update_func(self) -> None:
         """配置项同步gui"""
         for item in self.config_default.keys():
-            # log.info(f"{item} : {self.config_user[item]}")
+            # logger.info(f"{item} : {self.config_user[item]}")
             ms.setting_to_ui_update.emit(item, self.config_user[item])
 
 
@@ -125,7 +125,7 @@ def is_Chinese_Path() -> bool:
     zhPattern = compile(u'[\u4e00-\u9fa5]+')
     match = zhPattern.search(str(APP_PATH))
     if not match:
-        log.info("English Path")
+        logger.info("English Path")
         return False
-    log.error("Chinese Path")
+    logger.ui("Chinese Path", "error")
     return True

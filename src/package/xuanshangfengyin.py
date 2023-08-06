@@ -9,7 +9,7 @@ from ..utils.config import config
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_xuanshang, event_xuanshang_enable
 from ..utils.function import click, get_coor_info_center
-from ..utils.log import log, logger
+from ..utils.log import logger
 from ..utils.toast import toast
 
 
@@ -53,32 +53,31 @@ class XuanShangFengYin:
         while True:
             coor = get_coor_info_center(f"{self.resource_path}/title.png", is_log=False)
             if coor.is_effective:
-                if not self._flag:
-                    log.scene("悬赏封印")
-                    event_xuanshang.clear()
-                    self._flag = True
-                    log.warn("已暂停后台线程，等待处理", True)
-                    logger.info(f"event_xuanshang by coor_effective: {event_xuanshang.is_set()}")
-                    match config.config_user.get("悬赏封印"):
-                        case "接受":
-                            log.ui("接受协作")
-                            self.check_click("xuanshang_accept.png")
-                        case "拒绝":
-                            log.ui("拒绝协作")
-                            self.check_click("xuanshang_refuse.png")
-                        case "忽略":
-                            log.ui("忽略协作")
-                            self.check_click("xuanshang_ignore.png")
-                        case _:
-                            log.ui("用户配置出错，自动接受协作")
-                            self.check_click("xuanshang_accept.png")
-                    event_xuanshang.set()
-                    toast("悬赏封印", "检测到协作")
+                logger.scene("悬赏封印")
+                event_xuanshang.clear()
+                self._flag = True
+                logger.ui("已暂停后台线程，等待处理", "warn")
+                logger.info(f"event_xuanshang by coor_effective: {event_xuanshang.is_set()}")
+                match config.config_user.get("悬赏封印"):
+                    case "接受":
+                        logger.ui("接受协作")
+                        self.check_click("xuanshang_accept.png")
+                    case "拒绝":
+                        logger.ui("拒绝协作")
+                        self.check_click("xuanshang_refuse.png")
+                    case "忽略":
+                        logger.ui("忽略协作")
+                        self.check_click("xuanshang_ignore.png")
+                    case _:
+                        logger.ui("用户配置出错，自动接受协作")
+                        self.check_click("xuanshang_accept.png")
+                event_xuanshang.set()
+                toast("悬赏封印", "检测到协作")
             else:
                 event_xuanshang.set()
                 if self._flag:
                     self._flag = False
-                    log.ui("悬赏封印已消失，恢复线程")
+                    logger.ui("悬赏封印已消失，恢复线程")
                     logger.info(f"event_xuanshang by coor_zero: {event_xuanshang.is_set()}")
             time.sleep(1)
 

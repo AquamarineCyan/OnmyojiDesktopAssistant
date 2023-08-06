@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # window.py
-"""
-游戏窗口信息
-"""
+"""游戏窗口信息"""
 
 import win32con
 import win32gui
 
-from .log import log
+from .log import logger
 
 
 class Window():
+    """游戏窗口信息"""
+
     def __init__(self) -> None:
         # 窗口大小(官方1136*640)
         # 窗口+外框(1154*687)
@@ -45,13 +45,13 @@ class Window():
         # window_height = self.window_height
         # handle = self.handle
         # handle_coor = self.handle_coor
-        log.info("获取游戏窗口信息中...")
+        logger.info("获取游戏窗口信息中...")
         try:
             # 获取窗口句柄
             self.handle = win32gui.FindWindow("Win32Window", "阴阳师-网易游戏")
             # 返回窗口信息（x1,y1,x2,y2）
             self.handle_coor = win32gui.GetWindowRect(self.handle)
-            log.info(f"handle_coor:{self.handle_coor}")
+            logger.info(f"handle_coor:{self.handle_coor}")
         except Exception:
             self.handle_coor = (0, 0, 0, 0)
         else:
@@ -81,7 +81,7 @@ class Window():
                     s = s + f"{handle_infodict[i]}:{handle_coor[i]}\n"
             """
             s = s + "横纵坐标为窗体区域\n宽高为游戏本体区域"
-            log.ui(s)
+            logger.ui(s)
         return self.handle_coor
 
     def force_zoom(self) -> None:
@@ -93,9 +93,9 @@ class Window():
             win32gui.SetWindowPos(self.handle, win32con.HWND_TOP, self.handle_coor[0], self.handle_coor[1],
                                   self.absolute_window_width, self.absolute_window_height, win32con.SWP_SHOWWINDOW)
             self.handle_coor = win32gui.GetWindowRect(self.handle)
-            log.info(f"handle_coor_new:{self.handle_coor}")
+            logger.info(f"handle_coor_new:{self.handle_coor}")
         else:
-            log.warn("get handle_coor error", True)
+            logger.ui("get handle_coor error", "error")
 
 
 window = Window()

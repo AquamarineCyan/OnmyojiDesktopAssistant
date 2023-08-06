@@ -19,7 +19,7 @@ from ..utils.function import (
     random_sleep,
     result
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
 
@@ -140,7 +140,7 @@ class YuHunTeam(YuHun):
             elif _flag_first:
                 continue
             elif coor.is_zero:
-                log.ui("结束")
+                logger.ui("结束")
                 return
 
     @run_in_thread
@@ -161,7 +161,7 @@ class YuHunTeam(YuHun):
         _resource_list: list = None
         _flag_title_msg: bool = True
 
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
                 return
@@ -171,29 +171,29 @@ class YuHunTeam(YuHun):
                 continue
             if "/" in scene:
                 scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            logger.scene(scene)
             match scene:
                 case "xiezhanduiwu":
-                    log.ui('组队界面准备中')
+                    logger.ui('组队界面准备中')
                     if self.flag_driver:
                         is_passengers_on_position(self.flag_passengers)
                         self.start("team")
                     random_sleep(1, 2)
                     _flag_title_msg = False
                 case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
-                    log.ui("对局进行中")
+                    logger.ui("对局进行中")
                     self.finish()
                     self.n += 1
-                    log.num(f"{self.n}/{self.max}")
+                    logger.num(f"{self.n}/{self.max}")
                     _resource_list = None
                     _flag_title_msg = False
                 case "accept_invitation":
                     # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
-                    log.ui("接受邀请")
+                    logger.ui("接受邀请")
                     click(coor)
                 case _:
                     if _flag_title_msg:
-                        log.warn("请检查游戏场景")
+                        logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False
 
 
@@ -254,7 +254,7 @@ class YuHunSingle(YuHun):
                 random_sleep(0.6, 1)
             # 所有图像都未检测到，退出循环
             elif coor.is_zero:
-                log.ui("结束")
+                logger.ui("结束")
                 return
 
     def finish_slow(self):
@@ -286,7 +286,7 @@ class YuHunSingle(YuHun):
                 random_sleep(0.6, 1)
             # 所有图像都未检测到，退出循环
             elif coor.is_zero:
-                log.ui("结束")
+                logger.ui("结束")
                 return
 
     @run_in_thread
@@ -306,7 +306,7 @@ class YuHunSingle(YuHun):
         _resource_list: list = None
         _flag_title_msg: bool = True
 
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
                 return
@@ -317,7 +317,7 @@ class YuHunSingle(YuHun):
                 continue
             # if "/" in scene:
                 # scene = scene.split("/")[-1]
-            # log.info(f"当前场景: {scene}")
+            # logger.scene(scene)
             self.scene_print(scene)
 
             match scene:
@@ -332,13 +332,13 @@ class YuHunSingle(YuHun):
                     _resource_list = ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"]
                     _flag_title_msg = False
                 case "fighting" | "fighting_linshuanghanxue" | "fighting_shenfa":
-                    log.ui("对局进行中")
+                    logger.ui("对局进行中")
                     self.finish_slow()
                     self.n += 1
-                    log.num(f"{self.n}/{self.max}")
+                    logger.num(f"{self.n}/{self.max}")
                     _resource_list = None
                     _flag_title_msg = False
                 case _:
                     if _flag_title_msg:
-                        log.warn("请检查游戏场景")
+                        logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False

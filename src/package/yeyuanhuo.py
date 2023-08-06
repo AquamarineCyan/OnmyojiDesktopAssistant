@@ -14,7 +14,7 @@ from ..utils.function import (
     finish_random_left_right,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from .utils import Package
 
 
@@ -47,11 +47,11 @@ class YeYuanHuo(Package):
     @time_count
     @log_function_call
     def run(self):
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
                 return
-            
+
             scene, coor = check_scene_multiple_once(self.resource_list, self.resource_path)
             # if scene is None:
             #     continue
@@ -73,5 +73,5 @@ class YeYuanHuo(Package):
                 random_sleep(2, 4)
                 continue
             elif result == False:
-                log.error("失败，需要手动处理", True)
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+                logger.ui("失败，需要手动处理", "warn")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")

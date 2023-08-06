@@ -15,7 +15,7 @@ from ..utils.function import (
     get_coor_info,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 
 
 class DaoGuanTuPo:
@@ -63,7 +63,7 @@ class DaoGuanTuPo:
                     # 等待倒计时自动进入
                     if self.judge_scene_daoguantupo() == "倒计时":
                         if flag_daojishi:
-                            log.info("等待倒计时自动进入", True)
+                            logger.ui("等待倒计时自动进入")
                             flag_daojishi = False
                         self.flag_fighting = True
                         break
@@ -72,17 +72,17 @@ class DaoGuanTuPo:
                         break
                     # 馆主战
                     elif self.judge_scene_daoguantupo() == "馆主战":
-                        log.warn("待开发", True)
+                        logger.ui("待开发", "warn")
                         break
                 return True
             # 已进入道馆进攻状态
             elif self.judge_scene_daoguantupo() == "进行中":
-                log.info("道馆突破进行中", True)
+                logger.ui("道馆突破进行中")
                 self.flag_fighting = True
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                logger.ui("请检查游戏场景", "warn")
 
     def judge_scene_daoguantupo(self) -> str:
         """场景判断"""
@@ -101,7 +101,7 @@ class DaoGuanTuPo:
 
     def guanzhan(self):
         """观战"""
-        log.ui("观战中，暂无法自动退出，可手动退出")
+        logger.ui("观战中，暂无法自动退出，可手动退出", "warn")
         # 战报按钮
         while True:
             if event_thread.is_set():
@@ -129,23 +129,23 @@ class DaoGuanTuPo:
             # 可助威
             if coor1.is_effective:
                 click(coor)
-                log.ui("助威成功")
+                logger.ui("助威成功")
                 flag_zhuwei = True
             # 不可助威
             elif coor2.is_effective:
                 if flag_zhuwei:
-                    log.ui("无法助威")
+                    logger.ui("无法助威")
                     flag_zhuwei = False
             # 结束观战
             else:
                 coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
                 if coor.is_effective:
-                    log.ui("胜利")
+                    logger.ui("胜利")
                     finish_random_left_right()
                     break
                 coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
                 if coor.is_effective:
-                    log.ui("失败")
+                    logger.ui("失败", "warn")
                     finish_random_left_right()
                     break
             random_sleep(1, 2)
@@ -160,7 +160,7 @@ class DaoGuanTuPo:
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(0)
+            logger.num(0)
             random_sleep(2, 4)
             if not self.flag_fighting:
                 check_click(f"{self.resource_path}/tiaozhan")
@@ -178,22 +178,22 @@ class DaoGuanTuPo:
                 ]
                 scene, coor = check_scene_multiple_once(_resource_list)
                 if scene == f"{self.resource_path}/zhunbei":
-                    log.ui("准备")
+                    logger.ui("准备")
                     click(coor)
                     self.n += 1
-                    log.num(str(self.n))
+                    logger.num(str(self.n))
                     random_sleep(1, 2)
                 elif scene == f"{RESOURCE_FIGHT_PATH}/victory":
                     random_sleep(1, 2)
                 elif scene == f"{RESOURCE_FIGHT_PATH}/finish":
-                    log.ui("失败")
+                    logger.ui("失败", "warn")
                     finish_random_left_right()
                     break
                 elif scene == f"{RESOURCE_FIGHT_PATH}/fail":
-                    log.ui("失败")
+                    logger.ui("失败", "warn")
                     finish_random_left_right()
                     break
 
             if self.flag_guanzhan:
                 self.guanzhan()
-        log.ui(f"已完成 {self.scene_name} 胜利{self.n}次")
+        logger.ui(f"已完成 {self.scene_name} 胜利{self.n}次")

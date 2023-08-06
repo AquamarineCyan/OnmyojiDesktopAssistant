@@ -9,9 +9,9 @@ Onmyoji_Python.exe
 # dir
 .vscode
 build
-cache*
 dist
 doc
 log
+screenshot
 src/resource/test
 test_code

@@ -7,7 +7,7 @@ from src.utils.event import event_thread
 
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.function import check_click, check_scene, random_sleep
-from ..utils.log import log
+from ..utils.log import logger
 from .utils import Package
 
 
@@ -38,7 +38,7 @@ class ZhaoHuan(Package):
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景")
+                logger.ui("请检查游戏场景", "warn")
 
     def first(self) -> None:
         """第一次召唤"""
@@ -53,7 +53,7 @@ class ZhaoHuan(Package):
     @log_function_call
     def run(self) -> None:
         _flag_first = True  # 是否第一次
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         random_sleep(0.4, 0.8)
         self.title()
 
@@ -69,4 +69,4 @@ class ZhaoHuan(Package):
             self.done()
 
         check_click(f"{self.resource_path}/queding")
-        log.ui(f"已完成 普通召唤十连 {self.n}次")
+        logger.ui(f"已完成 普通召唤十连 {self.n}次")

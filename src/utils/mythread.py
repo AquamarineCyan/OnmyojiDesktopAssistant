@@ -74,7 +74,7 @@ class WorkThread(Thread):
         #         return
 
     def thread_stop(self):
-        log.ui("stopping, please waiting...")
+        logger.ui("stopping, please waiting...")
     def get_result(self):
         try:
             return self.result

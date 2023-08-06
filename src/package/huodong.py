@@ -20,7 +20,7 @@ from ..utils.function import (
     get_coor_info,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
 
@@ -50,7 +50,7 @@ class HuoDong(Package):
                 return True
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景")
+                logger.ui("请检查游戏场景", "warn")
 
     def start(self) -> None:
         """开始"""
@@ -80,7 +80,7 @@ class HuoDong(Package):
         ]
         _flag_title_msg: bool = True
 
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
                 return
@@ -89,25 +89,25 @@ class HuoDong(Package):
                 continue
             if "/" in scene:
                 scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            logger.scene(scene)
             match scene:
                 case "title":
-                    log.ui("守缘合战")
+                    logger.ui("守缘合战")
                     _flag_title_msg = False
                     self.start()
                     random_sleep(1, 2)
                 # case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
                 # case "fighting_back_default":
-                    # log.ui("对局进行中")
+                    # logger.ui("对局进行中")
                     self.finish()
                     self.done()
                     random_sleep(2, 4)
                 case _:
                     if _flag_title_msg:
-                        log.warn("请检查游戏场景")
+                        logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False
 
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")
 
 
 class BaiMianGuiYi(HuoDong):
@@ -122,7 +122,7 @@ class BaiMianGuiYi(HuoDong):
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             _flag_title_msg: bool = True
 
             while self.n < self.max:
@@ -131,7 +131,7 @@ class BaiMianGuiYi(HuoDong):
                 _resource_list = ["title", "start", "hechengbiao", "finish", "money"]
                 scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
                 if scene:
-                    log.ui(f"scene: {scene}")
+                    logger.scene(scene)
                 match scene:
                     case "title":
                         self.start()
@@ -140,7 +140,7 @@ class BaiMianGuiYi(HuoDong):
                         click(coor)
                         _flag_title_msg = False
                     case "hechengbiao":
-                        log.ui("进行中")
+                        logger.ui("进行中")
                         _x = window.absolute_window_width / 2
                         _y = window.absolute_window_height / 2
                         # 移至正中心
@@ -151,15 +151,15 @@ class BaiMianGuiYi(HuoDong):
                         pyautogui.drag(x, y, button="left")
                         _flag_title_msg = False
                     case "finish":
-                        log.ui("结算")
+                        logger.ui("结算")
                         finish_random_left_right()
                         self.n += 1
-                        log.num(f"{self.n}/{self.max}")
+                        logger.num(f"{self.n}/{self.max}")
                     case "money":
-                        log.ui("结束")
+                        logger.ui("结束")
                         click()
                     case _:
                         if _flag_title_msg:
-                            log.warn("请检查游戏场景")
+                            logger.ui("请检查游戏场景", "warn")
                             _flag_title_msg = False
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")

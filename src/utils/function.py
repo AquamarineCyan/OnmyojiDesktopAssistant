@@ -19,7 +19,7 @@ from .application import (
 from .coordinate import Coor
 from .decorator import log_function_call
 from .event import event_thread, event_xuanshang, event_xuanshang_enable
-from .log import log, logger
+from .log import logger
 from .mysignal import global_ms as ms
 from .window import window
 
@@ -81,7 +81,7 @@ def random_coor(x1: int, x2: int, y1: int, y2: int) -> Coor:
     # TODO 返回坐标偏中心
     x = random_num(x1, x2)
     y = random_num(y1, y2)
-    log.info(f"random_coor: {x},{y}")
+    logger.info(f"random_coor: {x},{y}")
     return Coor(x, y)
 
 
@@ -93,7 +93,7 @@ def random_sleep(minimum: int | float, maximum: int | float) -> None:
         maximum (int): 最大值（不含）
     """
     _sleep_time = random_num(minimum, maximum)
-    log.info(f"sleep for {_sleep_time} seconds")
+    logger.info(f"sleep for {_sleep_time} seconds")
     time.sleep(_sleep_time)
 
 
@@ -119,7 +119,7 @@ def image_file_format(file: Path | str) -> str:
     if Path(RESOURCE_DIR_PATH / _file).exists():
         return _file
     else:
-        log.warn(f"no such file {_file}", False)
+        logger.warn(f"no such file {_file}")
 
 
 def get_coor_info(file: Path | str) -> Coor:
@@ -135,7 +135,7 @@ def get_coor_info(file: Path | str) -> Coor:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
     _file_name = image_file_format(RESOURCE_DIR_PATH / file)
-    log.info(f"looking for file: {_file_name}")
+    logger.info(f"looking for file: {_file_name}")
     # 等待悬赏封印判定
     if event_thread.is_set():
         return Coor(0, 0)
@@ -155,7 +155,7 @@ def get_coor_info(file: Path | str) -> Coor:
         )
         logger.debug(f"button_location: {button_location}")
         if button_location:
-            log.info(f"button_location: {button_location}")
+            logger.info(f"button_location: {button_location}")
         coor = random_coor(
             button_location[0],
             button_location[0] + button_location[2],
@@ -219,7 +219,7 @@ def check_scene(file: str, scene_name: str = None) -> bool:
         if coor.is_zero:
             return False
         if scene_name:
-            log.scene(scene_name)
+            logger.scene(scene_name)
         return True
 
 
@@ -273,17 +273,17 @@ def check_scene_multiple_while(scene: dict | list = None, resource_path: str = N
             return
         scene, coor = check_scene_multiple_once(scene, resource_path)
         if coor.is_effective():
-            log.info(f"{scene}, ({coor.x},{coor.y})")
+            logger.info(f"{scene}, ({coor.x},{coor.y})")
             return scene, coor
         elif _flag:
             _flag = False
-            log.warn(_text)
+            logger.ui(_text, "warn")
 
 
 @log_function_call
 def is_passengers_on_position(flag_passengers: int = 2):
     """队员就位"""
-    log.ui("等待队员")
+    logger.ui("等待队员")
     while True:
         if event_thread.is_set():
             return
@@ -291,12 +291,12 @@ def is_passengers_on_position(flag_passengers: int = 2):
         if flag_passengers == 3:
             coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/passenger_3")
             if coor.is_zero:
-                log.ui("队员3就位")
+                logger.ui("队员3就位")
                 return
         else:
             coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/passenger_2")
             if coor.is_zero:
-                log.ui("队员2就位")
+                logger.ui("队员2就位")
                 return
 
 
@@ -312,15 +312,15 @@ def result() -> bool:
             return
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
         if coor.is_effective:
-            log.ui("胜利")
+            logger.ui("胜利")
             return True
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")  # 手快导致提前结束
         if coor.is_effective:
-            log.ui("结束")
+            logger.ui("结束")
             return True
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")  # TODO `fail` 需要更新素材
         if coor.is_effective:
-            log.ui("失败")
+            logger.ui("失败", "warn")
             return False
 
 
@@ -333,11 +333,11 @@ def result_once() -> bool | None:
     """
     coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
     if coor.is_effective:
-        log.ui("胜利")
+        logger.ui("胜利")
         return True
     coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
     if coor.is_effective:
-        log.ui("失败")
+        logger.ui("失败", "warn")
         return False
     return None
 
@@ -365,13 +365,15 @@ def finish() -> bool:
         bool: Success or Fail
     """
     while True:
+        if event_thread.is_set():
+            return
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
         if coor.is_effective:
-            log.ui("胜利")
+            logger.ui("胜利")
             return True
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
         if coor.is_effective:
-            log.ui("失败")
+            logger.ui("失败", "warn")
             return False
 
 
@@ -383,11 +385,11 @@ def check_finish_once() -> bool | None:
     """
     coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
     if coor.is_effective:
-        log.ui("胜利")
+        logger.ui("胜利")
         return True
     coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
     if coor.is_effective:
-        log.ui("失败")
+        logger.ui("失败", "warn")
         return False
     return None
 
@@ -462,7 +464,7 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     try:
         pyautogui.click()
     except pyautogui.FailSafeException:
-        log.error("安全错误，可能是您点击了屏幕左上角，请重启后使用", True)
+        logger.ui("安全错误，可能是您点击了屏幕左上角，请重启后使用", "error")
 
 
 def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, sleep_time: float = 0) -> None:
@@ -481,7 +483,7 @@ def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, slee
         if coor.is_effective:
             if is_click:
                 click(coor, dura, sleep_time)
-            log.info("move to right coor successfully")
+            logger.info("move to right coor successfully")
             return
 
 
@@ -609,14 +611,14 @@ def app_restart(is_upgrade: bool = False) -> None:
     参数:
         is_upgrade (bool): 是否更新重启，默认否
     """
-    log.info("重启中")
+    logger.info("重启中")
     # 更新重启有独立的脚本
     if not is_upgrade:
         write_restart_bat()
     # 启动.bat文件
     Popen([RESTART_BAT_PATH])
     # 关闭当前exe程序
-    log.info("App Exiting...")
+    logger.info("App Exiting...")
     ms.sys_exit_update.emit(True)
 
 

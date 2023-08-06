@@ -20,7 +20,7 @@ from ..utils.function import (
     image_file_format,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
 
@@ -68,7 +68,7 @@ class TanSuo(Package):
             Coor: 识别成功，返回匹配到的第一个图像的全局中心坐标，识别失败，返回(0,0)
         """
         _file_name = image_file_format(RESOURCE_DIR_PATH / self.resource_path / file)
-        log.info(_file_name)
+        logger.info(_file_name)
         try:
             for button_location in pyautogui.locateAllOnScreen(
                 _file_name,
@@ -80,9 +80,9 @@ class TanSuo(Package):
                 ),
                 confidence=0.8
             ):
-                log.info(f"button_location: {button_location}")
+                logger.info(f"button_location: {button_location}")
                 button_location_center = pyautogui.center(button_location)
-                log.info(f"button_location_center: {button_location_center}")
+                logger.info(f"button_location_center: {button_location_center}")
                 return Coor(button_location_center.x, button_location_center.y)
             # 未匹配到一个
             return Coor(0, 0)
@@ -107,7 +107,7 @@ class TanSuo(Package):
                 continue
             if "/" in scene:
                 scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            logger.scene(scene)
 
             match scene:
                 case "chuzhanxiaohao" | "tansuo_28" | "tansuo_28_0" | "tansuo_28_title":
@@ -115,7 +115,7 @@ class TanSuo(Package):
                 case _:
                     if flag_title:
                         flag_title = False
-                        log.warn("请检查游戏场景", True)
+                        logger.ui("请检查游戏场景", "warn")
 
     @log_function_call
     def fighting(self, flag_boss=False):
@@ -170,18 +170,18 @@ class TanSuo(Package):
     @log_function_call
     def run(self):
         _scene_list = [
-                "tansuo_28_0",
-                "tansuo_28_title",
-                "kunnan_big",
-                "tansuo",
-                "chuzhanxiaohao",
-            ]
-        log.ui("单人探索，测试功能，未完成")
+            "tansuo_28_0",
+            "tansuo_28_title",
+            "kunnan_big",
+            "tansuo",
+            "chuzhanxiaohao",
+        ]
+        logger.ui("单人探索，测试功能", "warn")
 
         while self.n < self.max and self.title():
             if event_thread.is_set():
                 return
-            
+
             scene, coor = check_scene_multiple_once(_scene_list, self.resource_path)
             if scene is None:
                 continue
@@ -202,7 +202,7 @@ class TanSuo(Package):
                     # 先判断boss面灵气
                     coor = get_coor_info(f"{self.resource_path}/fighting_boss")
                     if coor.is_effective:
-                        log.ui("BOSS")
+                        logger.scene("BOSS")
                         click(coor)
                         self.fighting(flag_boss=True)
                     else:  # FIXME 打完一次普通的就会退出整场探索
@@ -217,4 +217,4 @@ class TanSuo(Package):
                         self.flag_boss_done = False
                         self.finish()
                         self.done()
-        log.ui(f"已完成 {self.scene_name} {self.n}次")
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")

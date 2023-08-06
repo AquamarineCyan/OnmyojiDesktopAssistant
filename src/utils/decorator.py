@@ -14,7 +14,7 @@
 import functools
 import time
 
-from .log import log, logger
+from .log import logger
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .toast import toast
@@ -44,9 +44,9 @@ def time_count(func):
         end = time.perf_counter()
         try:
             if end - start >= 60:
-                log.ui(f"耗时{int((end - start) // 60)}分{int((end - start) % 60)}秒")
+                logger.ui(f"耗时{int((end - start) // 60)}分{int((end - start) % 60)}秒")
             else:
-                log.ui(f"耗时{int(end - start)}秒")
+                logger.ui(f"耗时{int(end - start)}秒")
         except Exception:
             logger.error("耗时统计计算失败")
         # 启用按钮

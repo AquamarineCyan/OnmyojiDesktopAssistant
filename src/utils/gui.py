@@ -19,7 +19,7 @@ from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread, event_xuanshang_enable
 from .function import FightResource, app_restart, remove_restart_bat_file
-from .log import log, log_clean_up, logger
+from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
 from .update import update_record
 from .upgrade import upgrade
@@ -125,25 +125,25 @@ class MainWindow(QMainWindow):
     @run_in_thread
     def application_init(self) -> None:
         """程序初始化"""
-        log.info(f"application path: {APP_PATH}")
-        log.info(f"resource path: {RESOURCE_DIR_PATH}")
-        log.info(f"[VERSION] {VERSION}")
+        logger.info(f"application path: {APP_PATH}")
+        logger.info(f"resource path: {RESOURCE_DIR_PATH}")
+        logger.info(f"[VERSION] {VERSION}")
         if config.config_user:
             for item in config.config_user.keys():
-                log.info(f"{item} : {config.config_user[item]}")
-        log.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
+                logger.info(f"{item} : {config.config_user[item]}")
+        logger.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
 使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止")
         if self._check_enviroment():
-            log.ui("环境完整")
+            logger.ui("环境完整")
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
-            log.ui("移动游戏窗口后，点击下方“游戏检测”即可")
-            log.ui("请选择功能以加载内容，请确保锁定阵容")
+            logger.ui("移动游戏窗口后，点击下方“游戏检测”即可")
+            logger.ui("请选择功能以加载内容，请确保锁定阵容")
         else:
-            log.error("环境损坏", True)
+            logger.ui("环境损坏", "error")
 
-        log.ui("初始化完成")
-        log.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
+        logger.ui("初始化完成")
+        logger.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
         log_clean_up()
         remove_restart_bat_file()
         upgrade.check_latest()
@@ -160,28 +160,28 @@ class MainWindow(QMainWindow):
             case "question":
                 match msg:
                     case "强制缩放":
-                        log.error("游戏窗口大小不匹配")
+                        logger.error("游戏窗口大小不匹配")
                         choice = QMessageBox.question(
                             self,
                             "窗口大小不匹配",
                             "是否强制缩放，如不缩放，请自行靠近1136*640或者替换pic文件夹中对应素材"
                         )
                         if choice == QMessageBox.Yes:
-                            log.info("用户接受强制缩放")
+                            logger.info("用户接受强制缩放")
                             window.force_zoom()
                         elif choice == QMessageBox.No:
-                            log.info("用户拒绝强制缩放")
+                            logger.info("用户拒绝强制缩放")
                     case "更新重启":
-                        log.info("提示：更新重启")
+                        logger.info("提示：更新重启")
                         if QMessageBox.question(
                             self,
                             "检测到更新包",
                             "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
                         ) == QMessageBox.Yes:
-                            log.info("用户接受更新重启")
+                            logger.info("用户接受更新重启")
                             Thread(target=upgrade.restart, daemon=True).start()
                         else:
-                            log.info("用户拒绝更新重启")
+                            logger.info("用户拒绝更新重启")
 
     def text_print_update_func(self, msg: str, color: str) -> None:
         """输出内容至文本框
@@ -229,14 +229,14 @@ class MainWindow(QMainWindow):
         返回:
             bool: 是否完成
         """
-        log.info("环境检测中...")
+        logger.info("环境检测中...")
         # 中文路径
         if is_Chinese_Path():
             ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
             return False
         # 资源文件夹完整度
         if not self.is_resource_directory_complete():
-            log.error("资源丢失", True)
+            logger.ui("资源丢失", "error")
             return False
         # 游戏窗口检测
         if not self.check_game_handle():
@@ -258,7 +258,7 @@ class MainWindow(QMainWindow):
                 self.resource_path = "tests"
                 self.resource_list: list = []
 
-        log.info("开始检查资源")
+        logger.info("开始检查资源")
         if not Path(RESOURCE_DIR_PATH).exists():
             return False
         P: Package
@@ -280,37 +280,37 @@ class MainWindow(QMainWindow):
         ]:
             # 检查子文件夹
             if not Path(RESOURCE_DIR_PATH/P.resource_path).exists():
-                log.error("资源文件夹不存在！", True)
+                logger.ui("资源文件夹不存在！", "error")
                 ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
                 return False
             else:
                 # 检查资源文件
                 for item in P.resource_list:
                     if not Path(RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
-                        log.error(f"无{P.resource_path}/{item}.png资源文件", True)
+                        logger.ui(f"无{P.resource_path}/{item}.png资源文件", "error")
                         ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                         return False
-        log.info("资源完整")
+        logger.info("资源完整")
         return True
 
     def setting_update_comboBox_func(self) -> None:
         """设置-更新模式-更改"""
         text = self.ui.setting_update_comboBox.currentText()
-        log.info(f"设置项：更新模式已更改为 {text}")
+        logger.info(f"设置项：更新模式已更改为 {text}")
         config.config_user_changed("更新模式", text)
 
     def setting_download_comboBox_func(self) -> None:
         """设置-下载线路-更改"""
         text = self.ui.setting_download_comboBox.currentText()
-        log.info(f"设置项：下载线路已更改为 {text}")
+        logger.info(f"设置项：下载线路已更改为 {text}")
         config.config_user_changed("下载线路", text)
 
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
         if text == "关闭":
-            log.ui("成功关闭悬赏封印，重启程序后生效")
-        log.info(f"设置项：悬赏封印已更改为 {text}")
+            logger.ui("成功关闭悬赏封印，重启程序后生效")
+        logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("悬赏封印", text)
 
     @log_function_call
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
         Returns:
             bool: 检测结果
         """
-        log.info("游戏窗口检测中...")
+        logger.info("游戏窗口检测中...")
         # 获取游戏窗口信息
         window.get_game_window_handle()
         handle_coor = window.handle_coor
@@ -335,11 +335,11 @@ class MainWindow(QMainWindow):
                 handle_coor[3] - handle_coor[1] != window.absolute_window_height:
             ms.qmessagbox_update.emit("question", "强制缩放")
         else:
-            log.ui("游戏窗口检测成功")
+            logger.ui("游戏窗口检测成功")
             self.ui.combo_choice.setEnabled(True)
             self.ui.spinB_num.setEnabled(True)
             return True
-        log.ui("游戏窗口检测失败")
+        logger.ui("游戏窗口检测失败")
         return False
 
     def choice_text(self):
@@ -351,7 +351,7 @@ class MainWindow(QMainWindow):
         if text == self._list_function[0]:
             # 1.御魂副本
             self._choice = 1
-            log.ui("请确保阵容稳定，已适配组队/单人 魂土、神罚副本\
+            logger.ui("请确保阵容稳定，已适配组队/单人 魂土、神罚副本\
                    新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
@@ -370,7 +370,7 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[1]:
             # 2.组队永生之海副本
             self._choice = 2
-            log.ui("默认打手30次\n阴阳师技能自行选择，如晴明灭\n待开发：手动第一次锁定阵容")
+            logger.ui("默认打手30次\n阴阳师技能自行选择，如晴明灭\n待开发：手动第一次锁定阵容")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(30)
@@ -386,19 +386,19 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[2]:
             # 3.业原火副本
             self._choice = 3
-            log.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
+            logger.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
         elif text == self._list_function[3]:
             # 4.御灵副本
             self._choice = 4
-            log.ui("暗神龙-周二六日\n暗白藏主-周三六日\n暗黑豹-周四六\n暗孔雀-周五六日\n绘卷期间请减少使用")
+            logger.ui("暗神龙-周二六日\n暗白藏主-周三六日\n暗黑豹-周四六\n暗孔雀-周五六日\n绘卷期间请减少使用")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 400)  # 桌面版上限300
         elif text == self._list_function[4]:
             # 5.个人突破
             self._choice = 5
-            log.ui("默认3胜刷新，上限30")
+            logger.ui("默认3胜刷新，上限30")
             # self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 30)
@@ -407,46 +407,46 @@ class MainWindow(QMainWindow):
             self._choice = 6
             now = time.strftime("%H:%M:%S")
             if now >= "21:00:00":
-                log.warn("CD无限", True)
-                log.ui("请尽情挑战，桌面版单账号上限100次")
+                logger.ui("CD无限", "warn")
+                logger.ui("请尽情挑战，桌面版单账号上限100次")
             else:
-                log.warn("CD受限", True)
-                log.ui("默认6次，可在每日21时后无限挑战")
-            log.ui("待开发：滚轮翻页")
+                logger.ui("CD6次", "warn")
+                logger.ui("默认6次，可在每日21时后无限挑战")
+            logger.ui("待开发：滚轮翻页")
             self.ui.spinB_num.setValue(6)
             self.ui.spinB_num.setRange(1, 200)  # 桌面版上限100
         elif text == self._list_function[6]:
             # 7.道馆突破
             self._choice = 7
-            log.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景\n待开发：冷却时间、观战助威")
+            logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景\n待开发：冷却时间、观战助威")
             self.ui.stackedWidget.setCurrentIndex(3)  # 索引3，道馆突破
             self.ui.spinB_num.setEnabled(False)
         elif text == self._list_function[7]:
             # 8.普通召唤
             self._choice = 8
-            log.ui("普通召唤，请选择十连次数")
+            logger.ui("普通召唤，请选择十连次数")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[8]:
             # 9.百鬼夜行
             self._choice = 9
-            log.ui("仅适用于清票，且无法指定鬼王")
+            logger.ui("仅适用于清票，且无法指定鬼王")
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 100)
         elif text == self._list_function[9]:
             # 10.限时活动
             self._choice = 10
-            log.ui(
+            logger.ui(
                 "适用于限时活动及其他连点，请提前确保阵容完好并锁定\n\
 可替换resource/huodong下的素材\n\
-当前为「森间试炼」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
+当前为「守缘合战」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
         elif text == self._list_function[10]:
             # 11.组队日轮副本
             self._choice = 11
-            log.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
+            logger.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
             self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
             # 默认值
             self.ui.spinB_num.setValue(50)
@@ -464,13 +464,13 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[11]:
             # 12.单人探索
             self._choice = 12
-            log.warn("测试功能")
-            log.ui("提前准备好自动轮换和加成，仅单人探索")
+            logger.ui("测试功能", "warn")
+            logger.ui("提前准备好自动轮换和加成，仅单人探索")
             self.ui.spinB_num.setValue(1)
         elif text == self._list_function[12]:
             # 13.契灵
             self._choice = 13
-            log.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动结契场上的契灵")
+            logger.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动结契场上的契灵")
             self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
             self.ui.spinB_num.setValue(1)
             self.ui.button_qiling_tancha.setChecked(True)
@@ -568,7 +568,7 @@ class MainWindow(QMainWindow):
         def stop() -> None:
             """停止函数"""
             event_thread.set()
-            log.ui("停止中，请稍候")
+            logger.ui("停止中，请稍候")
 
         match self.ui.button_start.text():
             case "开始":
@@ -617,7 +617,7 @@ class MainWindow(QMainWindow):
 
     def open_GitHub_address(self, *args) -> None:
         import webbrowser
-        log.info("open GitHub address.")
+        logger.info("open GitHub address.")
         webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
 
     def closeEvent(self, event) -> None:

@@ -17,7 +17,7 @@ from ..utils.function import (
     random_sleep,
     result
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
 
@@ -88,13 +88,13 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
     @log_function_call
     def is_passengers_on_position(self):
         """队员就位"""
-        log.ui("等待队员")
+        logger.ui("等待队员")
         while True:
             if event_thread.is_set():
                 return
             coor = get_coor_info(f"{self.resource_path}/passenger")
             if coor.is_zero:
-                log.ui("队员就位")
+                logger.ui("队员就位")
                 return
 
     @log_function_call
@@ -136,7 +136,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
             elif _flag_first:
                 continue
             elif coor.is_zero:
-                log.ui("结束")
+                logger.ui("结束")
                 return
 
     @run_in_thread
@@ -155,7 +155,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         _resource_list: list = None
         _flag_title_msg: bool = True
 
-        log.num(f"0/{self.max}")
+        logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
                 return
@@ -165,10 +165,10 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 continue
             if "/" in scene:
                 scene = scene.split("/")[-1]
-            log.info(f"当前场景: {scene}")
+            logger.scene(scene)
             match scene:
                 case "title_team":
-                    log.ui("组队界面准备中")
+                    logger.ui("组队界面准备中")
                     if self.flag_driver:
                         self.is_passengers_on_position()
                         self.start("team")
@@ -176,17 +176,17 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                     random_sleep(1, 2)
                     _flag_title_msg = False
                 case "fighting":
-                    log.ui("对局进行中")
+                    logger.ui("对局进行中")
                     self.finish()
                     self.n += 1
-                    log.num(f"{self.n}/{self.max}")
+                    logger.num(f"{self.n}/{self.max}")
                     random_sleep(1, 2)
                     _flag_title_msg = False
                 case "accept_invitation":
                     # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
-                    log.ui("接受邀请")
+                    logger.ui("接受邀请")
                     click(coor)
                 case _:
                     if _flag_title_msg:
-                        log.warn("请检查游戏场景")
+                        logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False

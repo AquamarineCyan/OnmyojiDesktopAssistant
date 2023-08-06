@@ -26,7 +26,7 @@ from ..utils.function import (
     random_coor,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from ..utils.window import window
 
 
@@ -68,7 +68,7 @@ class JieJieTuPo:
             Coor: 坐标
         """
         _file_name = image_file_format(RESOURCE_DIR_PATH / self.resource_path / file)
-        log.info(f"looking for file: {_file_name}")
+        logger.info(f"looking for file: {_file_name}")
         if "xunzhang" in file:
             # 个人突破
             try:
@@ -144,7 +144,7 @@ class JieJieTuPo:
             pyautogui.press("esc")
             if check_scene(f"{self.resource_path}/fighting_fail"):
                 pyautogui.press("enter")
-                log.ui("手动退出")
+                logger.ui("手动退出")
                 break
             random_sleep(0, 1)
 
@@ -192,7 +192,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景", True)
+                logger.ui("请检查游戏场景", "warn")
 
     def list_num_xunzhang(self) -> list[int]:
         """
@@ -275,7 +275,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             else:
                 list_xunzhang = f"{list_xunzhang},{str(alist[i])}"
         list_xunzhang = f"{list_xunzhang}]"
-        log.ui(list_xunzhang)
+        logger.ui(list_xunzhang)
         return alist
 
     def fighting(self) -> None:
@@ -289,14 +289,14 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     if event_thread.is_set():
                         return
                     k = self.list_xunzhang.index(i, k)
-                    log.ui(f"{k} 可进攻")
+                    logger.ui(f"{k} 可进攻")
                     coor = self.get_coor_info_tupo(
                         self.tupo_geren_x[(k + 2) % 3 + 1],
                         self.tupo_geren_y[(k + 2) // 3],
                         "fail.png"
                     )
                     if coor.is_effective:
-                        log.ui(f"{k} 已失败")
+                        logger.ui(f"{k} 已失败")
                         k += 1
                         continue
                     self.fighting_tupo(
@@ -310,7 +310,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     if finish():
                         flag_victory = True
                         self.n += 1
-                        log.num(f"{self.n}/{self.max}")
+                        logger.num(f"{self.n}/{self.max}")
                     else:
                         flag_victory = False
                     random_sleep(0, 1)
@@ -328,7 +328,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                             coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
                             if coor.is_zero:
                                 break
-                        log.ui("成功攻破3次")
+                        logger.ui("成功攻破3次")
                     random_sleep(2, 3)
                     if flag_victory:
                         return
@@ -343,7 +343,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             # 第一次刷新 或 冷却时间已过
             timenow = time.perf_counter()
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
-                log.ui("刷新中")
+                logger.ui("刷新中")
                 random_sleep(3, 6)
                 check_click(f"{self.resource_path}/shuaxin", sleep_time=2)
                 random_sleep(2, 4)
@@ -353,7 +353,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 break
             elif not flag_refresh:
                 time_wait = math.ceil(self.time_refresh + 5 * 60 - timenow)
-                log.ui(f"等待刷新冷却，约{time_wait}秒")
+                logger.ui(f"等待刷新冷却，约{time_wait}秒")
                 flag_refresh = True
                 random_sleep(time_wait, time_wait+5)
 
@@ -362,7 +362,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             while self.n < self.max:
                 if event_thread.is_set():
                     return
@@ -375,13 +375,13 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     self.refresh()
                 # 挑战
                 elif self.tupo_victory < 3:
-                    log.ui(f"已攻破{self.tupo_victory}个")
+                    logger.ui(f"已攻破{self.tupo_victory}个")
                     self.fighting()
                 elif self.tupo_victory > 3:
-                    log.warn("暂不支持大于3个，请自行处理")
+                    logger.ui("暂不支持大于3个，请自行处理", "warn")
                     break
                 random_sleep(2, 3)
-        log.ui(f"已完成 个人突破 {self.n}次")
+        logger.ui(f"已完成 个人突破 {self.n}次")
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):
@@ -422,7 +422,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     random_sleep(3, 4)
             elif flag_title:
                 flag_title = False
-                log.warn("请检查游戏场景")
+                logger.ui("请检查游戏场景", "warn")
 
     def jibaicishu(self) -> bool:
         """剩余次数判断"""
@@ -431,7 +431,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             while True:
                 try:
                     filename = RESOURCE_DIR_PATH / self.resource_path / "jibaicishu.png"
-                    log.info(filename)
+                    logger.info(filename)
                     if isinstance(filename, Path):
                         filename = str(filename)
                     button_location = pyautogui.locateOnScreen(
@@ -455,13 +455,15 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         """战斗"""
         i = 1
         while True:
+            if event_thread.is_set():
+                return 0
             coor = self.get_coor_info_tupo(
                 self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                 self.tupo_yinyangliao_y[(i + 1) // 2],
                 "fail.png"
             )
             if coor.is_zero:
-                log.info(f"{i} 可进攻")
+                logger.info(f"{i} 可进攻")
                 self.fighting_tupo(
                     self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                     self.tupo_yinyangliao_y[(i + 1) // 2]
@@ -477,11 +479,11 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 coor = finish_random_left_right()
                 return flag
             else:
-                log.ui(f"{i} 已失败")
+                logger.ui(f"{i} 已失败")
                 i += 1
                 if i == 8:
                     # 单页上限8个
-                    log.ui("当前页全部失败")
+                    logger.ui("当前页全部失败", "warn")
                     flag = -1
                     return flag
 
@@ -490,14 +492,14 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     @log_function_call
     def run(self) -> None:
         if self.title():
-            log.num(f"0/{self.max}")
+            logger.num(f"0/{self.max}")
             random_sleep(1, 3)
             while self.n < self.max:
                 random_sleep(0, 1)
                 if flag := self.fighting():
                     self.n += 1
-                    log.num(f"{self.n}/{self.max}")
+                    logger.num(f"{self.n}/{self.max}")
                 elif flag == -1:
                     break
                 random_sleep(2, 3)
-        log.ui(f"已完成 阴阳寮突破 {self.n}次")
+        logger.ui(f"已完成 阴阳寮突破 {self.n}次")

@@ -16,7 +16,7 @@ from ..utils.function import (
     get_coor_info,
     random_sleep
 )
-from ..utils.log import log
+from ..utils.log import logger
 from .utils import Package
 
 
@@ -95,7 +95,7 @@ class QiLing(Package):
 
     @log_function_call
     def run_tancha(self):
-        log.ui("仅限探查，地图最多支持刷出5只契灵，测试功能，未完成")
+        logger.ui("仅限探查，地图最多支持刷出5只契灵，测试功能，未完成")
         _resource_list = ["start_tancha"]
         while self.n < self.max:
             if event_thread.is_set():
@@ -121,13 +121,13 @@ class QiLing(Package):
                     self.done()
                     random_sleep(2, 4)
             if self._flag_finish:
-                log.ui("场上最多存在5只契灵，请及时清理")
+                logger.ui("场上最多存在5只契灵，请及时清理")
                 break
 
     @log_function_call
     def run_jieqi(self):
         """结契"""
-        log.ui("请先在游戏内设置“结契设置”")
+        logger.ui("请先在游戏内设置“结契设置”")
         _n: int = 0
         _resource_list = ["start_tancha", "start_jieqi"]
         _flag_done_once: bool = False
@@ -145,7 +145,7 @@ class QiLing(Package):
                     if _flag_done_once:
                         _flag_done_once = False
                         _n += 1
-                        log.ui(f"结契第{_n}只成功")
+                        logger.ui(f"结契第{_n}只成功")
                     if not self.check_pokemon():
                         break
                     random_sleep(1, 2)
@@ -160,7 +160,7 @@ class QiLing(Package):
                     while True:
                         if not self._flag_timer_jieqi_finish:
                             # TODO 需要识别其他罗盘点击
-                            log.warn("没有足够的指定的罗盘")
+                            logger.ui("没有足够的指定的罗盘", "warn")
 
                         if check_finish_once():
                             _flag_first = True
