@@ -57,8 +57,7 @@ stream_handler.setLevel(logging.DEBUG)
 
 # 创建日志格式
 formatter = logging.Formatter(
-    # fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(pathname)s[line:%(lineno)d]-%(module)s-%(funcName)s %(message)s",
-    fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(pathname)s[line:%(lineno)d] %(message)s",
+    fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(pathname)s[line:%(lineno)d]-%(funcName)s %(message)s",
     datefmt="%H:%M:%S")
 file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)

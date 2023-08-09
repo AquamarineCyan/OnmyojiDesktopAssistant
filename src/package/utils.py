@@ -1,5 +1,10 @@
-from src.utils.function import click, random_coor, screenshot
-from src.utils.log import logger
+import time
+
+from ..utils.decorator import run_in_thread
+from ..utils.function import click, random_coor, screenshot
+from ..utils.log import logger
+from ..utils.mysignal import global_ms as ms
+from ..utils.toast import toast
 
 
 class Package:
@@ -36,3 +41,27 @@ class Package:
         """更新一次完成情况"""
         self.n += 1
         logger.num(f"{self.n}/{self.max}")
+
+    def run(self):
+        pass
+
+    @run_in_thread
+    def start(self):
+        # 禁用按钮
+        ms.is_fighting_update.emit(True)
+        start = time.perf_counter()
+        self.run()
+        end = time.perf_counter()
+        try:
+            if end - start >= 60:
+                logger.ui(f"耗时{int((end - start) // 60)}分{int((end - start) % 60)}秒")
+            else:
+                logger.ui(f"耗时{int(end - start)}秒")
+        except Exception:
+            logger.error("耗时统计计算失败")
+        # 启用按钮
+        ms.is_fighting_update.emit(False)
+        logger.ui(f"已完成 {self.scene_name} {self.n}次")
+        # 系统通知
+        # 5s结束，保留至通知中心
+        toast("任务已完成")
