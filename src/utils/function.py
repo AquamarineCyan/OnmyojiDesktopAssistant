@@ -5,6 +5,7 @@
 
 import random
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from subprocess import Popen
 
@@ -531,6 +532,7 @@ def screenshot(screenshot_path: str = "cache") -> bool:
 
     _file = _screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
     try:
+        t1=datetime.now(timezone.utc)
         pyautogui.screenshot(
             imageFilename=_file,
             region=(
@@ -540,7 +542,8 @@ def screenshot(screenshot_path: str = "cache") -> bool:
                 window_height_screenshot
             )
         )
-        logger.info(f"screenshot at {_file}")
+        t2 = datetime.now(timezone.utc)
+        logger.info(f"screenshot cost {t2-t1} at {_file}")
         return True
     except Exception:
         logger.error("screenshot failed.")

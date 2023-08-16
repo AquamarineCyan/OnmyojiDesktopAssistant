@@ -51,8 +51,8 @@ class AbsoluteCoor(Coor):
         super().__init__(x, y)
 
     def abs_to_rela(self):
-        x = self.x - window.absolute_window_width
-        y = self.y - window.absolute_window_height
+        x = self.x - window.window_left
+        y = self.y - window.window_top
         return RelativeCoor(x, y)
 
 
@@ -66,7 +66,23 @@ class RelativeCoor(Coor):
         super().__init__(x, y)
 
     def rela_to_abs(self):
-        x = self.x + window.absolute_window_width
-        y = self.y + window.absolute_window_height
+        x = self.x + window.window_left
+        y = self.y + window.window_top
         if pyautogui.onScreen(x, y):
             return AbsoluteCoor(x, y)
+
+
+class RectangleCoor:
+    """矩形坐标"""
+
+    def __init__(self,x1,x2,y1,y2) -> None:
+        self.x1 = x1
+        self.x2 = x2
+        self.y1=y1
+        self.y2=y2
+
+    def get_rela_center_coor(self):
+        """返回矩形的相对中心坐标"""
+        x = (self.x1+self.x2)/2
+        y = (self.y1+self.y2)/2
+        return RelativeCoor(x,y)

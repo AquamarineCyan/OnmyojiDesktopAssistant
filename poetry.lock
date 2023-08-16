@@ -128,13 +128,13 @@ reference = "aliyun"
 
 [[package]]
 name = "exceptiongroup"
-version = "1.1.2"
+version = "1.1.3"
 description = "Backport of PEP 654 (exception groups)"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "exceptiongroup-1.1.2-py3-none-any.whl", hash = "sha256:e346e69d186172ca7cf029c8c1d16235aa0e04035e5750b4b95039e65204328f"},
-    {file = "exceptiongroup-1.1.2.tar.gz", hash = "sha256:12c3e887d6485d16943a309616de20ae5582633e0a2eda17f4e10fd61c1e8af5"},
+    {file = "exceptiongroup-1.1.3-py3-none-any.whl", hash = "sha256:343280667a4585d195ca1cf9cef84a4e178c4b6cf2274caef9859782b567d5e3"},
+    {file = "exceptiongroup-1.1.3.tar.gz", hash = "sha256:097acd85d473d75af5bb98e41b61ff7fe35efe6675e4f9370ec6ec5126d160e9"},
 ]
 
 [package.extras]
@@ -363,18 +363,18 @@ reference = "aliyun"
 
 [[package]]
 name = "opencv-python"
-version = "4.8.0.74"
+version = "4.8.0.76"
 description = "Wrapper package for OpenCV python bindings."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "opencv-python-4.8.0.74.tar.gz", hash = "sha256:009e3ce356a0cd2d7423723e00a32fd3d3cc5bb5970ed27a9a1f8a8f221d1db5"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-macosx_10_16_x86_64.whl", hash = "sha256:31d0d59fc8fdf703de4cec46c79b9f8d026fdde9d23d6e2e6a66809feeebbda9"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:66eadb5882ee56848b67f9fb57aadcaca2f4c9d9d00a0ef11043041925b51291"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:038ba7075e55cb8e2846663ae970f0fb776a45b48ee69a887bf4ee15e2570083"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:43dd0dfe331fb95767af581bf3b2781d7a72cf6560ddf2f55949fe547f3e5c9f"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-win32.whl", hash = "sha256:458e5dc377f15fcf769d80314f3d885bd95457b1a2891bee67df2eb24a1d3a52"},
-    {file = "opencv_python-4.8.0.74-cp37-abi3-win_amd64.whl", hash = "sha256:8fe0018d0056a5187c57120b6b3f6c3e706c13b45c48e54e86d245a9a16fac84"},
+    {file = "opencv-python-4.8.0.76.tar.gz", hash = "sha256:56d84c43ce800938b9b1ec74b33942b2edbcef3f70c2754eb9bfe5dff1ee3ace"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-macosx_10_16_x86_64.whl", hash = "sha256:67bce4b9aad307c98a9a07c6afb7de3a4e823c1f4991d6d8e88e229e7dfeee59"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-macosx_11_0_arm64.whl", hash = "sha256:48eb3121d809a873086d6677565e3ac963e6946110d13cd115533fa70e2aa2eb"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:93871871b1c9d6b125cddd45b0638a2fa01ee9fd37f5e428823f750e404f2f15"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9bcb4944211acf13742dbfd9d3a11dc4e36353ffa1746f2c7dcd6a01c32d1376"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-win32.whl", hash = "sha256:b2349dc9f97ed6c9ba163d0a7a24bcef9695a3e216cd143e92f1b9659c5d9a49"},
+    {file = "opencv_python-4.8.0.76-cp37-abi3-win_amd64.whl", hash = "sha256:ba32cfa75a806abd68249699d34420737d27b5678553387fc5768747a6492147"},
 ]
 
 [package.dependencies]
@@ -1128,25 +1128,26 @@ reference = "aliyun"
 
 [[package]]
 name = "winsdk"
-version = "1.0.0b9"
+version = "1.0.0b10"
 description = "Python bindings for the Windows SDK"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "winsdk-1.0.0b9-cp310-cp310-win32.whl", hash = "sha256:b6bcf6ed7a0e97793c7b75e0acac0eb5fb658e0fcbcf12b1b3631e7eb668b294"},
-    {file = "winsdk-1.0.0b9-cp310-cp310-win_amd64.whl", hash = "sha256:dc44220e107f51c2bf2b3ba46b4c7140f53f3f3e1b7662e0cb18739acb7478d0"},
-    {file = "winsdk-1.0.0b9-cp310-cp310-win_arm64.whl", hash = "sha256:c17c76d7a9328d4da5b569beffcc3403ee32cdb8194b340dfc1df9a3a5866f0e"},
-    {file = "winsdk-1.0.0b9-cp311-cp311-win32.whl", hash = "sha256:f8cb2a1cf67c452f5479f6d6f80744fb00fb595ba5feb80be05354a21fdd7692"},
-    {file = "winsdk-1.0.0b9-cp311-cp311-win_amd64.whl", hash = "sha256:e0c55273575f4fc4992a6bb67e6229890aa88db8dea9c3c580e3a4c358f9833d"},
-    {file = "winsdk-1.0.0b9-cp311-cp311-win_arm64.whl", hash = "sha256:cc6ae631aa18f3c3eac975562f2874de11131363c45130dedd557e7789a2d165"},
-    {file = "winsdk-1.0.0b9-cp37-cp37m-win32.whl", hash = "sha256:1e98249a31db66d731e19c2e202e0c455fcea419fd172b950771767ca6b4628a"},
-    {file = "winsdk-1.0.0b9-cp37-cp37m-win_amd64.whl", hash = "sha256:53ef9e1017a6c94a51ccbe9a7a5847358fd78855663519c740ee22ff6255d6b5"},
-    {file = "winsdk-1.0.0b9-cp38-cp38-win32.whl", hash = "sha256:2586930fc56a86ff5065c6099f69e7bcdf80bc3e919c0837d4508433d77cc942"},
-    {file = "winsdk-1.0.0b9-cp38-cp38-win_amd64.whl", hash = "sha256:09db2b2ce261499bdd5cc32104ed2fe40dbcfeda20f4643c9126f3ee58566523"},
-    {file = "winsdk-1.0.0b9-cp39-cp39-win32.whl", hash = "sha256:1127ec12faa8793e82cc64d983a84d46a20806c24782d2469e5445b008828076"},
-    {file = "winsdk-1.0.0b9-cp39-cp39-win_amd64.whl", hash = "sha256:d19d7095cf6368161e32deede8e2cebc164589b881f56dce4ad110b54417e989"},
-    {file = "winsdk-1.0.0b9-cp39-cp39-win_arm64.whl", hash = "sha256:ce56f4739dc71e3dd65cd9ffb2f527871285aca097fc1fc24f1865d6327bab18"},
-    {file = "winsdk-1.0.0b9.tar.gz", hash = "sha256:207d35f9ab445521d4f060b5c1f2181660390cd3db27b32961af7438478fb226"},
+    {file = "winsdk-1.0.0b10-cp310-cp310-win32.whl", hash = "sha256:90f75c67e166d588a045bcde0117a4631c705904f7af4ac42644479dcf0d8c52"},
+    {file = "winsdk-1.0.0b10-cp310-cp310-win_amd64.whl", hash = "sha256:c3be3fbf692b8888bac8c0712c490c080ab8976649ef01f9f6365947f4e5a8b1"},
+    {file = "winsdk-1.0.0b10-cp310-cp310-win_arm64.whl", hash = "sha256:6ab69dd65d959d94939c21974a33f4f1dfa625106c8784435ecacbd8ff0bf74d"},
+    {file = "winsdk-1.0.0b10-cp311-cp311-win32.whl", hash = "sha256:9ea4fdad9ca8a542198aee3c753ac164b8e2f550d760bb88815095d64750e0f5"},
+    {file = "winsdk-1.0.0b10-cp311-cp311-win_amd64.whl", hash = "sha256:f12e25bbf0a658270203615677520b8170edf500fba11e0f80359c5dbf090676"},
+    {file = "winsdk-1.0.0b10-cp311-cp311-win_arm64.whl", hash = "sha256:e77bce44a9ff151562bd261b2a1a8255e258bb10696d0d31ef63267a27628af1"},
+    {file = "winsdk-1.0.0b10-cp312-cp312-win32.whl", hash = "sha256:775a55a71e05ec2aa262c1fd67d80f270d4186bbdbbee2f43c9c412cf76f0761"},
+    {file = "winsdk-1.0.0b10-cp312-cp312-win_amd64.whl", hash = "sha256:8231ce5f16e1fc88bb7dda0adf35633b5b26101eae3b0799083ca2177f03e4e5"},
+    {file = "winsdk-1.0.0b10-cp312-cp312-win_arm64.whl", hash = "sha256:f4ab469ada19b34ccfc69a148090f98b40a1da1da797b50b9cbba0c090c365a5"},
+    {file = "winsdk-1.0.0b10-cp38-cp38-win32.whl", hash = "sha256:786d6b50e4fcb8af2d701d7400c74e1c3f3ab7766ed1dfd516cdd6688072ea87"},
+    {file = "winsdk-1.0.0b10-cp38-cp38-win_amd64.whl", hash = "sha256:1d4fdd1f79b41b64fedfbc478a29112edf2076e1a61001eccb536c0568510e74"},
+    {file = "winsdk-1.0.0b10-cp39-cp39-win32.whl", hash = "sha256:4f04d3e50eeb8ca5fe4eb2e39785f3fa594199819acdfb23a10aaef4b97699ad"},
+    {file = "winsdk-1.0.0b10-cp39-cp39-win_amd64.whl", hash = "sha256:7948bc5d8a02d73b1db043788d32b2988b8e7e29a25e503c21d34478e630eaf1"},
+    {file = "winsdk-1.0.0b10-cp39-cp39-win_arm64.whl", hash = "sha256:342b1095cbd937865cee962676e279a1fd28896a0680724fcf9c65157e7ebdb7"},
+    {file = "winsdk-1.0.0b10.tar.gz", hash = "sha256:8f39ea759626797449371f857c9085b84bb9f3b6d493dc6525e2cedcb3d15ea2"},
 ]
 
 [package.source]
@@ -1157,4 +1158,4 @@ reference = "aliyun"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "7a547e20bb7338eb561ea955823d6aefb851128279ea550114326ba50213163b"
+content-hash = "5ce450fabf7d3fff749a88f1d00b7861bc8da58de866474488bb864e0bd0e49e"
