@@ -11,7 +11,8 @@ class FightResource(Package):
         "finish",
         "tanchigui",
         "accept_invitation",
-        "zhunbei",
+        "ready_old",
+        "ready_new",
     ]
 
 

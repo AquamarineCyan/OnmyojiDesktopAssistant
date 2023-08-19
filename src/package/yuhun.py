@@ -118,6 +118,8 @@ class YuHunTeam(YuHun):
         # 结算
         coor = finish_random_left_right(False, is_multiple_drops_x=True)
 
+        if event_thread.is_set():
+            return
         pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
         pyautogui.doubleClick()
         while True:

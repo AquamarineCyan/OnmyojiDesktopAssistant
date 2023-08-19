@@ -3,8 +3,8 @@
 # daoguantupo.py
 """道馆突破"""
 
-from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -16,9 +16,10 @@ from ..utils.function import (
     random_sleep
 )
 from ..utils.log import logger
+from .utils import Package
 
 
-class DaoGuanTuPo:
+class DaoGuanTuPo(Package):
     """道馆突破"""
 
     @log_function_call
@@ -37,8 +38,6 @@ class DaoGuanTuPo:
             "shengyutuposhijian",  # 剩余突破时间
             "tiaozhan",  # 挑战
             "title",  # 标题
-            "victory",  # 胜利-道馆
-            "zhunbei",  # 准备
             "zhanbao"  # 战报
         ]
 
@@ -170,14 +169,24 @@ class DaoGuanTuPo:
             while True:
                 if event_thread.is_set():
                     return
+
                 _resource_list = [
-                    f"{self.resource_path}/zhunbei",
+                    f"{RESOURCE_FIGHT_PATH}/ready_old",
+                    f"{RESOURCE_FIGHT_PATH}/ready_new",
                     f"{RESOURCE_FIGHT_PATH}/victory",
                     f"{RESOURCE_FIGHT_PATH}/fail",
                     f"{RESOURCE_FIGHT_PATH}/finish"
                 ]
                 scene, coor = check_scene_multiple_once(_resource_list)
-                if scene == f"{self.resource_path}/zhunbei":
+                if scene is None:
+                    continue
+
+                logger.info(f"scene: {scene}")
+                logger.info(f"coor: {coor.coor}")
+                if scene in [
+                    f"{RESOURCE_FIGHT_PATH}/ready_old",
+                    f"{RESOURCE_FIGHT_PATH}/ready_new",
+                ]:
                     logger.ui("准备")
                     click(coor)
                     self.n += 1
@@ -185,12 +194,12 @@ class DaoGuanTuPo:
                     random_sleep(1, 2)
                 elif scene == f"{RESOURCE_FIGHT_PATH}/victory":
                     random_sleep(1, 2)
-                elif scene == f"{RESOURCE_FIGHT_PATH}/finish":
+                elif scene == f"{RESOURCE_FIGHT_PATH}/fail":
                     logger.ui("失败", "warn")
                     finish_random_left_right()
                     break
-                elif scene == f"{RESOURCE_FIGHT_PATH}/fail":
-                    logger.ui("失败", "warn")
+                elif scene == f"{RESOURCE_FIGHT_PATH}/finish":
+                    logger.ui("结束")
                     finish_random_left_right()
                     break
 
