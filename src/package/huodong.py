@@ -92,7 +92,7 @@ class HuoDong(Package):
             logger.scene(scene)
             match scene:
                 case "title":
-                    logger.ui("守缘合战")
+                    logger.ui("真火切磋")
                     _flag_title_msg = False
                     self.start()
                     random_sleep(1, 2)

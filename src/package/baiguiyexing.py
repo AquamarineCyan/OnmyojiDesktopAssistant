@@ -8,9 +8,8 @@ import time
 
 import pyautogui
 
-from src.utils.event import event_thread
-
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     check_click,
     check_scene,

@@ -48,7 +48,8 @@ class FightResource:
             "start_team",  # 组队挑战
             "tanchigui",  # 贪吃鬼
             "victory",  # 成功
-            "zhunbei",  # 准备-怀旧主题
+            "ready_old",  # 准备-怀旧主题
+            "ready_new", # 准备-简约主题
         ]
 
 
@@ -310,7 +311,7 @@ def result() -> bool:
     """
     while True:
         if event_thread.is_set():
-            return
+            return None
         coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
         if coor.is_effective:
             logger.ui("胜利")
@@ -441,6 +442,8 @@ def finish_random_left_right(
         _finish_x2 = finish_right_x2
     x, y = random_coor(_finish_x1, _finish_x2, finish_y1, finish_y2).coor
 
+    if event_thread.is_set():
+        return Coor(0,0)
     if is_click:
         click(Coor(x + window.window_left, y + window.window_top))
     return Coor(x, y)

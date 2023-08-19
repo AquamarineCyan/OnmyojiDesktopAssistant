@@ -439,7 +439,7 @@ class MainWindow(QMainWindow):
             logger.ui(
                 "适用于限时活动及其他连点，请提前确保阵容完好并锁定\n\
 可替换resource/huodong下的素材\n\
-当前为「守缘合战」，选个人少的频道+打开活动设置里的高帧率，可适当提高稳定性"
+当前为「真火切磋」"
             )
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
@@ -651,7 +651,7 @@ class UpdateRecordWindow(QWidget):
         update_record()
 
     def textBrowser_update(self, text: str):
-        print("[update record]", text)  # 控制台调试输出
+        logger.info("[update record]", text)
         self.ui.textBrowser.append(text)
         self.ui.textBrowser.ensureCursorVisible()
         self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.Start)

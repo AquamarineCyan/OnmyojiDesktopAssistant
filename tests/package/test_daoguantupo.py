@@ -14,8 +14,6 @@ class DaoGuanTuPo(Package):
         "shengyutuposhijian",
         "tiaozhan",
         "title",
-        "victory",
-        "zhunbei",
         "zhanbao",
     ]
 
