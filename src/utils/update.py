@@ -9,6 +9,10 @@ from .mysignal import global_ms as ms
 def update_record():
     """更新日志"""
     update = {
+        "1.7.7":
+        """优化 优化日志记录速度
+优化 道馆突破适配怀旧&简约主题
+优化 适配活动「真火切磋」""",
         "1.7.6":
         """新增 开始/停止功能
 优化 添加自动打包环境

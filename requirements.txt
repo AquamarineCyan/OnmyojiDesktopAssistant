@@ -4,7 +4,7 @@ opencv-python
 Pillow
 PyAutoGUI
 pyinstaller
-PySide6>=6.5.0
+PySide6>=6.5.1
 pywin32
 PyYAML
 win11toast
