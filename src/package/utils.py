@@ -15,6 +15,8 @@ class Package:
     """路径"""
     resource_list: list = []
     """资源列表"""
+    description : str = None
+    """功能描述"""
 
     def __init__(self, n: int = 0) -> None:
         self.n: int = 0

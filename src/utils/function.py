@@ -17,7 +17,7 @@ from .application import (
     RESOURCE_FIGHT_PATH,
     SCREENSHOT_DIR_PATH
 )
-from .coordinate import Coor
+from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
 from .event import event_thread, event_xuanshang, event_xuanshang_enable
 from .log import logger
@@ -49,7 +49,7 @@ class FightResource:
             "tanchigui",  # 贪吃鬼
             "victory",  # 成功
             "ready_old",  # 准备-怀旧主题
-            "ready_new", # 准备-简约主题
+            "ready_new",  # 准备-简约主题
         ]
 
 
@@ -443,7 +443,7 @@ def finish_random_left_right(
     x, y = random_coor(_finish_x1, _finish_x2, finish_y1, finish_y2).coor
 
     if event_thread.is_set():
-        return Coor(0,0)
+        return Coor(0, 0)
     if is_click:
         click(Coor(x + window.window_left, y + window.window_top))
     return Coor(x, y)
@@ -462,9 +462,19 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
         pyautogui.easeInOutQuad
     ]
     random.seed(time.time_ns())
-    x, y = pyautogui.position() if coor is None else (coor.x, coor.y)
-    pyautogui.moveTo(x, y, duration=dura, tween=random.choice(list_tween))
-    logger.info(f"click at ({x},{y})")
+
+    if coor is None:
+        _x, _y = pyautogui.position()
+    elif isinstance(coor, RelativeCoor):
+        _x, _y = coor.rela_to_abs().coor
+    elif isinstance(coor, AbsoluteCoor):
+        _x, _y = coor.coor
+    else:
+        _x, _y = coor.coor
+
+    # x, y = pyautogui.position() if coor is None else (coor.x, coor.y)
+    pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
+    logger.info(f"click at ({_x},{_y})")
     try:
         pyautogui.click()
     except pyautogui.FailSafeException:
@@ -535,7 +545,7 @@ def screenshot(screenshot_path: str = "cache") -> bool:
 
     _file = _screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
     try:
-        t1=datetime.now(timezone.utc)
+        t1 = datetime.now(timezone.utc)
         pyautogui.screenshot(
             imageFilename=_file,
             region=(
