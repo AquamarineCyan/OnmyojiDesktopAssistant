@@ -481,7 +481,13 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
         logger.ui("安全错误，可能是您点击了屏幕左上角，请重启后使用", "error")
 
 
-def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, sleep_time: float = 0) -> None:
+def check_click(
+    file: str = None,
+        is_click: bool = True,
+        dura: float = 0.5,
+        sleep_time: float = 0,
+        timeout: int = None
+) -> None:
     """图像识别，并点击
 
     参数:
@@ -489,10 +495,18 @@ def check_click(file: str = None, is_click: bool = True, dura: float = 0.5, slee
         is_click (bool): 是否点击，默认是
         dura (float): 移动速度，默认0.5
         sleep_time (float): 延迟时间，默认0
+        timeout (int): 超时时间（秒）
     """
+    if timeout:
+        start_time = time.time()
     while True:
         if event_thread.is_set():
             return
+        if timeout:
+            current_time = time.time()
+            if current_time - start_time > timeout:
+                return
+
         coor = get_coor_info(file)
         if coor.is_effective:
             if is_click:
