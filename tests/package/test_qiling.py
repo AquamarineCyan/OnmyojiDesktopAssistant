@@ -6,10 +6,6 @@ class QiLing(Package):
     resource_list = [
         "start_tancha",
         "start_jieqi",
-        "zhenmushou",
-        "xiaohei",
-        "huoling",
-        "ciqiu",
     ]
 
 

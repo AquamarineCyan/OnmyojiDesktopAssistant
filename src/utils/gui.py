@@ -470,7 +470,7 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[12]:
             # 13.契灵
             self._choice = 13
-            logger.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动结契场上的契灵")
+            logger.ui(qiling.QiLing().description)
             self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
             self.ui.spinB_num.setValue(1)
             self.ui.button_qiling_tancha.setChecked(True)

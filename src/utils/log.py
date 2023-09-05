@@ -21,6 +21,8 @@ def send_gui_msg(msg: str = "", color: str = "black"):
 
 class CustomLogger(logging.Logger):
     def ui(self, msg, level="info", *args, **kwargs):
+        if msg is None:
+            return
         match level:
             case "info":
                 send_gui_msg(msg, "black")

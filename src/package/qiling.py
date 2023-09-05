@@ -5,6 +5,7 @@
 
 from threading import Timer
 
+from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -25,14 +26,10 @@ class QiLing(Package):
     scene_name = "契灵"
     resource_path = "qiling"
     resource_list: list = [
-        # "title",
         "start_tancha",
         "start_jieqi",
-        "zhenmushou",
-        "xiaohei",
-        "huoling",
-        "ciqiu",
     ]
+    description = "次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，地图最多支持刷出5只契灵，请提前在游戏内配置“结契设置”"
 
     @log_function_call
     def __init__(self, n: int = 0, _flag_tancha: bool = True, _flag_jieqi: bool = False) -> None:
@@ -41,6 +38,7 @@ class QiLing(Package):
         self._flag_jieqi = _flag_jieqi
         self._flag_finish: bool = False
         self._flag_timer_jieqi_finish: bool = True
+        self._pokemon_address_count: int = 0
         # self._timestamp: int = int(time.time())
 
     @log_function_call
@@ -68,24 +66,26 @@ class QiLing(Package):
 
     @log_function_call
     def check_pokemon(self) -> bool:
-        """
-        220,528
-        378,485
-        635,505
-        815,484
-        935,490
-        """
-        _resource_list: list = [
-            "zhenmushou",
-            "xiaohei",
-            "huoling",
-            "ciqiu",
+        """判断5个契灵小图标的固定点位"""
+        _pokemon_list = [
+            RelativeCoor(220, 528),
+            RelativeCoor(378, 485),
+            RelativeCoor(635, 505),
+            RelativeCoor(815, 484),
+            RelativeCoor(935, 490),
         ]
-        _, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-        if coor.is_zero:
-            return False
-        click(coor)
-        return True
+        # 遍历5个固定点位
+        for i in range(self._pokemon_address_count, 5):
+            logger.info(f"_pokemon_address_count: {self._pokemon_address_count}")
+            click(_pokemon_list[i])
+            self._pokemon_address_count += 1
+            random_sleep(2, 3)
+            coor = get_coor_info(f"{self.resource_path}/start_jieqi")
+            if coor.is_effective:
+                return True
+            else:
+                continue
+        return False
 
     @log_function_call
     def timer_jieqi_finish(self):
@@ -95,7 +95,6 @@ class QiLing(Package):
 
     @log_function_call
     def run_tancha(self):
-        logger.ui("仅限探查，地图最多支持刷出5只契灵，测试功能，未完成")
         _resource_list = ["start_tancha"]
         while self.n < self.max:
             if event_thread.is_set():
@@ -127,7 +126,6 @@ class QiLing(Package):
     @log_function_call
     def run_jieqi(self):
         """结契"""
-        logger.ui("请先在游戏内设置“结契设置”")
         _n: int = 0
         _resource_list = ["start_tancha", "start_jieqi"]
         _flag_done_once: bool = False
@@ -138,10 +136,14 @@ class QiLing(Package):
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue
-            self.scene_print(scene)
+            logger.info(f"scene: {scene}")
+            if "/" in scene:
+                scene = scene.split("/")[-1]
 
             match scene:
+                # 确保在探查界面点击契灵小图标
                 case "start_tancha":
+                    logger.scene("契灵之境")
                     if _flag_done_once:
                         _flag_done_once = False
                         _n += 1
@@ -151,6 +153,7 @@ class QiLing(Package):
                     random_sleep(1, 2)
                     continue
                 case "start_jieqi":
+                    logger.scene("契灵探查")
                     click(coor)
                     random_sleep(10, 11)
                     _flag_first: bool = False
