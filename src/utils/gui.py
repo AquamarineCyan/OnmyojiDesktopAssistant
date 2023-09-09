@@ -409,12 +409,13 @@ class MainWindow(QMainWindow):
             if now >= "21:00:00":
                 logger.ui("CD无限", "warn")
                 logger.ui("请尽情挑战，桌面版单账号上限100次")
+                self.ui.spinB_num.setValue(100)  # 桌面版上限100
             else:
                 logger.ui("CD6次", "warn")
                 logger.ui("默认6次，可在每日21时后无限挑战")
+                self.ui.spinB_num.setValue(6)
             logger.ui("待开发：滚轮翻页")
-            self.ui.spinB_num.setValue(6)
-            self.ui.spinB_num.setRange(1, 200)  # 桌面版上限100
+            self.ui.spinB_num.setRange(1, 200)
         elif text == self._list_function[6]:
             # 7.道馆突破
             self._choice = 7

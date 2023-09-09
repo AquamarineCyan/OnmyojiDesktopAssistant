@@ -9,11 +9,10 @@ from pathlib import Path
 
 import pyautogui
 
-from src.utils.event import event_thread
-
 from ..utils.application import RESOURCE_DIR_PATH
 from ..utils.coordinate import Coor
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -427,28 +426,29 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     def jibaicishu(self) -> bool:
         """剩余次数判断"""
         # TODO 无法生效，待废除，或使用OpenCv
-        if self.title():
-            while True:
-                try:
-                    filename = RESOURCE_DIR_PATH / self.resource_path / "jibaicishu.png"
-                    logger.info(filename)
-                    if isinstance(filename, Path):
-                        filename = str(filename)
-                    button_location = pyautogui.locateOnScreen(
-                        filename,
-                        region=(
-                            window.window_left,
-                            window.window_top,
-                            window.window_width,
-                            window.window_height
-                        )
+        if not self.title():
+            return
+        while True:
+            try:
+                filename = RESOURCE_DIR_PATH / self.resource_path / "jibaicishu.png"
+                logger.info(filename)
+                if isinstance(filename, Path):
+                    filename = str(filename)
+                button_location = pyautogui.locateOnScreen(
+                    filename,
+                    region=(
+                        window.window_left,
+                        window.window_top,
+                        window.window_width,
+                        window.window_height
                     )
-                    print("find")
-                    return False
-                except Exception:
-                    print("not found")
-                    print("仍有剩余次数")
-                    return True
+                )
+                print("find")
+                return False
+            except Exception:
+                print("not found")
+                print("仍有剩余次数")
+                return True
 
     @log_function_call
     def fighting(self) -> int:
@@ -468,6 +468,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                     self.tupo_yinyangliao_y[(i + 1) // 2]
                 )
+                # TODO 多人攻破同一寮突后，无法再次进入，通过加定时器5秒判断当前是否还是寮突界面提前退出战斗循环
                 if finish():
                     # 胜利
                     flag = 1
