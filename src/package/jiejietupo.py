@@ -10,7 +10,7 @@ from pathlib import Path
 import pyautogui
 
 from ..utils.application import RESOURCE_DIR_PATH
-from ..utils.coordinate import Coor
+from ..utils.coordinate import Coor, RelativeCoor
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -120,12 +120,8 @@ class JieJieTuPo:
             y0 (int): 顶部纵坐标
         """
         coor = random_coor(x0, x0 + 185, y0, y0 + 80)
-        pyautogui.moveTo(
-            coor.x + window.window_left,
-            coor.y + window.window_top,
-            duration=0.5
-        )
-        click()
+        coor = RelativeCoor(coor.x, coor.y)
+        click(coor)
         while True:
             if event_thread.is_set():
                 return
@@ -399,7 +395,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             1: 460,
             2: 760
         }
-        self.tupo_yinyangliao_y = {
+        self.tupo_yinyangliao_y = {  # FIXME 间隔120，目前第4行矩形下边沿越界
             1: 170,
             2: 300,
             3: 430,
@@ -412,6 +408,8 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         """场景"""
         flag_title = True  # 场景提示
         while True:
+            if event_thread.is_set():
+                return
             if check_scene(f"{self.resource_path}/title", "结界突破"):
                 while True:
                     if check_scene(f"{self.resource_path}/tupojilu", "阴阳寮突破"):
@@ -453,28 +451,36 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     @log_function_call
     def fighting(self) -> int:
         """战斗"""
-        i = 1
+        i = 1  # 1-8
         while True:
             if event_thread.is_set():
                 return 0
+            # 当前页结界全部失效
+            if i > 8:
+                self.page_down(4)
+                i = 1
             coor = self.get_coor_info_tupo(
                 self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                 self.tupo_yinyangliao_y[(i + 1) // 2],
                 "fail.png"
             )
             if coor.is_zero:
-                logger.info(f"{i} 可进攻")
+                logger.ui(f"{i} 可进攻")
                 self.fighting_tupo(
                     self.tupo_yinyangliao_x[(i + 1) % 2 + 1],
                     self.tupo_yinyangliao_y[(i + 1) // 2]
                 )
                 # TODO 多人攻破同一寮突后，无法再次进入，通过加定时器5秒判断当前是否还是寮突界面提前退出战斗循环
-                if finish():
-                    # 胜利
-                    flag = 1
-                else:
-                    # 失败
-                    flag = 0
+                # 延迟等待，判断当前寮突是否有效
+                random_sleep(3, 4)
+                coor = get_coor_info(f"{self.resource_path}/jingong")
+                if coor.is_effective:
+                    logger.ui("当前结界已被攻破", "warn")
+                    i += 1
+                    pyautogui.press("esc")
+                    continue
+
+                flag = 1 if finish() else 0
                 random_sleep(1, 2)
                 # 结束界面
                 coor = finish_random_left_right()
@@ -485,8 +491,20 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 if i == 8:
                     # 单页上限8个
                     logger.ui("当前页全部失败", "warn")
-                    flag = -1
-                    return flag
+                    # return -1
+                    self.page_down(4)
+                    i = 1
+
+    @log_function_call
+    def page_down(self, rows: int = 1):
+        """向下翻页
+
+        参数:
+            rows (int): 行数，默认1行
+        """
+        # TODO 操作滚轮需要鼠标在当前区域，目前来说调用该方法时，鼠标在当前区域
+        import pyautogui
+        pyautogui.scroll(-(rows * 240))  # 2*pis(pis=2*120)
 
     @run_in_thread
     @time_count
@@ -496,6 +514,8 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             logger.num(f"0/{self.max}")
             random_sleep(1, 3)
             while self.n < self.max:
+                if event_thread.is_set():
+                    break
                 random_sleep(0, 1)
                 if flag := self.fighting():
                     self.n += 1

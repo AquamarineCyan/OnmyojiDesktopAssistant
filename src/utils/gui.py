@@ -414,7 +414,6 @@ class MainWindow(QMainWindow):
                 logger.ui("CD6次", "warn")
                 logger.ui("默认6次，可在每日21时后无限挑战")
                 self.ui.spinB_num.setValue(6)
-            logger.ui("待开发：滚轮翻页")
             self.ui.spinB_num.setRange(1, 200)
         elif text == self._list_function[6]:
             # 7.道馆突破
