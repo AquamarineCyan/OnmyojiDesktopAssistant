@@ -446,7 +446,7 @@ def finish_random_left_right(
         return Coor(0, 0)
     if is_click:
         click(Coor(x + window.window_left, y + window.window_top))
-    return Coor(x, y)
+    return RelativeCoor(x, y)
 
 
 def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:

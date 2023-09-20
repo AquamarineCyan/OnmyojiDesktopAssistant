@@ -7,8 +7,8 @@ import random
 
 import pyautogui
 
-from src.utils.event import event_thread
 from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
@@ -77,6 +77,8 @@ class HuoDong(Package):
         _g_resource_list: list = [
             f"{self.resource_path}/title",
             # f"{RESOURCE_FIGHT_PATH}/fighting_back_default",
+            f"{self.resource_path}/get_result",
+            f"{RESOURCE_FIGHT_PATH}/victory",
         ]
         _flag_title_msg: bool = True
 
@@ -89,19 +91,28 @@ class HuoDong(Package):
                 continue
             if "/" in scene:
                 scene = scene.split("/")[-1]
-            logger.scene(scene)
             match scene:
                 case "title":
-                    logger.ui("真火切磋")
+                    logger.scene("微光之守")
                     _flag_title_msg = False
                     self.start()
                     random_sleep(1, 2)
                 # case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
                 # case "fighting_back_default":
                     # logger.ui("对局进行中")
-                    self.finish()
+                case "get_result":
+                    logger.scene("结算中")
+                    coor = finish_random_left_right(is_click=False, is_multiple_drops_y=True)
+                    click(coor)
+                    random_sleep(0.2, 0.4)
+                    click(coor)
+                    # self.finish()
                     self.done()
-                    random_sleep(2, 4)
+                    random_sleep(1.5, 3)
+                case "victory":
+                    logger.ui("胜利")
+                    finish_random_left_right()
+                    random_sleep(1, 2)
                 case _:
                     if _flag_title_msg:
                         logger.ui("请检查游戏场景", "warn")
