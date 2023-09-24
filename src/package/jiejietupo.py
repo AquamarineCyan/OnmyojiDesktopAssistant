@@ -395,11 +395,11 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             1: 460,
             2: 760
         }
-        self.tupo_yinyangliao_y = {  # FIXME 间隔120，目前第4行矩形下边沿越界
+        self.tupo_yinyangliao_y = {
             1: 170,
-            2: 300,
-            3: 430,
-            4: 560
+            2: 290,
+            3: 410,
+            4: 530
         }
         self.n: int = 0  # 当前次数
         self.max: int = n  # 总次数
