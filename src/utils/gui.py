@@ -65,13 +65,13 @@ class MainWindow(QMainWindow):
         self.ui.label_tips.hide()
         # 设置界面
         _setting_QComboBox_dict: dict = {
-            self.ui.setting_update_comboBox: "更新模式",
-            self.ui.setting_download_comboBox: "下载线路",
-            self.ui.setting_xuanshangfengyin_comboBox: "悬赏封印",
+            self.ui.setting_update_comboBox: "update",
+            self.ui.setting_update_download_comboBox: "update_download",
+            self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
         }
         for key, value in _setting_QComboBox_dict.items():
-            key.addItems(config.config_default[value])
-            key.setCurrentText(config.config_user.get(value))
+            key.addItems(config.config_default.model_dump()[value])
+            key.setCurrentText(config.config_user.model_dump().get(value))
         self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
 
         # 自定义信号
@@ -110,8 +110,8 @@ class MainWindow(QMainWindow):
             self.setting_update_comboBox_func
         )
         # 下载线路
-        self.ui.setting_download_comboBox.currentIndexChanged.connect(
-            self.setting_download_comboBox_func
+        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
+            self.setting_update_download_comboBox_func
         )
         # 悬赏封印
         self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
@@ -128,9 +128,7 @@ class MainWindow(QMainWindow):
         logger.info(f"application path: {APP_PATH}")
         logger.info(f"resource path: {RESOURCE_DIR_PATH}")
         logger.info(f"[VERSION] {VERSION}")
-        if config.config_user:
-            for item in config.config_user.keys():
-                logger.info(f"{item} : {config.config_user[item]}")
+        logger.info(f"config_user: {config.config_user}")
         logger.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
 使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止")
         if self._check_enviroment():
@@ -148,7 +146,7 @@ class MainWindow(QMainWindow):
         remove_restart_bat_file()
         upgrade.check_latest()
         # 悬赏封印
-        if config.config_user.get("悬赏封印") == "关闭":
+        if config.config_user.xuanshangfengyin == "关闭":
             event_xuanshang_enable.clear()
         else:
             xuanshangfengyin.xuanshangfengyin.run()
@@ -297,13 +295,13 @@ class MainWindow(QMainWindow):
         """设置-更新模式-更改"""
         text = self.ui.setting_update_comboBox.currentText()
         logger.info(f"设置项：更新模式已更改为 {text}")
-        config.config_user_changed("更新模式", text)
+        config.config_user_changed("update", text)
 
-    def setting_download_comboBox_func(self) -> None:
+    def setting_update_download_comboBox_func(self) -> None:
         """设置-下载线路-更改"""
-        text = self.ui.setting_download_comboBox.currentText()
+        text = self.ui.setting_update_download_comboBox.currentText()
         logger.info(f"设置项：下载线路已更改为 {text}")
-        config.config_user_changed("下载线路", text)
+        config.config_user_changed("update_download", text)
 
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""
@@ -311,7 +309,7 @@ class MainWindow(QMainWindow):
         if text == "关闭":
             logger.ui("成功关闭悬赏封印，重启程序后生效")
         logger.info(f"设置项：悬赏封印已更改为 {text}")
-        config.config_user_changed("悬赏封印", text)
+        config.config_user_changed("xuanshangfengyin", text)
 
     @log_function_call
     def check_game_handle(self) -> bool:
@@ -651,7 +649,7 @@ class UpdateRecordWindow(QWidget):
         update_record()
 
     def textBrowser_update(self, text: str):
-        logger.info("[update record]", text)
+        logger.info(f"[update record]\n{text}")
         self.ui.textBrowser.append(text)
         self.ui.textBrowser.ensureCursorVisible()
         self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.Start)

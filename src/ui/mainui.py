@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.5.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -298,36 +298,36 @@ class Ui_MainWindow(object):
         self.horizontalLayoutWidget_3 = QWidget(self.scrollAreaWidgetContents)
         self.horizontalLayoutWidget_3.setObjectName(u"horizontalLayoutWidget_3")
         self.horizontalLayoutWidget_3.setGeometry(QRect(40, 110, 451, 49))
-        self.horizontalLayout_setting_download = QHBoxLayout(self.horizontalLayoutWidget_3)
-        self.horizontalLayout_setting_download.setObjectName(u"horizontalLayout_setting_download")
-        self.horizontalLayout_setting_download.setContentsMargins(0, 0, 0, 0)
-        self.horizontalSpacer_setting_download_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalLayout_setting_update_download = QHBoxLayout(self.horizontalLayoutWidget_3)
+        self.horizontalLayout_setting_update_download.setObjectName(u"horizontalLayout_setting_update_download")
+        self.horizontalLayout_setting_update_download.setContentsMargins(0, 0, 0, 0)
+        self.horizontalSpacer_setting_update_download_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_setting_download.addItem(self.horizontalSpacer_setting_download_left)
+        self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_left)
 
-        self.setting_download_label = QLabel(self.horizontalLayoutWidget_3)
-        self.setting_download_label.setObjectName(u"setting_download_label")
-        self.setting_download_label.setAlignment(Qt.AlignCenter)
+        self.setting_update_download_label = QLabel(self.horizontalLayoutWidget_3)
+        self.setting_update_download_label.setObjectName(u"setting_update_download_label")
+        self.setting_update_download_label.setAlignment(Qt.AlignCenter)
 
-        self.horizontalLayout_setting_download.addWidget(self.setting_download_label)
+        self.horizontalLayout_setting_update_download.addWidget(self.setting_update_download_label)
 
-        self.horizontalSpacer_setting_download_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_download_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_setting_download.addItem(self.horizontalSpacer_setting_download_middle)
+        self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_middle)
 
-        self.setting_download_comboBox = QComboBox(self.horizontalLayoutWidget_3)
-        self.setting_download_comboBox.setObjectName(u"setting_download_comboBox")
+        self.setting_update_download_comboBox = QComboBox(self.horizontalLayoutWidget_3)
+        self.setting_update_download_comboBox.setObjectName(u"setting_update_download_comboBox")
 
-        self.horizontalLayout_setting_download.addWidget(self.setting_download_comboBox)
+        self.horizontalLayout_setting_update_download.addWidget(self.setting_update_download_comboBox)
 
-        self.horizontalSpacer_setting_download_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_download_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
 
-        self.horizontalLayout_setting_download.addItem(self.horizontalSpacer_setting_download_right)
+        self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_right)
 
-        self.horizontalLayout_setting_download.setStretch(0, 4)
-        self.horizontalLayout_setting_download.setStretch(1, 2)
-        self.horizontalLayout_setting_download.setStretch(3, 2)
-        self.horizontalLayout_setting_download.setStretch(4, 4)
+        self.horizontalLayout_setting_update_download.setStretch(0, 4)
+        self.horizontalLayout_setting_update_download.setStretch(1, 2)
+        self.horizontalLayout_setting_update_download.setStretch(3, 2)
+        self.horizontalLayout_setting_update_download.setStretch(4, 4)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.tabWidget.addTab(self.tab_setting, "")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -379,7 +379,7 @@ class Ui_MainWindow(object):
         self.label_GitHub_address.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" text-decoration: underline;\">https://github.com/AquamarineCyan/Onmyoji_Python</span></p></body></html>", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
         self.label_tip_setting_restart.setText(QCoreApplication.translate("MainWindow", u"\u90e8\u5206\u8bbe\u7f6e\u9700\u8981\u91cd\u542f\u751f\u6548", None))
-        self.setting_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
+        self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_setting), QCoreApplication.translate("MainWindow", u"\u8bbe\u7f6e", None))
     # retranslateUi
 

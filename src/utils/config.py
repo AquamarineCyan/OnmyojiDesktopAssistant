@@ -3,51 +3,74 @@
 # config.py
 """配置"""
 
-from copy import deepcopy
 from re import compile
 
 import yaml
+from pydantic import BaseModel
 
 from .application import APP_PATH, CONFIG_PATH
 from .log import logger
-from .mysignal import global_ms as ms
+
+_update_list = ["自动更新", "关闭"]
+"""更新模式"""
+_update_download_list = ["ghproxy", "GitHub"]
+"""下载线路"""
+_xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
+"""悬赏封印"""
+_fight_theme_list = ["自动", "怀旧", "简约"]
+"""战斗主题"""
+
+
+class UserConfig(BaseModel):
+    """用户配置"""
+    update: str = _update_list[0]
+    """更新模式"""
+    update_download: str = _update_download_list[0]
+    """下载线路"""
+    xuanshangfengyin: str = _xuanshangfengyin_list[0]
+    """悬赏封印"""
+    fight_theme: str = _fight_theme_list[0]
+    """战斗主题"""
+
+
+class DefaultConfig(BaseModel):
+    """默认配置"""
+    update: list = _update_list
+    """更新模式"""
+    update_download: list = _update_download_list
+    """下载线路"""
+    xuanshangfengyin: list = _xuanshangfengyin_list
+    """悬赏封印"""
+    fight_theme: list = _fight_theme_list
+    """战斗主题"""
 
 
 class Config():
     """配置"""
 
-    config_default: dict = {
-        # "更新模式": ["ghproxy", "GitHub"],
-        "更新模式": ["自动更新", "关闭"],  # TODO  ["自动更新", "仅提醒", "关闭"],
-        "下载线路": ["ghproxy", "GitHub"],
-        "悬赏封印": ["接受", "拒绝", "忽略", "关闭"],
-    }
-
     def __init__(self):
-        self.config_user: dict = None
-        self.data_error: bool = False
+        self.config_user: UserConfig = UserConfig()
+        self.config_default: DefaultConfig = DefaultConfig()
 
     def config_yaml_init(self) -> None:
+        """初始化"""
         if CONFIG_PATH.is_file():
             logger.info("Find config file.")
             data = self._read_config_yaml()
-            data = self._check_config_data(data)
-            if self.data_error:
-                self._save_config_yaml(data)
+            self._check_outdated_config_data(data)
         else:
             logger.ui("Cannot find config file.", "warn")
-            data = deepcopy(self.config_default)
-            for key, value in data.items():
-                data[key] = value[0] if isinstance(value, list) else value
-            self._save_config_yaml(data)
-        self.config_user = data
-        self.setting_to_ui_qcombobox_update_func()
+            self._save_config_yaml(self.config_user)
 
     def _read_config_yaml(self) -> dict:
+        """读取配置文件"""
         with open(CONFIG_PATH, encoding="utf-8") as f:
-            return yaml.load(f, Loader=yaml.FullLoader)
+            return yaml.safe_load(f)
 
     def _save_config_yaml(self, data) -> bool:
+        """保存配置文件"""
+        if isinstance(data, UserConfig):
+            data = data.model_dump()
         if isinstance(data, dict):
             with open(CONFIG_PATH, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
@@ -56,62 +79,62 @@ class Config():
             return False
         return True
 
-    def _check_config_data(self, data: dict) -> dict:
-        """检查配置字典的键值，返回符合配置要求的字典
+    def check_config_data(self, data: dict) -> None:  # TODO Unused
+        """检查配置字典的键值
 
-        Args:
+        参数:
             data (dict): 待检查的字典
-
-        Returns:
-            dict: 符合配置要求的字典
         """
-        data, self.update_mode = self.dict_set_default(data, "更新模式")
-        data, self.download_mode = self.dict_set_default(data, "下载线路")
-        data, self.xuanshangfengyin_mode = self.dict_set_default(data, "悬赏封印")
-        # TODO config.mode() for more config setting
-        logger.debug(f"self.update_mode: {self.update_mode}")
-        logger.debug(f"self.download_mode: {self.download_mode}")
-        logger.debug(f"self.xuanshangfengyin_mode: {self.xuanshangfengyin_mode}")
-        return data
+        value = data["更新模式"]
+        if value in _update_list:
+            self.config_user.update = value
 
-    def dict_set_default(self, data: dict, key: str) -> tuple[dict, str]:
-        """检查字典的键值是否存在，并设置默认值
+        value = data["下载线路"]
+        if value in _update_download_list:
+            self.config_user.update_download = value
 
-        Args:
-            data (dict): 待检查的字典
-            key (str): 待匹配的键值
-
-        Returns:
-            dict: 新字典
-        """
-        value = self.config_default.get(key)
-        if isinstance(value, list):
-            if data.setdefault(key) not in value:
-                data.pop(key)
-                data.setdefault(key, value[0])
-                self.data_error = True
-        elif data.setdefault(key) != value:
-            data.pop(key)
-            data.setdefault(key, value)
-            self.data_error = True
-        return data, data.get(key)
+        value = data["悬赏封印"]
+        if value in _xuanshangfengyin_list:
+            self.config_user.xuanshangfengyin = value
 
     def config_user_changed(self, key: str, value: str) -> None:
         """设置项更改
 
-        Args:
+        参数:
             key (str): 设置项
             value (str): 属性
         """
-        self.config_user[key] = value
-        logger.info(self.config_user)
-        self._save_config_yaml(self.config_user)
+        logger.info(f"Config setting [{key}] change to [{value}].")
+        config_dict = self.config_user.model_dump()
+        config_dict[key] = value
+        logger.info(config_dict)
+        self.config_user = UserConfig.model_validate(config_dict)
+        self._save_config_yaml(self.config_user.model_dump())
 
-    def setting_to_ui_qcombobox_update_func(self) -> None:
-        """配置项同步gui"""
-        for item in self.config_default.keys():
-            # logger.info(f"{item} : {self.config_user[item]}")
-            ms.setting_to_ui_update.emit(item, self.config_user[item])
+    def _check_outdated_config_data(self, data: dict) -> None:
+        # data = self.config_user.model_dump()
+        _flag = False
+        key = "更新模式"
+        if key in data:
+            value = data.get(key)
+            data.pop(key)
+            data.setdefault("update", value)
+            _flag = True
+        key = "下载线路"
+        if key in data:
+            value = data.get(key)
+            data.pop(key)
+            data.setdefault("update_download", value)
+            _flag = True
+        key = "悬赏封印"
+        if key in data:
+            value = data.get(key)
+            data.pop(key)
+            data.setdefault("xuanshangfengyin", value)
+            _flag = True
+        if _flag:
+            self.config_user = UserConfig.model_validate(data)
+            self._save_config_yaml(self.config_user)
 
 
 config = Config()

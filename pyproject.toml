@@ -10,15 +10,16 @@ packages = [{include = "src"}]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 pyautogui = "^0.9.54"
-httpx = "^0.24.1"
+httpx = "^0.25.0"
 pywin32 = "^306"
-pyside6 = "^6.5.2"
+pyside6 = "^6.5.3"
 opencv-python = "^4.8.0.76"
-numpy = "^1.25.2"
-pillow = "^10.0.0"
+numpy = "^1.26.0"
+pillow = "^10.0.1"
 pyinstaller = "^5.13.2"
 pyyaml = "^6.0.1"
 win11toast = "^0.32"
+pydantic = "^2.4.2"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -67,7 +67,7 @@ class XuanShangFengYin:
                 event_xuanshang.clear()
                 self._flag = True
                 logger.ui("已暂停后台线程，等待处理", "warn")
-                match config.config_user.get("悬赏封印"):
+                match config.config_user.xuanshangfengyin:
                     case "接受":
                         logger.ui("接受协作")
                         self.check_click("xuanshang_accept.png", 5)

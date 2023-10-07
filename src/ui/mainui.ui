@@ -862,9 +862,9 @@
           <height>49</height>
          </rect>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_download" stretch="4,2,0,2,4">
+        <layout class="QHBoxLayout" name="horizontalLayout_setting_update_download" stretch="4,2,0,2,4">
          <item>
-          <spacer name="horizontalSpacer_setting_download_left">
+          <spacer name="horizontalSpacer_setting_update_download_left">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -877,7 +877,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="setting_download_label">
+          <widget class="QLabel" name="setting_update_download_label">
            <property name="text">
             <string>下载线路</string>
            </property>
@@ -887,7 +887,7 @@
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_setting_download_middle">
+          <spacer name="horizontalSpacer_setting_update_download_middle">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -900,10 +900,10 @@
           </spacer>
          </item>
          <item>
-          <widget class="QComboBox" name="setting_download_comboBox"/>
+          <widget class="QComboBox" name="setting_update_download_comboBox"/>
          </item>
          <item>
-          <spacer name="horizontalSpacer_setting_download_right">
+          <spacer name="horizontalSpacer_setting_update_download_right">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
