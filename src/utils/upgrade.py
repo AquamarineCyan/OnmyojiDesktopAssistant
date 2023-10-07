@@ -76,7 +76,7 @@ class Upgrade:
             logger.ui("未存在新版本更新包，即将开始下载")
             _download_url_default_list = [self.browser_download_url, self._get_ghproxy_url()]
             # 使用用户配置的优先级
-            if config.config_user.get("更新模式") == "ghproxy":
+            if config.config_user.get("下载线路") == "ghproxy":
                 _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[1])
             else:
                 # 默认顺序
