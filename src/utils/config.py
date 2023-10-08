@@ -13,7 +13,7 @@ from .log import logger
 
 _update_list = ["自动更新", "关闭"]
 """更新模式"""
-_update_download_list = ["ghproxy", "GitHub"]
+_update_download_list = ["gitee", "ghproxy", "GitHub"]
 """下载线路"""
 _xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
 """悬赏封印"""

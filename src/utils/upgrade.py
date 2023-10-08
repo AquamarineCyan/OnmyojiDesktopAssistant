@@ -23,47 +23,72 @@ from .toast import toast
 class Upgrade:
     """更新升级"""
 
+    owner = "AquamarineCyan"
+    repo = "Onmyoji_Python"
+    github_api = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    gitee_api = f"https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
+    }
+
     def __init__(self) -> None:
-        self.headers: dict = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36 Edg/109.0.1518.70"
-        }
-        self.version_github: str = ""
-        self.browser_download_url: str = ""
-        self.new_version_info: str = ""
+        self.new_version: str = None
+        self.browser_download_url: str = None
+        self.new_version_info: str = None
         self.zip_path: str = None
         """更新包路径"""
 
-    def _get_browser_download_url(self) -> str:
+    def get_browser_download_url(self) -> str:
         """获取更新地址
 
         Returns:
             str: 更新地址
         """
-        api_url = "https://api.github.com/repos/AquamarineCyan/Onmyoji_Python/releases/latest"
-        try:
-            result = httpx.get(api_url, headers=self.headers)
-            logger.info(f"api_url.status_code:{result.status_code}")
-            if result.status_code == 200:
-                data_dict = json.loads(result.text)
-                if "v" in data_dict["tag_name"]:
-                    self.version_github = data_dict["tag_name"][1:]
-                    logger.info(f"version_github:{self.version_github}")
-                    if self.version_github > VERSION:
-                        _info: str = data_dict["body"]
-                        self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
-                        for item in data_dict["assets"]:
-                            if item["name"] == f"Onmyoji_Python-{self.version_github}.zip":
-                                logger.info(item["name"])
-                                self.browser_download_url = item["browser_download_url"]
-                                logger.info(f"browser_download_url:{self.browser_download_url}")
-                        return "NEW VERSION"
-                    else:
-                        return "LATEST"
-        except Exception:
-            return "CONNECT ERROR"
+        _local_api_default_list = [self.github_api, self.gitee_api]
+        # 使用用户配置的优先级
+        # TODO
+        if config.config_user.update_download == "gitee":
+            _local_api_user_list = list_change_first(_local_api_default_list, _local_api_default_list[1])
+        else:
+            # 默认顺序
+            _local_api_user_list = _local_api_default_list
 
-    def _get_ghproxy_url(self) -> str:
-        return f"https://ghproxy.com/{self.browser_download_url}"
+        n = 0
+        for local_api in _local_api_user_list:
+            logger.info(f"local_api: {local_api}")
+            n += 1
+            response = httpx.get(local_api, headers=self.headers)
+            logger.info(f"api_url.status_code: {response.status_code}")
+            if response.status_code != 200:
+                if n == len(_local_api_user_list):
+                    return "CONNECT ERROR"
+                else:
+                    continue
+            
+            data_dict = json.loads(response.text)
+            if "v" in data_dict["tag_name"]:
+                self.new_version = data_dict["tag_name"][1:]
+                logger.info(f"new_version:{self.new_version}")
+                if self.new_version > VERSION:
+                    _info: str = data_dict["body"]
+                    self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
+                    for item in data_dict["assets"]:
+                        logger.info(item)
+                        if item.get("name") == f"Onmyoji_Python-{self.new_version}.zip":
+                            self.browser_download_url = item["browser_download_url"]
+                            logger.info(f"browser_download_url:{self.browser_download_url}")
+                            return "NEW VERSION"
+                else:
+                    return "LATEST"
+            
+        return "CONNECT ERROR"
+
+    def get_ghproxy_url(self) -> str:
+        if "github.com" in self.browser_download_url:
+            return f"https://ghproxy.com/{self.browser_download_url}"
+        if "gitee.com" in self.browser_download_url:
+            _github_url = self.browser_download_url.replace("gitee.com", "github.com")
+            return f"https://ghproxy.com/{_github_url}"
 
     def _check_download_zip(self):
         logger.info(f"browser_download_url:{self.browser_download_url}")
@@ -74,19 +99,31 @@ class Upgrade:
             toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
             logger.ui("未存在新版本更新包，即将开始下载")
-            _download_url_default_list = [self.browser_download_url, self._get_ghproxy_url()]
-            # 使用用户配置的优先级
-            if config.config_user.update_download == "ghproxy":
-                _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[1])
+            # gitee ghproxy github
+            if config.config_user.update_download == "gitee":
+                _github_url = self.browser_download_url.replace("gitee.com", "github.com")
+                _download_url_default_list = [self.browser_download_url, self.get_ghproxy_url(), _github_url]
             else:
-                # 默认顺序
-                _download_url_user_list = _download_url_default_list
+                _gitee_url = self.browser_download_url.replace("github.com", "gitee.com")
+                _download_url_default_list = [_gitee_url, self.get_ghproxy_url(), self.browser_download_url,]
+
+            # 使用用户配置的优先级
+            match config.config_user.update_download:
+                case "gitee":
+                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[0])
+                case "ghproxy":
+                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[1])
+                case "GitHub":
+                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[2])
+                case _:
+                    _download_url_user_list = _download_url_default_list
+
             for download_url in _download_url_user_list:
                 logger.ui(f"下载链接:\n{download_url}")
-                if self._download_zip(download_url):
+                if self.download_upgrade_zip(download_url):
                     break
 
-    def _download_zip(self, download_url: str) -> bool:
+    def download_upgrade_zip(self, download_url: str) -> bool:
         """下载更新包"""
         try:
             with httpx.stream("GET", download_url, headers=self.headers, follow_redirects=True) as r:
@@ -119,11 +156,11 @@ class Upgrade:
             logger.info("skip for upgrade")
             return
 
-        STATUS = self._get_browser_download_url()
+        STATUS = self.get_browser_download_url()
         match STATUS:
             case "NEW VERSION":
-                logger.ui(f"新版本{self.version_github}")
-                toast("检测到新版本", f"{self.version_github}\n{self.new_version_info}")
+                logger.ui(f"新版本{self.new_version}")
+                toast("检测到新版本", f"{self.new_version}\n{self.new_version_info}")
                 logger.ui(self.new_version_info)
                 self._check_download_zip()
                 for item_path in APP_PATH.iterdir():
@@ -140,12 +177,9 @@ class Upgrade:
                 logger.ui("UPDATE ERROR", "warn")
 
     def _unzip_func(self) -> None:
-        logger.info("start unzip")
         # 解压路径
         self.zip_files_path: Path = APP_PATH / "zip_files"
-        # 压缩包文件
         logger.ui("开始解压...")
-
         with zipfile.ZipFile(self.zip_path, "r") as f_zip:
             f_zip.extractall(self.zip_files_path)
             # 保留提取文件修改日期
