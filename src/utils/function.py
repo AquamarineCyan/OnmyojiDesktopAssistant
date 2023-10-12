@@ -87,13 +87,15 @@ def random_coor(x1: int, x2: int, y1: int, y2: int) -> Coor:
     return Coor(x, y)
 
 
-def random_sleep(minimum: int | float, maximum: int | float) -> None:
+def random_sleep(minimum: int | float = 1.0, maximum: int | float = None) -> None:
     """随机延时（秒）
 
     参数:
-        minimum (int): 最小值（含）
-        maximum (int): 最大值（不含）
+        minimum (int): 最小值（含），默认1.0
+        maximum (int): 最大值（不含），默认None
     """
+    if maximum is None:
+        maximum = minimum + 1
     _sleep_time = random_num(minimum, maximum)
     logger.info(f"sleep for {_sleep_time} seconds")
     time.sleep(_sleep_time)
