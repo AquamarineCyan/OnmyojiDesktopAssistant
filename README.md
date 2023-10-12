@@ -75,11 +75,8 @@
       ```bash
       @echo off
       echo building
-      poetry run pyinstaller --clean main.spec
-      rem robocopy dist . Onmyoji_Python.exe /z /eta
-      move dist\Onmyoji_Python.exe .
-      rmdir /s /q "build" "dist"
-      pause
+      poetry run pyinstaller main.spec --clean --distpath .
+      rmdir /s /q "build"
       ```
       </details>
    - 或者不打包，直接运行（理论上能够生成UI）  
