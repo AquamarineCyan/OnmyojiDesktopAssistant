@@ -3,9 +3,6 @@
 # huodong.py
 """限时活动"""
 
-import random
-
-import pyautogui
 
 from ..utils.decorator import log_function_call, run_in_thread, time_count
 from ..utils.event import event_thread
@@ -21,7 +18,6 @@ from ..utils.function import (
     random_sleep
 )
 from ..utils.log import logger
-from ..utils.window import window
 from .utils import Package
 
 
@@ -118,59 +114,4 @@ class HuoDong(Package):
                         logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False
 
-        logger.ui(f"已完成 {self.scene_name} {self.n}次")
-
-
-class BaiMianGuiYi(HuoDong):
-    """百面归一"""
-
-    @log_function_call
-    def __init__(self, n: int = 0) -> None:
-        super().__init__(n)
-
-    @run_in_thread
-    @time_count
-    @log_function_call
-    def run(self) -> None:
-        if self.title():
-            logger.num(f"0/{self.max}")
-            _flag_title_msg: bool = True
-
-            while self.n < self.max:
-                if event_thread.is_set():
-                    return
-                _resource_list = ["title", "start", "hechengbiao", "finish", "money"]
-                scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-                if scene:
-                    logger.scene(scene)
-                match scene:
-                    case "title":
-                        self.start()
-                        _flag_title_msg = False
-                    case "start":
-                        click(coor)
-                        _flag_title_msg = False
-                    case "hechengbiao":
-                        logger.ui("进行中")
-                        _x = window.absolute_window_width / 2
-                        _y = window.absolute_window_height / 2
-                        # 移至正中心
-                        pyautogui.moveTo(_x + window.window_left, _y+window.window_top)
-                        import time
-                        random.seed(time.time_ns())
-                        x, y = random.choice([(0, 50), (0, -50), (50, 0), (-50, 0)])
-                        pyautogui.drag(x, y, button="left")
-                        _flag_title_msg = False
-                    case "finish":
-                        logger.ui("结算")
-                        finish_random_left_right()
-                        self.n += 1
-                        logger.num(f"{self.n}/{self.max}")
-                    case "money":
-                        logger.ui("结束")
-                        click()
-                    case _:
-                        if _flag_title_msg:
-                            logger.ui("请检查游戏场景", "warn")
-                            _flag_title_msg = False
         logger.ui(f"已完成 {self.scene_name} {self.n}次")
