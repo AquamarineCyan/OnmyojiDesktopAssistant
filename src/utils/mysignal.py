@@ -4,28 +4,60 @@ from PySide6.QtCore import QObject, Signal
 
 class MySignals(QObject):
     """自定义信号类"""
-    # 弹窗更新
-    qmessagbox_update = Signal(str, str)
-    # 主界面信息文本更新
-    text_print_update = Signal(str, str)
-    """主界面信息文本更新
 
-    参数：
+    def __init__(self) -> None:
+        self.main = self.Main()
+        self.upgrade_new_version = self.UpgradeNewVersion()
+        self.update_record = self.UpdateRecord()
 
-    文本内容
-    
-    文本颜色
-    """
-    # 运行状态更新
-    is_fighting_update = Signal(bool)
-    # 完成情况文本更新
-    text_num_update = Signal(str)
-    # 更新日志文本更新
-    ui_update_record_textBrowser_update = Signal(str)
-    # 退出程序
-    sys_exit_update = Signal(bool)
-    # 主界面信息文本覆盖
-    text_print_insert_update = Signal(str)
+    class Main(QObject):
+        """主界面"""
+        qmessagbox_update = Signal(str, str)
+        """弹窗更新
+        
+        参数:
+        
+        (str): 弹窗类型:
+        `ERROR`: 警告
+        `question`: 提示
+
+        (str): 文本内容
+        """
+        text_print_update = Signal(str, str)
+        """更新文本
+
+        参数：
+
+        (str): 文本内容
+        
+        (str): 文本颜色
+        """
+        text_print_insert_update = Signal(str)
+        """覆盖文本"""
+        is_fighting_update = Signal(bool)
+        """运行状态更新"""
+        text_num_update = Signal(str)
+        """完成情况文本更新"""
+        sys_exit = Signal()
+        """退出程序"""
+
+    class UpdateRecord(QObject):
+        """更新日志"""
+        text_update = Signal(str)
+        """更新文本"""
+
+    class UpgradeNewVersion(QObject):
+        """更新新版本"""
+        text_update = Signal(str)
+        """更新文本"""
+        text_insert = Signal(str)
+        """覆盖文本"""
+        progressBar_update = Signal(int)
+        """更新进度条"""
+        show_ui = Signal()
+        """显示窗口"""
+        close_ui = Signal()
+        """关闭窗口"""
 
 
 global_ms = MySignals()

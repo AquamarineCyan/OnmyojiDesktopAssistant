@@ -73,4 +73,4 @@ def update_record():
 
     for key, value in update.items():
         s: str = f"{str(key)}\n{str(value)}\n"
-        ms.ui_update_record_textBrowser_update.emit(s)
+        ms.update_record.text_update.emit(s)

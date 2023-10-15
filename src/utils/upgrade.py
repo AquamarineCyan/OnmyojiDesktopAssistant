@@ -26,23 +26,31 @@ class Upgrade:
     owner = "AquamarineCyan"
     repo = "Onmyoji_Python"
     github_api = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    gitee_api = f"https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"    
+    gitee_api = f"https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
     }
 
     def __init__(self) -> None:
         self.new_version: str = None
+        """新版本版本号"""
         self.browser_download_url: str = None
+        """更新包下载链接"""
         self.new_version_info: str = None
+        """新版本更新内容"""
+        self.file_path: str = None
+        """下载文件路径"""
         self.zip_path: str = None
         """更新包路径"""
 
     def get_browser_download_url(self) -> str:
         """获取更新地址
 
-        Returns:
-            str: 更新地址
+        返回:
+            str: 状态
+            `LATEST`: 当前为最新版本
+            `NEW VERSION`: 有新版本
+            `CONNECT ERROR`: 连接错误
         """
         _local_api_default_list = [self.github_api, self.gitee_api]
         # 使用用户配置的优先级
@@ -64,13 +72,14 @@ class Upgrade:
                     return "CONNECT ERROR"
                 else:
                     continue
-            
+
             data_dict = json.loads(response.text)
             if "v" in data_dict["tag_name"]:
                 self.new_version = data_dict["tag_name"][1:]
                 logger.info(f"new_version:{self.new_version}")
                 if self.new_version > VERSION:
                     _info: str = data_dict["body"]
+                    logger.info(_info)
                     self.new_version_info = (_info[:_info.find("**Full Changelog**")].rstrip("\n"))
                     for item in data_dict["assets"]:
                         logger.info(item)
@@ -80,7 +89,7 @@ class Upgrade:
                             return "NEW VERSION"
                 else:
                     return "LATEST"
-            
+
         return "CONNECT ERROR"
 
     def get_ghproxy_url(self) -> str:
@@ -92,11 +101,10 @@ class Upgrade:
 
     def _check_download_zip(self):
         logger.info(f"browser_download_url:{self.browser_download_url}")
-        self.zip_path = self.browser_download_url.split("/")[-1]
-        logger.info(f"zip_name:{self.zip_path}")
-        if APP_PATH.joinpath(self.browser_download_url.split("/")[-1]) in APP_PATH.iterdir():
+        self.file_path = self.browser_download_url.split("/")[-1]
+        logger.info(f"file_name:{self.file_path}")
+        if Path(APP_PATH / self.file_path) in APP_PATH.iterdir():
             logger.ui("存在新版本更新包")
-            toast("存在新版本更新包", "请关闭程序后手动解压覆盖")
         else:
             logger.ui("未存在新版本更新包，即将开始下载")
             # gitee ghproxy github
@@ -110,11 +118,14 @@ class Upgrade:
             # 使用用户配置的优先级
             match config.config_user.update_download:
                 case "gitee":
-                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[0])
+                    _download_url_user_list = list_change_first(
+                        _download_url_default_list, _download_url_default_list[0])
                 case "ghproxy":
-                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[1])
+                    _download_url_user_list = list_change_first(
+                        _download_url_default_list, _download_url_default_list[1])
                 case "GitHub":
-                    _download_url_user_list = list_change_first(_download_url_default_list, _download_url_default_list[2])
+                    _download_url_user_list = list_change_first(
+                        _download_url_default_list, _download_url_default_list[2])
                 case _:
                     _download_url_user_list = _download_url_default_list
 
@@ -122,6 +133,23 @@ class Upgrade:
                 logger.ui(f"下载链接:\n{download_url}")
                 if self.download_upgrade_zip(download_url):
                     break
+
+    @run_in_thread
+    def ui_update_func(self):
+        self._check_download_zip()
+        for item_path in APP_PATH.iterdir():
+            if APP_NAME in item_path.name.__str__() and item_path.suffix == ".zip":
+                self.zip_path = item_path
+                logger.info(f"zip_path: {self.zip_path}")
+                break
+        if self.zip_path and Path(self.zip_path).exists():
+            ms.main.qmessagbox_update.emit("question", "更新重启")
+        ms.upgrade_new_version.close_ui.emit()
+
+    @run_in_thread
+    def ui_download_func(self):
+        self._check_download_zip()
+        ms.upgrade_new_version.close_ui.emit()
 
     def download_upgrade_zip(self, download_url: str) -> bool:
         """下载更新包"""
@@ -133,13 +161,14 @@ class Upgrade:
                     return False
                 _bytes_total = int(r.headers["Content-length"])
                 logger.ui(f"更新包大小:{hum_convert(_bytes_total)}")
-                download_zip_percentage_update(self.zip_path, _bytes_total)
-                with open(self.zip_path, "wb") as f:
+                download_zip_percentage_update(self.file_path, _bytes_total)
+                with open(self.file_path, "wb") as f:
                     for chunk in r.iter_bytes(chunk_size=1024):
                         if chunk:
                             f.write(chunk)
-                logger.ui("更新包下载完成，请关闭程序后手动解压覆盖")
-                toast("更新包下载完成", "请关闭程序后手动解压覆盖")
+                _msg = "更新包下载完成"
+                logger.ui(_msg)
+                toast(_msg)
                 return True
         except httpx.ConnectTimeout:
             logger.ui("超时，尝试更换源", "warn")
@@ -153,22 +182,15 @@ class Upgrade:
     def check_latest(self) -> None:
         """检查更新"""
         if config.config_user.update == "关闭":
-            logger.info("skip for upgrade")
+            logger.info("跳过更新")
             return
 
         STATUS = self.get_browser_download_url()
         match STATUS:
             case "NEW VERSION":
                 logger.ui(f"新版本{self.new_version}")
+                ms.upgrade_new_version.show_ui.emit()
                 toast("检测到新版本", f"{self.new_version}\n{self.new_version_info}")
-                logger.ui(self.new_version_info)
-                self._check_download_zip()
-                for item_path in APP_PATH.iterdir():
-                    if APP_NAME in item_path.name.__str__() and item_path.suffix == ".zip":
-                        self.zip_path = item_path
-                        break
-                if self.zip_path and Path(self.zip_path).exists():
-                    ms.qmessagbox_update.emit("question", "更新重启")
             case "LATEST":
                 logger.info("暂无更新")
             case "CONNECT ERROR":
@@ -204,6 +226,7 @@ class Upgrade:
                 target_path.mkdir(exist_ok=True)
                 self._move_files_recursive(item_path, target_path)
 
+    @run_in_thread
     def restart(self) -> None:
         """解压更新包并重启应用程序"""
         self._unzip_func()
@@ -237,8 +260,9 @@ def download_zip_percentage_update(file, max: int):
     """
     while True:
         curr = Path(file).stat().st_size if Path(file).exists() else 0
-        ms.text_print_insert_update.emit(f"{hum_convert(curr)}/{hum_convert(max)}")
-        time.sleep(0.05)
+        ms.upgrade_new_version.text_insert.emit(f"{hum_convert(curr)}/{hum_convert(max)}")
+        ms.upgrade_new_version.progressBar_update.emit(int(100*(curr/max)))
+        time.sleep(0.1)
         if (curr >= max):
             break
 

@@ -9,11 +9,12 @@ from pathlib import Path
 from threading import Thread
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget
+from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget, QPushButton, QDialogButtonBox
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
 from ..ui.updateui import Ui_Form as Ui_Update_Record
+from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
@@ -76,17 +77,19 @@ class MainWindow(QMainWindow):
 
         # 自定义信号
         # 弹窗更新
-        ms.qmessagbox_update.connect(self.qmessagbox_update_func)
+        ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
         # 主界面信息文本更新
-        ms.text_print_update.connect(self.text_print_update_func)
+        ms.main.text_print_update.connect(self.text_print_update_func)
         # 主界面信息文本覆盖
-        ms.text_print_insert_update.connect(self.text_print_insert_func)
+        ms.main.text_print_insert_update.connect(self.text_print_insert_func)
         # 运行状态更新
-        ms.is_fighting_update.connect(self.is_fighting)
+        ms.main.is_fighting_update.connect(self.is_fighting)
         # 完成情况文本更新
-        ms.text_num_update.connect(self.text_num_update_func)
+        ms.main.text_num_update.connect(self.text_num_update_func)
         # 退出程序
-        ms.sys_exit_update.connect(self.exit)
+        ms.main.sys_exit.connect(self.exit)
+        # 显示更新窗口
+        ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
         # 事件连接
         # 环境检测按钮
@@ -230,7 +233,7 @@ class MainWindow(QMainWindow):
         logger.info("环境检测中...")
         # 中文路径
         if is_Chinese_Path():
-            ms.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
+            ms.main.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
             return False
         # 资源文件夹完整度
         if not self.is_resource_directory_complete():
@@ -279,14 +282,14 @@ class MainWindow(QMainWindow):
             # 检查子文件夹
             if not Path(RESOURCE_DIR_PATH/P.resource_path).exists():
                 logger.ui("资源文件夹不存在！", "error")
-                ms.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
+                ms.main.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
                 return False
             else:
                 # 检查资源文件
                 for item in P.resource_list:
                     if not Path(RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
                         logger.ui(f"无{P.resource_path}/{item}.png资源文件", "error")
-                        ms.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
+                        ms.main.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                         return False
         logger.info("资源完整")
         return True
@@ -324,14 +327,14 @@ class MainWindow(QMainWindow):
         handle_coor = window.handle_coor
         if handle_coor == (0, 0, 0, 0):
             logger.error("Game is close!")
-            ms.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
+            ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
         elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
             logger.error(f"Game is background, handle_coor:{handle_coor}")
-            ms.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
+            ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
         # TODO 解除窗口大小限制，待优化
         elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
                 handle_coor[3] - handle_coor[1] != window.absolute_window_height:
-            ms.qmessagbox_update.emit("question", "强制缩放")
+            ms.main.qmessagbox_update.emit("question", "强制缩放")
         else:
             logger.ui("游戏窗口检测成功")
             self.ui.combo_choice.setEnabled(True)
@@ -628,6 +631,10 @@ class MainWindow(QMainWindow):
         self.update_record_ui = UpdateRecordWindow()
         self.update_record_ui.show()
 
+    def show_upgrade_new_version_window(self):
+        self.upgrade_new_version_ui = UpgradeNewVersionWindow()
+        self.upgrade_new_version_ui.show()
+
     def exit(self, flag):
         if flag:
             sys.exit()
@@ -644,7 +651,7 @@ class UpdateRecordWindow(QWidget):
         icon.addPixmap(QPixmap("buzhihuo.ico"))
         self.setWindowIcon(icon)
         # 关联事件
-        ms.ui_update_record_textBrowser_update.connect(self.textBrowser_update)
+        ms.update_record.text_update.connect(self.textBrowser_update)
         # 初始化
         update_record()
 
@@ -653,3 +660,80 @@ class UpdateRecordWindow(QWidget):
         self.ui.textBrowser.append(text)
         self.ui.textBrowser.ensureCursorVisible()
         self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.Start)
+
+
+class UpgradeNewVersionWindow(QWidget):
+    """更新新版本"""
+
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_Upgrade_New_Version()
+        self.ui.setupUi(self)
+        icon = QIcon()
+        icon.addPixmap(QPixmap("buzhihuo.ico"))
+        self.setWindowIcon(icon)
+
+        button_update = QPushButton("下载更新", self)
+        button_download = QPushButton("仅下载", self)
+        button_cancel = QPushButton("忽略本次", self)
+
+        self.ui.buttonBox.addButton(button_update, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.ui.buttonBox.addButton(button_download, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.ui.buttonBox.addButton(button_cancel, QDialogButtonBox.ButtonRole.RejectRole)
+        self.ui.progressBar.hide()
+
+        button_update.clicked.connect(self.button_update_clicked_func)
+        button_download.clicked.connect(self.button_download_clicked_func)
+        button_cancel.clicked.connect(self.close)
+        ms.upgrade_new_version.text_update.connect(self.textBrowser_update_func)
+        ms.upgrade_new_version.text_insert.connect(self.textBrowser_insert_func)
+        ms.upgrade_new_version.progressBar_update.connect(self.progressBar_update_func)
+        ms.upgrade_new_version.close_ui.connect(self.close)
+
+        ms.upgrade_new_version.text_update.emit(f"v{upgrade.new_version}\n{upgrade.new_version_info}")
+
+    def textBrowser_update_func(self, msg: str) -> None:
+        """输出内容至文本框
+
+        参数:
+            msg(str): 文本内容
+        """
+        self.ui.textBrowser.append(msg)
+        self.ui.textBrowser.ensureCursorVisible()
+        self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.End)
+
+    def textBrowser_insert_func(self, msg: str):
+        """插入内容
+
+        参数:
+            msg (str): 文本内容
+        """
+        cursor = self.ui.textBrowser.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
+        cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
+        cursor.removeSelectedText()
+        cursor.insertText(msg)
+
+    def progressBar_update_func(self, value: int):
+        """更新进度条
+
+        参数:
+            value (int): 百分比
+        """
+        self.ui.progressBar.setValue(value)
+
+    def progressBar_show_func(self):
+        if self.ui.progressBar.isHidden():
+            self.ui.progressBar.show()
+
+    def button_update_clicked_func(self):
+        self.progressBar_show_func()
+        upgrade.ui_update_func()
+
+    def button_download_clicked_func(self):
+        self.progressBar_show_func()
+        upgrade.ui_download_func()
+
+    def closeEvent(self, event):
+        logger.info("[EXIT]")
+        event.accept()

@@ -38,7 +38,7 @@ def time_count(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # 禁用按钮
-        ms.is_fighting_update.emit(True)
+        ms.main.is_fighting_update.emit(True)
         start = time.perf_counter()
         result = func(*args, **kwargs)
         end = time.perf_counter()
@@ -50,7 +50,7 @@ def time_count(func):
         except Exception:
             logger.error("耗时统计计算失败")
         # 启用按钮
-        ms.is_fighting_update.emit(False)
+        ms.main.is_fighting_update.emit(False)
         # 系统通知
         # 5s结束，保留至通知中心
         toast("任务已完成")

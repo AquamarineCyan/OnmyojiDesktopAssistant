@@ -651,7 +651,7 @@ def app_restart(is_upgrade: bool = False) -> None:
     Popen([RESTART_BAT_PATH])
     # 关闭当前exe程序
     logger.info("App Exiting...")
-    ms.sys_exit_update.emit(True)
+    ms.main.sys_exit.emit()
 
 
 def remove_restart_bat_file() -> None:
