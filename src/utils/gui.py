@@ -437,11 +437,7 @@ class MainWindow(QMainWindow):
         elif text == self._list_function[9]:
             # 10.限时活动
             self._choice = 10
-            logger.ui(
-                "适用于限时活动及其他连点，请提前确保阵容完好并锁定\n\
-可替换resource/huodong下的素材\n\
-当前为「微光之守」"
-            )
+            logger.ui(huodong.HuoDong().description)
             self.ui.spinB_num.setValue(1)
             self.ui.spinB_num.setRange(1, 999)
         elif text == self._list_function[10]:

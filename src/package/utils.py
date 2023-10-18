@@ -20,7 +20,9 @@ class Package:
 
     def __init__(self, n: int = 0) -> None:
         self.n: int = 0
+        """当前次数"""
         self.max: int = n
+        """总次数"""
 
     def scene_print(self, scene: str = None) -> None:
         """打印当前场景"""
@@ -50,7 +52,7 @@ class Package:
     @run_in_thread
     def start(self):
         # 禁用按钮
-        ms.is_fighting_update.emit(True)
+        ms.main.is_fighting_update.emit(True)
         start = time.perf_counter()
         self.run()
         end = time.perf_counter()
@@ -62,7 +64,7 @@ class Package:
         except Exception:
             logger.error("耗时统计计算失败")
         # 启用按钮
-        ms.is_fighting_update.emit(False)
+        ms.main.is_fighting_update.emit(False)
         logger.ui(f"已完成 {self.scene_name} {self.n}次")
         # 系统通知
         # 5s结束，保留至通知中心
