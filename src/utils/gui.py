@@ -9,7 +9,7 @@ from pathlib import Path
 from threading import Thread
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import QMainWindow, QMessageBox, QWidget, QPushButton, QDialogButtonBox
+from PySide6.QtWidgets import QDialogButtonBox, QMainWindow, QMessageBox, QPushButton, QWidget
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
@@ -28,6 +28,7 @@ from .window import window
 
 
 class MainWindow(QMainWindow):
+    """主界面"""
     _list_function = [  # 功能列表
         "1.御魂副本",
         "2.永生之海副本",
@@ -78,16 +79,16 @@ class MainWindow(QMainWindow):
         # 自定义信号
         # 弹窗更新
         ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
-        # 主界面信息文本更新
+        # 更新文本
         ms.main.text_print_update.connect(self.text_print_update_func)
-        # 主界面信息文本覆盖
+        # 覆盖文本
         ms.main.text_print_insert_update.connect(self.text_print_insert_func)
         # 运行状态更新
         ms.main.is_fighting_update.connect(self.is_fighting)
         # 完成情况文本更新
         ms.main.text_num_update.connect(self.text_num_update_func)
         # 退出程序
-        ms.main.sys_exit.connect(self.exit)
+        ms.main.sys_exit.connect(sys.exit)
         # 显示更新窗口
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
@@ -630,10 +631,6 @@ class MainWindow(QMainWindow):
     def show_upgrade_new_version_window(self):
         self.upgrade_new_version_ui = UpgradeNewVersionWindow()
         self.upgrade_new_version_ui.show()
-
-    def exit(self, flag):
-        if flag:
-            sys.exit()
 
 
 class UpdateRecordWindow(QWidget):
