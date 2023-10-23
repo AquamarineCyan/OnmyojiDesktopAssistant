@@ -57,6 +57,7 @@ class Config():
         if CONFIG_PATH.is_file():
             logger.info("Find config file.")
             data = self._read_config_yaml()
+            self.config_user = UserConfig(**data)
             self._check_outdated_config_data(data)
         else:
             logger.ui("Cannot find config file.", "warn")
