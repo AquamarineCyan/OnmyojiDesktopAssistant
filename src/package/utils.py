@@ -47,10 +47,12 @@ class Package:
         logger.num(f"{self.n}/{self.max}")
 
     def run(self):
+        """任务内容"""
         pass
 
     @run_in_thread
-    def start(self):
+    def task_start(self):
+        """任务开始"""
         # 禁用按钮
         ms.main.is_fighting_update.emit(True)
         start = time.perf_counter()

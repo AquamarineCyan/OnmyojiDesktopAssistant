@@ -1,5 +1,5 @@
 import time
-from threading import Thread
+from threading import Thread, Timer
 
 
 class WorkThread(Thread):
@@ -32,6 +32,12 @@ class WorkThread(Thread):
             return self.result
         except Exception:
             return None
+
+
+class WorkTimer(Timer):
+    def __init__(self, interval, function, args=None, kwargs=None):
+        super().__init__(interval, function, args, kwargs)
+        self.daemon = True
 
 
 """

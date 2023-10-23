@@ -126,7 +126,7 @@ def image_file_format(file: Path | str) -> str:
         logger.warn(f"no such file {_file}")
 
 
-def get_coor_info(file: Path | str) -> Coor:
+def get_coor_info(file: Path | str) -> AbsoluteCoor:
     """图像识别，返回图像的全屏随机坐标
 
     参数:
@@ -139,10 +139,10 @@ def get_coor_info(file: Path | str) -> Coor:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
     _file_name = image_file_format(RESOURCE_DIR_PATH / file)
-    logger.info(f"looking for file: {_file_name}")
-    # 等待悬赏封印判定
+    logger.debug(f"looking for file: {_file_name}")
     if event_thread.is_set():
         return Coor(0, 0)
+    # 等待悬赏封印判定
     if event_xuanshang_enable.is_set():
         event_xuanshang.wait()
 
@@ -160,7 +160,7 @@ def get_coor_info(file: Path | str) -> Coor:
         logger.debug(f"button_location: {button_location}")
         if button_location:
             logger.info(f"button_location: {button_location}")
-        coor = random_coor(
+        coor: AbsoluteCoor = random_coor(
             button_location[0],
             button_location[0] + button_location[2],
             button_location[1],

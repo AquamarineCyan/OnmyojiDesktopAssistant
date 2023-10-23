@@ -6,7 +6,6 @@ import sys
 import time
 from contextlib import suppress
 from pathlib import Path
-from threading import Thread
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import QDialogButtonBox, QMainWindow, QMessageBox, QPushButton, QWidget
@@ -22,6 +21,7 @@ from .event import event_thread, event_xuanshang_enable
 from .function import FightResource, app_restart, remove_restart_bat_file
 from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
+from .mythread import WorkThread
 from .update import update_record
 from .upgrade import upgrade
 from .window import window
@@ -181,7 +181,7 @@ class MainWindow(QMainWindow):
                             "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
                         ) == QMessageBox.Yes:
                             logger.info("用户接受更新重启")
-                            Thread(target=upgrade.restart, daemon=True).start()
+                            WorkThread(func=upgrade.restart).start()
                         else:
                             logger.info("用户拒绝更新重启")
 
@@ -538,7 +538,7 @@ class MainWindow(QMainWindow):
                 case 9:  # 百鬼夜行
                     baiguiyexing.BaiGuiYeXing(n=_n).run()
                 case 10:  # 限时活动
-                    huodong.HuoDong(n=_n).run()
+                    huodong.HuoDong(n=_n).task_start()
                 case 11:  # 组队日轮副本
                     # 是否司机（默认否）
                     # 组队人数（默认2人）
