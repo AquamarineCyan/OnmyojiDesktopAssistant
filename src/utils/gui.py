@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QDialogButtonBox, QMainWindow, QMessageBox, QPushB
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
-from ..ui.updateui import Ui_Form as Ui_Update_Record
+from ..ui.update_record import Ui_Form as Ui_Update_Record
 from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
@@ -25,6 +25,13 @@ from .mythread import WorkThread
 from .update import update_record
 from .upgrade import upgrade
 from .window import window
+
+
+def get_global_icon():
+    """窗口图标"""
+    global_icon = QIcon()
+    global_icon.addPixmap(QPixmap("buzhihuo.ico"))
+    return global_icon
 
 
 class MainWindow(QMainWindow):
@@ -53,10 +60,7 @@ class MainWindow(QMainWindow):
         # 初始化界面
         self.setFixedSize(550, 450)  # 固定宽高
         self.ui.setupUi(self)
-        # 窗口图标
-        icon = QIcon()
-        icon.addPixmap(QPixmap("buzhihuo.ico"))
-        self.setWindowIcon(icon)
+        self.setWindowIcon(get_global_icon())
         self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
         # 初始化控件
         self.ui.combo_choice.addItems(self._list_function)
@@ -634,21 +638,19 @@ class MainWindow(QMainWindow):
 
 
 class UpdateRecordWindow(QWidget):
-    """更新信息"""
+    """更新记录"""
 
     def __init__(self):
         super().__init__()
         self.ui = Ui_Update_Record()
         self.ui.setupUi(self)
-        icon = QIcon()
-        icon.addPixmap(QPixmap("buzhihuo.ico"))
-        self.setWindowIcon(icon)
+        self.setWindowIcon(get_global_icon())
         # 关联事件
-        ms.update_record.text_update.connect(self.textBrowser_update)
+        ms.update_record.text_update.connect(self.textBrowser_update_func)
         # 初始化
         update_record()
 
-    def textBrowser_update(self, text: str):
+    def textBrowser_update_func(self, text: str):
         logger.info(f"[update record]\n{text}")
         self.ui.textBrowser.append(text)
         self.ui.textBrowser.ensureCursorVisible()
@@ -662,9 +664,7 @@ class UpgradeNewVersionWindow(QWidget):
         super().__init__()
         self.ui = Ui_Upgrade_New_Version()
         self.ui.setupUi(self)
-        icon = QIcon()
-        icon.addPixmap(QPixmap("buzhihuo.ico"))
-        self.setWindowIcon(icon)
+        self.setWindowIcon(get_global_icon())
 
         button_update = QPushButton("下载更新", self)
         button_download = QPushButton("仅下载", self)

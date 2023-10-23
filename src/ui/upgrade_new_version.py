@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'upgrade_new_version.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.3
+## Created by: Qt User Interface Compiler version 6.6.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -29,6 +29,10 @@ class Ui_Form(object):
         self.textBrowser = QTextBrowser(Form)
         self.textBrowser.setObjectName(u"textBrowser")
         self.textBrowser.setGeometry(QRect(50, 30, 350, 210))
+        font1 = QFont()
+        font1.setFamilies([u"\u5b8b\u4f53"])
+        font1.setPointSize(10)
+        self.textBrowser.setFont(font1)
         self.progressBar = QProgressBar(Form)
         self.progressBar.setObjectName(u"progressBar")
         self.progressBar.setEnabled(True)

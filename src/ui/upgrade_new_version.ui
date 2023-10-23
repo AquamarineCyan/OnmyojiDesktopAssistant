@@ -27,6 +27,12 @@
      <height>210</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>宋体</family>
+     <pointsize>10</pointsize>
+    </font>
+   </property>
   </widget>
   <widget class="QProgressBar" name="progressBar">
    <property name="enabled">

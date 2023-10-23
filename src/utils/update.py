@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # update.py
-"""更新日志"""
+"""更新记录"""
 
 from .mysignal import global_ms as ms
 
 
 def update_record():
-    """更新日志"""
+    """更新记录"""
     update = {
         "1.7.9":
         """新增 添加新版本提示弹窗

@@ -42,7 +42,7 @@ class MySignals(QObject):
         """退出程序"""
 
     class UpdateRecord(QObject):
-        """更新日志"""
+        """更新记录"""
         text_update = Signal(str)
         """更新文本"""
 
