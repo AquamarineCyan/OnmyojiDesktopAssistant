@@ -16,7 +16,7 @@ logging.addLevelName(LOG_LEVEL_GUI, "GUI")
 
 def send_gui_msg(msg: str = "", color: str = "black"):
     _now = datetime.now().strftime("%H:%M:%S")
-    ms.main.text_print_update.emit(f"{_now} {msg}", color)
+    ms.main.ui_text_info_update.emit(f"{_now} {msg}", color)
 
 
 class CustomLogger(logging.Logger):
@@ -39,7 +39,7 @@ class CustomLogger(logging.Logger):
         super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs)
 
     def num(self, msg, *args, **kwargs):  # TODO remove and used in printbox
-        ms.main.text_num_update.emit(msg)  # 输出至完成情况UI界面
+        ms.main.ui_text_completion_times_update.emit(msg)  # 输出至完成次数UI界面
         super()._log(logging.INFO, f"done number: {msg}", args, **kwargs)
 
 

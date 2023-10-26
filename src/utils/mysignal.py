@@ -23,7 +23,7 @@ class MySignals(QObject):
 
         (str): 文本内容
         """
-        text_print_update = Signal(str, str)
+        ui_text_info_update = Signal(str, str)
         """更新文本
 
         参数：
@@ -32,12 +32,10 @@ class MySignals(QObject):
         
         (str): 文本颜色
         """
-        text_print_insert_update = Signal(str)
-        """覆盖文本"""
         is_fighting_update = Signal(bool)
         """运行状态更新"""
-        text_num_update = Signal(str)
-        """完成情况文本更新"""
+        ui_text_completion_times_update = Signal(str)
+        """完成次数更新"""
         sys_exit = Signal()
         """退出程序"""
 

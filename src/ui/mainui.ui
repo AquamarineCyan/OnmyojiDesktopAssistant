@@ -10,924 +10,1037 @@
     <height>450</height>
    </rect>
   </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="font">
+   <font>
+    <family>宋体</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QTabWidget" name="tabWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>551</width>
-      <height>451</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>宋体</family>
-     </font>
-    </property>
-    <property name="currentIndex">
+   <layout class="QGridLayout" name="gridLayout_centralwidget">
+    <property name="leftMargin">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab_home">
-     <attribute name="title">
-      <string>首页</string>
-     </attribute>
-     <widget class="QGroupBox" name="groupBox_basic">
-      <property name="geometry">
-       <rect>
-        <x>4</x>
-        <y>20</y>
-        <width>231</width>
-        <height>131</height>
-       </rect>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="font">
-       <font>
-        <family>宋体</family>
-       </font>
-      </property>
-      <property name="title">
-       <string>基本功能</string>
-      </property>
-      <widget class="QPushButton" name="button_game_handle">
-       <property name="geometry">
-        <rect>
-         <x>70</x>
-         <y>90</y>
-         <width>71</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>游戏检测</string>
-       </property>
-      </widget>
-      <widget class="QComboBox" name="combo_choice">
-       <property name="geometry">
-        <rect>
-         <x>81</x>
-         <y>24</y>
-         <width>141</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="placeholderText">
-        <string>请选择功能</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_function">
-       <property name="geometry">
-        <rect>
-         <x>26</x>
-         <y>27</y>
-         <width>26</width>
-         <height>15</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;功能&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-      <widget class="QSpinBox" name="spinB_num">
-       <property name="geometry">
-        <rect>
-         <x>81</x>
-         <y>55</y>
-         <width>51</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="maximum">
-        <number>999</number>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_numbers">
-       <property name="geometry">
-        <rect>
-         <x>26</x>
-         <y>57</y>
-         <width>26</width>
-         <height>15</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;次数&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_senior">
-      <property name="geometry">
-       <rect>
-        <x>6</x>
-        <y>156</y>
-        <width>231</width>
-        <height>201</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>宋体</family>
-       </font>
-      </property>
-      <property name="title">
-       <string>高级设置</string>
-      </property>
-      <widget class="QStackedWidget" name="stackedWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>20</y>
-         <width>211</width>
-         <height>161</height>
-        </rect>
-       </property>
-       <property name="currentIndex">
-        <number>0</number>
-       </property>
-       <widget class="QWidget" name="_0_none"/>
-       <widget class="QWidget" name="_1_yuhun">
-        <widget class="QLabel" name="label_driver">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>55</y>
-           <width>48</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>是否司机</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="button_driver_False">
-         <property name="geometry">
-          <rect>
-           <x>78</x>
-           <y>55</y>
-           <width>38</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>否</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_driver</string>
-         </attribute>
-        </widget>
-        <widget class="QRadioButton" name="button_driver_True">
-         <property name="geometry">
-          <rect>
-           <x>128</x>
-           <y>55</y>
-           <width>38</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>是</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_driver</string>
-         </attribute>
-        </widget>
-        <widget class="QRadioButton" name="button_passengers_3">
-         <property name="geometry">
-          <rect>
-           <x>128</x>
-           <y>81</y>
-           <width>33</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>3</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_passengers</string>
-         </attribute>
-        </widget>
-        <widget class="QRadioButton" name="button_passengers_2">
-         <property name="geometry">
-          <rect>
-           <x>79</x>
-           <y>81</y>
-           <width>33</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>2</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_passengers</string>
-         </attribute>
-        </widget>
-        <widget class="QLabel" name="label_passengers">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>81</y>
-           <width>48</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>组队人数</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_tips">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>130</y>
-           <width>141</width>
-           <height>31</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="button_yuhun_drop_statistics">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>109</y>
-           <width>100</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>掉落统计beta</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="button_mode_single">
-         <property name="geometry">
-          <rect>
-           <x>128</x>
-           <y>28</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>单人</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_mode</string>
-         </attribute>
-        </widget>
-        <widget class="QRadioButton" name="button_mode_team">
-         <property name="geometry">
-          <rect>
-           <x>78</x>
-           <y>28</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="mouseTracking">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string>组队</string>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup_mode</string>
-         </attribute>
-        </widget>
-        <widget class="QLabel" name="label_mode">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>28</y>
-           <width>48</width>
-           <height>21</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>模式</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="_2_jiejietupo">
-        <widget class="QRadioButton" name="button_jiejietupo_3victory">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>60</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>3胜</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="button_kaji">
-         <property name="geometry">
-          <rect>
-           <x>80</x>
-           <y>100</y>
-           <width>47</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>卡级</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="button_jiejietupo_9victory">
-         <property name="geometry">
-          <rect>
-           <x>140</x>
-           <y>60</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>9胜</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_refresh_rule">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>60</y>
-           <width>48</width>
-           <height>16</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>宋体</family>
-           <pointsize>9</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>刷新规则</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="_3_daoguantupo">
-        <widget class="QCheckBox" name="button_guanzhan">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>40</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>观战</string>
-         </property>
-        </widget>
-       </widget>
-       <widget class="QWidget" name="_4_qiling">
-        <widget class="QCheckBox" name="button_qiling_tancha">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>40</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>探查</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="button_qiling_jieqi">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>80</y>
-           <width>51</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>结契</string>
-         </property>
-        </widget>
-       </widget>
-      </widget>
-     </widget>
-     <widget class="QGroupBox" name="groupBox_info">
-      <property name="geometry">
-       <rect>
-        <x>250</x>
-        <y>10</y>
-        <width>281</width>
-        <height>411</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>宋体</family>
-       </font>
-      </property>
-      <property name="title">
-       <string>信息</string>
-      </property>
-      <widget class="QLineEdit" name="text_num">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="geometry">
-        <rect>
-         <x>90</x>
-         <y>30</y>
-         <width>71</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-       <property name="maxLength">
-        <number>32764</number>
-       </property>
-       <property name="placeholderText">
-        <string>完成情况</string>
-       </property>
-      </widget>
-      <widget class="QTextBrowser" name="text_print">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>60</y>
-         <width>261</width>
-         <height>341</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-        </font>
-       </property>
-       <property name="placeholderText">
-        <string>输出信息</string>
-       </property>
-      </widget>
-      <widget class="QLabel" name="label_completion">
-       <property name="geometry">
-        <rect>
-         <x>22</x>
-         <y>32</y>
-         <width>52</width>
-         <height>17</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>宋体</family>
-        </font>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;完成情况&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </widget>
-     <widget class="QPushButton" name="button_start">
-      <property name="geometry">
-       <rect>
-        <x>70</x>
-        <y>370</y>
-        <width>81</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>宋体</family>
-        <pointsize>11</pointsize>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>开始</string>
-      </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="tab_setting">
-     <attribute name="title">
-      <string>设置</string>
-     </attribute>
-     <widget class="QScrollArea" name="scrollArea">
-      <property name="geometry">
-       <rect>
-        <x>-4</x>
-        <y>-1</y>
-        <width>551</width>
-        <height>431</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>532</width>
-         <height>1000</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>1000</height>
-        </size>
-       </property>
-       <widget class="QWidget" name="horizontalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>60</y>
-          <width>451</width>
-          <height>51</height>
-         </rect>
+      <widget class="QWidget" name="tab_home">
+       <attribute name="title">
+        <string>首页</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_tab_home" rowstretch="2,3,0,0,0,0,0,0,0,0,0,0,0" columnstretch="2,3">
+        <property name="leftMargin">
+         <number>4</number>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_update" stretch="4,2,0,2,4">
-         <item>
-          <spacer name="horizontalSpacer_setting_update_left">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+        <property name="topMargin">
+         <number>11</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item row="0" column="1" rowspan="13">
+         <widget class="QGroupBox" name="groupBox_info">
+          <property name="title">
+           <string>信息</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_groupBox_info" columnstretch="0,1,1,1,2,0">
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_completion_times">
+             <property name="font">
+              <font>
+               <family>宋体</family>
+              </font>
+             </property>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
+             </property>
+             <property name="text">
+              <string>完成次数</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QLineEdit" name="text_completion_times">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="font">
+              <font>
+               <family>宋体</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="maxLength">
+              <number>32764</number>
+             </property>
+             <property name="placeholderText">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="6">
+            <widget class="QTextBrowser" name="text_info"/>
+           </item>
+           <item row="0" column="1">
+            <spacer name="horizontalSpacer_groupBox_info_left">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="0" column="4">
+            <spacer name="horizontalSpacer_groupBox_info_right">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_button_start">
+          <item>
+           <widget class="QPushButton" name="button_start">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>宋体</family>
+              <pointsize>11</pointsize>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>开始</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0">
+         <spacer name="verticalSpacer_button_start_up">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="1" column="0">
+         <widget class="QGroupBox" name="groupBox_advanced">
+          <property name="title">
+           <string>高级设置</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QStackedWidget" name="stackedWidget">
+             <widget class="QWidget" name="_0_none"/>
+             <widget class="QWidget" name="_1_yuhun">
+              <widget class="QLabel" name="label_driver">
+               <property name="geometry">
+                <rect>
+                 <x>20</x>
+                 <y>55</y>
+                 <width>48</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>是否司机</string>
+               </property>
+              </widget>
+              <widget class="QRadioButton" name="button_driver_False">
+               <property name="geometry">
+                <rect>
+                 <x>78</x>
+                 <y>55</y>
+                 <width>38</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>否</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_driver</string>
+               </attribute>
+              </widget>
+              <widget class="QRadioButton" name="button_driver_True">
+               <property name="geometry">
+                <rect>
+                 <x>128</x>
+                 <y>55</y>
+                 <width>38</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>是</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_driver</string>
+               </attribute>
+              </widget>
+              <widget class="QRadioButton" name="button_passengers_3">
+               <property name="geometry">
+                <rect>
+                 <x>128</x>
+                 <y>81</y>
+                 <width>33</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>3</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_passengers</string>
+               </attribute>
+              </widget>
+              <widget class="QRadioButton" name="button_passengers_2">
+               <property name="geometry">
+                <rect>
+                 <x>79</x>
+                 <y>81</y>
+                 <width>33</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>2</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_passengers</string>
+               </attribute>
+              </widget>
+              <widget class="QLabel" name="label_passengers">
+               <property name="geometry">
+                <rect>
+                 <x>20</x>
+                 <y>81</y>
+                 <width>48</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>组队人数</string>
+               </property>
+              </widget>
+              <widget class="QLabel" name="label_tips">
+               <property name="geometry">
+                <rect>
+                 <x>20</x>
+                 <y>130</y>
+                 <width>141</width>
+                 <height>31</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>TextLabel</string>
+               </property>
+              </widget>
+              <widget class="QCheckBox" name="button_yuhun_drop_statistics">
+               <property name="geometry">
+                <rect>
+                 <x>20</x>
+                 <y>109</y>
+                 <width>100</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>100</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>100</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>掉落统计beta</string>
+               </property>
+              </widget>
+              <widget class="QRadioButton" name="button_mode_single">
+               <property name="geometry">
+                <rect>
+                 <x>128</x>
+                 <y>28</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>单人</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_mode</string>
+               </attribute>
+              </widget>
+              <widget class="QRadioButton" name="button_mode_team">
+               <property name="geometry">
+                <rect>
+                 <x>78</x>
+                 <y>28</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="mouseTracking">
+                <bool>true</bool>
+               </property>
+               <property name="text">
+                <string>组队</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_mode</string>
+               </attribute>
+              </widget>
+              <widget class="QLabel" name="label_mode">
+               <property name="geometry">
+                <rect>
+                 <x>20</x>
+                 <y>28</y>
+                 <width>48</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>模式</string>
+               </property>
+              </widget>
+             </widget>
+             <widget class="QWidget" name="_2_jiejietupo">
+              <widget class="QRadioButton" name="button_jiejietupo_3victory">
+               <property name="geometry">
+                <rect>
+                 <x>80</x>
+                 <y>60</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>3胜</string>
+               </property>
+              </widget>
+              <widget class="QCheckBox" name="button_kaji">
+               <property name="geometry">
+                <rect>
+                 <x>80</x>
+                 <y>100</y>
+                 <width>47</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>卡级</string>
+               </property>
+              </widget>
+              <widget class="QRadioButton" name="button_jiejietupo_9victory">
+               <property name="geometry">
+                <rect>
+                 <x>140</x>
+                 <y>60</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>9胜</string>
+               </property>
+              </widget>
+              <widget class="QLabel" name="label_refresh_rule">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>60</y>
+                 <width>48</width>
+                 <height>16</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>刷新规则</string>
+               </property>
+              </widget>
+             </widget>
+             <widget class="QWidget" name="_3_daoguantupo">
+              <widget class="QCheckBox" name="button_guanzhan">
+               <property name="geometry">
+                <rect>
+                 <x>60</x>
+                 <y>40</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>观战</string>
+               </property>
+              </widget>
+             </widget>
+             <widget class="QWidget" name="_4_qiling">
+              <widget class="QCheckBox" name="button_qiling_tancha">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>40</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>探查</string>
+               </property>
+              </widget>
+              <widget class="QCheckBox" name="button_qiling_jieqi">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>80</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>结契</string>
+               </property>
+              </widget>
+             </widget>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_basic">
+          <property name="title">
+           <string>基本功能</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_groupBox_basic" columnstretch="1,0,0">
+           <property name="leftMargin">
+            <number>20</number>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
+           <property name="rightMargin">
+            <number>22</number>
            </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="setting_update_label">
-           <property name="text">
-            <string>更新模式</string>
+           <item row="1" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_groupBox_basic_1" stretch="1,3">
+             <item>
+              <widget class="QLabel" name="label_function">
+               <property name="text">
+                <string>功能</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="combo_choice">
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="placeholderText">
+                <string>请选择功能</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_groupBox_basic_2" stretch="2,2,3">
+             <item>
+              <widget class="QLabel" name="label_numbers">
+               <property name="text">
+                <string>次数</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QSpinBox" name="spin_times">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="maximum">
+                <number>999</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_groupBox_basic">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>20</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item row="4" column="0">
+            <layout class="QHBoxLayout" name="horizontalLayout_groupBox_basic_3">
+             <item>
+              <widget class="QPushButton" name="button_game_handle">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>游戏检测</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <spacer name="verticalSpacer_button_start_down">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>10</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_setting">
+       <attribute name="title">
+        <string>设置</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_6">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>542</width>
+             <height>423</height>
+            </rect>
            </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,1,1,1,0">
+            <item>
+             <widget class="QLabel" name="label_tip_setting_restart">
+              <property name="text">
+               <string>部分设置需要重启生效</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="groupBox_config">
+              <property name="title">
+               <string>配置</string>
+              </property>
+              <layout class="QVBoxLayout">
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_update" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_left">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_update_label">
+                   <property name="text">
+                    <string>更新模式</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_middle">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_update_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_right">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_update_download" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_download_left">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_update_download_label">
+                   <property name="text">
+                    <string>下载线路</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_download_middle">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_update_download_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_update_download_right">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_xuanshangfengyin" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_xuanshangfengyin_left">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_xuanshangfengyin_label">
+                   <property name="text">
+                    <string>悬赏封印</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_xuanshangfengyin_middle">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_xuanshangfengyin_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_xuanshangfengyin_right">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_setting">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>10</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="1,1,1,1,1">
+              <item>
+               <spacer name="horizontalSpacer_restart_update_record_left">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="button_restart">
+                <property name="text">
+                 <string>重启</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_restart_update_record_middle">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="button_update_record">
+                <property name="text">
+                 <string>更新记录</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_restart_update_record_right">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_GitHub_address">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::LeftToRight</enum>
+              </property>
+              <property name="text">
+               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;https://github.com/AquamarineCyan/Onmyoji_Python&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_update_middle">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QComboBox" name="setting_update_comboBox"/>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_update_right">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>158</y>
-          <width>451</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_xuanshangfengyin" stretch="4,2,0,2,4">
-         <item>
-          <spacer name="horizontalSpacer_setting_xuanshangfengyin_left">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="setting_xuanshangfengyin_label">
-           <property name="text">
-            <string>悬赏封印</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_xuanshangfengyin_middle">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QComboBox" name="setting_xuanshangfengyin_comboBox"/>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_xuanshangfengyin_right">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QPushButton" name="button_update_record">
-        <property name="geometry">
-         <rect>
-          <x>310</x>
-          <y>340</y>
-          <width>75</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>更新记录</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_GitHub_address">
-        <property name="geometry">
-         <rect>
-          <x>106</x>
-          <y>380</y>
-          <width>312</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;https://github.com/AquamarineCyan/Onmyoji_Python&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="button_restart">
-        <property name="geometry">
-         <rect>
-          <x>155</x>
-          <y>340</y>
-          <width>75</width>
-          <height>24</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>重启</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_tip_setting_restart">
-        <property name="geometry">
-         <rect>
-          <x>191</x>
-          <y>22</y>
-          <width>141</width>
-          <height>21</height>
-         </rect>
-        </property>
-        <property name="mouseTracking">
-         <bool>false</bool>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <property name="text">
-         <string>部分设置需要重启生效</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QWidget" name="horizontalLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>40</x>
-          <y>110</y>
-          <width>451</width>
-          <height>49</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_setting_update_download" stretch="4,2,0,2,4">
-         <item>
-          <spacer name="horizontalSpacer_setting_update_download_left">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="setting_update_download_label">
-           <property name="text">
-            <string>下载线路</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_update_download_middle">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QComboBox" name="setting_update_download_comboBox"/>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_setting_update_download_right">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
-    </widget>
-   </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_driver"/>
-  <buttongroup name="buttonGroup_mode"/>
   <buttongroup name="buttonGroup_passengers"/>
+  <buttongroup name="buttonGroup_mode"/>
+  <buttongroup name="buttonGroup_driver"/>
  </buttongroups>
 </ui>

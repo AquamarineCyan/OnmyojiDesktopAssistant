@@ -42,7 +42,7 @@ class Package:
         screenshot(_screenshot_path)
 
     def done(self) -> None:
-        """更新一次完成情况"""
+        """更新一次完成次数"""
         self.n += 1
         logger.num(f"{self.n}/{self.max}")
 

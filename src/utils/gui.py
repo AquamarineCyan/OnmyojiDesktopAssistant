@@ -8,7 +8,8 @@ from contextlib import suppress
 from pathlib import Path
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import QDialogButtonBox, QMainWindow, QMessageBox, QPushButton, QWidget
+from PySide6.QtWidgets import (QComboBox, QDialogButtonBox, QMainWindow,
+                               QMessageBox, QPushButton, QWidget)
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
@@ -58,7 +59,6 @@ class MainWindow(QMainWindow):
         # 使用ui文件导入定义界面类
         self.ui = Ui_MainWindow()
         # 初始化界面
-        self.setFixedSize(550, 450)  # 固定宽高
         self.ui.setupUi(self)
         self.setWindowIcon(get_global_icon())
         self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
@@ -66,7 +66,7 @@ class MainWindow(QMainWindow):
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
         self.ui.combo_choice.setEnabled(False)
-        self.ui.spinB_num.setEnabled(False)
+        self.ui.spin_times.setEnabled(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self.ui.label_tips.hide()
         # 设置界面
@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
             self.ui.setting_update_download_comboBox: "update_download",
             self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
         }
+        key: QComboBox
         for key, value in _setting_QComboBox_dict.items():
             key.addItems(config.config_default.model_dump()[value])
             key.setCurrentText(config.config_user.model_dump().get(value))
@@ -84,13 +85,11 @@ class MainWindow(QMainWindow):
         # 弹窗更新
         ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
         # 更新文本
-        ms.main.text_print_update.connect(self.text_print_update_func)
-        # 覆盖文本
-        ms.main.text_print_insert_update.connect(self.text_print_insert_func)
+        ms.main.ui_text_info_update.connect(self.ui_text_info_update_func)
         # 运行状态更新
         ms.main.is_fighting_update.connect(self.is_fighting)
-        # 完成情况文本更新
-        ms.main.text_num_update.connect(self.text_num_update_func)
+        # 完成次数更新
+        ms.main.ui_text_completion_times_update.connect(self.ui_text_completion_times_update_func)
         # 退出程序
         ms.main.sys_exit.connect(sys.exit)
         # 显示更新窗口
@@ -102,7 +101,7 @@ class MainWindow(QMainWindow):
         # 开始按钮
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
-        self.ui.combo_choice.currentIndexChanged.connect(self.choice_text)
+        self.ui.combo_choice.currentIndexChanged.connect(self.choice_description)
         # restart
         self.ui.button_restart.clicked.connect(app_restart)
         # 更新记录事件
@@ -142,7 +141,7 @@ class MainWindow(QMainWindow):
         if self._check_enviroment():
             logger.ui("环境完整")
             self.ui.combo_choice.setEnabled(True)
-            self.ui.spinB_num.setEnabled(True)
+            self.ui.spin_times.setEnabled(True)
             logger.ui("移动游戏窗口后，点击下方“游戏检测”即可")
             logger.ui("请选择功能以加载内容，请确保锁定阵容")
         else:
@@ -189,7 +188,7 @@ class MainWindow(QMainWindow):
                         else:
                             logger.info("用户拒绝更新重启")
 
-    def text_print_update_func(self, msg: str, color: str) -> None:
+    def ui_text_info_update_func(self, msg: str, color: str) -> None:
         """输出内容至文本框
 
         WARN | ERROR -> 红色
@@ -199,34 +198,30 @@ class MainWindow(QMainWindow):
         参数:
             msg(str): 文本内容
         """
-        self.ui.text_print.setTextColor(color)
-        self.ui.text_print.append(msg)
+        widget = self.ui.text_info
+        widget.setTextColor(color)
+        widget.append(msg)
         # 自动换行
-        self.ui.text_print.ensureCursorVisible()
+        widget.ensureCursorVisible()
         # 自动滑动到底
-        self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
-        self.ui.text_print.setTextColor("black")
+        widget.moveCursor(QTextCursor.MoveOperation.End)
+        widget.setTextColor("black")
 
-    def text_print_insert_func(self, msg: str):
-        cursor = self.ui.text_print.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
-        cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
-        cursor.removeSelectedText()
-        cursor.insertText(msg)
-
-        # 自动换行
-        # self.ui.text_print.ensureCursorVisible()
-        # 自动滑动到底
-        # self.ui.text_print.moveCursor(QTextCursor.MoveOperation.End)
-        # self.ui.text_print.setTextColor("black")
-
-    def text_num_update_func(self, msg: str) -> None:
-        """输出内容至文本框“完成情况”
+    def ui_text_completion_times_update_func(self, msg: str) -> None:
+        """输出内容至文本框`完成次数`
 
         参数:
             msg (str): 文本
         """
-        self.ui.text_num.setText(msg)
+        self.ui.text_completion_times.setText(msg)
+
+    def ui_spin_times_set_value_func(self, current: int = 1, min: int = None, max: int = None):
+        widget = self.ui.spin_times
+        widget.setValue(current)
+        if min is not None:
+            widget.setMinimum(min)
+        if max is not None:
+            widget.setMaximum(max)
 
     @log_function_call
     def _check_enviroment(self) -> bool:
@@ -343,147 +338,107 @@ class MainWindow(QMainWindow):
         else:
             logger.ui("游戏窗口检测成功")
             self.ui.combo_choice.setEnabled(True)
-            self.ui.spinB_num.setEnabled(True)
+            self.ui.spin_times.setEnabled(True)
             return True
         logger.ui("游戏窗口检测失败")
         return False
 
-    def choice_text(self):
+    def choice_description(self):
         """功能描述"""
-        text = self.ui.combo_choice.currentText()
+        try:
+            self._choice = self._list_function.index(self.ui.combo_choice.currentText()) + 1
+        except ValueError:  # for safe
+            self._choice = 0
         self.ui.button_start.setEnabled(True)
-        self.ui.spinB_num.setEnabled(True)
+        self.ui.spin_times.setEnabled(True)
+        self.ui_spin_times_set_value_func(1, 1, 999)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
-        if text == self._list_function[0]:
-            # 1.御魂副本
-            self._choice = 1
-            logger.ui("请确保阵容稳定，已适配组队/单人 魂土、神罚副本\
-                   新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”")
-            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
-            # 默认值
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 999)
 
-            self.ui.button_mode_team.setEnabled(True)
-            self.ui.button_mode_single.setEnabled(True)
-            self.ui.button_mode_team.setChecked(True)
+        match self._choice:
+            case 1:  # 御魂副本
+                logger.ui("请确保阵容稳定，已适配组队/单人 魂土、神罚副本\
+                    新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”")
+                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
 
-            self.ui.button_driver_False.setChecked(True)
+                self.ui.button_mode_team.setEnabled(True)
+                self.ui.button_mode_single.setEnabled(True)
+                self.ui.button_mode_team.setChecked(True)
 
-            self.ui.button_passengers_2.setEnabled(True)
-            self.ui.button_passengers_3.setEnabled(True)
-            self.ui.button_passengers_2.setChecked(True)
-        elif text == self._list_function[1]:
-            # 2.组队永生之海副本
-            self._choice = 2
-            logger.ui("默认打手30次\n阴阳师技能自行选择，如晴明灭\n待开发：手动第一次锁定阵容")
-            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
-            # 默认值
-            self.ui.spinB_num.setValue(30)
-            self.ui.spinB_num.setRange(1, 999)
-            self.ui.button_mode_team.setChecked(True)
-            # TODO
-            self.ui.button_mode_team.setEnabled(False)
-            self.ui.button_mode_single.setEnabled(False)
-            self.ui.button_driver_False.setChecked(True)
-            self.ui.button_passengers_2.setChecked(True)
-            self.ui.button_passengers_2.setEnabled(False)
-            self.ui.button_passengers_3.setEnabled(False)
-        elif text == self._list_function[2]:
-            # 3.业原火副本
-            self._choice = 3
-            logger.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 999)
-        elif text == self._list_function[3]:
-            # 4.御灵副本
-            self._choice = 4
-            logger.ui("暗神龙-周二六日\n暗白藏主-周三六日\n暗黑豹-周四六\n暗孔雀-周五六日\n绘卷期间请减少使用")
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 400)  # 桌面版上限300
-        elif text == self._list_function[4]:
-            # 5.个人突破
-            self._choice = 5
-            logger.ui("默认3胜刷新，上限30")
-            # self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 30)
-        elif text == self._list_function[5]:
-            # 6.寮突破
-            self._choice = 6
-            now = time.strftime("%H:%M:%S")
-            if now >= "21:00:00":
-                logger.ui("CD无限", "warn")
-                logger.ui("请尽情挑战，桌面版单账号上限100次")
-                self.ui.spinB_num.setValue(100)  # 桌面版上限100
-            else:
-                logger.ui("CD6次", "warn")
-                logger.ui("默认6次，可在每日21时后无限挑战")
-                self.ui.spinB_num.setValue(6)
-            self.ui.spinB_num.setRange(1, 200)
-        elif text == self._list_function[6]:
-            # 7.道馆突破
-            self._choice = 7
-            logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景\n待开发：冷却时间、观战助威")
-            self.ui.stackedWidget.setCurrentIndex(3)  # 索引3，道馆突破
-            self.ui.spinB_num.setEnabled(False)
-        elif text == self._list_function[7]:
-            # 8.普通召唤
-            self._choice = 8
-            logger.ui("普通召唤，请选择十连次数")
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 100)
-        elif text == self._list_function[8]:
-            # 9.百鬼夜行
-            self._choice = 9
-            logger.ui("仅适用于清票，且无法指定鬼王")
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 100)
-        elif text == self._list_function[9]:
-            # 10.限时活动
-            self._choice = 10
-            logger.ui(huodong.HuoDong().description)
-            self.ui.spinB_num.setValue(1)
-            self.ui.spinB_num.setRange(1, 999)
-        elif text == self._list_function[10]:
-            # 11.组队日轮副本
-            self._choice = 11
-            logger.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
-            self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
-            # 默认值
-            self.ui.spinB_num.setValue(50)
-            self.ui.spinB_num.setRange(1, 100)
+                self.ui.button_driver_False.setChecked(True)
 
-            self.ui.button_mode_team.setEnabled(True)
-            self.ui.button_mode_single.setEnabled(True)
-            self.ui.button_mode_team.setChecked(True)
+                self.ui.button_passengers_2.setEnabled(True)
+                self.ui.button_passengers_3.setEnabled(True)
+                self.ui.button_passengers_2.setChecked(True)
+            case 2:  # 组队永生之海副本
+                logger.ui("默认打手30次\n阴阳师技能自行选择，如晴明灭\n待开发：手动第一次锁定阵容")
+                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+                self.ui_spin_times_set_value_func(30)
+                self.ui.button_mode_team.setChecked(True)
+                # TODO
+                self.ui.button_mode_team.setEnabled(False)
+                self.ui.button_mode_single.setEnabled(False)
+                self.ui.button_driver_False.setChecked(True)
+                self.ui.button_passengers_2.setChecked(True)
+                self.ui.button_passengers_2.setEnabled(False)
+                self.ui.button_passengers_3.setEnabled(False)
+            case 3:  # 业原火副本
+                logger.ui("默认为“痴”，有“贪”“嗔”需求的，可替换resource/yeyuanhuo路径下start.png")
+            case 4:  # 御灵副本
+                logger.ui("暗神龙-周二六日\n暗白藏主-周三六日\n暗黑豹-周四六\n暗孔雀-周五六日\n绘卷期间请减少使用")
+                self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
+            case 5:  # 个人突破
+                logger.ui("默认3胜刷新，上限30")
+                # self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
+                self.ui_spin_times_set_value_func(1, 1, 30)
+            case 6:  # 寮突破
+                now = time.strftime("%H:%M:%S")
+                if now >= "21:00:00":
+                    logger.ui("CD无限", "warn")
+                    logger.ui("请尽情挑战，桌面版单账号上限100次")
+                    _current = 100
+                else:
+                    logger.ui("CD 6次", "warn")
+                    logger.ui("默认6次，可在每日21时后无限挑战")
+                    _current = 6
+                self.ui_spin_times_set_value_func(_current, 1, 200)
+            case 7:  # 道馆突破
+                logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景\n待开发：冷却时间、观战助威")
+                self.ui.stackedWidget.setCurrentIndex(3)  # 索引3，道馆突破
+                self.ui.spin_times.setEnabled(False)
+            case 8:  # 普通召唤
+                logger.ui("普通召唤，请选择十连次数")
+            case 9:  # 百鬼夜行
+                logger.ui("仅适用于清票，且无法指定鬼王")
+            case 10:  # 限时活动
+                logger.ui(huodong.HuoDong().description)
+            case 11:  # 组队日轮副本
+                logger.ui("请确保阵容稳定，仅适用于队友挂饼，不适用于极限卡速，默认打手\n待开发：手动第一次锁定阵容")
+                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+                self.ui_spin_times_set_value_func(50)
 
-            self.ui.button_driver_False.setChecked(True)
+                self.ui.button_mode_team.setEnabled(True)
+                self.ui.button_mode_single.setEnabled(True)
+                self.ui.button_mode_team.setChecked(True)
 
-            self.ui.button_passengers_2.setEnabled(True)
-            self.ui.button_passengers_3.setEnabled(True)
-            self.ui.button_passengers_2.setChecked(True)
-        elif text == self._list_function[11]:
-            # 12.单人探索
-            self._choice = 12
-            logger.ui("测试功能", "warn")
-            logger.ui("提前准备好自动轮换和加成，仅单人探索")
-            self.ui.spinB_num.setValue(1)
-        elif text == self._list_function[12]:
-            # 13.契灵
-            self._choice = 13
-            logger.ui(qiling.QiLing().description)
-            self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
-            self.ui.spinB_num.setValue(1)
-            self.ui.button_qiling_tancha.setChecked(True)
+                self.ui.button_driver_False.setChecked(True)
+
+                self.ui.button_passengers_2.setEnabled(True)
+                self.ui.button_passengers_3.setEnabled(True)
+                self.ui.button_passengers_2.setChecked(True)
+            case 12:  # 单人探索
+                logger.ui("提前准备好自动轮换和加成，仅单人探索")
+            case 13:  # 契灵
+                logger.ui(qiling.QiLing().description)
+                self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
+                self.ui.button_qiling_tancha.setChecked(True)
 
     def start_stop(self) -> None:
         """开始&停止按钮"""
 
         def start() -> None:
             """开始函数"""
-            _n = self.ui.spinB_num.value()
-            self.ui.text_num.clear()
+            _n = self.ui.spin_times.value()
+            self.ui.text_completion_times.clear()
             self.is_fighting(True)
             match self._choice:
                 case 1:  # 御魂副本
@@ -585,10 +540,10 @@ class MainWindow(QMainWindow):
             self.ui.button_start.setText("停止")  # 进行中
         else:
             self.ui.button_start.setText("开始")
+        item: QWidget
         for item in [
             self.ui.combo_choice,
-            self.ui.spinB_num,
-            # self.ui.button_start,
+            self.ui.spin_times,
             self.ui.button_mode_team,
             self.ui.button_mode_single,
             self.ui.button_driver_False,
