@@ -53,6 +53,21 @@ class FightResource:
         ]
 
 
+@log_function_call
+def random_normal(min: int | float, max: int | float) -> int:
+    """正态分布"""
+    mu = (min + max) / 2
+    sigma = (max-mu)/3
+    while True:
+        numb = random.gauss(mu, sigma)
+        if (numb > min and numb < max):
+            logger.info(f"index: {numb}")
+            break
+        else:
+            logger.info(f"out of index: {numb}")
+    return int(numb)
+
+
 def random_num(minimum: int | float, maximum: int | float) -> float:
     """返回给定范围的随机值        
 
