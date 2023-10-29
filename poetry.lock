@@ -1019,13 +1019,13 @@ reference = "aliyun"
 
 [[package]]
 name = "pytest"
-version = "7.4.2"
+version = "7.4.3"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.4.2-py3-none-any.whl", hash = "sha256:1d881c6124e08ff0a1bb75ba3ec0bfd8b5354a01c194ddd5a0a870a48d99b002"},
-    {file = "pytest-7.4.2.tar.gz", hash = "sha256:a766259cfab564a2ad52cb1aae1b881a75c3eb7e34ca3779697c23ed47c47069"},
+    {file = "pytest-7.4.3-py3-none-any.whl", hash = "sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac"},
+    {file = "pytest-7.4.3.tar.gz", hash = "sha256:d989d136982de4e3b29dabcc838ad581c64e8ed52c11fbe86ddebd9da0818cd5"},
 ]
 
 [package.dependencies]
@@ -1291,13 +1291,13 @@ reference = "aliyun"
 
 [[package]]
 name = "win11toast"
-version = "0.32"
+version = "0.34"
 description = "Toast notifications for Windows 10 and 11"
 optional = false
 python-versions = "*"
 files = [
-    {file = "win11toast-0.32-py3-none-any.whl", hash = "sha256:38ecf6625374cbeebce4f3eda20cef0b2c468fedda23d95d883dfcdac98154a6"},
-    {file = "win11toast-0.32.tar.gz", hash = "sha256:640650374285ef51bcad4453a3404f502e5b746e4a7fd7d974064a73ae808e33"},
+    {file = "win11toast-0.34-py3-none-any.whl", hash = "sha256:5c1df6301135703330fba3cbb41b0d9d044ba25c1840305b424dc08e98c9a7b6"},
+    {file = "win11toast-0.34.tar.gz", hash = "sha256:516e259bd38e124bbed39214143f1c71c0f535751bfed9454489efd2bc0cd70c"},
 ]
 
 [package.dependencies]
@@ -1340,4 +1340,4 @@ reference = "aliyun"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.11"
-content-hash = "a775c6b1693b44bff8e228c47984f86fb253881763666bd089c0840c208e00c7"
+content-hash = "1a6ed36fe2e4ad1c7c18fe422a541b3669935070764f8084bcf85dd4e62d1331"

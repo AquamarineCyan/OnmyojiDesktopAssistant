@@ -189,6 +189,7 @@ class YuHunTeam(YuHun):
                     logger.num(f"{self.n}/{self.max}")
                     _resource_list = None
                     _flag_title_msg = False
+                    random_sleep()
                 case "accept_invitation":
                     # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
                     logger.ui("接受邀请")
