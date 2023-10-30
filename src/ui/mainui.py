@@ -428,6 +428,24 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_xuanshangfengyin)
 
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_left)
+
+        self.setting_remember_last_choice_button = QCheckBox(self.groupBox_config)
+        self.setting_remember_last_choice_button.setObjectName(u"setting_remember_last_choice_button")
+
+        self.horizontalLayout.addWidget(self.setting_remember_last_choice_button)
+
+        self.horizontalSpacer_setting_remember_last_choice_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_right)
+
+
+        self.vboxLayout.addLayout(self.horizontalLayout)
+
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
 
@@ -475,7 +493,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_setting.addWidget(self.label_GitHub_address)
 
-        self.verticalLayout_setting.setStretch(1, 1)
+        self.verticalLayout_setting.setStretch(1, 2)
         self.verticalLayout_setting.setStretch(2, 1)
         self.verticalLayout_setting.setStretch(3, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -532,6 +550,7 @@ class Ui_MainWindow(object):
         self.setting_update_label.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u6a21\u5f0f", None))
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
+        self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
         self.button_update_record.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u8bb0\u5f55", None))
         self.label_GitHub_address.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" text-decoration: underline;\">https://github.com/AquamarineCyan/Onmyoji_Python</span></p></body></html>", None))

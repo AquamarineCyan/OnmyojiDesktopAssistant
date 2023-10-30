@@ -31,18 +31,17 @@ class UserConfig(BaseModel):
     """悬赏封印"""
     fight_theme: str = _fight_theme_list[0]
     """战斗主题"""
+    remember_last_choice: int = -1
+    """记忆上次所选功能 -1:关闭 0:开启 1-12:各项功能"""
 
 
 class DefaultConfig(BaseModel):
     """默认配置"""
     update: list = _update_list
-    """更新模式"""
     update_download: list = _update_download_list
-    """下载线路"""
     xuanshangfengyin: list = _xuanshangfengyin_list
-    """悬赏封印"""
     fight_theme: list = _fight_theme_list
-    """战斗主题"""
+    remember_last_choice: int = -1
 
 
 class Config():

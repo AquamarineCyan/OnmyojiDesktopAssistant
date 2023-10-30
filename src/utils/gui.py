@@ -79,6 +79,13 @@ class MainWindow(QMainWindow):
         for key, value in _setting_QComboBox_dict.items():
             key.addItems(config.config_default.model_dump()[value])
             key.setCurrentText(config.config_user.model_dump().get(value))
+        _status = config.config_user.model_dump().get("remember_last_choice")
+        logger.info(f"_status{_status}")
+        if _status == -1 :
+            _flag_check=False
+        else:
+            _flag_check=True
+        self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
         self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
 
         # 自定义信号
@@ -91,7 +98,7 @@ class MainWindow(QMainWindow):
         # 完成次数更新
         ms.main.ui_text_completion_times_update.connect(self.ui_text_completion_times_update_func)
         # 退出程序
-        ms.main.sys_exit.connect(sys.exit)
+        ms.main.sys_exit.connect(self.exit_func)
         # 显示更新窗口
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
@@ -102,8 +109,8 @@ class MainWindow(QMainWindow):
         self.ui.button_start.clicked.connect(self.start_stop)
         # 功能选择事件
         self.ui.combo_choice.currentIndexChanged.connect(self.choice_description)
-        # restart
-        self.ui.button_restart.clicked.connect(app_restart)
+        # 重启
+        self.ui.button_restart.clicked.connect(self.app_restart_func)
         # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
@@ -123,6 +130,10 @@ class MainWindow(QMainWindow):
         # 悬赏封印
         self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
             self.setting_xuanshangfengyin_comboBox_func
+        )
+        # 记忆上次所选功能
+        self.ui.setting_remember_last_choice_button.clicked.connect(
+            self.setting_remember_last_choice_func
         )
 
         # 程序开启运行
@@ -149,6 +160,8 @@ class MainWindow(QMainWindow):
 
         logger.ui("初始化完成")
         logger.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
+        if config.config_user.remember_last_choice > 0:
+            self.ui.combo_choice.setCurrentIndex(config.config_user.remember_last_choice - 1)
         log_clean_up()
         remove_restart_bat_file()
         upgrade.check_latest()
@@ -314,6 +327,18 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("xuanshangfengyin", text)
 
+    def setting_remember_last_choice_func(self) -> None:
+        """设置-记忆上次所选功能-更改"""
+        flag = self.ui.setting_remember_last_choice_button.isChecked()
+        if flag:
+            _text = "开启"
+            _status = 0
+        else:
+            _text = "关闭"
+            _status = -1
+        logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
+        config.config_user_changed("remember_last_choice", _status)
+
     @log_function_call
     def check_game_handle(self) -> bool:
         """游戏窗口检测
@@ -349,6 +374,8 @@ class MainWindow(QMainWindow):
             self._choice = self._list_function.index(self.ui.combo_choice.currentText()) + 1
         except ValueError:  # for safe
             self._choice = 0
+        if config.config_user.remember_last_choice != -1:
+            config.config_user_changed("remember_last_choice", self._choice)
         self.ui.button_start.setEnabled(True)
         self.ui.spin_times.setEnabled(True)
         self.ui_spin_times_set_value_func(1, 1, 999)
@@ -572,10 +599,16 @@ class MainWindow(QMainWindow):
         else:
             self.ui.label_tips.hide()
 
+    def app_restart_func(self):
+        app_restart()
+
     def open_GitHub_address(self, *args) -> None:
         import webbrowser
         logger.info("open GitHub address.")
         webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
+
+    def exit_func(self):
+        sys.exit()
 
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""

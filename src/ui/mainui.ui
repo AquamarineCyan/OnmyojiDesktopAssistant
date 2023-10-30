@@ -578,7 +578,7 @@
           <property name="title">
            <string>基本功能</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_groupBox_basic" columnstretch="1,0,0">
+          <layout class="QGridLayout" name="gridLayout_groupBox_basic" columnstretch="1">
            <property name="leftMargin">
             <number>20</number>
            </property>
@@ -730,7 +730,7 @@
              <height>423</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,1,1,1,0">
+           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,2,1,1,0">
             <item>
              <widget class="QLabel" name="label_tip_setting_restart">
               <property name="text">
@@ -923,6 +923,43 @@
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_setting_xuanshangfengyin_right">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_remember_last_choice_left">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="setting_remember_last_choice_button">
+                   <property name="text">
+                    <string>记忆上次所选功能</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_remember_last_choice_right">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
                    </property>
