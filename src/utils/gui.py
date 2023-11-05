@@ -56,12 +56,17 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        # 使用ui文件导入定义界面类
         self.ui = Ui_MainWindow()
-        # 初始化界面
         self.ui.setupUi(self)
-        self.setWindowIcon(get_global_icon())
+        # 初始化界面
+        self.setWindowIcon(get_global_icon())  # 设置图标
         self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
+        # 通过先启动GUI再初始化各控件，提高启动加载速度
+        self.ui_init()
+
+    @run_in_thread
+    def ui_init(self):
+        """初始化GUI"""
         # 初始化控件
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
