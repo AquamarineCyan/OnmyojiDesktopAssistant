@@ -428,6 +428,39 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_xuanshangfengyin)
 
+        self.horizontalLayout_setting_window_style = QHBoxLayout()
+        self.horizontalLayout_setting_window_style.setObjectName(u"horizontalLayout_setting_window_style")
+        self.horizontalSpacer_setting_window_style = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style)
+
+        self.setting_window_style_label = QLabel(self.groupBox_config)
+        self.setting_window_style_label.setObjectName(u"setting_window_style_label")
+        self.setting_window_style_label.setAlignment(Qt.AlignCenter)
+
+        self.horizontalLayout_setting_window_style.addWidget(self.setting_window_style_label)
+
+        self.horizontalSpacer_setting_window_style_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style_middle)
+
+        self.setting_window_style_comboBox = QComboBox(self.groupBox_config)
+        self.setting_window_style_comboBox.setObjectName(u"setting_window_style_comboBox")
+        self.setting_window_style_comboBox.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_setting_window_style.addWidget(self.setting_window_style_comboBox)
+
+        self.horizontalSpacer_setting_window_style_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+
+        self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style_right)
+
+        self.horizontalLayout_setting_window_style.setStretch(0, 4)
+        self.horizontalLayout_setting_window_style.setStretch(1, 2)
+        self.horizontalLayout_setting_window_style.setStretch(3, 2)
+        self.horizontalLayout_setting_window_style.setStretch(4, 4)
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_window_style)
+
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -493,7 +526,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_setting.addWidget(self.label_GitHub_address)
 
-        self.verticalLayout_setting.setStretch(1, 2)
+        self.verticalLayout_setting.setStretch(1, 4)
         self.verticalLayout_setting.setStretch(2, 1)
         self.verticalLayout_setting.setStretch(3, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -550,6 +583,7 @@ class Ui_MainWindow(object):
         self.setting_update_label.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u6a21\u5f0f", None))
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
+        self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
         self.button_update_record.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u8bb0\u5f55", None))

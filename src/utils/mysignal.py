@@ -43,6 +43,8 @@ class MySignals(QObject):
         """更新记录"""
         text_update = Signal(str)
         """更新文本"""
+        text_markdown_update = Signal(str)
+        """更新`MarkDown`文本"""
 
     class UpgradeNewVersion(QObject):
         """更新新版本"""

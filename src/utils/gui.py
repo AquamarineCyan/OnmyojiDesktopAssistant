@@ -79,6 +79,7 @@ class MainWindow(QMainWindow):
             self.ui.setting_update_comboBox: "update",
             self.ui.setting_update_download_comboBox: "update_download",
             self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
+            self.ui.setting_window_style_comboBox: "window_style",
         }
         key: QComboBox
         for key, value in _setting_QComboBox_dict.items():
@@ -86,10 +87,10 @@ class MainWindow(QMainWindow):
             key.setCurrentText(config.config_user.model_dump().get(value))
         _status = config.config_user.model_dump().get("remember_last_choice")
         logger.info(f"_status{_status}")
-        if _status == -1 :
-            _flag_check=False
+        if _status == -1:
+            _flag_check = False
         else:
-            _flag_check=True
+            _flag_check = True
         self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
         self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
 
@@ -135,6 +136,10 @@ class MainWindow(QMainWindow):
         # 悬赏封印
         self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
             self.setting_xuanshangfengyin_comboBox_func
+        )
+        # 界面风格
+        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(
+            self.setting_window_style_comboBox_func
         )
         # 记忆上次所选功能
         self.ui.setting_remember_last_choice_button.clicked.connect(
@@ -331,6 +336,12 @@ class MainWindow(QMainWindow):
             logger.ui("成功关闭悬赏封印，重启程序后生效")
         logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("xuanshangfengyin", text)
+
+    def setting_window_style_comboBox_func(self) -> None:
+        """设置-界面风格-更改"""
+        text = self.ui.setting_window_style_comboBox.currentText()
+        logger.info(f"设置项：界面风格已更改为 {text}")
+        config.config_user_changed("window_style", text)
 
     def setting_remember_last_choice_func(self) -> None:
         """设置-记忆上次所选功能-更改"""
@@ -640,14 +651,20 @@ class UpdateRecordWindow(QWidget):
         self.setWindowIcon(get_global_icon())
         # 关联事件
         ms.update_record.text_update.connect(self.textBrowser_update_func)
+        ms.update_record.text_markdown_update.connect(self.textBrowser_markdown_update_func)
         # 初始化
         update_record()
 
     def textBrowser_update_func(self, text: str):
         logger.info(f"[update record]\n{text}")
-        self.ui.textBrowser.append(text)
-        self.ui.textBrowser.ensureCursorVisible()
-        self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.Start)
+        widget = self.ui.textBrowser
+        widget.append(text)
+        widget.ensureCursorVisible()
+        widget.moveCursor(QTextCursor.MoveOperation.Start)
+
+    def textBrowser_markdown_update_func(self, msg: str):
+        widget = self.ui.textBrowser
+        widget.setMarkdown(msg)
 
 
 class UpgradeNewVersionWindow(QWidget):

@@ -19,6 +19,18 @@ _xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
 """悬赏封印"""
 _fight_theme_list = ["自动", "怀旧", "简约"]
 """战斗主题"""
+_window_style_list = ["Windows", "Fusion"]
+"""界面风格"""
+
+
+class DefaultConfig(BaseModel):
+    """默认配置"""
+    update: list = _update_list
+    update_download: list = _update_download_list
+    xuanshangfengyin: list = _xuanshangfengyin_list
+    fight_theme: list = _fight_theme_list
+    window_style: list = _window_style_list
+    remember_last_choice: int = -1
 
 
 class UserConfig(BaseModel):
@@ -31,17 +43,10 @@ class UserConfig(BaseModel):
     """悬赏封印"""
     fight_theme: str = _fight_theme_list[0]
     """战斗主题"""
+    window_style: str = _window_style_list[0]
+    """界面风格"""
     remember_last_choice: int = -1
     """记忆上次所选功能 -1:关闭 0:开启 1-12:各项功能"""
-
-
-class DefaultConfig(BaseModel):
-    """默认配置"""
-    update: list = _update_list
-    update_download: list = _update_download_list
-    xuanshangfengyin: list = _xuanshangfengyin_list
-    fight_theme: list = _fight_theme_list
-    remember_last_choice: int = -1
 
 
 class Config():

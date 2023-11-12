@@ -15,6 +15,8 @@ if __name__ == "__main__":
     if windll.shell32.IsUserAnAdmin():
         config.config_yaml_init()
         app = QApplication([])
+        if config.config_user.window_style == "Fusion":
+            app.setStyle("Fusion")
         main_win_ui = MainWindow()
         main_win_ui.show()
         app.exec()
