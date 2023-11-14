@@ -19,10 +19,11 @@ from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread, event_xuanshang_enable
-from .function import FightResource, app_restart, remove_restart_bat_file
+from .function import FightResource
 from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
+from .restart import Restart
 from .update import update_record
 from .upgrade import upgrade
 from .window import window
@@ -173,7 +174,6 @@ class MainWindow(QMainWindow):
         if config.config_user.remember_last_choice > 0:
             self.ui.combo_choice.setCurrentIndex(config.config_user.remember_last_choice - 1)
         log_clean_up()
-        remove_restart_bat_file()
         upgrade.check_latest()
         # 悬赏封印
         if config.config_user.xuanshangfengyin == "关闭":
@@ -616,7 +616,7 @@ class MainWindow(QMainWindow):
             self.ui.label_tips.hide()
 
     def app_restart_func(self):
-        app_restart()
+        Restart().app_restart()
 
     def open_GitHub_address(self, *args) -> None:
         import webbrowser

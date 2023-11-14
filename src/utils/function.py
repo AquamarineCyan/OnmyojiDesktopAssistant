@@ -96,8 +96,10 @@ def random_coor(x1: int, x2: int, y1: int, y2: int) -> Coor:
         Coor: 矩形区域内随机值
     """
     # TODO 返回坐标偏中心
-    x = random_num(x1, x2)
-    y = random_num(y1, y2)
+    # x = random_num(x1, x2)
+    x = random_normal(x1, x2)
+    # y = random_num(y1, y2)
+    y = random_normal(y1, y2)
     logger.info(f"random_coor: {x},{y}")
     return Coor(x, y)
 
@@ -592,84 +594,3 @@ def screenshot(screenshot_path: str = "cache") -> bool:
     except Exception:
         logger.error("screenshot failed.")
         return False
-
-
-def write_restart_bat() -> None:
-    """编写通用重启脚本"""
-    bat_text = f"""@echo off
-@echo 当前为重启程序，等待自动完成
-set "program_name={APP_EXE_NAME}"
-
-:a
-tasklist | findstr /I /C:"%program_name%" > nul
-if errorlevel 1 (
-    echo %program_name% is closed.
-    goto :b
-) else (
-    echo %program_name% is still running, waiting...
-    ping 123.45.67.89 -n 1 -w 1000 > nul
-    goto :a
-)
-
-:b
-echo Continue restart...
-timeout /T 3 /NOBREAK
-start {APP_EXE_NAME}
-"""
-    with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
-        f.write(bat_text)
-
-
-def write_upgrage_restart_bat(zip_path: str = None) -> None:
-    """编写更新重启脚本"""
-    bat_text = f"""@echo off
-@echo 当前为更新程序，等待自动完成
-set "program_name={APP_EXE_NAME}"
-
-:a
-tasklist | findstr /I /C:"%program_name%" > nul
-if errorlevel 1 (
-    echo %program_name% is closed.
-    goto :b
-) else (
-    echo %program_name% is still running, waiting...
-    ping 123.45.67.89 -n 1 -w 1000 > nul
-    goto :a
-)
-
-:b
-echo Continue updating...
-
-if not exist zip_files\{APP_EXE_NAME} exit
-timeout /T 3 /NOBREAK
-move /y zip_files\{APP_EXE_NAME} .
-rd /s /q zip_files
-del {zip_path}
-start {APP_EXE_NAME}
-"""
-
-    with open(RESTART_BAT_PATH, "w", encoding="ANSI") as f:
-        f.write(bat_text)
-
-
-def app_restart(is_upgrade: bool = False) -> None:
-    """程序重启
-
-    参数:
-        is_upgrade (bool): 是否更新重启，默认否
-    """
-    logger.info("重启中")
-    # 更新重启有独立的脚本
-    if not is_upgrade:
-        write_restart_bat()
-    # 启动.bat文件
-    Popen([RESTART_BAT_PATH])
-    # 关闭当前exe程序
-    logger.info("App Exiting...")
-    ms.main.sys_exit.emit()
-
-
-def remove_restart_bat_file() -> None:
-    """删除重启脚本"""
-    Path(RESTART_BAT_PATH).unlink(missing_ok=True)
-    Path("reload.bat").unlink(missing_ok=True)  # FIXME v1.7.3引入的更新重启脚本未被删除

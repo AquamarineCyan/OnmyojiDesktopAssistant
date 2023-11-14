@@ -14,9 +14,9 @@ import httpx
 from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
-from .function import app_restart, write_upgrage_restart_bat
 from .log import logger
 from .mysignal import global_ms as ms
+from .restart import Restart
 from .toast import toast
 
 
@@ -230,11 +230,12 @@ class Upgrade:
     def restart(self) -> None:
         """解压更新包并重启应用程序"""
         self._unzip_func()
-        self.move_n: int = 0
-        self._move_files_recursive(self.zip_files_path, APP_PATH)
-        logger.info(f"finish moving {self.move_n} files.")
-        write_upgrage_restart_bat(self.zip_path)
-        app_restart(is_upgrade=True)
+        # self.move_n: int = 0
+        # self._move_files_recursive(self.zip_files_path, APP_PATH)
+        # logger.info(f"finish moving {self.move_n} files.")
+        _restart = Restart()
+        _restart.write_upgrage_restart_bat(self.zip_path)
+        _restart.app_restart(is_upgrade=True)
 
 
 upgrade = Upgrade()
