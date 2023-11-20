@@ -91,20 +91,17 @@ timeout /T 3 /NOBREAK
 
 if %need_backup%==1 (
 echo backup resource...
-pause
 md backup\\resource
 xcopy .\\resource .\\backup\\resource /s /e /y
 )
 
 echo copy new version...
-pause
 xcopy .\\zip_files . /d /s /e /y
 rd /s /q zip_files
 del {zip_path}
 
 if %need_backup%==1 (
 echo recover resource...
-pause
 xcopy .\\backup\\resource .\\resource /s /e /y
 if exist backup (
 rd /s /q backup
@@ -113,7 +110,6 @@ rd /s /q backup
 
 echo start exe...
 start {self.app_exe_name}
-pause
 del %0
 """
         self.save(bat_text)
