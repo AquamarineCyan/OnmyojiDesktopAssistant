@@ -7,12 +7,10 @@ import random
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from subprocess import Popen
 
 import pyautogui
 
 from .application import (
-    APP_EXE_NAME,
     RESOURCE_DIR_PATH,
     RESOURCE_FIGHT_PATH,
     SCREENSHOT_DIR_PATH
@@ -21,7 +19,6 @@ from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
 from .event import event_thread, event_xuanshang, event_xuanshang_enable
 from .log import logger
-from .mysignal import global_ms as ms
 from .window import window
 
 RESOURCE_FIGHT_PATH = RESOURCE_FIGHT_PATH
@@ -32,25 +29,23 @@ RESTART_BAT_PATH: str = "restart.bat"
 
 class FightResource:
     """通用战斗资源"""
-
-    def __init__(self):
-        self.resource_path: str = "fight"  # 路径
-        self.resource_list: list = [  # 资源列表
-            "accept_invitation",  # 接受邀请
-            "fail",  # 失败
-            "finish",  # 结束
-            "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
-            "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
-            "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
-            "passenger_2",  # 队员2
-            "passenger_3",  # 队员3
-            "start_single",  # 单人挑战
-            "start_team",  # 组队挑战
-            "tanchigui",  # 贪吃鬼
-            "victory",  # 成功
-            "ready_old",  # 准备-怀旧主题
-            "ready_new",  # 准备-简约主题
-        ]
+    resource_path: str = "fight"  # 路径
+    resource_list: list = [  # 资源列表
+        "accept_invitation",  # 接受邀请
+        "fail",  # 失败
+        "finish",  # 结束
+        "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
+        "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
+        "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
+        "passenger_2",  # 队员2
+        "passenger_3",  # 队员3
+        "start_single",  # 单人挑战
+        "start_team",  # 组队挑战
+        "tanchigui",  # 贪吃鬼
+        "victory",  # 成功
+        "ready_old",  # 准备-怀旧主题
+        "ready_new",  # 准备-简约主题
+    ]
 
 
 @log_function_call
@@ -223,7 +218,7 @@ def get_coor_info_center(file: Path | str, is_log: bool = True) -> Coor:
         return Coor(0, 0)
 
 
-def check_scene(file: str, scene_name: str = None) -> bool:
+def check_scene(file: str, scene_name: str = None) -> bool:  # FIXME remove
     """场景判断
 
     参数:
@@ -248,7 +243,7 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
     """
     多场景判断，仅遍历一次
 
-    可传带RESOURCE_FIGHT_PATH资源，
+    可传带`RESOURCE_FIGHT_PATH`资源
 
     参数:
         scene (list): 多场景列表
@@ -262,7 +257,7 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
             return None, Coor(0, 0)
         """
         1.如果没传路径，说明全部文件名自带路径
-        2.传参路径，可能存在RESOURCE_FIGHT_PAHT的资源，用斜杠判断列表值
+        2.传参路径，可能存在`RESOURCE_FIGHT_PAHT`的资源，用斜杠判断列表值
         3.剩下的便是普通情况，即路径+文件
         多数情况下会是第2种
         """
@@ -339,7 +334,7 @@ def result() -> bool:
         if coor.is_effective:
             logger.ui("结束")
             return True
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")  # TODO `fail` 需要更新素材
+        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")  # TODO `fail` 需要更新资源
         if coor.is_effective:
             logger.ui("失败", "warn")
             return False

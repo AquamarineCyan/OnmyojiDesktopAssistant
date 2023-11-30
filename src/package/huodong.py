@@ -59,9 +59,6 @@ class HuoDong(Package):
         if coor.is_effective:
             self._flag_timer_check_start = True
 
-    # @run_in_thread
-    # @time_count
-    # @log_function_call
     def run(self) -> None:
         _g_resource_list: list = [
             f"{self.resource_path}/title",
@@ -80,9 +77,7 @@ class HuoDong(Package):
             if scene is None:
                 continue
 
-            logger.info(f"scene:{scene}")
-            if "/" in scene:
-                scene = scene.split("/")[-1]
+            scene = self.scene_handle(scene)
 
             if self._flag_timer_check_start:
                 self._flag_timer_check_start = False

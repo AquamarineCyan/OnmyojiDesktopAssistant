@@ -3,10 +3,8 @@
 # qiling.py
 """契灵"""
 
-from threading import Timer
-
 from ..utils.coordinate import RelativeCoor
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
@@ -18,6 +16,7 @@ from ..utils.function import (
     random_sleep
 )
 from ..utils.log import logger
+from ..utils.mythread import WorkTimer
 from .utils import Package
 
 
@@ -60,7 +59,7 @@ class QiLing(Package):
 
     @log_function_call
     def timer_start(self):
-        coor = get_coor_info(f"{self.resource_path}/start_tancha")
+        coor = self.get_coor_info("start_tancha")
         if coor.is_effective:
             self._flag_finish = True
 
@@ -79,8 +78,8 @@ class QiLing(Package):
             logger.info(f"_pokemon_address_count: {self._pokemon_address_count}")
             click(_pokemon_list[i])
             self._pokemon_address_count += 1
-            random_sleep(2, 3)
-            coor = get_coor_info(f"{self.resource_path}/start_jieqi")
+            random_sleep(2)
+            coor = self.get_coor_info("start_jieqi")
             if coor.is_effective:
                 return True
             else:
@@ -100,14 +99,13 @@ class QiLing(Package):
             if event_thread.is_set():
                 return
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-            if scene is None:
-                continue
-            self.scene_print(scene)
+            scene = self.scene_handle(scene)
+            
             match scene:
                 # case "title":
                 # pass
                 case "start_tancha":
-                    Timer(5, self.timer_start).start()
+                    WorkTimer(5, self.timer_start).start()
                     # _timestamp = int(time.time())
                     # if _timestamp - self._timestamp < 3:
                     #     _flag_finish = True
@@ -115,7 +113,7 @@ class QiLing(Package):
                     # else:
                     #     self._timestamp = _timestamp
                     click(coor)
-                    random_sleep(1, 2)
+                    random_sleep()
                     self.fighting()
                     self.done()
                     random_sleep(2, 4)
@@ -127,18 +125,16 @@ class QiLing(Package):
     def run_jieqi(self):
         """结契"""
         _n: int = 0
-        _resource_list = ["start_tancha", "start_jieqi"]
+        self.current_resource_list = ["start_tancha", "start_jieqi"]
         _flag_done_once: bool = False
 
         while _n <= 5:
             if event_thread.is_set():
                 return
-            scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
+            scene, coor = self.check_scene_multiple_once()
             if scene is None:
                 continue
-            logger.info(f"scene: {scene}")
-            if "/" in scene:
-                scene = scene.split("/")[-1]
+            scene = self.scene_handle(scene)
 
             match scene:
                 # 确保在探查界面点击契灵小图标
@@ -150,14 +146,14 @@ class QiLing(Package):
                         logger.ui(f"结契第{_n}只成功")
                     if not self.check_pokemon():
                         break
-                    random_sleep(1, 2)
+                    random_sleep()
                     continue
                 case "start_jieqi":
                     logger.scene("契灵探查")
                     click(coor)
-                    random_sleep(10, 11)
+                    random_sleep(10)
                     _flag_first: bool = False
-                    _timer = Timer(2 * 60, self.timer_jieqi_finish)
+                    _timer = WorkTimer(2 * 60, self.timer_jieqi_finish)
                     _timer.start()
 
                     while True:
@@ -172,12 +168,9 @@ class QiLing(Package):
                             finish_random_left_right()
                         elif _flag_first:
                             _flag_done_once = True
-                            random_sleep(2, 3)
+                            random_sleep(2)
                             break
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
         if self._flag_tancha:
             self.run_tancha()

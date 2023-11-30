@@ -3,15 +3,13 @@
 # yeyuanhuo.py
 """业原火副本"""
 
-from src.utils.event import event_thread
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.decorator import log_function_call
+from ..utils.event import event_thread
 from ..utils.function import (
+    RESOURCE_FIGHT_PATH,
     check_click,
-    check_finish_once,
     check_scene_multiple_once,
-    check_scene_multiple_while,
     click,
-    finish_random_left_right,
     random_sleep
 )
 from ..utils.log import logger
@@ -20,9 +18,9 @@ from .utils import Package
 
 class YeYuanHuo(Package):
     """业原火副本"""
-    scene_name: str = "业原火副本"
-    resource_path: str = "yeyuanhuo"
-    resource_list: list = [
+    scene_name = "业原火副本"
+    resource_path = "yeyuanhuo"
+    resource_list = [
         "title",  # 标题
         "start"  # 挑战
     ]
@@ -33,45 +31,48 @@ class YeYuanHuo(Package):
         super().__init__(n)
 
     @log_function_call
-    def title(self) -> bool:
-        """场景"""
-        check_scene_multiple_while(self.resource_list, self.resource_path, text="请检查游戏场景")
-        return True
-
-    @log_function_call
     def start(self):
         """挑战开始"""
         check_click(f"{self.resource_path}/start")
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
+        self.current_resource_list = [
+            f"{self.resource_path}/title",
+            f"{self.resource_path}/start",
+            f"{RESOURCE_FIGHT_PATH}/finish",
+            f"{RESOURCE_FIGHT_PATH}/fail",
+            f"{RESOURCE_FIGHT_PATH}/victory",
+        ]
+        _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")
+        self.log_current_scene_list()
+
         while self.n < self.max:
             if event_thread.is_set():
                 return
-
-            scene, coor = check_scene_multiple_once(self.resource_list, self.resource_path)
-            # if scene is None:
-            #     continue
-            if scene:
-                self.scene_print(scene)
-
-            if coor.is_effective:
-                match scene:
-                    case "title":
-                        self.start()
-                        random_sleep(self.fast_time, self.fast_time+1)
-                    case "start":
-                        click(coor)
-                        random_sleep(self.fast_time, self.fast_time+1)
-            if result := check_finish_once():
-                self.done()
-                random_sleep(1, 2)
-                finish_random_left_right()
-                random_sleep(2, 4)
+            scene, coor = check_scene_multiple_once(self.current_resource_list)
+            if scene is None:
                 continue
-            elif result == False:
-                logger.ui("失败，需要手动处理", "warn")
-        logger.ui(f"已完成 {self.scene_name} {self.n}次")
+            scene = self.scene_handle(scene)
+
+            match scene:
+                case "title":
+                    logger.scene(self.scene_name)
+                    _flag_title_msg = False
+                    self.start()
+                    random_sleep(self.fast_time)
+                case "start":
+                    click(coor)
+                    random_sleep(self.fast_time)
+                case "fail":
+                    logger.ui("失败，需要手动处理", "warn")
+                    break
+                case "victory":
+                    logger.ui("胜利")
+                    random_sleep()
+                case "finish":
+                    self.ensure_finish()
+                case _:
+                    if _flag_title_msg:
+                        logger.ui("请检查游戏场景", "warn")
+                        _flag_title_msg = False

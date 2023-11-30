@@ -3,12 +3,10 @@
 # daoguantupo.py
 """道馆突破"""
 
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
-    check_click,
-    check_scene,
     check_scene_multiple_once,
     click,
     finish_random_left_right,
@@ -21,82 +19,78 @@ from .utils import Package
 
 class DaoGuanTuPo(Package):
     """道馆突破"""
+    scene_name = "道馆突破"
+    resource_path = "daoguantupo"
+    resource_list= [
+        "button_zhuwei",  # TODO 助威开关
+        "chuzhan",  # 出战
+        "daojishi",  # 倒计时
+        "guanzhan",  # 观战
+        "guanzhuzhan",  # TODO 馆主战
+        "jijie",  # 集结
+        "qianwang",  # 前往-助威
+        "shengyutuposhijian",  # 剩余突破时间
+        "tiaozhan",  # 挑战
+        "title",  # 标题
+        "zhanbao",  # 战报
+    ]
 
     @log_function_call
     def __init__(self, flag_guanzhan: bool = False) -> None:
-        self.scene_name = "道馆突破"
-        self.n = 0  # 当前次数
-        self.resource_path = "daoguantupo"  # 路径
-        self.resource_list: list = [
-            "button_zhuwei",  # TODO 助威开关
-            "chuzhan",  # 出战
-            "daojishi",  # 倒计时
-            "guanzhan",  # 观战
-            "guanzhuzhan",  # TODO 馆主战
-            "jijie",  # 集结
-            "qianwang",  # 前往-助威
-            "shengyutuposhijian",  # 剩余突破时间
-            "tiaozhan",  # 挑战
-            "title",  # 标题
-            "zhanbao"  # 战报
-        ]
-
+        super().__init__()
         self.flag_guanzhan = flag_guanzhan  # 是否观战
         self.flag_fighting = False  # 是否进行中
 
-    def get_coor_info(self, file: str):
-        return get_coor_info(f"{self.resource_path}/{file}")
-
-    def title(self) -> bool:
+    def check_title(self) -> None:
         """场景"""
-        flag_title = True  # 场景提示
+        _flag_title_msg = True
         self.flag_fighting = False  # 进行中
-        flag_daojishi = True  # 倒计时
+        _flag_daojishi = True  # 倒计时
         while True:
             if event_thread.is_set():
                 return
-            if check_scene(f"{self.resource_path}/title", self.scene_name):
+            coor_title = self.get_coor_info("title")
+            coor_fighting = self.get_coor_info("button_zhuwei")
+
+            if coor_title.is_effective:
+                logger.scene(self.scene_name)
+                self.current_resource_list = [
+                    f"{self.resource_path}/daojishi",
+                    f"{self.resource_path}/shengyutuposhijian",
+                    f"{self.resource_path}/guanzhuzhan",
+                    f"{self.resource_path}/button_zhuwei",
+                ]
+                self.log_current_scene_list()
                 while True:
                     if event_thread.is_set():
                         return
-                    # 等待倒计时自动进入
-                    if self.judge_scene_daoguantupo() == "倒计时":
-                        if flag_daojishi:
-                            logger.ui("等待倒计时自动进入")
-                            flag_daojishi = False
-                        self.flag_fighting = True
-                        break
-                    elif self.judge_scene_daoguantupo() == "可进攻":
-                        self.flag_fighting = False
-                        break
-                    # 馆主战
-                    elif self.judge_scene_daoguantupo() == "馆主战":
-                        logger.ui("待开发", "warn")
-                        break
-                return True
-            # 已进入道馆进攻状态
-            elif self.judge_scene_daoguantupo() == "进行中":
+                    scene, _ = check_scene_multiple_once(self.current_resource_list)
+                    if scene is None:
+                        continue
+                    scene = self.scene_handle(scene)
+
+                    match scene:
+                        case "daojishi":  # 等待倒计时自动进入
+                            if _flag_daojishi:
+                                logger.ui("等待倒计时自动进入")
+                                _flag_daojishi = False
+                            self.flag_fighting = True
+                            return
+                        case "shengyutuposhijian":  # 可进攻
+                            self.flag_fighting = False
+                            return
+                        case "guanzhuzhan":  # 馆主战
+                            logger.ui("馆主战，待开发", "warn")
+                            return
+
+            # 道馆突破进行中
+            elif coor_fighting.is_effective:
                 logger.ui("道馆突破进行中")
                 self.flag_fighting = True
                 return True
-            elif flag_title:
-                flag_title = False
+            elif _flag_title_msg:
+                _flag_title_msg = False
                 logger.ui("请检查游戏场景", "warn")
-
-    def judge_scene_daoguantupo(self) -> str:
-        """场景判断"""
-        scene = {
-            "daojishi.png": "倒计时",
-            "shengyutuposhijian.png": "可进攻",
-            "guanzhuzhan.png": "馆主战",
-            "button_zhuwei.png": "进行中"
-        }  # TODO"可进攻"未实现
-        for item in scene:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info(item)
-            if coor.is_effective:
-                return scene[item]
 
     def guanzhan(self):
         """观战"""
@@ -108,8 +102,8 @@ class DaoGuanTuPo(Package):
             coor = self.get_coor_info("qianwang")
             if coor.is_effective:
                 break
-            check_click(f"{self.resource_path}/zhanbao")
-            random_sleep(1, 2)
+            self.check_click("zhanbao")
+            random_sleep()
         # 前往按钮
         while True:
             if event_thread.is_set():
@@ -117,92 +111,97 @@ class DaoGuanTuPo(Package):
             coor = self.get_coor_info("jijie")
             if coor.is_effective:
                 break
-            check_click(f"{self.resource_path}/qianwang")
-            random_sleep(1, 2)
-        flag_zhuwei = False  # 是否能够助威
+            self.check_click("qianwang")
+            random_sleep()
+
+        self.current_resource_list = [
+            f"{self.resource_path}/zhuwei",
+            f"{self.resource_path}/test_zhuwei_gray",
+            f"{RESOURCE_FIGHT_PATH}/finish",
+            f"{RESOURCE_FIGHT_PATH}/fail",
+        ]
+        _flag_zhuwei_disable = False  # 是否能够助威
+
         while True:
             if event_thread.is_set():
                 return
-            coor1 = self.get_coor_info("zhuwei")
-            coor2 = self.get_coor_info("test_zhuwei_gray")
-            # 可助威
-            if coor1.is_effective:
-                click(coor)
-                logger.ui("助威成功")
-                flag_zhuwei = True
-            # 不可助威
-            elif coor2.is_effective:
-                if flag_zhuwei:
-                    logger.ui("无法助威")
-                    flag_zhuwei = False
-            # 结束观战
-            else:
-                coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
-                if coor.is_effective:
-                    logger.ui("胜利")
-                    finish_random_left_right()
-                    break
-                coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
-                if coor.is_effective:
-                    logger.ui("失败", "warn")
-                    finish_random_left_right()
-                    break
-            random_sleep(1, 2)
+            scene, coor = self.check_scene_multiple_once()
+            if scene is None:
+                continue
+            logger.info(f"current scene: {scene}")
+            if "/" in scene:
+                scene = scene.split("/")[-1]
 
-    # TODO 馆主战
-    def guanzhuzhan(self) -> None:
+            match scene:
+                case "zhuwei":
+                    click(coor)
+                    logger.ui("助威成功")
+                    _flag_zhuwei_disable = True
+                case "test_zhuwei_gray":
+                    if _flag_zhuwei_disable:
+                        logger.ui("无法助威")
+                        _flag_zhuwei_disable = False
+                case "finish":
+                    self.ensure_finish()
+                case "fail":
+                    logger.ui("失败", "warn")
+                    random_sleep(0.4, 0.8)
+                    finish_random_left_right()
+                    while True:
+                        if event_thread.is_set():
+                            return
+                        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+                        # 未重复检测到，表示成功点击
+                        if coor.is_zero:
+                            self.done()
+                            break
+                        click()
+                        random_sleep(0.4, 0.8)
+            random_sleep(4)
+
+    def guanzhuzhan(self) -> None:  # TODO
         """馆主战"""
         pass
 
-    @run_in_thread
-    @time_count
-    @log_function_call
-    def run(self) -> None:
-        if self.title():
-            logger.num(0)
-            random_sleep(2, 4)
-            if not self.flag_fighting:
-                check_click(f"{self.resource_path}/tiaozhan")
-            random_sleep(2, 4)
-            # TODO调整预设队伍
-            # 开始
-            while True:
-                if event_thread.is_set():
-                    return
+    def run(self):
+        self.check_title()
+        logger.num(0)
+        random_sleep(2, 4)
+        if not self.flag_fighting:
+            self.check_click("tiaozhan")
+        random_sleep(2, 4)
+        # TODO调整预设队伍
+        # 开始
+        while True:
+            if event_thread.is_set():
+                return
+            self.current_resource_list = [
+                f"{RESOURCE_FIGHT_PATH}/ready_old",
+                f"{RESOURCE_FIGHT_PATH}/ready_new",
+                f"{RESOURCE_FIGHT_PATH}/victory",
+                f"{RESOURCE_FIGHT_PATH}/fail",
+                f"{RESOURCE_FIGHT_PATH}/finish"
+            ]
+            scene, coor = self.check_scene_multiple_once()
+            if scene is None:
+                continue
+            logger.info(f"coor: {coor.coor}")
+            scene = self.scene_handle(scene)
 
-                _resource_list = [
-                    f"{RESOURCE_FIGHT_PATH}/ready_old",
-                    f"{RESOURCE_FIGHT_PATH}/ready_new",
-                    f"{RESOURCE_FIGHT_PATH}/victory",
-                    f"{RESOURCE_FIGHT_PATH}/fail",
-                    f"{RESOURCE_FIGHT_PATH}/finish"
-                ]
-                scene, coor = check_scene_multiple_once(_resource_list)
-                if scene is None:
-                    continue
-
-                logger.info(f"scene: {scene}")
-                logger.info(f"coor: {coor.coor}")
-                if scene in [
-                    f"{RESOURCE_FIGHT_PATH}/ready_old",
-                    f"{RESOURCE_FIGHT_PATH}/ready_new",
-                ]:
+            match scene:
+                case "ready_old" | "read_new":
                     logger.ui("准备")
                     click(coor)
                     self.n += 1
                     logger.num(str(self.n))
                     random_sleep(1, 2)
-                elif scene == f"{RESOURCE_FIGHT_PATH}/victory":
+                case "victory":
                     random_sleep(1, 2)
-                elif scene == f"{RESOURCE_FIGHT_PATH}/fail":
-                    logger.ui("失败", "warn")
-                    finish_random_left_right()
-                    break
-                elif scene == f"{RESOURCE_FIGHT_PATH}/finish":
-                    logger.ui("结束")
-                    finish_random_left_right()
+                case "finish":
+                    self.ensure_finish()
+                case "fail":
+                    logger.ui("失败，需要手动处理", "warn")
                     break
 
-            if self.flag_guanzhan:
-                self.guanzhan()
-        logger.ui(f"已完成 {self.scene_name} 胜利{self.n}次")
+        if self.flag_guanzhan:
+            self.guanzhan()

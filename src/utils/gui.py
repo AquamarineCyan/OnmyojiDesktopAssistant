@@ -311,7 +311,7 @@ class MainWindow(QMainWindow):
                 # 检查资源文件
                 for item in P.resource_list:
                     if not Path(RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
-                        logger.ui(f"无{P.resource_path}/{item}.png资源文件", "error")
+                        logger.ui(f"未找到资源：{P.resource_path}/{item}.png", "error")
                         ms.main.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
                         return False
         logger.info("资源完整")
@@ -525,20 +525,20 @@ class MainWindow(QMainWindow):
                         case "单人":
                             pass
                 case 3:  # 业原火
-                    yeyuanhuo.YeYuanHuo(n=_n).run()
+                    yeyuanhuo.YeYuanHuo(n=_n).task_start()
                 case 4:  # 御灵
                     yuling.YuLing(n=_n).run()
                 case 5:  # 个人突破
-                    jiejietupo.JieJieTuPoGeRen(n=_n).run()
+                    jiejietupo.JieJieTuPoGeRen(n=_n).task_start()
                 case 6:  # 寮突破
-                    jiejietupo.JieJieTuPoYinYangLiao(n=_n).run()
+                    jiejietupo.JieJieTuPoYinYangLiao(n=_n).task_start()
                 case 7:  # 道馆突破
                     flag_guanzhan = self.ui.button_guanzhan.isChecked()
-                    daoguantupo.DaoGuanTuPo(flag_guanzhan=flag_guanzhan).run()
+                    daoguantupo.DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
                 case 8:  # 普通召唤
                     zhaohuan.ZhaoHuan(n=_n).run()
                 case 9:  # 百鬼夜行
-                    baiguiyexing.BaiGuiYeXing(n=_n).run()
+                    baiguiyexing.BaiGuiYeXing(n=_n).task_start()
                 case 10:  # 限时活动
                     huodong.HuoDong(n=_n).task_start()
                 case 11:  # 组队日轮副本
@@ -553,7 +553,7 @@ class MainWindow(QMainWindow):
                         n=_n,
                         flag_driver=_flag_driver,
                         flag_passengers=_flag_passengers,
-                    ).run()
+                    ).task_start()
                 case 12:  # 单人探索
                     tansuo.TanSuo(n=_n).run()
                 case 13:  # 契灵
@@ -563,7 +563,7 @@ class MainWindow(QMainWindow):
                         n=_n,
                         _flag_tancha=_flag_tancha,
                         _flag_jieqi=_flag_jieqi
-                    ).run()
+                    ).task_start()
 
         def stop() -> None:
             """停止函数"""

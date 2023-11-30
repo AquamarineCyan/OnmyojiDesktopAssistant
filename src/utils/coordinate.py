@@ -23,7 +23,9 @@ class Coor:
         self.y: int | float = y
         self.coor: tuple[int | float, int | float] = self._coor_tuple_format()
         self.is_zero: bool = self._is_zero_func()
+        """全0，未找到图像"""
         self.is_effective: bool = self._is_effective_func()
+        """坐标有效"""
 
     def _coor_tuple_format(self) -> tuple[int | float, int | float]:
         return (self.x, self.y)

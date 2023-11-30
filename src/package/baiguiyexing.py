@@ -3,18 +3,13 @@
 # baiguiyexing.py
 """百鬼夜行"""
 
-import random
-import time
-
-import pyautogui
-
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.coordinate import RelativeCoor
+from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    check_click,
-    check_scene,
-    get_coor_info,
+    click,
     random_coor,
+    random_num,
     random_sleep
 )
 from ..utils.log import logger
@@ -24,37 +19,37 @@ from .utils import Package
 
 class BaiGuiYeXing(Package):
     """百鬼夜行"""
+    scene_name = "百鬼夜行"
+    resource_path = "baiguiyexing"
+    resource_list = [
+        "title",  # 标题
+        "jinru",  # 进入
+        "ya",  # 押选
+        "kaishi",  # 开始
+        "baiguiqiyueshu",  # 百鬼契约书
+    ]
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
-        self.scene_name: str = "百鬼夜行"
-        self.n: int = 0  # 当前次数
-        self.max: int = n  # 总次数
-        self.resource_path = "baiguiyexing"  # 资源路径
-        self.resource_list: list = [  # 资源列表
-            "title",  # 标题
-            "jinru",  # 进入
-            "ya",  # 押选
-            "kaishi",  # 开始
-            "baiguiqiyueshu"  # 百鬼契约书
-        ]
 
-    def title(self) -> bool:
+    def check_title(self) -> bool:
         """场景"""
-        flag_title = True  # 场景提示
+        _flag_title_msg = True
         while True:
             if event_thread.is_set():
                 return
-            if check_scene(f"{self.resource_path}/title", self.scene_name):
-                return True
-            elif flag_title:
-                flag_title = False
+            coor = self.get_coor_info("title")
+            if coor.is_effective:
+                logger.scene(self.scene_name)
+                return
+            elif _flag_title_msg:
+                _flag_title_msg = False
                 logger.ui("请检查游戏场景", "warn")
 
     def start(self):
         """开始"""
-        check_click(f"{self.resource_path}/jinru")
+        self.check_click("jinru")
 
     def choose(self):
         """鬼王选择"""
@@ -69,9 +64,7 @@ class BaiGuiYeXing(Package):
         while True:
             if event_thread.is_set():
                 return
-            # 获取系统当前时间戳
-            random.seed(time.time_ns())
-            m = random.random() * 3 + 1
+            m = random_num(1, 4)
             if m < 2:
                 x1 = _x1_left
                 x2 = _x1_right
@@ -82,22 +75,17 @@ class BaiGuiYeXing(Package):
                 x1 = _x3_left
                 x2 = _x3_right
             x, y = random_coor(x1, x2, _y1, _y2).coor
-            pyautogui.moveTo(
-                x + window.window_left,
-                y + window.window_top,
-                duration=0.5
-            )
-            pyautogui.click()
-            time.sleep(2)
-            x, y = get_coor_info(f"{self.resource_path}/ya").coor
-            if x != 0 and y != 0:
+            click(RelativeCoor(x, y))
+            random_sleep()
+            coor = self.get_coor_info("ya")
+            if coor.is_effective:
                 logger.ui("已选择鬼王")
                 break
-        check_click(f"{self.resource_path}/kaishi", dura=0.5)
+        self.check_click("kaishi")
 
     def fighting(self):
         """砸豆子"""
-        time.sleep(2)
+        random_sleep()
         for _ in range(250, 0, -5):
             if event_thread.is_set():
                 return
@@ -108,48 +96,38 @@ class BaiGuiYeXing(Package):
                 300,
                 window.absolute_window_height - 100
             ).coor
-            pyautogui.moveTo(
-                x + window.window_left,
-                y + window.window_top,
-                duration=0.25
-            )
-            pyautogui.click()
+            click(RelativeCoor(x, y), dura=0.25)
 
     def finish(self):
         """结束"""
         while True:
             if event_thread.is_set():
                 return
-            coor = get_coor_info(f'{self.resource_path}/baiguiqiyueshu')
-            time.sleep(2)
+            coor = self.get_coor_info("baiguiqiyueshu")
+            random_sleep()
             if coor.is_effective:
                 self.screenshot()
-                pyautogui.moveTo(coor.x, coor.y, duration=0.5)
-                pyautogui.click()
+                click(coor)
                 break
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
-        if self.title():
-            logger.num(f"0/{self.max}")
+        self.check_title()
+        logger.num(f"0/{self.max}")
+        random_sleep(1, 3)
+
+        while self.n < self.max:
+            if event_thread.is_set():
+                return
+            random_sleep(0, 2)
+            self.start()
             random_sleep(1, 3)
-            while self.n < self.max:
-                if event_thread.is_set():
-                    return
-                random_sleep(0, 2)
-                self.start()
-                random_sleep(1, 3)
-                self.choose()
-                random_sleep(2, 4)
-                self.fighting()
-                random_sleep(2, 4)
-                self.finish()
-                self.n += 1
-                logger.num(f"{self.n}/{self.max}")
-                time.sleep(4)
-                # TODO 更新随机判断
-                if self.n in {12, 25, 39}:
-                    random_sleep(10, 20)
-        logger.ui(f"已完成 {self.scene_name} {self.n}次")
+            self.choose()
+            random_sleep(2, 4)
+            self.fighting()
+            random_sleep(2, 4)
+            self.finish()
+            self.done()
+            random_sleep(3)
+            # TODO 更新随机判断
+            if self.n in {12, 25, 39}:
+                random_sleep(10, 20)
