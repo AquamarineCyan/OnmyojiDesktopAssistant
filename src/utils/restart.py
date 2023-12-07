@@ -52,6 +52,7 @@ if errorlevel 1 (
 echo Continue restart...
 timeout /T 3 /NOBREAK
 start {self.app_exe_name}
+del %0
 """
         self.save(bat_text)
 
