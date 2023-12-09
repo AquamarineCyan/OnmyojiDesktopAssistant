@@ -6,28 +6,29 @@
 import time
 
 from ..utils.config import config
-from ..utils.decorator import log_function_call, run_in_thread
+from ..utils.decorator import run_in_thread
 from ..utils.event import event_thread, event_xuanshang, event_xuanshang_enable
 from ..utils.function import click, get_coor_info_center
 from ..utils.log import logger
 from ..utils.toast import toast
+from .utils import Package
 
 
-class XuanShangFengYin:
+class XuanShangFengYin(Package):
     """悬赏封印"""
+    scene_name = "悬赏封印"
+    resource_path = "xuanshangfengyin" 
+    resource_list: list = [
+        "title",  # 特征图像
+        "xuanshang_accept",  # 接受
+        "xuanshang_refuse",  # 拒绝
+        "xuanshang_ignore",  # 忽略
+    ]
 
     def __init__(self):
-        self.scene_name: str = "悬赏封印"
-        self.resource_path: str = "xuanshangfengyin"  # 图片路径
         self._flag_is_first: bool = True
         self._flag: bool = False
         event_xuanshang_enable.set()  # 启用
-        self.resource_list: list = [
-            "title",  # 特征图像
-            "xuanshang_accept",  # 接受
-            "xuanshang_refuse",  # 拒绝
-            "xuanshang_ignore"  # 忽略
-        ]
 
     def check_click(self, file: str, timeout: int = None) -> None:
         """图像识别，并点击
@@ -51,8 +52,6 @@ class XuanShangFengYin:
                 click(coor)
                 return
 
-    @log_function_call
-    @run_in_thread
     def run(self) -> None:
         logger.info("悬赏封印进行中...")
         # 第一次进入，确保不会阻塞function.get_coor_info()
@@ -63,7 +62,7 @@ class XuanShangFengYin:
         while True:
             coor = get_coor_info_center(f"{self.resource_path}/title.png", is_log=False)
             if coor.is_effective:
-                logger.scene("悬赏封印")
+                logger.scene(self.scene_name)
                 event_xuanshang.clear()
                 self._flag = True
                 logger.ui("已暂停后台线程，等待处理", "warn")
@@ -87,7 +86,10 @@ class XuanShangFengYin:
                 if self._flag:
                     self._flag = False
                     logger.ui("悬赏封印已消失，恢复线程")
-            time.sleep(1)
+            time.sleep(0.1)
 
+    @run_in_thread
+    def task_start(self):
+        self.run()
 
-xuanshangfengyin = XuanShangFengYin()
+task_xuanshangfengyin = XuanShangFengYin()

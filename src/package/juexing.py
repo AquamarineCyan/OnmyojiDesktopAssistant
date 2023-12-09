@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# yeyuanhuo.py
-"""业原火副本"""
+# juexing.py
+"""觉醒副本"""
 
-import time
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -18,16 +17,14 @@ from ..utils.log import logger
 from .utils import Package
 
 
-class YeYuanHuo(Package):
-    """业原火副本"""
-    scene_name = "业原火副本"
-    resource_path = "yeyuanhuo"
+class JueXing(Package):
+    """觉醒副本"""
+    scene_name = "觉醒副本"
+    resource_path = "juexing"
     resource_list = [
         "title",  # 标题
-        "start",  # 挑战
     ]
-    description = "默认为“痴”，可替换resource/yeyuanhuo路径下start.png"
-    fast_time = 13
+    description = "单人觉醒副本"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -36,16 +33,15 @@ class YeYuanHuo(Package):
     @log_function_call
     def start(self):
         """挑战开始"""
-        check_click(f"{self.resource_path}/start")
+        check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
 
     def run(self):
         self.current_resource_list = [
             f"{self.resource_path}/title",
-            f"{self.resource_path}/start",
+            f"{RESOURCE_FIGHT_PATH}/start_single",
             f"{RESOURCE_FIGHT_PATH}/finish",
             f"{RESOURCE_FIGHT_PATH}/fail",
             f"{RESOURCE_FIGHT_PATH}/victory",
-            # f"{RESOURCE_FIGHT_PATH}/soul_overflow",
         ]
         _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")
@@ -64,21 +60,13 @@ class YeYuanHuo(Package):
                     logger.scene(self.scene_name)
                     _flag_title_msg = False
                     self.start()
-                    random_sleep(self.fast_time)
-                case "start":
+                case "start_single":
                     click(coor)
-                    random_sleep(self.fast_time)
                 case "fail":
                     logger.ui("失败，需要手动处理", "warn")
                     break
                 case "victory":
                     logger.ui("胜利")
-                    # if _timer == None:
-                    #     _timer = time.perf_counter()
-                    random_sleep()
-                # case "soul_overflow":
-                #     logger.ui("御魂上限", "warn")
-                #     click(coor)
                 case "finish":
                     finish_random_left_right()
                     self.done()
@@ -86,3 +74,4 @@ class YeYuanHuo(Package):
                     if _flag_title_msg:
                         logger.ui("请检查游戏场景", "warn")
                         _flag_title_msg = False
+            random_sleep()

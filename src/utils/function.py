@@ -27,27 +27,6 @@ RESTART_BAT_PATH: str = "restart.bat"
 """重启脚本路径"""
 
 
-class FightResource:
-    """通用战斗资源"""
-    resource_path: str = "fight"  # 路径
-    resource_list: list = [  # 资源列表
-        "accept_invitation",  # 接受邀请
-        "fail",  # 失败
-        "finish",  # 结束
-        "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
-        "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
-        "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
-        "passenger_2",  # 队员2
-        "passenger_3",  # 队员3
-        "start_single",  # 单人挑战
-        "start_team",  # 组队挑战
-        "tanchigui",  # 贪吃鬼
-        "victory",  # 成功
-        "ready_old",  # 准备-怀旧主题
-        "ready_new",  # 准备-简约主题
-    ]
-
-
 @log_function_call
 def random_normal(min: int | float, max: int | float) -> int:
     """正态分布"""
@@ -138,11 +117,13 @@ def image_file_format(file: Path | str) -> str:
         logger.warn(f"no such file {_file}")
 
 
-def get_coor_info(file: Path | str) -> AbsoluteCoor:
+def get_coor_info(file: Path | str, region: tuple[int, int, int, int] = (0, 0, 0, 0)) -> AbsoluteCoor:
     """图像识别，返回图像的全屏随机坐标
 
     参数:
         file (Path | str): 图像名称
+
+        region (tuple[int, int, int, int]): 识别区域（相对），默认(0,0,0,0)
 
     用法：
         `self.resource_path / filename`
@@ -150,26 +131,30 @@ def get_coor_info(file: Path | str) -> AbsoluteCoor:
     返回:
         Coor: 成功，返回图像的全屏随机坐标；失败，返回(0,0)
     """
-    _file_name = image_file_format(RESOURCE_DIR_PATH / file)
-    logger.debug(f"looking for file: {_file_name}")
     if event_thread.is_set():
         return Coor(0, 0)
     # 等待悬赏封印判定
     if event_xuanshang_enable.is_set():
         event_xuanshang.wait()
 
+    _file_name = image_file_format(RESOURCE_DIR_PATH / file)
+    logger.debug(f"looking for file: {_file_name}")
+    if region != (0, 0, 0, 0):
+        logger.debug(_region)
+    _region = (  # TODO need test
+        region[0] + window.window_left,
+        region[1] + window.window_top,
+        region[2] + window.absolute_window_width,
+        region[3] + window.absolute_window_height
+    )
+
     try:
         button_location = pyautogui.locateOnScreen(
-            _file_name,
-            region=(
-                window.window_left,
-                window.window_top,
-                window.absolute_window_width,
-                window.absolute_window_height
-            ),
+            image=_file_name,
+            region=_region,
             confidence=0.8
         )
-        logger.debug(f"button_location: {button_location}")
+        # logger.debug(f"button_location: {button_location}")
         if button_location:
             logger.info(f"button_location: {button_location}")
         coor: AbsoluteCoor = random_coor(
@@ -486,7 +471,6 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     else:
         _x, _y = coor.coor
 
-    # x, y = pyautogui.position() if coor is None else (coor.x, coor.y)
     pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
     logger.info(f"click at ({_x},{_y})")
     try:

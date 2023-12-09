@@ -5,12 +5,10 @@
 
 import pyautogui
 
-from src.utils.event import event_thread
-
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.decorator import log_function_call
+from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
-    check_click,
     check_scene_multiple_once,
     click,
     finish,
@@ -26,44 +24,54 @@ from .utils import Package
 
 class YuHun(Package):
     """御魂副本"""
+    scene_name = "御魂副本"
+    resource_path = "yuhun"
+    resource_list = [
+        "title_10",  # 魂十
+        "title_11",  # 魂土
+        "title_12",  # 神罚
+        "xiezhanduiwu",  # 组队界面
+        "passenger_2",  # 队员2
+        "passenger_3",  # 队员3
+        "start_team",  # 组队挑战
+        "start_single",  # 单人挑战
+        "fighting",  # 魂土进行中
+        "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
+        "fighting_shenfa",  # 神罚战斗场景
+        "finish_damage",  # 结束特征图像
+        "finish_damage_2000",  # 结束特征图像-鎏金圣域
+        "finish_damage_shenfa",  # 结束特征图像-神罚
+        "accept_invitation",  # 接受邀请
+    ]
+    description = "已适配组队/单人 魂十、魂土、神罚副本\
+                    新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”"
+    fast_time = 13 - 2
 
     @log_function_call
-    def __init__(self):
-        """御魂副本"""
-        self.scene_name: str = "御魂副本"
-        self.n: int = 0  # 当前次数
-        self.max: int = 0  # 总次数
-        self.fast_time: int = 13 - 2  # 最快通关速度，用于中途等待
-        self.resource_path: str = "yuhun"  # 路径
-        self.resource_list: list = [  # 资源列表
-            "title_10",  # 魂十
-            "title_11",  # 魂土
-            "title_12",  # 神罚
-            "xiezhanduiwu",  # 组队界面
-            "passenger_2",  # 队员2
-            "passenger_3",  # 队员3
-            "start_team",  # 组队挑战
-            "start_single",  # 单人挑战
-            "fighting",  # 魂土进行中
-            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa",  # 神罚战斗场景
-            "finish_damage",  # 结束特征图像
-            "finish_damage_2000",  # 结束特征图像-鎏金圣域
-            "finish_damage_shenfa",  # 结束特征图像-神罚
-            "accept_invitation",  # 接受邀请
-        ]
-
-    @log_function_call
-    def start(self, mode: str = None) -> None:
+    def start(self) -> None:
         """挑战"""
-        if mode == "team":
-            check_click(f"{self.resource_path}/start_team")
-        elif mode == "single":
-            check_click(f"{self.resource_path}/start_single")
+        if isinstance(self, YuHunTeam):
+            self.check_click("start_team")
+        elif isinstance(self, YuHunSingle):
+            self.check_click("start_single")
 
 
 class YuHunTeam(YuHun):
     """组队御魂副本"""
+    scene_name = "组队御魂副本"
+    resource_list = [  # 资源列表
+        "xiezhanduiwu",  # 组队界面
+        "passenger_2",  # 队员2
+        "passenger_3",  # 队员3
+        "start_team",  # 组队挑战
+        "fighting",  # 魂土进行中
+        "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
+        "fighting_shenfa",  # 神罚战斗场景
+        "finish_damage",  # 结束特征图像
+        "finish_damage_2000",  # 结束特征图像-鎏金圣域
+        "finish_damage_shenfa",  # 结束特征图像-神罚
+        "accept_invitation",  # 接受邀请
+    ]
 
     @log_function_call
     def __init__(
@@ -73,7 +81,7 @@ class YuHunTeam(YuHun):
         flag_passengers: int = 2,
         flag_drop_statistics: bool = False
     ) -> None:
-        super().__init__()
+        super().__init__(n)
         """组队御魂副本
 
         参数:
@@ -82,23 +90,6 @@ class YuHunTeam(YuHun):
             flag_passengers (int): 组队人数，默认2人
             flag_drop_statistics (bool): 是否开启掉落统计，默认否
         """
-        self.scene_name: str = "组队御魂副本"
-        self.n: int = 0  # 当前次数
-        self.max: int = n  # 总次数
-        self.resource_list: list = [  # 资源列表
-            "xiezhanduiwu",  # 组队界面
-            "passenger_2",  # 队员2
-            "passenger_3",  # 队员3
-            "start_team",  # 组队挑战
-            "fighting",  # 魂土进行中
-            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa",  # 神罚战斗场景
-            "finish_damage",  # 结束特征图像
-            "finish_damage_2000",  # 结束特征图像-鎏金圣域
-            "finish_damage_shenfa",  # 结束特征图像-神罚
-            "accept_invitation",  # 接受邀请
-        ]
-
         self.flag_driver: bool = flag_driver  # 是否为司机（默认否）
         self.flag_passengers: int = flag_passengers  # 组队人数
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
@@ -145,9 +136,6 @@ class YuHunTeam(YuHun):
                 logger.ui("结束")
                 return
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
         # 保留必需图像，提高识别效率
         _g_resource_list: list = [
@@ -171,22 +159,20 @@ class YuHunTeam(YuHun):
             scene, coor = check_scene_multiple_once(_resource_list)
             if scene is None:
                 continue
-            if "/" in scene:
-                scene = scene.split("/")[-1]
-            logger.scene(scene)
-            match scene:
+            self.scene_handle(scene)
+
+            match self.current_scene:
                 case "xiezhanduiwu":
                     logger.ui('组队界面准备中')
                     if self.flag_driver:
                         is_passengers_on_position(self.flag_passengers)
-                        self.start("team")
-                    random_sleep(1, 2)
+                        self.start()
+                    random_sleep()
                     _flag_title_msg = False
                 case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
                     logger.ui("对局进行中")
                     self.finish()
-                    self.n += 1
-                    logger.num(f"{self.n}/{self.max}")
+                    self.done()
                     _resource_list = None
                     _flag_title_msg = False
                     random_sleep()
@@ -202,31 +188,29 @@ class YuHunTeam(YuHun):
 
 class YuHunSingle(YuHun):
     """单人御魂副本"""
+    scene_name = "单人御魂副本"
+    resource_list = [
+        "title_10",  # 魂十
+        "title_11",  # 魂土
+        "title_12",  # 神罚
+        "start_single",  # 单人挑战
+        "fighting",  # 魂土进行中
+        "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
+        "fighting_shenfa",  # 神罚战斗场景
+        # "finish_damage",  # 结束特征图像
+        # "finish_damage_2000",  # 结束特征图像-鎏金圣域
+        # "finish_damage_shenfa",  # 结束特征图像-神罚
+    ]
 
     @log_function_call
     def __init__(self, n: int = 0, flag_drop_statistics: bool = False):
-        super().__init__()
+        super().__init__(n)
         """单人御魂副本
 
         参数:
             n (int): 次数，默认0次
             flag_drop_statistics (bool): 是否开启掉落统计，默认否
         """
-        self.scene_name: str = "御魂副本"
-        self.n: int = 0  # 当前次数
-        self.max: int = n  # 总次数
-        self.resource_list: list = [  # 资源列表
-            "title_10",  # 魂十
-            "title_11",  # 魂土
-            "title_12",  # 神罚
-            "start_single",  # 单人挑战
-            "fighting",  # 魂土进行中
-            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa",  # 神罚战斗场景
-            # "finish_damage",  # 结束特征图像
-            # "finish_damage_2000",  # 结束特征图像-鎏金圣域
-            # "finish_damage_shenfa",  # 结束特征图像-神罚
-        ]
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
     @log_function_call
@@ -292,11 +276,7 @@ class YuHunSingle(YuHun):
                 logger.ui("结束")
                 return
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
-        """单人"""
         _g_resource_list: list = [
             "title_10",  # 魂十
             "title_11",  # 魂土
@@ -304,7 +284,7 @@ class YuHunSingle(YuHun):
             "start_single",  # 单人挑战
             "fighting",  # 魂土进行中
             "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa"  # 神罚战斗场景
+            "fighting_shenfa",  # 神罚战斗场景
         ]
         _resource_list: list = None
         _flag_title_msg: bool = True
@@ -313,32 +293,27 @@ class YuHunSingle(YuHun):
         while self.n < self.max:
             if event_thread.is_set():
                 return
-
             _resource_list = _g_resource_list if _resource_list is None else _resource_list
             scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
             if scene is None:
                 continue
-            # if "/" in scene:
-                # scene = scene.split("/")[-1]
-            # logger.scene(scene)
-            self.scene_print(scene)
+            self.scene_handle(scene)
 
-            match scene:
+            match self.current_scene:
                 case "title_10" | "title_11" | "title_12":
-                    self.start("single")
-                    random_sleep(self.fast_time, self.fast_time+1)
+                    self.start()
+                    random_sleep(self.fast_time)
                     _flag_title_msg = False
                 case "start_single":
                     click(coor)
-                    random_sleep(self.fast_time, self.fast_time+1)
+                    random_sleep(self.fast_time)
                     # 只判断下列图像，提高效率
                     _resource_list = ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"]
                     _flag_title_msg = False
                 case "fighting" | "fighting_linshuanghanxue" | "fighting_shenfa":
                     logger.ui("对局进行中")
                     self.finish_slow()
-                    self.n += 1
-                    logger.num(f"{self.n}/{self.max}")
+                    self.done()
                     _resource_list = None
                     _flag_title_msg = False
                 case _:

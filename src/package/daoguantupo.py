@@ -34,6 +34,7 @@ class DaoGuanTuPo(Package):
         "title",  # 标题
         "zhanbao",  # 战报
     ]
+    description = "目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景"
 
     @log_function_call
     def __init__(self, flag_guanzhan: bool = False) -> None:
@@ -180,7 +181,7 @@ class DaoGuanTuPo(Package):
                 f"{RESOURCE_FIGHT_PATH}/ready_new",
                 f"{RESOURCE_FIGHT_PATH}/victory",
                 f"{RESOURCE_FIGHT_PATH}/fail",
-                f"{RESOURCE_FIGHT_PATH}/finish"
+                f"{RESOURCE_FIGHT_PATH}/finish",
             ]
             scene, coor = self.check_scene_multiple_once()
             if scene is None:
@@ -194,11 +195,12 @@ class DaoGuanTuPo(Package):
                     click(coor)
                     self.n += 1
                     logger.num(str(self.n))
-                    random_sleep(1, 2)
+                    random_sleep()
                 case "victory":
-                    random_sleep(1, 2)
+                    random_sleep()
                 case "finish":
-                    self.ensure_finish()
+                    finish_random_left_right()
+                    break
                 case "fail":
                     logger.ui("失败，需要手动处理", "warn")
                     break

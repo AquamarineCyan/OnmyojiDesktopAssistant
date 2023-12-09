@@ -5,10 +5,10 @@
 
 import pyautogui
 
-from src.utils.event import event_thread
 from ..utils.application import RESOURCE_DIR_PATH
 from ..utils.coordinate import Coor
-from ..utils.decorator import log_function_call, run_in_thread, time_count
+from ..utils.decorator import log_function_call
+from ..utils.event import event_thread
 from ..utils.function import (
     check_click,
     check_finish_once,
@@ -27,10 +27,9 @@ from .utils import Package
 
 class TanSuo(Package):
     """探索"""
-
     scene_name = "探索"
     resource_path = "tansuo"
-    resource_list: list = [
+    resource_list = [
         # "boss_finish",
         "chuzhanxiaohao",
         "fighting",
@@ -49,10 +48,10 @@ class TanSuo(Package):
         "treasure_box",
         # "zidonglunhuan",
     ]
+    description = "提前准备好自动轮换和加成，仅单人探索"
 
     def __init__(self, n: int = 0) -> None:
-        self.n = 0  # 当前次数
-        self.max = n  # 总次数
+        super().__init__(n)
         self.flag_boss_done: bool = False  # boss战结束
 
     def get_all_coor_info_tansuo_center(self, file: str):
@@ -105,9 +104,7 @@ class TanSuo(Package):
             scene, coor = check_scene_multiple_once(scene_list, self.resource_path)
             if scene is None:
                 continue
-            if "/" in scene:
-                scene = scene.split("/")[-1]
-            logger.scene(scene)
+            scene = self.scene_handle(scene)
 
             match scene:
                 case "chuzhanxiaohao" | "tansuo_28" | "tansuo_28_0" | "tansuo_28_title":
@@ -165,9 +162,6 @@ class TanSuo(Package):
                     # 妖气封印
                     return
 
-    @run_in_thread
-    @time_count
-    @log_function_call
     def run(self):
         _scene_list = [
             "tansuo_28_0",
@@ -176,7 +170,6 @@ class TanSuo(Package):
             "tansuo",
             "chuzhanxiaohao",
         ]
-        logger.ui("单人探索，测试功能", "warn")
 
         while self.n < self.max and self.title():
             if event_thread.is_set():
@@ -191,16 +184,16 @@ class TanSuo(Package):
                 case "tansuo_28_0":  # 右侧列表按钮
                     # function.judge_click(f"{self.resource_path}/tansuo")
                     click(coor)
-                    random_sleep(1, 2)
+                    random_sleep()
                     # self.n += 1
                 case "tansuo_28_title":
-                    check_click(f"{self.resource_path}/tansuo")
+                    self.check_click("tansuo")
                     # self.n += 1
-                    random_sleep(2, 3)
+                    random_sleep(2)
                 case "chuzhanxiaohao":
                     random_sleep(0.5, 1)
                     # 先判断boss面灵气
-                    coor = get_coor_info(f"{self.resource_path}/fighting_boss")
+                    coor = self.get_coor_info("fighting_boss")
                     if coor.is_effective:
                         logger.scene("BOSS")
                         click(coor)
@@ -212,9 +205,8 @@ class TanSuo(Package):
                             self.fighting()
                         else:
                             drag_in_window(-400, 0)
-                    random_sleep(1, 2)
+                    random_sleep()
                     if self.flag_boss_done:
                         self.flag_boss_done = False
                         self.finish()
                         self.done()
-        logger.ui(f"已完成 {self.scene_name} {self.n}次")

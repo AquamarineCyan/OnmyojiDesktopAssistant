@@ -177,6 +177,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     间隔高30
     """
     scene_name = "个人突破"
+    description = "默认3胜刷新，上限30"
     tupo_geren_x = {
         1: 215,
         2: 515,
