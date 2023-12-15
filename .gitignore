@@ -2,7 +2,6 @@
 *.pyc
 *.xml
 .gitattributes
-build.bat
 config.yaml
 Onmyoji_Python.exe
 
@@ -10,7 +9,6 @@ Onmyoji_Python.exe
 .vscode
 build
 dist
-doc
 lib
 log
 screenshot
