@@ -82,6 +82,7 @@ class YeYuanHuo(Package):
                 case "finish":
                     finish_random_left_right()
                     self.done()
+                    random_sleep(2)
                 case _:
                     if _flag_title_msg:
                         logger.ui("请检查游戏场景", "warn")
