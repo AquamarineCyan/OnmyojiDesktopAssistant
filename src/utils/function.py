@@ -23,8 +23,6 @@ from .window import window
 
 RESOURCE_FIGHT_PATH = RESOURCE_FIGHT_PATH
 """通用战斗资源路径"""
-RESTART_BAT_PATH: str = "restart.bat"
-"""重启脚本路径"""
 
 
 @log_function_call
