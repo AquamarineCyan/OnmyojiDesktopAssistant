@@ -448,8 +448,8 @@ class MainWindow(QMainWindow):
             case 13:  # 契灵
                 logger.ui(QiLing.description)
                 self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
-                self.ui.button_qiling_tancha.setChecked(True)
-            case 14: #觉醒副本
+                self.ui.button_qiling_jieqi.setChecked(True)
+            case 14:  # 觉醒副本
                 logger.ui(JueXing.description)
 
     def start_stop(self) -> None:
@@ -541,7 +541,7 @@ class MainWindow(QMainWindow):
                         _flag_tancha=_flag_tancha,
                         _flag_jieqi=_flag_jieqi
                     ).task_start()
-                case 14:#觉醒副本
+                case 14:  # 觉醒副本
                     JueXing(n=_n).task_start()
 
         def stop() -> None:
