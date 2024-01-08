@@ -450,6 +450,8 @@ class MainWindow(QMainWindow):
                 logger.ui(QiLing.description)
                 self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
                 self.ui.button_qiling_jieqi.setChecked(True)
+                self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
+                self.ui.spin_qiling_jieqi_stone.setValue(1)
             case 14:  # 觉醒副本
                 logger.ui(JueXing.description)
 
@@ -537,10 +539,14 @@ class MainWindow(QMainWindow):
                 case 13:  # 契灵
                     _flag_tancha = self.ui.button_qiling_tancha.isChecked()
                     _flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
+                    _stone_pokemon = self.ui.combo_qiling_jieqi_stone.currentText()
+                    _stone_numbers = self.ui.spin_qiling_jieqi_stone.value()
                     QiLing(
                         n=_n,
                         _flag_tancha=_flag_tancha,
-                        _flag_jieqi=_flag_jieqi
+                        _flag_jieqi=_flag_jieqi,
+                        _stone_pokemon=_stone_pokemon,
+                        _stone_numbers=_stone_numbers,
                     ).task_start()
                 case 14:  # 觉醒副本
                     JueXing(n=_n).task_start()

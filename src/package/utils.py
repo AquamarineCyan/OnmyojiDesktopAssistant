@@ -1,9 +1,10 @@
+from pathlib import Path
 import time
 
+from ..utils.application import RESOURCE_FIGHT_PATH
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
@@ -51,6 +52,8 @@ class Package:
     """功能描述"""
     fast_time: int = 0
     """最快通关速度，用于中途等待"""
+    fight_resource_path: Path = RESOURCE_FIGHT_PATH
+    """战斗资源路径"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -81,7 +84,7 @@ class Package:
     def scene_handle(self, scene: str = None) -> str:
         if scene == None:
             scene = self.current_scene
-        logger.info(f"current scene: {scene}")
+        logger.info(f"current scene: {scene}.png")
         if "/" in scene:
             scene = scene.split("/")[-1]
         self.current_scene = scene
@@ -119,7 +122,7 @@ class Package:
         while True:
             if event_thread.is_set():
                 return
-            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+            coor = get_coor_info(f"{self.fight_resource_path}/finish")
             # 未重复检测到，表示成功点击
             if coor.is_zero:
                 self.done()

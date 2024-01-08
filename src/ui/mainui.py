@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.0
+## Created by: Qt User Interface Compiler version 6.6.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -103,6 +103,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.button_start.sizePolicy().hasHeightForWidth())
         self.button_start.setSizePolicy(sizePolicy)
+        self.button_start.setMinimumSize(QSize(0, 30))
         font2 = QFont()
         font2.setFamilies([u"\u5b8b\u4f53"])
         font2.setPointSize(11)
@@ -216,10 +217,25 @@ class Ui_MainWindow(object):
         self._4_qiling.setObjectName(u"_4_qiling")
         self.button_qiling_tancha = QCheckBox(self._4_qiling)
         self.button_qiling_tancha.setObjectName(u"button_qiling_tancha")
-        self.button_qiling_tancha.setGeometry(QRect(30, 40, 51, 20))
+        self.button_qiling_tancha.setGeometry(QRect(10, 20, 51, 20))
         self.button_qiling_jieqi = QCheckBox(self._4_qiling)
         self.button_qiling_jieqi.setObjectName(u"button_qiling_jieqi")
-        self.button_qiling_jieqi.setGeometry(QRect(30, 80, 51, 20))
+        self.button_qiling_jieqi.setGeometry(QRect(10, 50, 51, 20))
+        self.label_qiling_jieqi_stone = QLabel(self._4_qiling)
+        self.label_qiling_jieqi_stone.setObjectName(u"label_qiling_jieqi_stone")
+        self.label_qiling_jieqi_stone.setGeometry(QRect(10, 90, 41, 20))
+        self.label_qiling_jieqi_stone.setAlignment(Qt.AlignCenter)
+        self.combo_qiling_jieqi_stone = QComboBox(self._4_qiling)
+        self.combo_qiling_jieqi_stone.setObjectName(u"combo_qiling_jieqi_stone")
+        self.combo_qiling_jieqi_stone.setGeometry(QRect(55, 90, 70, 20))
+        self.spin_qiling_jieqi_stone = QSpinBox(self._4_qiling)
+        self.spin_qiling_jieqi_stone.setObjectName(u"spin_qiling_jieqi_stone")
+        self.spin_qiling_jieqi_stone.setGeometry(QRect(130, 90, 51, 20))
+        font3 = QFont()
+        font3.setFamilies([u"\u5b8b\u4f53"])
+        font3.setPointSize(10)
+        self.spin_qiling_jieqi_stone.setFont(font3)
+        self.spin_qiling_jieqi_stone.setMaximum(30)
         self.stackedWidget.addWidget(self._4_qiling)
 
         self.gridLayout_4.addWidget(self.stackedWidget, 0, 0, 1, 1)
@@ -242,7 +258,6 @@ class Ui_MainWindow(object):
 
         self.combo_choice = QComboBox(self.groupBox_basic)
         self.combo_choice.setObjectName(u"combo_choice")
-        self.combo_choice.setFont(font1)
 
         self.horizontalLayout_groupBox_basic_1.addWidget(self.combo_choice)
 
@@ -262,9 +277,6 @@ class Ui_MainWindow(object):
         self.spin_times = QSpinBox(self.groupBox_basic)
         self.spin_times.setObjectName(u"spin_times")
         self.spin_times.setMinimumSize(QSize(60, 0))
-        font3 = QFont()
-        font3.setFamilies([u"\u5b8b\u4f53"])
-        font3.setPointSize(10)
         self.spin_times.setFont(font3)
         self.spin_times.setMaximum(999)
 
@@ -572,6 +584,7 @@ class Ui_MainWindow(object):
         self.button_guanzhan.setText(QCoreApplication.translate("MainWindow", u"\u89c2\u6218", None))
         self.button_qiling_tancha.setText(QCoreApplication.translate("MainWindow", u"\u63a2\u67e5", None))
         self.button_qiling_jieqi.setText(QCoreApplication.translate("MainWindow", u"\u7ed3\u5951", None))
+        self.label_qiling_jieqi_stone.setText(QCoreApplication.translate("MainWindow", u"\u9e23\u5951\u77f3", None))
         self.groupBox_basic.setTitle(QCoreApplication.translate("MainWindow", u"\u57fa\u672c\u529f\u80fd", None))
         self.label_function.setText(QCoreApplication.translate("MainWindow", u"\u529f\u80fd", None))
         self.combo_choice.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u8bf7\u9009\u62e9\u529f\u80fd", None))

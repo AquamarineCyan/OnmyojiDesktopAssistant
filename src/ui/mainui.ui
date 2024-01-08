@@ -188,6 +188,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>宋体</family>
@@ -544,8 +550,8 @@
               <widget class="QCheckBox" name="button_qiling_tancha">
                <property name="geometry">
                 <rect>
-                 <x>30</x>
-                 <y>40</y>
+                 <x>10</x>
+                 <y>20</y>
                  <width>51</width>
                  <height>20</height>
                 </rect>
@@ -557,14 +563,59 @@
               <widget class="QCheckBox" name="button_qiling_jieqi">
                <property name="geometry">
                 <rect>
-                 <x>30</x>
-                 <y>80</y>
+                 <x>10</x>
+                 <y>50</y>
                  <width>51</width>
                  <height>20</height>
                 </rect>
                </property>
                <property name="text">
                 <string>结契</string>
+               </property>
+              </widget>
+              <widget class="QLabel" name="label_qiling_jieqi_stone">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>90</y>
+                 <width>41</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>鸣契石</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+              <widget class="QComboBox" name="combo_qiling_jieqi_stone">
+               <property name="geometry">
+                <rect>
+                 <x>55</x>
+                 <y>90</y>
+                 <width>70</width>
+                 <height>20</height>
+                </rect>
+               </property>
+              </widget>
+              <widget class="QSpinBox" name="spin_qiling_jieqi_stone">
+               <property name="geometry">
+                <rect>
+                 <x>130</x>
+                 <y>90</y>
+                 <width>51</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="maximum">
+                <number>30</number>
                </property>
               </widget>
              </widget>
@@ -599,12 +650,6 @@
              </item>
              <item>
               <widget class="QComboBox" name="combo_choice">
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
-               </property>
                <property name="placeholderText">
                 <string>请选择功能</string>
                </property>
@@ -1140,7 +1185,7 @@
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_mode"/>
-  <buttongroup name="buttonGroup_passengers"/>
   <buttongroup name="buttonGroup_driver"/>
+  <buttongroup name="buttonGroup_passengers"/>
  </buttongroups>
 </ui>
