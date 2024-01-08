@@ -1,58 +1,63 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# update.py
-"""更新记录"""
+import json
 
+import httpx
+
+from .application import Connect, USER_DATA_DIR_PATH, VERSION
 from .mysignal import global_ms as ms
+
+__all__ = ["update_record", "get_update_info"]
+
+UPDATE_INFO_FILE = USER_DATA_DIR_PATH / "update_info.json"
+
+
+def json_read(file_path: str):
+    with open(file_path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def json_write(file_path: str, data: dict):
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def save_update_info(_file):
+    response = httpx.get(Connect.releases_api, headers=Connect.headers)
+    if response.status_code != 200:
+        return
+    _api_data = json.loads(response.text)
+
+    _list = []
+    for i in range(5):
+        _version = _api_data[i]["tag_name"][1:]
+        _body = _api_data[i]["body"]
+        _dict = {}
+        _dict.setdefault("version", _version)
+        _dict.setdefault("body", _body)
+        _list.append(_dict)
+
+    json_write(_file, _list)
+
+
+def get_update_info():
+    """获取更新记录"""
+    if not USER_DATA_DIR_PATH.exists():
+        USER_DATA_DIR_PATH.mkdir(parents=True)
+
+    _update_info_file = UPDATE_INFO_FILE
+    if _update_info_file.exists():
+        _update_info = json_read(_update_info_file)
+        _version = ".".join(VERSION.split(".")[:3])  # 基础版本号
+        if _update_info[0]["version"] == _version:
+            return
+
+    save_update_info(_update_info_file)
 
 
 def update_record():
     """更新记录"""
-    update = {
-        "1.7.11":
-        """新增 觉醒副本
-优化 移除更新升级过程中的`任意键`
-优化 减少图像轮询产生的日志
-优化 裁切悬赏封印的部分素材，提高识别率
-修复 重启脚本残留的问题""",
-        "1.7.10":
-        """新增 正态分布判断，点击位置更居中
-新增 设置项`记忆上次所选功能`
-新增 设置项`界面风格`
-优化 为限时活动添加异常处理
-优化 调整UI
-优化 加快GUI启动速度
-优化 适配活动「花境试炼」，寮友提供体服素材
-优化 更新升级的重启体验
-修复 重启按钮失败的问题
-修复 用户配置失效的问题
-修复 御魂副本结束识别过快的问题
-修复 镜像站失效的问题""",
-        "1.7.9":
-        """新增 添加新版本提示弹窗
-优化 缩短阴阳寮突破的结界间距坐标
-优化 优化配置模块
-优化 下载路线添加`gitee`，更稳定的访问
-优化 优化打包细节
-优化 为`random_sleep`添加默认参数
-优化 移除`百面归一`功能
-优化 适配活动「演武练习」
-修复 修复配置项下载线路`ghproxy`未生效的问题""",
-        "1.7.8":
-        """新增 鼠标滚轮操作
-新增 阴阳寮突破翻页功能
-优化 移除多余资源
-优化 为悬赏封印的点击事件添加超时时间
-优化 使用固定点位依次点击5个契灵小图标
-优化 调整21时后寮突破的默认次数为100次
-优化 判断当前寮突是否有效
-优化 适配活动「微光之守」""",
-        "1.7.7":
-        """优化 优化日志记录速度
-优化 道馆突破适配怀旧&简约主题
-优化 适配活动「真火切磋」""",
-    }
-
-    for key, value in update.items():
-        s: str = f"{str(key)}\n{str(value)}\n"
-        ms.update_record.text_update.emit(s)
+    _update_info = json_read(UPDATE_INFO_FILE)
+    for item in range(len(_update_info)):
+        _version = _update_info[item].get("version")
+        _body = _update_info[item].get("body")
+        msg = f"{_version}\n{_body}\n"
+        ms.update_record.text_update.emit(msg)

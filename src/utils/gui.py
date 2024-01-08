@@ -23,7 +23,7 @@ from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .restart import Restart
-from .update import update_record
+from .update import get_update_info, update_record
 from .upgrade import upgrade
 from .window import window
 
@@ -175,6 +175,7 @@ class MainWindow(QMainWindow):
             self.ui.combo_choice.setCurrentIndex(config.config_user.remember_last_choice - 1)
         log_clean_up()
         upgrade.check_latest()
+        get_update_info()
         # 悬赏封印
         if config.config_user.xuanshangfengyin == "关闭":
             event_xuanshang_enable.clear()

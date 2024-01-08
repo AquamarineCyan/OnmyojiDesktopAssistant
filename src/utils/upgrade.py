@@ -11,7 +11,7 @@ from pathlib import Path
 
 import httpx
 
-from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION
+from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION, Connect
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .log import logger
@@ -20,16 +20,8 @@ from .restart import Restart
 from .toast import toast
 
 
-class Upgrade:
+class Upgrade(Connect):
     """更新升级"""
-
-    owner = "AquamarineCyan"
-    repo = "Onmyoji_Python"
-    github_api = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    gitee_api = f"https://gitee.com/api/v5/repos/{owner}/{repo}/releases/latest"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
-    }
 
     def __init__(self) -> None:
         self.new_version: str = None

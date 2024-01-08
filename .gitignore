@@ -8,9 +8,11 @@ Onmyoji_Python.exe
 # dir
 .vscode
 build
+data
 dist
 lib
 log
 screenshot
 src/resource/test
 test_code
+ocr
