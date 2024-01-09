@@ -115,7 +115,10 @@ def image_file_format(file: Path | str) -> str:
         logger.warn(f"no such file {_file}")
 
 
-def get_coor_info(file: Path | str, region: tuple[int, int, int, int] = (0, 0, 0, 0)) -> AbsoluteCoor:
+def get_coor_info(
+    file: Path | str,
+    region: tuple[int, int, int, int] = (0, 0, 0, 0)
+) -> AbsoluteCoor:
     """图像识别，返回图像的全屏随机坐标
 
     参数:
@@ -254,7 +257,11 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
     return None, Coor(0, 0)
 
 
-def check_scene_multiple_while(scene: dict | list = None, resource_path: str = None, text: str = None) -> tuple[str, Coor]:
+def check_scene_multiple_while(
+    scene: dict | list = None,
+    resource_path: str = None,
+    text: str = None
+) -> tuple[str, Coor]:
     """多场景判断，循环遍历，直至符合任意一个场景
 
     参数:
@@ -394,9 +401,9 @@ def check_finish_once() -> bool | None:
 
 
 def finish_random_left_right(
-        is_click: bool = True,
-        is_multiple_drops_x: bool = False,
-        is_multiple_drops_y: bool = False
+    is_click: bool = True,
+    is_multiple_drops_x: bool = False,
+    is_multiple_drops_y: bool = False
 ) -> Coor:
     """图像识别，返回图像的局部相对坐标
 
@@ -469,20 +476,21 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     else:
         _x, _y = coor.coor
 
-    pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
-    logger.info(f"click at ({_x},{_y})")
     try:
+        pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
+        logger.info(f"click at ({_x},{_y})")
         pyautogui.click()
     except pyautogui.FailSafeException:
+        logger.info(f"error at ({_x},{_y})", "error")
         logger.ui("安全错误，可能是您点击了屏幕左上角，请重启后使用", "error")
 
 
 def check_click(
     file: str = None,
-        is_click: bool = True,
-        dura: float = 0.5,
-        sleep_time: float = 0,
-        timeout: int = None
+    is_click: bool = True,
+    dura: float = 0.5,
+    sleep_time: float = 0,
+    timeout: int = None
 ) -> None:
     """图像识别，并点击
 
@@ -512,7 +520,11 @@ def check_click(
 
 
 @log_function_call
-def drag_in_window(x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+def drag_in_window(
+    x_offset: int = None,
+    y_offset: int = None,
+    duration: float = 0.5
+):
     """在当前窗口内移动
 
     参数:

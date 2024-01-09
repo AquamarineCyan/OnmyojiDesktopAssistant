@@ -77,14 +77,14 @@ class RelativeCoor(Coor):
 class RectangleCoor:
     """矩形坐标"""
 
-    def __init__(self,x1,x2,y1,y2) -> None:
+    def __init__(self, x1, x2, y1, y2) -> None:
         self.x1 = x1
         self.x2 = x2
-        self.y1=y1
-        self.y2=y2
+        self.y1 = y1
+        self.y2 = y2
 
     def get_rela_center_coor(self):
         """返回矩形的相对中心坐标"""
-        x = (self.x1+self.x2)/2
-        y = (self.y1+self.y2)/2
-        return RelativeCoor(x,y)
+        x = (self.x1 + self.x2)/2
+        y = (self.y1 + self.y2)/2
+        return RelativeCoor(x, y)
