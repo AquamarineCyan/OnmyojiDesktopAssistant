@@ -29,7 +29,7 @@ class HuoDong(Package):
         "title",
         "start",
     ]
-    description = "未适配活动「超鬼王」\
+    description = "适配活动「藏金阁楼」\
                     可自行替换 resource/huodong 下的素材"
 
     @log_function_call
@@ -86,7 +86,7 @@ class HuoDong(Package):
 
             match scene:
                 case "title":
-                    logger.scene("演武练习")
+                    logger.scene("藏金阁楼")
                     _flag_title_msg = False
                     self.start()
                     random_sleep()
