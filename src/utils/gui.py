@@ -174,6 +174,7 @@ class MainWindow(QMainWindow):
         if config.config_user.remember_last_choice > 0:
             self.ui.combo_choice.setCurrentIndex(config.config_user.remember_last_choice - 1)
         log_clean_up()
+        Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
         # 悬赏封印

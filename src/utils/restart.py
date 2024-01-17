@@ -1,4 +1,4 @@
-from .application import APP_EXE_NAME
+from .application import APP_EXE_NAME, APP_PATH
 from .log import logger
 from .mysignal import global_ms as ms
 
@@ -114,3 +114,21 @@ start {self.app_exe_name}
 del %0
 """
         self.save(bat_text)
+
+    def move_screenshot(self):
+        bat_text = f"""@echo off
+@echo 当前为迁移脚本，等待自动完成
+xcopy /e /y /i "screenshot" "data\\screenshot"
+rmdir /s /q "screenshot"
+@echo 用户数据迁移完成
+pause
+del %0
+"""
+        if not (APP_PATH / "screenshot").exists():
+            return
+        _remove_bat_path = "remove.bat"
+        with open(_remove_bat_path, "w", encoding="ANSI") as f:
+            f.write(bat_text)
+        from subprocess import Popen
+        Popen([_remove_bat_path])
+        logger.info("迁移截图文件夹完成")

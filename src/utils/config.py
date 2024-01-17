@@ -3,12 +3,10 @@
 # config.py
 """配置"""
 
-from re import compile
-
 import yaml
 from pydantic import BaseModel
 
-from .application import APP_PATH, CONFIG_PATH
+from .application import APP_PATH, USER_DATA_DIR_PATH
 from .log import logger
 
 _update_list = ["自动更新", "关闭"]
@@ -52,13 +50,20 @@ class UserConfig(BaseModel):
 class Config():
     """配置"""
 
+    config_path = USER_DATA_DIR_PATH / "config.yaml"
+
     def __init__(self):
         self.config_user: UserConfig = UserConfig()
         self.config_default: DefaultConfig = DefaultConfig()
 
     def config_yaml_init(self) -> None:
         """初始化"""
-        if CONFIG_PATH.is_file():
+        # 移动旧版文件
+        if (APP_PATH / "config.yaml").is_file():
+            logger.info("Find old config file. Move it.")
+            (APP_PATH / "config.yaml").rename(self.config_path)
+
+        if self.config_path.is_file():
             logger.info("Find config file.")
             data = self._read_config_yaml()
             self.config_user = UserConfig(**data)
@@ -69,7 +74,7 @@ class Config():
 
     def _read_config_yaml(self) -> dict:
         """读取配置文件"""
-        with open(CONFIG_PATH, encoding="utf-8") as f:
+        with open(self.config_path, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     def _save_config_yaml(self, data) -> bool:
@@ -77,7 +82,7 @@ class Config():
         if isinstance(data, UserConfig):
             data = data.model_dump()
         if isinstance(data, dict):
-            with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+            with open(self.config_path, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
             logger.ui("file config.yaml save failed.", "error")
@@ -150,6 +155,7 @@ def is_Chinese_Path() -> bool:
 
     `opencv` 需要英文路径
     """
+    from re import compile
     zhPattern = compile(u'[\u4e00-\u9fa5]+')
     match = zhPattern.search(str(APP_PATH))
     if not match:
