@@ -2,7 +2,6 @@
 *.pyc
 *.xml
 .gitattributes
-config.yaml
 Onmyoji_Python.exe
 
 # dir
@@ -12,7 +11,6 @@ data
 dist
 lib
 log
-screenshot
 src/resource/test
 test_code
 ocr

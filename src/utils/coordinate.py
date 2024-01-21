@@ -8,14 +8,14 @@ from .window import window
 
 
 class Coor:
-    """坐标"""
+    """
+    一般坐标
+
+    也可使用 `AbsoluteCoor()` `RelativeCoor()` 做精确区分
+    """
 
     def __init__(self, x: int | float = 0, y: int | float = 0) -> None:
-        """一般坐标
-
-        也可使用 `AbsoluteCoor()` `RelativeCoor()` 做精确区分
-
-        参数:
+        """参数:
             x (int | float): 横轴坐标
             y (int | float): 纵轴坐标
         """

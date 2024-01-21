@@ -18,11 +18,12 @@ from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
-from .event import event_thread, event_xuanshang_enable
+from .event import event_thread, event_ocr_init, event_xuanshang_enable
 from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .restart import Restart
+from .paddleocr import ocr
 from .update import get_update_info, update_record
 from .upgrade import upgrade
 from .window import window
@@ -182,6 +183,8 @@ class MainWindow(QMainWindow):
             event_xuanshang_enable.clear()
         else:
             task_xuanshangfengyin.task_start()
+        # 文字识别
+        ocr.init()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
