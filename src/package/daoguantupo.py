@@ -21,7 +21,7 @@ class DaoGuanTuPo(Package):
     """道馆突破"""
     scene_name = "道馆突破"
     resource_path = "daoguantupo"
-    resource_list= [
+    resource_list = [
         "button_zhuwei",  # TODO 助威开关
         "chuzhan",  # 出战
         "daojishi",  # 倒计时
@@ -190,7 +190,7 @@ class DaoGuanTuPo(Package):
             scene = self.scene_handle(scene)
 
             match scene:
-                case "ready_old" | "read_new":
+                case "ready_old" | "ready_new":
                     logger.ui("准备")
                     click(coor)
                     self.n += 1
