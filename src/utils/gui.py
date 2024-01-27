@@ -26,7 +26,7 @@ from .restart import Restart
 from .paddleocr import ocr
 from .update import get_update_info, update_record
 from .upgrade import upgrade
-from .window import window
+from .window import window, check_game_handle
 
 
 def get_global_icon():
@@ -111,7 +111,7 @@ class MainWindow(QMainWindow):
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
         # 事件连接
-        # 环境检测按钮
+        # 游戏检测按钮
         self.ui.button_game_handle.clicked.connect(self.check_game_handle)
         # 开始按钮
         self.ui.button_start.clicked.connect(self.start_stop)
@@ -178,6 +178,7 @@ class MainWindow(QMainWindow):
         Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
+        window.pthread_get_game_window_handle()
         # 悬赏封印
         if config.config_user.xuanshangfengyin == "关闭":
             event_xuanshang_enable.clear()
@@ -258,7 +259,6 @@ class MainWindow(QMainWindow):
         返回:
             bool: 是否完成
         """
-        logger.info("环境检测中...")
         # 中文路径
         if is_Chinese_Path():
             ms.main.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
@@ -337,34 +337,8 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
         config.config_user_changed("remember_last_choice", _status)
 
-    @log_function_call
-    def check_game_handle(self) -> bool:
-        """游戏窗口检测
-
-        Returns:
-            bool: 检测结果
-        """
-        logger.info("游戏窗口检测中...")
-        # 获取游戏窗口信息
-        window.get_game_window_handle()
-        handle_coor = window.handle_coor
-        if handle_coor == (0, 0, 0, 0):
-            logger.error("Game is close!")
-            ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
-        elif handle_coor[0] < -9 or handle_coor[1] < 0 or handle_coor[2] < 0 or handle_coor[3] < 0:
-            logger.error(f"Game is background, handle_coor:{handle_coor}")
-            ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
-        # TODO 解除窗口大小限制，待优化
-        elif handle_coor[2] - handle_coor[0] != window.absolute_window_width and \
-                handle_coor[3] - handle_coor[1] != window.absolute_window_height:
-            ms.main.qmessagbox_update.emit("question", "强制缩放")
-        else:
-            logger.ui("游戏窗口检测成功")
-            self.ui.combo_choice.setEnabled(True)
-            self.ui.spin_times.setEnabled(True)
-            return True
-        logger.ui("游戏窗口检测失败")
-        return False
+    def check_game_handle(self):
+        check_game_handle()
 
     def choice_description(self):
         """功能描述"""

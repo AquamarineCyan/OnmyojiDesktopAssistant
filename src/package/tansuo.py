@@ -74,8 +74,8 @@ class TanSuo(Package):
                 region=(
                     window.window_left,
                     window.window_top,
-                    window.absolute_window_width,
-                    window.absolute_window_height
+                    window.window_standard_width,
+                    window.window_standard_height
                 ),
                 confidence=0.8
             ):

@@ -145,8 +145,8 @@ def get_coor_info(
     _region = (  # TODO need test
         region[0] + window.window_left,
         region[1] + window.window_top,
-        region[2] + window.absolute_window_width,
-        region[3] + window.absolute_window_height
+        region[2] + window.window_standard_width,
+        region[3] + window.window_standard_height
     )
 
     try:
@@ -190,8 +190,8 @@ def get_coor_info_center(file: Path | str, is_log: bool = True) -> Coor:
             region=(
                 window.window_left,
                 window.window_top,
-                window.absolute_window_width,
-                window.absolute_window_height
+                window.window_standard_width,
+                window.window_standard_height
             ),
             confidence=0.8
         )

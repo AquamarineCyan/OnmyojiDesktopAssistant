@@ -3,7 +3,13 @@ from PySide6.QtCore import QObject, Signal
 
 
 class MySignals(QObject):
-    """自定义信号类"""
+    """自定义信号类
+
+    用法:
+    ```python
+    from .mysignal import global_ms as ms
+    ```
+    """
 
     def __init__(self) -> None:
         self.main = self.Main()

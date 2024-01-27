@@ -93,9 +93,9 @@ class BaiGuiYeXing(Package):
             random_sleep(0.2, 1)
             x, y = random_coor(
                 60,
-                window.absolute_window_width - 120,
+                window.window_standard_width - 120,
                 300,
-                window.absolute_window_height - 100
+                window.window_standard_height - 100
             ).coor
             click(RelativeCoor(x, y), dura=0.25)
 
