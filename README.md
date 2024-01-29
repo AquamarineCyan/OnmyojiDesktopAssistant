@@ -1,28 +1,14 @@
 # Onmyoji_Python
 
+![Python](https://img.shields.io/badge/python-3.10+-blue)
+
+[![GitHub release (with filter)](https://img.shields.io/github/v/release/AquamarineCyan/Onmyoji_Python)](https://github.com/AquamarineCyan/Onmyoji_Python/releases/latest)
+
 ## 简介
 
 本项目仅支持阴阳师桌面版使用，使用过程中会占用鼠标，桌面版需前置（可使用游戏自带的置顶功能）
 
 ## 主要功能
-
-1. 御魂副本
-2. 组队永生之海副本
-3. 业原火副本
-4. 御灵副本
-5. 个人突破
-6. 寮突破
-7. 道馆突破
-8. 普通召唤
-9. 百鬼夜行
-10. 限时活动
-11. 组队日轮副本
-12. 单人探索
-13. 契灵
-14. 觉醒副本
-
-
-## 功能说明
 
 1. 御魂副本
    - 组队/单人
@@ -52,22 +38,21 @@
 13. 契灵 🚧
 14. 觉醒副本
 
-
-## 环境安装
-
-* 阴阳师桌面版 [提供NGA下载地址](https://nga.178.com/read.php?tid=29661629)
-
-* 本项目 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases)
-
-* 备选下载链接 [releases[gitee]](https://gitee.com/AquamarineCyan/Onmyoji_Python/releases)
-
-## 使用方法
-
-~~**无论哪种都需要管理员权限**~~
+## 下载安装
 
 1. **推荐** 应用程序运行
 
-    - 前往 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 下载解压打包完成的应用程序，点开即用
+    - 前往最新版 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases/latest) 下载解压打包完成的应用程序，解压即用
+
+    - 阴阳师桌面版 [提供NGA下载地址](https://nga.178.com/read.php?tid=29661629)
+
+    - 本项目 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases)
+    
+    - 备选下载链接 [releases[gitee]](https://gitee.com/AquamarineCyan/Onmyoji_Python/releases)
+
+> [!NOTE]
+> 由于 `gitee` 的 `releases` 存在100M大小的限制，该链接提供的是增量包。\
+如果遇到根目录下没有 `ocr` 文件夹，使用程序内自带的 `ghproxy` 更新下载，或者手动下载本项目 [releases](https://github.com/AquamarineCyan/Onmyoji_Python/releases) 即可。
 
 2. <details><summary> 源码编译运行 </summary>
 
@@ -95,7 +80,23 @@
   </details>
 
 
+## 程序目录
+
+```
+   |- data # 用户数据
+      |- myresource # 自定义素材，用法见(#注意事项)
+      |- screenshot # 截图
+      |- config.yaml # 配置文件
+      |- update_info.json # 更新记录
+   |- lib # 运行库
+   |- log # 日志
+   |- ocr # 文字识别库
+   |- resource # 素材文件
+```
+
 ## 主界面
+
+![效果图](image.png)
 
 - 功能模块
     - 1.御魂副本
@@ -125,16 +126,18 @@
       - Windows/Fusion
     - 记忆上次所选功能
 
-
-## 更新记录
-
-[CHANGELOG.MD](https://github.com/AquamarineCyan/Onmyoji_Python/blob/main/CHANGELOG.MD)
-
-
-## Tips
+## 使用方法
 
 **请自行合理使用，所产生的一切后果自负**
 
-移动游戏窗口后，点击 `游戏检测` 即可
+1. 受限于图像识别技术，目前仅支持默认的2种战斗主题，文字识别在测试中。
 
-由于官方更新了~~很多~~较多UI，目前仅适配部分高频功能（例魂土），后续只适配默认的2种
+2. 移动游戏窗口后，会自动更新窗口。多开游戏的话，还是需要手动点击`游戏检测`，会检测位于较上层的游戏。
+
+3.  如果需要自定义识别的素材，可参考 `resource` 下的分类方法，在 `/data/myresource` 给出相同路径的素材即可。
+
+    例如需要使用自定义的 `/resource/huodong/title.png` 文件，则新建 `/data/myresource/huodong/title.png` 即可。程序将优先使用用户给定的自定义素材。
+
+## 更新记录
+
+[CHANGELOG.MD](CHANGELOG.MD)
