@@ -270,7 +270,7 @@ class YuHunSingle(YuHun):
                     self.screenshot()
                     _flag_screenshot = False
                 click()
-                random_sleep(0.6, 1)
+                random_sleep(1.5)
             # 所有图像都未检测到，退出循环
             elif coor.is_zero:
                 logger.ui("结束")
