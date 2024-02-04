@@ -29,8 +29,8 @@ class HuoDong(Package):
         "title",
         "start",
     ]
-    description = "适配活动「藏金阁楼」\
-                    可自行替换 resource/huodong 下的素材"
+    description = "适配活动「冰海异客」\
+                    可自行替换 /data/myresource/huodong 下的素材"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
