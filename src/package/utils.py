@@ -75,6 +75,20 @@ class Package:
     def check_scene_multiple_once(self, *args, **kwargs):
         return check_scene_multiple_once(self.current_resource_list, *args, **kwargs)
 
+    def check_title(self):
+        """检查主场景"""
+        _flag_title_msg = True
+        while True:
+            if event_thread.is_set():
+                return
+            coor = self.get_coor_info("title")
+            if coor.is_effective:
+                logger.scene(self.scene_name)
+                return
+            elif _flag_title_msg:
+                _flag_title_msg = False
+                logger.ui("请检查游戏场景", "warn")
+
     def scene_print(self, scene: str = None) -> None:  # FIXME remove
         """打印当前场景"""
         if "/" in scene:
