@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# function.py
-"""通用函数库"""
-
 import random
 import time
 from datetime import datetime, timezone
@@ -13,7 +8,8 @@ import pyautogui
 from .application import (
     RESOURCE_DIR_PATH,
     RESOURCE_FIGHT_PATH,
-    SCREENSHOT_DIR_PATH
+    SCREENSHOT_DIR_PATH,
+    USER_DATA_DIR_PATH
 )
 from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
@@ -25,18 +21,17 @@ RESOURCE_FIGHT_PATH = RESOURCE_FIGHT_PATH
 """通用战斗资源路径"""
 
 
-@log_function_call
 def random_normal(min: int | float, max: int | float) -> int:
     """正态分布"""
     mu = (min + max) / 2
-    sigma = (max-mu)/3
+    sigma = (max - mu) / 3
     while True:
         numb = random.gauss(mu, sigma)
         if (numb > min and numb < max):
-            logger.info(f"index: {numb}")
+            logger.info(f"normal index: {numb}")
             break
         else:
-            logger.info(f"out of index: {numb}")
+            logger.info(f"normal out of index: {numb}")
     return int(numb)
 
 
@@ -101,6 +96,7 @@ def image_file_format(file: Path | str) -> str:
     返回:
         str: filename
     """
+    # file一般会带上所属的子素材文件夹名称
     if isinstance(file, str):
         _file = f"{file}.png" if file[-4:] not in [".png", ".jpg"] else file
     elif isinstance(file, Path):
@@ -109,10 +105,16 @@ def image_file_format(file: Path | str) -> str:
         else:
             _file = file.__str__()
     # 即使传了RESOURCE_FIGHT_PATH，Pathlib会自动合并相同路径
-    if Path(RESOURCE_DIR_PATH / _file).exists():
-        return _file
+    _full_path = RESOURCE_DIR_PATH / _file
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
+    # 检查用户素材
+    if _full_path_user.exists():
+        logger.info(f"使用用户素材{_full_path_user}")
+        return str(_full_path_user)
+    elif _full_path.exists():
+        return str(_full_path)
     else:
-        logger.warn(f"no such file {_file}")
+        logger.ui(f"no such file {_file}", "warn")
 
 
 def get_coor_info(
