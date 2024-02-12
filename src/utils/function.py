@@ -206,25 +206,29 @@ def get_coor_info_center(file: Path | str, is_log: bool = True) -> Coor:
         return Coor(0, 0)
 
 
-def check_scene(file: str, scene_name: str = None) -> bool:  # FIXME remove
-    """场景判断
+def check_scene(file: str, timeout: float = 0) -> bool:
+    """场景判断，找到场景返回True，超时返回False，否则将一直判断
 
     参数:
         file (str): 图像文件
-        scene_name (str): 场景描述
+        timeout (float): 超时时间
 
     返回:
-        bool: 是否为指定场景
+        bool: 结果
     """
+    if timeout:
+        start_time = time.time()
     while True:
         if event_thread.is_set():
-            return
-        coor = get_coor_info(file)
-        if coor.is_zero:
             return False
-        if scene_name:
-            logger.scene(scene_name)
-        return True
+        if timeout:
+            current_time = time.time()
+            if current_time - start_time > timeout:
+                return False
+
+        coor = get_coor_info(file)
+        if coor.is_effective:
+            return True
 
 
 def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[str | None, Coor]:

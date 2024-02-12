@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# rilun.py
-"""组队日轮副本"""
-
-
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -21,6 +15,7 @@ from ..utils.function import (
 from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
+
 
 class RiLun(Package):
     """日轮副本"""
@@ -41,19 +36,19 @@ class RiLun(Package):
 
     def check_title(self) -> bool:
         """场景"""
-        _flag_title_msg = True  # 场景提示
+        _flag_title_msg = True
         while True:
             if event_thread.is_set():
                 return
-            if check_scene(f"{self.resource_yuhun_path}/xiezhanduiwu", "组队御魂准备中"):
+            if check_scene(f"{self.resource_yuhun_path}/xiezhanduiwu", timeout=0.5):
                 self.flag_driver_start = True
-                return 
-            elif check_scene(f"{self.resource_yuhun_path}/fighting", "组队御魂进行中"):
+                return
+            elif check_scene(f"{self.resource_yuhun_path}/fighting", timeout=0.5):
                 self.flag_fighting = True
-                return 
+                return
             elif _flag_title_msg:
                 _flag_title_msg = False
-                logger.ui("请检查游戏场景", "warn")
+                self.title_error_msg()
 
     def finish(self) -> None:
         """结束"""

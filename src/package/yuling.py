@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# yuling.py
-"""御灵副本"""
-
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    check_scene,
     finish,
     finish_random_left_right,
     random_sleep
@@ -33,24 +27,12 @@ class YuLing(Package):
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
-    def title(self) -> bool:
-        """场景"""
-        flag_title = True  # 场景提示
-        while True:
-            if event_thread.is_set():
-                return
-            if check_scene(f"{self.resource_path}/title", self.scene_name):
-                return True
-            elif flag_title:
-                flag_title = False
-                logger.ui("请检查游戏场景", "warn")
-
     def start(self) -> None:
         """开始"""
         self.check_click("start")
 
     def run(self) -> None:
-        self.title()
+        self.check_title()
         logger.num(f"0/{self.max}")
         while self.n < self.max:
             if event_thread.is_set():
