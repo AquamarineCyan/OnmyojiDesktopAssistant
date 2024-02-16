@@ -78,6 +78,7 @@ class Package:
     def title_error_msg(self):
         logger.ui("请检查游戏场景", "warn")
 
+    @log_function_call
     def check_title(self):
         """检查主场景"""
         _flag_title_msg = True

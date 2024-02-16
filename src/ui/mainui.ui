@@ -83,9 +83,6 @@
     </property>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
       <widget class="QWidget" name="tab_home">
        <attribute name="title">
         <string>首页</string>
@@ -108,24 +105,32 @@
           <property name="title">
            <string>信息</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_groupBox_info" columnstretch="0,1,1,1,2,0">
-           <item row="0" column="2">
-            <widget class="QLabel" name="label_completion_times">
-             <property name="font">
-              <font>
-               <family>宋体</family>
-              </font>
+          <layout class="QGridLayout" name="gridLayout_groupBox_info" columnstretch="0,0,0,0,0,0">
+           <item row="0" column="4">
+            <spacer name="horizontalSpacer_groupBox_info_right">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-             <property name="layoutDirection">
-              <enum>Qt::LeftToRight</enum>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
              </property>
-             <property name="text">
-              <string>完成次数</string>
+            </spacer>
+           </item>
+           <item row="0" column="1">
+            <spacer name="horizontalSpacer_groupBox_info_left">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>10</width>
+               <height>20</height>
+              </size>
              </property>
-            </widget>
+            </spacer>
            </item>
            <item row="0" column="3">
             <widget class="QLineEdit" name="text_completion_times">
@@ -149,31 +154,23 @@
            <item row="1" column="0" colspan="6">
             <widget class="QTextBrowser" name="text_info"/>
            </item>
-           <item row="0" column="1">
-            <spacer name="horizontalSpacer_groupBox_info_left">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+           <item row="0" column="2">
+            <widget class="QLabel" name="label_completion_times">
+             <property name="font">
+              <font>
+               <family>宋体</family>
+              </font>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>20</height>
-              </size>
+             <property name="layoutDirection">
+              <enum>Qt::LeftToRight</enum>
              </property>
-            </spacer>
-           </item>
-           <item row="0" column="4">
-            <spacer name="horizontalSpacer_groupBox_info_right">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+             <property name="text">
+              <string>完成次数</string>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
              </property>
-            </spacer>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -226,7 +223,7 @@
           <property name="title">
            <string>高级设置</string>
           </property>
-          <layout class="QGridLayout" name="gridLayout_4">
+          <layout class="QGridLayout" name="gridLayout_advanced">
            <item row="0" column="0">
             <widget class="QStackedWidget" name="stackedWidget">
              <widget class="QWidget" name="_0_none"/>
@@ -272,7 +269,7 @@
                 <string>否</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_driver</string>
+                <string notr="true">buttonGroup_yuhun_driver</string>
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_driver_True">
@@ -294,7 +291,7 @@
                 <string>是</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_driver</string>
+                <string notr="true">buttonGroup_yuhun_driver</string>
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_passengers_3">
@@ -316,7 +313,7 @@
                 <string>3</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_passengers</string>
+                <string notr="true">buttonGroup_yuhun_passengers</string>
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_passengers_2">
@@ -338,7 +335,7 @@
                 <string>2</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_passengers</string>
+                <string notr="true">buttonGroup_yuhun_passengers</string>
                </attribute>
               </widget>
               <widget class="QLabel" name="label_passengers">
@@ -423,7 +420,7 @@
                 <string>单人</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_mode</string>
+                <string notr="true">buttonGroup_yuhun_mode</string>
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_mode_team">
@@ -448,7 +445,7 @@
                 <string>组队</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_mode</string>
+                <string notr="true">buttonGroup_yuhun_mode</string>
                </attribute>
               </widget>
               <widget class="QLabel" name="label_mode">
@@ -472,63 +469,262 @@
               </widget>
              </widget>
              <widget class="QWidget" name="_2_jiejietupo">
-              <widget class="QRadioButton" name="button_jiejietupo_3victory">
+              <widget class="QGroupBox" name="groupBox_jiejietupo_switch_level">
                <property name="geometry">
                 <rect>
-                 <x>80</x>
-                 <y>60</y>
-                 <width>51</width>
-                 <height>20</height>
+                 <x>0</x>
+                 <y>5</y>
+                 <width>191</width>
+                 <height>80</height>
                 </rect>
                </property>
-               <property name="text">
-                <string>3胜</string>
-               </property>
+               <widget class="QRadioButton" name="button_jiejietupo_target_level_60">
+                <property name="geometry">
+                 <rect>
+                  <x>153</x>
+                  <y>45</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>60</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_target_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_target_level_59">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>45</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>59</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_target_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_target_level_58">
+                <property name="geometry">
+                 <rect>
+                  <x>87</x>
+                  <y>45</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>58</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_target_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_target_level_57">
+                <property name="geometry">
+                 <rect>
+                  <x>54</x>
+                  <y>45</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>57</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_target_level</string>
+                </attribute>
+               </widget>
+               <widget class="QLabel" name="label_jiejietupo_target_level">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>45</y>
+                  <width>48</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>目标等级</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_current_level_60">
+                <property name="geometry">
+                 <rect>
+                  <x>153</x>
+                  <y>20</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>60</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_current_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_current_level_59">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>20</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>59</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_current_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_current_level_58">
+                <property name="geometry">
+                 <rect>
+                  <x>87</x>
+                  <y>20</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>58</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_current_level</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_current_level_57">
+                <property name="geometry">
+                 <rect>
+                  <x>54</x>
+                  <y>20</y>
+                  <width>35</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="mouseTracking">
+                 <bool>true</bool>
+                </property>
+                <property name="text">
+                 <string>57</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_current_level</string>
+                </attribute>
+               </widget>
+               <widget class="QLabel" name="label_jiejietupo_current_level">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>20</y>
+                  <width>48</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>当前等级</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_switch_level">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>5</y>
+                  <width>47</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>卡级</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_switch</string>
+                </attribute>
+               </widget>
               </widget>
-              <widget class="QCheckBox" name="button_kaji">
+              <widget class="QGroupBox" name="groupBox_jiejietupo_switch_rule">
                <property name="geometry">
                 <rect>
-                 <x>80</x>
-                 <y>100</y>
-                 <width>47</width>
-                 <height>20</height>
+                 <x>0</x>
+                 <y>95</y>
+                 <width>191</width>
+                 <height>51</height>
                 </rect>
                </property>
-               <property name="text">
-                <string>卡级</string>
-               </property>
-              </widget>
-              <widget class="QRadioButton" name="button_jiejietupo_9victory">
-               <property name="geometry">
-                <rect>
-                 <x>140</x>
-                 <y>60</y>
-                 <width>51</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>9胜</string>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_refresh_rule">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>60</y>
-                 <width>48</width>
-                 <height>16</height>
-                </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
-               </property>
-               <property name="text">
-                <string>刷新规则</string>
-               </property>
+               <widget class="QRadioButton" name="button_jiejietupo_refresh_rule_3">
+                <property name="geometry">
+                 <rect>
+                  <x>20</x>
+                  <y>20</y>
+                  <width>40</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>3胜</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_refresh_rule</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_refresh_rule_6">
+                <property name="geometry">
+                 <rect>
+                  <x>70</x>
+                  <y>20</y>
+                  <width>40</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>6胜</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_refresh_rule</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_refresh_rule_9">
+                <property name="geometry">
+                 <rect>
+                  <x>120</x>
+                  <y>20</y>
+                  <width>40</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>9胜</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_refresh_rule</string>
+                </attribute>
+               </widget>
+               <widget class="QRadioButton" name="button_jiejietupo_switch_rule">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>5</y>
+                  <width>71</width>
+                  <height>16</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>刷新规则</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_jiejietupo_switch</string>
+                </attribute>
+               </widget>
               </widget>
              </widget>
              <widget class="QWidget" name="_3_daoguantupo">
@@ -771,8 +967,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>542</width>
-             <height>423</height>
+             <width>306</width>
+             <height>259</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1,1,0">
@@ -1184,8 +1380,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_mode"/>
-  <buttongroup name="buttonGroup_driver"/>
-  <buttongroup name="buttonGroup_passengers"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_current_level"/>
+  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
  </buttongroups>
 </ui>

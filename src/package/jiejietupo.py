@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# jiejietupo.py
-"""结界突破"""
-
 from pathlib import Path
 
 import pyautogui
@@ -13,8 +8,8 @@ from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
+    KeyBoard,
     check_click,
-    check_scene,
     click,
     finish,
     finish_random_left_right,
@@ -26,6 +21,15 @@ from ..utils.function import (
 from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
+
+from enum import Enum
+
+
+class LineupState(Enum):
+    """阵容锁定状态"""
+    NONE = 0
+    LOCK = 1
+    UNLOCK = 2
 
 
 class JieJieTuPo(Package):
@@ -51,6 +55,17 @@ class JieJieTuPo(Package):
         "xunzhang_5",  # 勋章数5
         "yinyangliao",  # 阴阳寮突破
     ]
+
+    def get_lineup_state(self):
+        coor = self.get_coor_info("lock")
+        if coor.is_effective:
+            logger.ui("阵容已锁定")
+            return LineupState.LOCK, coor
+        coor = self.get_coor_info("unlock")
+        if coor.is_effective:
+            logger.ui("阵容未锁定")
+            return LineupState.UNLOCK, coor
+        return LineupState.NONE, None
 
     def get_coor_info_tupo(self, x1: int, y1: int, file: Path | str) -> Coor:
         """图像识别，返回图像的局部相对坐标
@@ -146,26 +161,15 @@ class JieJieTuPo(Package):
         coor = random_coor(x0, x0 + 185, y0, y0 + 80)
         coor = RelativeCoor(coor.x, coor.y)
         click(coor)
-        while True:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info("jingong")
-            if coor.is_effective:
-                click(coor)
-                return
+        self.check_click("jingong")
+        return
 
-    def fighting_fail_again(self):
-        # TODO 主动失败
-        random_sleep(1, 2)
-        while True:
-            if event_thread.is_set():
-                return
-            pyautogui.press("esc")
-            if check_scene(f"{self.resource_path}/fighting_fail"):
-                pyautogui.press("enter")
-                logger.ui("手动退出")
-                break
-            random_sleep(0, 1)
+    def fighting_proactive_failure_once(self):
+        """主动失败一次"""
+        KeyBoard.esc()
+        random_sleep()
+        KeyBoard.enter()
+        logger.ui("手动退出")
 
 
 class JieJieTuPoGeRen(JieJieTuPo):
@@ -177,7 +181,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     间隔高30
     """
     scene_name = "个人突破"
-    description = "默认3胜刷新，上限30"
+    description = "默认3胜刷新，保级第一轮将会刷新，请注意当前的胜利次数"
     tupo_geren_x = {
         1: 215,
         2: 515,
@@ -190,11 +194,20 @@ class JieJieTuPoGeRen(JieJieTuPo):
     }
 
     @log_function_call
-    def __init__(self, n: int = 0) -> None:
+    def __init__(
+        self,
+        n: int = 0,
+        flag_refresh_rule: int = 3,
+        flag_current_level: int = 60,
+        flag_target_level: int = 60
+    ) -> None:
         super().__init__(n)
         self.list_xunzhang: list = None  # 勋章列表
         self.tupo_victory: int = None  # 攻破次数
         self.time_refresh: int = 0  # 记录刷新时间
+        self.flag_refresh_rule: int = int(flag_refresh_rule)
+        self.flag_current_level: int = int(flag_current_level)
+        self.flag_target_level: int = int(flag_target_level)
 
     def list_num_xunzhang(self) -> list[int]:
         """
@@ -203,7 +216,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         返回:
             勋章个数列表
         """
-        alist = [0]
+        logger.ui("正在遍历结界勋章")
+        alist = [0]  # 第一个数固定为0，方便后续9个计数
         for i in range(1, 10):
             if event_thread.is_set():
                 return
@@ -282,7 +296,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
     def fighting(self) -> None:
         """战斗"""
-        for i in range(5, -1, -1):
+        for i in range(5, -1, -1):  # 按勋章数排序
             if event_thread.is_set():
                 return
             if self.list_xunzhang.count(i):
@@ -334,6 +348,58 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     if flag_victory:
                         return
 
+    def fighting_proactive_failure(self, count_max) -> None:
+        """主动失败
+
+        参数:
+            count_max (int): 次数
+        """
+        count = 0
+        # 解锁阵容
+        _state, _coor = self.get_lineup_state()
+        if _state == LineupState.LOCK:
+            click(_coor)
+        logger.ui("已解锁阵容")
+
+        # 获得每个结界的勋章数
+        self.list_xunzhang = self.list_num_xunzhang()
+        for i in range(1, len(self.list_xunzhang)):
+            if self.list_xunzhang[i] != -1:
+                logger.ui(f"{i} 可进攻")
+                break
+
+        self.fighting_tupo(
+            self.tupo_geren_x[(i + 2) % 3 + 1],
+            self.tupo_geren_y[(i + 2) // 3]
+        )
+
+        random_sleep(2)
+        while True:
+            if event_thread.is_set():
+                return
+            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fighting_back_default")
+            if coor.is_zero:
+                continue
+            random_sleep(0.4, 0.8)
+            self.fighting_proactive_failure_once()
+            count += 1
+            logger.ui(f"current count: {count}")
+            if count >= count_max:
+                self.check_click("zaicitiaozhan", is_click=False)
+                finish_random_left_right()
+                break
+
+            self.check_click("zaicitiaozhan")
+            random_sleep(0.4, 0.8)
+            KeyBoard.enter()
+
+        random_sleep(2)
+        self.check_click("fangshoujilu", is_click=False)
+        _state, _coor = self.get_lineup_state()
+        if _state == LineupState.UNLOCK:
+            click(_coor)
+        logger.ui("已锁定阵容")
+
     def refresh(self) -> None:
         """刷新"""
         flag_refresh = False  # 刷新提醒
@@ -360,26 +426,91 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 flag_refresh = True
                 random_sleep(time_wait, time_wait+5)
 
+    def lower_level(self):
+        """降级，退九刷新"""
+        logger.ui("开始降级")
+        logger.ui("退九")
+        self.fighting_proactive_failure(9)
+        logger.ui("开始刷新")
+        self.refresh()
+        logger.ui("降级完成")
+
+    def keep_level(self):
+        """保级，退四打九，只进行退出操作"""
+        self.fighting_proactive_failure(4)
+
     def run(self):
+        # 卡57级和刷新规则互斥
+        self.current_counts = 0  # 当前一轮胜利次数
+        if self.flag_refresh_rule:
+            logger.info("只刷新")
+        else:
+            logger.info("保级")
+            _lower_level_count = self.flag_current_level - self.flag_target_level
+            if (_lower_level_count < 0):
+                logger.ui("当前等级低于目标等级", "error")
+                return
         self.check_title()
         logger.num(f"0/{self.max}")
+
         while self.n < self.max:
             if event_thread.is_set():
                 return
-            self.list_xunzhang = self.list_num_xunzhang()
-            # 胜利次数
-            self.tupo_victory = self.list_xunzhang.count(-1)
-            # 刷新
-            if self.tupo_victory == 3:
-                self.refresh()
-            # 挑战
-            elif self.tupo_victory < 3:
-                logger.ui(f"已攻破{self.tupo_victory}个")
-                self.fighting()
-            elif self.tupo_victory > 3:
-                logger.ui("暂不支持大于3个，请自行处理", "warn")
-                break
-            random_sleep(2)
+
+            self.check_click("fangshoujilu", is_click=False)
+            # 只需要刷新
+            if self.flag_refresh_rule:
+                self.list_xunzhang = self.list_num_xunzhang()
+                self.tupo_victory = self.list_xunzhang.count(-1)
+                if self.tupo_victory == 3:
+                    self.refresh()
+                elif self.tupo_victory < 3:
+                    logger.ui(f"已攻破{self.tupo_victory}个")
+                    self.fighting()
+                elif self.tupo_victory > 3:
+                    logger.ui("暂不支持大于3个，请自行处理", "warn")
+                    break
+            else:
+                # 降级次数由输入给定
+                for _ in range(_lower_level_count):
+                    _lower_level_count -= 1
+                    logger.ui(f"第{_}次降级")
+                    self.lower_level()
+                self.keep_level()
+                self.tupo_victory = self.list_xunzhang.count(-1)
+                # 按顺序打九
+                for i in range(1, len(self.list_xunzhang)):
+                    if self.n >= self.max:
+                        break
+                    if self.list_xunzhang[i] == -1:
+                        continue
+                    self.check_click("fangshoujilu", is_click=False)
+                    logger.ui(f"{i} 可进攻")
+                    self.fighting_tupo(
+                        self.tupo_geren_x[(i + 2) % 3 + 1],
+                        self.tupo_geren_y[(i + 2) // 3]
+                    )
+                    # 只有成功才会退出
+                    while True:
+                        if event_thread.is_set():
+                            return
+                        # TODO 失败超过一定次数视为打不过
+                        if finish():
+                            self.done()
+                            self.tupo_victory += 1
+                            random_sleep()
+                            random_sleep()
+                            finish_random_left_right()
+                            break
+                        else:
+                            self.check_click("zaicitiaozhan")
+                            random_sleep()
+                            KeyBoard.enter()
+
+                    random_sleep(4)
+
+                    if self.tupo_victory in [3, 6, 9]:
+                        check_click(f"{RESOURCE_FIGHT_PATH}/finish")
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):
@@ -462,7 +593,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 if coor.is_effective:
                     logger.ui("当前结界已被攻破", "warn")
                     i += 1
-                    pyautogui.press("esc")
+                    KeyBoard.esc()
                     continue
 
                 flag = 1 if finish() else 0

@@ -123,8 +123,9 @@ class MainWindow(QMainWindow):
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
         self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
-        self.ui.buttonGroup_driver.buttonClicked.connect(self.tips_yuhun_driver)
-        self.ui.buttonGroup_mode.buttonClicked.connect(self._yuhun_mode_change)
+        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.tips_yuhun_driver)
+        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
+        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
 
         # 设置项
         # 更新模式
@@ -338,7 +339,7 @@ class MainWindow(QMainWindow):
         config.config_user_changed("remember_last_choice", _status)
 
     def check_game_handle(self):
-        check_game_handle()
+        return check_game_handle()
 
     def choice_description(self):
         """功能描述"""
@@ -386,7 +387,15 @@ class MainWindow(QMainWindow):
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
             case 5:  # 个人突破
                 logger.ui(JieJieTuPoGeRen.description)
-                # self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
+                self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
+                self.ui.button_jiejietupo_switch_rule.setChecked(True)
+                self.ui.button_jiejietupo_current_level_60.setChecked(True)
+                self.ui.button_jiejietupo_target_level_60.setChecked(True)
+                self.ui.button_jiejietupo_refresh_rule_3.setChecked(True)
+                # TODO
+                self.ui.button_jiejietupo_refresh_rule_6.hide()
+                self.ui.button_jiejietupo_refresh_rule_9.hide()
+                self.buttonGroup_jiejietupo_switch_change()
                 self.ui_spin_times_set_value_func(1, 1, 30)
             case 6:  # 寮突破
                 now = time.strftime("%H:%M:%S")
@@ -446,14 +455,14 @@ class MainWindow(QMainWindow):
                     _flag_drop_statistics = (
                         self.ui.button_yuhun_drop_statistics.isChecked()
                     )
-                    match self.ui.buttonGroup_mode.checkedButton().text():
+                    match self.ui.buttonGroup_yuhun_mode.checkedButton().text():
                         case "组队":
                             _flag_driver = (
-                                self.ui.buttonGroup_driver.checkedButton().text()
+                                self.ui.buttonGroup_yuhun_driver.checkedButton().text()
                                 != "否"
                             )
                             _flag_passengers = int(
-                                self.ui.buttonGroup_passengers.checkedButton().text()
+                                self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
                             )
                             YuHunTeam(
                                 n=_n,
@@ -469,10 +478,10 @@ class MainWindow(QMainWindow):
                     _flag_drop_statistics = (
                         self.ui.button_yuhun_drop_statistics.isChecked()
                     )
-                    match self.ui.buttonGroup_mode.checkedButton().text():
+                    match self.ui.buttonGroup_yuhun_mode.checkedButton().text():
                         case "组队":
                             _flag_driver = (
-                                self.ui.buttonGroup_driver.checkedButton().text()
+                                self.ui.buttonGroup_yuhun_driver.checkedButton().text()
                                 != "否"
                             )
                             YongShengZhiHaiTeam(
@@ -487,7 +496,22 @@ class MainWindow(QMainWindow):
                 case 4:  # 御灵
                     YuLing(n=_n).task_start()
                 case 5:  # 个人突破
-                    JieJieTuPoGeRen(n=_n).task_start()
+                    _refresh = 0
+                    _current_level = _target_level = 60
+                    if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
+                        _current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
+                        print(_current_level)
+                        _target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
+                        print(_target_level)
+                    else:
+                        _refresh = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
+                        print(_refresh)
+                    JieJieTuPoGeRen(
+                        n=_n,
+                        flag_refresh_rule=_refresh,
+                        flag_current_level=_current_level,
+                        flag_target_level=_target_level
+                    ).task_start()
                 case 6:  # 寮突破
                     JieJieTuPoYinYangLiao(n=_n).task_start()
                 case 7:  # 道馆突破
@@ -502,10 +526,10 @@ class MainWindow(QMainWindow):
                 case 11:  # 组队日轮副本
                     # 是否司机（默认否）
                     # 组队人数（默认2人）
-                    driver = self.ui.buttonGroup_driver.checkedButton().text()
+                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text()
                     _flag_driver = driver != "否"
                     _flag_passengers = int(
-                        self.ui.buttonGroup_passengers.checkedButton().text()
+                        self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
                     )
                     RiLun(
                         n=_n,
@@ -562,18 +586,30 @@ class MainWindow(QMainWindow):
             item.setEnabled(not flag)
         return
 
-    def _yuhun_mode_change(self):
-        if self.ui.buttonGroup_mode.checkedButton().text() == "组队":
+    def buttonGroup_yuhun_mode_change(self):
+        if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
             _flag = True
-        if self.ui.buttonGroup_mode.checkedButton().text() == "单人":
+        else:
             _flag = False
         self.ui.button_driver_False.setEnabled(_flag)
         self.ui.button_driver_True.setEnabled(_flag)
         self.ui.button_passengers_2.setEnabled(_flag)
         self.ui.button_passengers_3.setEnabled(_flag)
 
+    def buttonGroup_jiejietupo_switch_change(self):
+        if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
+            _flag = True
+        else:
+            _flag = False
+        for widget in self.ui.buttonGroup_jiejietupo_current_level.buttons():
+            widget.setEnabled(_flag)
+        for widget in self.ui.buttonGroup_jiejietupo_target_level.buttons():
+            widget.setEnabled(_flag)
+        for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
+            widget.setEnabled(not _flag)
+
     def tips_yuhun_driver(self):
-        if self.ui.buttonGroup_driver.checkedButton().text() == "是":
+        if self.ui.buttonGroup_yuhun_driver.checkedButton().text() == "是":
             self.ui.label_tips.setText("司机请在组队界面等待，\n并开始程序")
             self.ui.label_tips.show()
         else:

@@ -406,6 +406,7 @@ def check_finish_once() -> bool | None:
     return None
 
 
+@log_function_call
 def finish_random_left_right(
     is_click: bool = True,
     is_multiple_drops_x: bool = False,
@@ -496,8 +497,8 @@ def check_click(
     is_click: bool = True,
     dura: float = 0.5,
     sleep_time: float = 0,
-    timeout: int = None
-) -> None:
+    timeout: float = 0
+) -> bool:
     """图像识别，并点击
 
     参数:
@@ -505,24 +506,27 @@ def check_click(
         is_click (bool): 是否点击，默认是
         dura (float): 移动速度，默认0.5
         sleep_time (float): 延迟时间，默认0
-        timeout (int): 超时时间（秒）
+        timeout (float): 超时时间（秒）
+
+    返回:
+        bool: 结果
     """
     if timeout:
         start_time = time.time()
     while True:
         if event_thread.is_set():
-            return
+            return False
         if timeout:
             current_time = time.time()
             if current_time - start_time > timeout:
-                return
+                return False
 
         coor = get_coor_info(file)
         if coor.is_effective:
             if is_click:
                 click(coor, dura, sleep_time)
             logger.info("move to right coor successfully")
-            return
+            return True
 
 
 @log_function_call
@@ -589,3 +593,22 @@ def screenshot(screenshot_path: str = "cache") -> bool:
     except Exception:
         logger.error("screenshot failed.")
         return False
+
+
+class KeyBoard:
+    """键盘事件"""
+
+    def keyboard_input(key: str):
+        import ctypes
+        ctypes.windll.user32.keybd_event(key, 0, 0, 0)
+        ctypes.windll.user32.keybd_event(key, 0, 0x0002, 0)
+
+    @classmethod
+    def enter(self):
+        """键入`回车键`"""
+        self.keyboard_input(0x0D)
+
+    @classmethod
+    def esc(self):
+        """键入`ESC键`"""
+        self.keyboard_input(0x1B)
