@@ -176,7 +176,11 @@ class MainWindow(QMainWindow):
         Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
-        window.pthread_get_game_window_handle()
+        global_scheduler.add_job(
+            window.scheduler_get_game_window_handle,
+            "interval", seconds=1,
+            id='scheduler_get_game_window_handle'
+        )
         task_xuanshangfengyin.task_start()
         # 文字识别
         ocr.init()
