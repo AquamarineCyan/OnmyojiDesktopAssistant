@@ -12,7 +12,5 @@ if event_thread.is_set():
 """
 event_xuanshang = Event()
 """悬赏封印"""
-event_xuanshang_enable = Event()
-"""悬赏封印启用状态"""
 event_ocr_init = Event()
 """OCR（文字识别）初始化"""

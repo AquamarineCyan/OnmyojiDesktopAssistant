@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# gui.py
-
 import sys
 import time
 from contextlib import suppress
@@ -18,8 +14,9 @@ from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
-from .event import event_thread, event_ocr_init, event_xuanshang_enable
+from .event import event_thread, event_ocr_init
 from .log import log_clean_up, logger
+from .myschedule import global_scheduler
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .restart import Restart
@@ -180,13 +177,11 @@ class MainWindow(QMainWindow):
         upgrade.check_latest()
         get_update_info()
         window.pthread_get_game_window_handle()
-        # 悬赏封印
-        if config.config_user.xuanshangfengyin == "关闭":
-            event_xuanshang_enable.clear()
-        else:
-            task_xuanshangfengyin.task_start()
+        task_xuanshangfengyin.task_start()
         # 文字识别
         ocr.init()
+        logger.info(global_scheduler.get_jobs())
+        global_scheduler.start()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         match level:
@@ -315,10 +310,9 @@ class MainWindow(QMainWindow):
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
-        if text == "关闭":
-            logger.ui("成功关闭悬赏封印，重启程序后生效")
         logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.config_user_changed("xuanshangfengyin", text)
+        task_xuanshangfengyin.task_start()
 
     def setting_window_style_comboBox_func(self) -> None:
         """设置-界面风格-更改"""
@@ -628,6 +622,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
+        global_scheduler.shutdown()
         with suppress(Exception):
             logger.info("[EXIT]")
         event.accept()

@@ -9,6 +9,7 @@ packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
+apscheduler = "^3.10.4"
 httpx = "^0.26.0"
 opencv-python = "^4.9.0.80"
 pyautogui = "^0.9.54"

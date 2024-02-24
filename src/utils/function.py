@@ -13,7 +13,7 @@ from .application import (
 )
 from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
-from .event import event_thread, event_xuanshang, event_xuanshang_enable
+from .event import event_thread, event_xuanshang
 from .log import logger
 from .window import window
 
@@ -137,8 +137,7 @@ def get_coor_info(
     if event_thread.is_set():
         return Coor(0, 0)
     # 等待悬赏封印判定
-    if event_xuanshang_enable.is_set():
-        event_xuanshang.wait()
+    event_xuanshang.wait()
 
     _file_name = image_file_format(RESOURCE_DIR_PATH / file)
     logger.debug(f"looking for file: {_file_name}")
