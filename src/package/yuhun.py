@@ -44,6 +44,7 @@ class YuHun(Package):
         "accept_invitation",  # 接受邀请
     ]
     description = "已适配组队/单人 魂十、魂土、神罚副本\
+                    司机请在组队界面等待\
                     新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”"
     fast_time = 13 - 2
 

@@ -357,19 +357,6 @@
                 <string>组队人数</string>
                </property>
               </widget>
-              <widget class="QLabel" name="label_tips">
-               <property name="geometry">
-                <rect>
-                 <x>20</x>
-                 <y>130</y>
-                 <width>141</width>
-                 <height>31</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>TextLabel</string>
-               </property>
-              </widget>
               <widget class="QCheckBox" name="button_yuhun_drop_statistics">
                <property name="geometry">
                 <rect>
@@ -1380,12 +1367,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_jiejietupo_current_level"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
   <buttongroup name="buttonGroup_jiejietupo_target_level"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
  </buttongroups>
 </ui>

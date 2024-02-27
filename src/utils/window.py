@@ -1,8 +1,7 @@
-import time
 import win32con
 import win32gui
 
-from .decorator import log_function_call, run_in_thread
+from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
 

@@ -42,10 +42,12 @@ class JieJieTuPo(Package):
         "fighting_fail",  # TODO 战斗失败
         "geren",  # 个人突破
         "jingong",  # 进攻
-        "queding",
+        "lock",  # 阵容锁定
+        "queding",  # 刷新-确定
         "shuaxin",  # 刷新-个人突破
         "title",  # 突破界面
         "tupojilu",  # 突破记录-阴阳寮突破
+        "unlock",  # 阵容解锁
         "victory",  # 攻破
         "xunzhang_0",  # 勋章数0
         "xunzhang_1",  # 勋章数1

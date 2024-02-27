@@ -223,7 +223,7 @@ ocr = CharacterRecognition()
 
 class OcrData:
     def __init__(self, item) -> None:
-        self.score: float = item["Score"]
+        self.score: float = round(item["Score"], 2)
         self.text: str = item["Text"]
         _BoxPoints = item["BoxPoints"]
         for i in range(len(_BoxPoints)):

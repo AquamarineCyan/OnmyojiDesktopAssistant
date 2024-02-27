@@ -1,6 +1,7 @@
 import sys
 import time
 from contextlib import suppress
+from enum import Enum
 from pathlib import Path
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
@@ -33,6 +34,33 @@ def get_global_icon():
     return global_icon
 
 
+class GameFunction(Enum):
+    """游戏功能"""
+    YUHUN = 1  # 御魂副本
+    YONGSHENGZHIHAI = 2  # 永生之海副本
+    YEYUANHUO = 3  # 业原火副本
+    YULING = 4  # 御灵副本
+    GERENTUPO = 5  # 个人突破
+    LIAOTUPO = 6  # 寮突破
+    DAOGUANTUPO = 7  # 道馆突破
+    ZHAOHUAN = 8  # 普通召唤
+    BAIGUIYEXING = 9  # 百鬼夜行
+    HUODONG = 10  # 限时活动
+    RILUN = 11  # 组队日轮副本
+    TANSUO = 12  # 单人探索
+    QILING = 13  # 契灵
+    JUEXING = 14  # 觉醒副本
+
+
+class StackedWidgetIndex(Enum):
+    """高级设置窗口索引"""
+    NONE = 0
+    YUHUN = 1
+    JIEJIETUPO = 2
+    DAOGUANTUPO = 3
+    QILING = 4
+
+
 class MainWindow(QMainWindow):
     """主界面"""
     _list_function = [  # 功能列表
@@ -51,7 +79,6 @@ class MainWindow(QMainWindow):
         "13.契灵",
         "14.觉醒副本",
     ]
-    _choice: int  # 功能
 
     def __init__(self):
         super().__init__()
@@ -86,10 +113,7 @@ class MainWindow(QMainWindow):
             key.setCurrentText(config.config_user.model_dump().get(value))
         _status = config.config_user.model_dump().get("remember_last_choice")
         logger.info(f"_status{_status}")
-        if _status == -1:
-            _flag_check = False
-        else:
-            _flag_check = True
+        _flag_check = _status != -1
         self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
         self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
 
@@ -111,16 +135,15 @@ class MainWindow(QMainWindow):
         # 游戏检测按钮
         self.ui.button_game_handle.clicked.connect(self.check_game_handle)
         # 开始按钮
-        self.ui.button_start.clicked.connect(self.start_stop)
+        self.ui.button_start.clicked.connect(self.app_running)
         # 功能选择事件
-        self.ui.combo_choice.currentIndexChanged.connect(self.choice_description)
+        self.ui.combo_choice.currentIndexChanged.connect(self.game_function_description)
         # 重启
         self.ui.button_restart.clicked.connect(self.app_restart_func)
         # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
         self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
-        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.tips_yuhun_driver)
         self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
         self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
 
@@ -244,13 +267,11 @@ class MainWindow(QMainWindow):
         """
         self.ui.text_completion_times.setText(msg)
 
-    def ui_spin_times_set_value_func(self, current: int = 1, min: int = None, max: int = None):
+    def ui_spin_times_set_value_func(self, current: int = 1, min: int = 0, max: int = 99):
         widget = self.ui.spin_times
         widget.setValue(current)
-        if min is not None:
-            widget.setMinimum(min)
-        if max is not None:
-            widget.setMaximum(max)
+        widget.setMinimum(min)
+        widget.setMaximum(max)
 
     @log_function_call
     def _check_enviroment(self) -> bool:
@@ -339,36 +360,31 @@ class MainWindow(QMainWindow):
     def check_game_handle(self):
         return check_game_handle()
 
-    def choice_description(self):
+    def game_function_description(self):
         """功能描述"""
-        try:
-            self._choice = self._list_function.index(self.ui.combo_choice.currentText()) + 1
-        except ValueError:  # for safe
-            self._choice = 0
+        self.game_function_choice = GameFunction(self.ui.combo_choice.currentIndex() + 1)
+        logger.scene(f"功能描述：{self.game_function_choice}")
         if config.config_user.remember_last_choice != -1:
-            config.config_user_changed("remember_last_choice", self._choice)
+            config.config_user_changed("remember_last_choice", self.game_function_choice.value)
         self.ui.button_start.setEnabled(True)
         self.ui.spin_times.setEnabled(True)
         self.ui_spin_times_set_value_func(1, 1, 999)
-        self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
+        self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.NONE.value)
 
-        match self._choice:
-            case 1:  # 御魂副本
+        match self.game_function_choice:
+            case GameFunction.YUHUN:
                 logger.ui(YuHun.description)
-                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
-
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui.button_mode_team.setEnabled(True)
                 self.ui.button_mode_single.setEnabled(True)
                 self.ui.button_mode_team.setChecked(True)
-
                 self.ui.button_driver_False.setChecked(True)
-
                 self.ui.button_passengers_2.setEnabled(True)
                 self.ui.button_passengers_3.setEnabled(True)
                 self.ui.button_passengers_2.setChecked(True)
-            case 2:  # 组队永生之海副本
+            case GameFunction.YONGSHENGZHIHAI:
                 logger.ui(YongShengZhiHai.description)
-                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(30)
                 self.ui.button_mode_team.setChecked(True)
                 # TODO
@@ -378,14 +394,14 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setChecked(True)
                 self.ui.button_passengers_2.setEnabled(False)
                 self.ui.button_passengers_3.setEnabled(False)
-            case 3:  # 业原火副本
+            case GameFunction.YEYUANHUO:
                 logger.ui(YeYuanHuo.description)
-            case 4:  # 御灵副本
+            case GameFunction.YULING:
                 logger.ui(YuLing.description)
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
-            case 5:  # 个人突破
+            case GameFunction.GERENTUPO:
                 logger.ui(JieJieTuPoGeRen.description)
-                self.ui.stackedWidget.setCurrentIndex(2)  # 索引2，结界突破
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
                 self.ui.button_jiejietupo_switch_rule.setChecked(True)
                 self.ui.button_jiejietupo_current_level_60.setChecked(True)
                 self.ui.button_jiejietupo_target_level_60.setChecked(True)
@@ -395,7 +411,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_jiejietupo_refresh_rule_9.hide()
                 self.buttonGroup_jiejietupo_switch_change()
                 self.ui_spin_times_set_value_func(1, 1, 30)
-            case 6:  # 寮突破
+            case GameFunction.LIAOTUPO:
                 now = time.strftime("%H:%M:%S")
                 if now >= "21:00:00":
                     logger.ui("CD无限", "warn")
@@ -406,162 +422,141 @@ class MainWindow(QMainWindow):
                     logger.ui("默认6次，可在每日21时后无限挑战")
                     _current = 6
                 self.ui_spin_times_set_value_func(_current, 1, 200)
-            case 7:  # 道馆突破
+            case GameFunction.DAOGUANTUPO:
                 logger.ui(DaoGuanTuPo.description)
-                self.ui.stackedWidget.setCurrentIndex(3)  # 索引3，道馆突破
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
                 self.ui.spin_times.setEnabled(False)
-            case 8:  # 普通召唤
+            case GameFunction.ZHAOHUAN:
                 logger.ui(ZhaoHuan.description)
-            case 9:  # 百鬼夜行
+            case GameFunction.BAIGUIYEXING:
                 logger.ui(BaiGuiYeXing.description)
-            case 10:  # 限时活动
+            case GameFunction.HUODONG:
                 logger.ui(HuoDong.description)
-            case 11:  # 组队日轮副本
-                self.ui.stackedWidget.setCurrentIndex(1)  # 索引1，御魂
+            case GameFunction.RILUN:
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(50)
-
                 self.ui.button_mode_team.setEnabled(True)
                 self.ui.button_mode_single.setEnabled(True)
                 self.ui.button_mode_team.setChecked(True)
-
                 self.ui.button_driver_False.setChecked(True)
-
                 self.ui.button_passengers_2.setEnabled(True)
                 self.ui.button_passengers_3.setEnabled(True)
                 self.ui.button_passengers_2.setChecked(True)
-            case 12:  # 单人探索
+            case GameFunction.TANSUO:
                 logger.ui(TanSuo.description)
-            case 13:  # 契灵
+            case GameFunction.QILING:
                 logger.ui(QiLing.description)
-                self.ui.stackedWidget.setCurrentIndex(4)  # 索引4，契灵
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
-            case 14:  # 觉醒副本
+            case GameFunction.JUEXING:
                 logger.ui(JueXing.description)
 
-    def start_stop(self) -> None:
-        """开始&停止按钮"""
+    def _app_start(self) -> None:
+        n = self.ui.spin_times.value()
+        flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
+        self.ui.text_completion_times.clear()
+        self.is_fighting(True)
 
-        def start() -> None:
-            """开始函数"""
-            _n = self.ui.spin_times.value()
-            self.ui.text_completion_times.clear()
-            self.is_fighting(True)
-            match self._choice:
-                case 1:  # 御魂副本
-                    _flag_drop_statistics = (
-                        self.ui.button_yuhun_drop_statistics.isChecked()
+        match self.game_function_choice:
+            case GameFunction.YUHUN:
+                if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
+                    flag_driver = (
+                        self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
                     )
-                    match self.ui.buttonGroup_yuhun_mode.checkedButton().text():
-                        case "组队":
-                            _flag_driver = (
-                                self.ui.buttonGroup_yuhun_driver.checkedButton().text()
-                                != "否"
-                            )
-                            _flag_passengers = int(
-                                self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
-                            )
-                            YuHunTeam(
-                                n=_n,
-                                flag_driver=_flag_driver,
-                                flag_passengers=_flag_passengers,
-                                flag_drop_statistics=_flag_drop_statistics,
-                            ).task_start()
-                        case "单人":
-                            YuHunSingle(
-                                n=_n, flag_drop_statistics=_flag_drop_statistics
-                            ).task_start()
-                case 2:  # 永生之海副本
-                    _flag_drop_statistics = (
-                        self.ui.button_yuhun_drop_statistics.isChecked()
-                    )
-                    match self.ui.buttonGroup_yuhun_mode.checkedButton().text():
-                        case "组队":
-                            _flag_driver = (
-                                self.ui.buttonGroup_yuhun_driver.checkedButton().text()
-                                != "否"
-                            )
-                            YongShengZhiHaiTeam(
-                                n=_n,
-                                flag_driver=_flag_driver,
-                                flag_drop_statistics=_flag_drop_statistics,
-                            ).task_start()
-                        case "单人":
-                            pass
-                case 3:  # 业原火
-                    YeYuanHuo(n=_n).task_start()
-                case 4:  # 御灵
-                    YuLing(n=_n).task_start()
-                case 5:  # 个人突破
-                    _refresh = 0
-                    _current_level = _target_level = 60
-                    if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
-                        _current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
-                        print(_current_level)
-                        _target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
-                        print(_target_level)
-                    else:
-                        _refresh = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
-                        print(_refresh)
-                    JieJieTuPoGeRen(
-                        n=_n,
-                        flag_refresh_rule=_refresh,
-                        flag_current_level=_current_level,
-                        flag_target_level=_target_level
-                    ).task_start()
-                case 6:  # 寮突破
-                    JieJieTuPoYinYangLiao(n=_n).task_start()
-                case 7:  # 道馆突破
-                    flag_guanzhan = self.ui.button_guanzhan.isChecked()
-                    DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
-                case 8:  # 普通召唤
-                    ZhaoHuan(n=_n).task_start()
-                case 9:  # 百鬼夜行
-                    BaiGuiYeXing(n=_n).task_start()
-                case 10:  # 限时活动
-                    HuoDong(n=_n).task_start()
-                case 11:  # 组队日轮副本
-                    # 是否司机（默认否）
-                    # 组队人数（默认2人）
-                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text()
-                    _flag_driver = driver != "否"
-                    _flag_passengers = int(
+                    flag_passengers = int(
                         self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
                     )
-                    RiLun(
-                        n=_n,
-                        flag_driver=_flag_driver,
-                        flag_passengers=_flag_passengers,
+                    YuHunTeam(
+                        n=n,
+                        flag_driver=flag_driver,
+                        flag_passengers=flag_passengers,
+                        flag_drop_statistics=flag_drop_statistics
                     ).task_start()
-                case 12:  # 单人探索
-                    TanSuo(n=_n).task_start()
-                case 13:  # 契灵
-                    _flag_tancha = self.ui.button_qiling_tancha.isChecked()
-                    _flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
-                    _stone_pokemon = self.ui.combo_qiling_jieqi_stone.currentText()
-                    _stone_numbers = self.ui.spin_qiling_jieqi_stone.value()
-                    QiLing(
-                        n=_n,
-                        _flag_tancha=_flag_tancha,
-                        _flag_jieqi=_flag_jieqi,
-                        _stone_pokemon=_stone_pokemon,
-                        _stone_numbers=_stone_numbers,
+                else:
+                    YuHunSingle(
+                        n=n,
+                        flag_drop_statistics=flag_drop_statistics
                     ).task_start()
-                case 14:  # 觉醒副本
-                    JueXing(n=_n).task_start()
+            case GameFunction.YONGSHENGZHIHAI:
+                if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
+                    flag_driver = (
+                        self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
+                    )
+                    YongShengZhiHaiTeam(
+                        n=n,
+                        flag_driver=flag_driver,
+                        flag_drop_statistics=flag_drop_statistics
+                    ).task_start()
+            case GameFunction.YEYUANHUO:
+                YeYuanHuo(n=n).task_start()
+            case GameFunction.YULING:
+                YuLing(n=n).task_start()
+            case GameFunction.GERENTUPO:
+                flag_refresh_need = 0
+                current_level = target_level = 60
+                if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
+                    current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
+                    target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
+                else:
+                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
+                JieJieTuPoGeRen(
+                    n=n,
+                    flag_refresh_rule=flag_refresh_need,
+                    flag_current_level=current_level,
+                    flag_target_level=target_level
+                ).task_start()
+            case GameFunction.LIAOTUPO:
+                JieJieTuPoYinYangLiao(n=n).task_start()
+            case GameFunction.DAOGUANTUPO:
+                flag_guanzhan = self.ui.button_guanzhan.isChecked()
+                DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
+            case GameFunction.ZHAOHUAN:
+                ZhaoHuan(n=n).task_start()
+            case GameFunction.BAIGUIYEXING:
+                BaiGuiYeXing(n=n).task_start()
+            case GameFunction.HUODONG:
+                HuoDong(n=n).task_start()
+            case GameFunction.RILUN:
+                flag_driver = (
+                    self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
+                )
+                flag_passengers = int(
+                    self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
+                )
+                RiLun(
+                    n=n,
+                    flag_driver=flag_driver,
+                    flag_passengers=flag_passengers
+                ).task_start()
+            case GameFunction.TANSUO:
+                TanSuo(n=n).task_start()
+            case GameFunction.QILING:
+                flag_tancha = self.ui.button_qiling_tancha.isChecked()
+                flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
+                stone_pokemon = self.ui.combo_qiling_jieqi_stone.currentText()
+                stone_numbers = self.ui.spin_qiling_jieqi_stone.value()
+                QiLing(
+                    n=n,
+                    _flag_tancha=flag_tancha,
+                    _flag_jieqi=flag_jieqi,
+                    _stone_pokemon=stone_pokemon,
+                    _stone_numbers=stone_numbers
+                ).task_start()
+            case GameFunction.JUEXING:
+                JueXing(n=n).task_start()
 
-        def stop() -> None:
-            """停止函数"""
-            event_thread.set()
-            logger.ui("停止中，请稍候")
+    def _app_stop(self) -> None:
+        event_thread.set()
+        logger.ui("停止中，请稍候")
 
-        match self.ui.button_start.text():
-            case "开始":
-                event_thread.clear()
-                start()
-            case "停止":
-                stop()
+    def app_running(self) -> None:
+        if self.ui.button_start.text() == "开始":
+            event_thread.clear()
+            self._app_start()
+        else:
+            self._app_stop()
 
     def is_fighting(self, flag: bool):
         """程序是否运行中，启用/禁用其他控件"""
@@ -585,33 +580,20 @@ class MainWindow(QMainWindow):
         return
 
     def buttonGroup_yuhun_mode_change(self):
-        if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
-            _flag = True
-        else:
-            _flag = False
-        self.ui.button_driver_False.setEnabled(_flag)
-        self.ui.button_driver_True.setEnabled(_flag)
-        self.ui.button_passengers_2.setEnabled(_flag)
-        self.ui.button_passengers_3.setEnabled(_flag)
+        flag = self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队"
+        self.ui.button_driver_False.setEnabled(flag)
+        self.ui.button_driver_True.setEnabled(flag)
+        self.ui.button_passengers_2.setEnabled(flag)
+        self.ui.button_passengers_3.setEnabled(flag)
 
     def buttonGroup_jiejietupo_switch_change(self):
-        if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
-            _flag = True
-        else:
-            _flag = False
+        flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级"
         for widget in self.ui.buttonGroup_jiejietupo_current_level.buttons():
-            widget.setEnabled(_flag)
+            widget.setEnabled(flag)
         for widget in self.ui.buttonGroup_jiejietupo_target_level.buttons():
-            widget.setEnabled(_flag)
+            widget.setEnabled(flag)
         for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
-            widget.setEnabled(not _flag)
-
-    def tips_yuhun_driver(self):
-        if self.ui.buttonGroup_yuhun_driver.checkedButton().text() == "是":
-            self.ui.label_tips.setText("司机请在组队界面等待，\n并开始程序")
-            self.ui.label_tips.show()
-        else:
-            self.ui.label_tips.hide()
+            widget.setEnabled(not flag)
 
     def app_restart_func(self):
         Restart().app_restart()
