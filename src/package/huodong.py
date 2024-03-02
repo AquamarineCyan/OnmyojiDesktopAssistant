@@ -3,7 +3,6 @@ from ..utils.event import event_thread
 from ..utils.function import (
     RESOURCE_FIGHT_PATH,
     check_click,
-    check_scene,
     check_scene_multiple_once,
     click,
     finish_random_left_right,
@@ -23,7 +22,8 @@ class HuoDong(Package):
         "title",
         "start",
     ]
-    description = "适配活动「冰海异客」\
+    activity_name = "循音试炼"
+    description = f"适配活动「{activity_name}」\
                     可自行替换 /data/myresource/huodong 下的素材"
 
     @log_function_call
@@ -68,7 +68,7 @@ class HuoDong(Package):
 
             match scene:
                 case "title":
-                    logger.scene("冰海异客")
+                    logger.scene(self.activity_name)
                     _flag_title_msg = False
                     self.start()
                     random_sleep()

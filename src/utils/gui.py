@@ -99,7 +99,6 @@ class MainWindow(QMainWindow):
         self.ui.combo_choice.setEnabled(False)
         self.ui.spin_times.setEnabled(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
-        self.ui.label_tips.hide()
         # 设置界面
         _setting_QComboBox_dict: dict = {
             self.ui.setting_update_comboBox: "update",
