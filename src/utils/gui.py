@@ -50,6 +50,7 @@ class GameFunction(Enum):
     TANSUO = 12  # 单人探索
     QILING = 13  # 契灵
     JUEXING = 14  # 觉醒副本
+    LIUDAOZHIMEN = 15  # 六道之门
 
 
 class StackedWidgetIndex(Enum):
@@ -206,6 +207,8 @@ class MainWindow(QMainWindow):
         task_xuanshangfengyin.task_start()
         # 文字识别
         ocr.init()
+        if event_ocr_init.is_set():
+            self.ui.combo_choice.addItem("15.六道之门")
         logger.info(global_scheduler.get_jobs())
         global_scheduler.start()
 
@@ -220,7 +223,8 @@ class MainWindow(QMainWindow):
                         choice = QMessageBox.question(
                             self,
                             "窗口大小不匹配",
-                            "是否强制缩放，如不缩放，请自行靠近1136*640或者替换pic文件夹中对应素材"
+                            "是否强制缩放，如不缩放，请自行靠近1136*640，\
+                                或者参考 README.MD 在data/myresource文件夹中添加对应素材"
                         )
                         if choice == QMessageBox.Yes:
                             logger.info("用户接受强制缩放")
@@ -362,7 +366,6 @@ class MainWindow(QMainWindow):
     def game_function_description(self):
         """功能描述"""
         self.game_function_choice = GameFunction(self.ui.combo_choice.currentIndex() + 1)
-        logger.scene(f"功能描述：{self.game_function_choice}")
         if config.config_user.remember_last_choice != -1:
             config.config_user_changed("remember_last_choice", self.game_function_choice.value)
         self.ui.button_start.setEnabled(True)
@@ -451,6 +454,8 @@ class MainWindow(QMainWindow):
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
             case GameFunction.JUEXING:
                 logger.ui(JueXing.description)
+            case GameFunction.LIUDAOZHIMEN:
+                logger.ui(LiuDaoZhiMen.description, "warn")
 
     def _app_start(self) -> None:
         n = self.ui.spin_times.value()
@@ -545,6 +550,8 @@ class MainWindow(QMainWindow):
                 ).task_start()
             case GameFunction.JUEXING:
                 JueXing(n=n).task_start()
+            case GameFunction.LIUDAOZHIMEN:
+                LiuDaoZhiMen(n=n).task_start()
 
     def _app_stop(self) -> None:
         event_thread.set()

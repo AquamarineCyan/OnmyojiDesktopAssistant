@@ -15,6 +15,7 @@ from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
 from .event import event_thread, event_xuanshang
 from .log import logger
+from .paddleocr import OcrData
 from .window import window
 
 
@@ -470,15 +471,15 @@ def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
     ]
     random.seed(time.time_ns())
 
+    if isinstance(coor, OcrData):
+        coor = coor.rect.get_rela_center_coor()
+
     if coor is None:
         _x, _y = pyautogui.position()
     elif isinstance(coor, RelativeCoor):
         _x, _y = coor.rela_to_abs().coor
-    elif isinstance(coor, AbsoluteCoor):
-        _x, _y = coor.coor
     else:
         _x, _y = coor.coor
-
     try:
         pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
         logger.info(f"click at ({_x},{_y})")

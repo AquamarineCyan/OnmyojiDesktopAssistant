@@ -3,6 +3,7 @@ from .daoguantupo import DaoGuanTuPo
 from .huodong import HuoDong
 from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
+from .liudaozhimen import LiuDaoZhiMen
 from .qiling import QiLing
 from .rilun import RiLun
 from .tansuo import TanSuo
@@ -23,6 +24,7 @@ __all__ = [
     "JieJieTuPoGeRen",
     "JieJieTuPoYinYangLiao",
     "JueXing",
+    "LiuDaoZhiMen",
     "QiLing",
     "RiLun",
     "TanSuo",
