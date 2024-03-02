@@ -19,10 +19,13 @@ runs:
         python-version: ${{ inputs.python-version }}
         architecture: "x64"
         cache: "poetry"
-    
+
     - name: PEP 517
       run: poetry run pip install pyperclip==1.8.2
       shell: bash
-      
+
+    - run: poetry lock --no-update
+      shell: bash
+
     - run: poetry install
       shell: bash
