@@ -1,13 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# yeyuanhuo.py
-"""业原火副本"""
-
-import time
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
@@ -26,7 +19,7 @@ class YeYuanHuo(Package):
         "title",  # 标题
         "start",  # 挑战
     ]
-    description = "默认为“痴”，可替换resource/yeyuanhuo路径下start.png"
+    description = "默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材"
     fast_time = 13
 
     @log_function_call
@@ -42,10 +35,9 @@ class YeYuanHuo(Package):
         self.current_resource_list = [
             f"{self.resource_path}/title",
             f"{self.resource_path}/start",
-            f"{RESOURCE_FIGHT_PATH}/finish",
-            f"{RESOURCE_FIGHT_PATH}/fail",
-            f"{RESOURCE_FIGHT_PATH}/victory",
-            # f"{RESOURCE_FIGHT_PATH}/soul_overflow",
+            f"{self.global_resource_path}/finish",
+            f"{self.global_resource_path}/fail",
+            f"{self.global_resource_path}/victory",
         ]
         _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")
@@ -73,12 +65,7 @@ class YeYuanHuo(Package):
                     break
                 case "victory":
                     logger.ui("胜利")
-                    # if _timer == None:
-                    #     _timer = time.perf_counter()
                     random_sleep()
-                # case "soul_overflow":
-                #     logger.ui("御魂上限", "warn")
-                #     click(coor)
                 case "finish":
                     finish_random_left_right()
                     self.done()

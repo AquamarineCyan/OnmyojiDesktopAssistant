@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# baiguiyexing.py
-"""百鬼夜行"""
-
 from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread

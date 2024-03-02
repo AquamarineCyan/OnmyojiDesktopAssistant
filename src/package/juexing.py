@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# juexing.py
-"""觉醒副本"""
-
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
@@ -33,15 +27,15 @@ class JueXing(Package):
     @log_function_call
     def start(self):
         """挑战开始"""
-        check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
+        check_click(f"{self.global_resource_path}/start_single")
 
     def run(self):
         self.current_resource_list = [
             f"{self.resource_path}/title",
-            f"{RESOURCE_FIGHT_PATH}/start_single",
-            f"{RESOURCE_FIGHT_PATH}/finish",
-            f"{RESOURCE_FIGHT_PATH}/fail",
-            f"{RESOURCE_FIGHT_PATH}/victory",
+            f"{self.global_resource_path}/start_single",
+            f"{self.global_resource_path}/finish",
+            f"{self.global_resource_path}/fail",
+            f"{self.global_resource_path}/victory",
         ]
         _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")

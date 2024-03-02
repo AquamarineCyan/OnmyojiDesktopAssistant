@@ -1,7 +1,6 @@
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
@@ -44,9 +43,9 @@ class HuoDong(Package):
     def run(self) -> None:
         _g_resource_list: list = [
             f"{self.resource_path}/title",
-            f"{RESOURCE_FIGHT_PATH}/finish",
-            f"{RESOURCE_FIGHT_PATH}/fail",
-            f"{RESOURCE_FIGHT_PATH}/victory",
+            f"{self.global_resource_path}/finish",
+            f"{self.global_resource_path}/fail",
+            f"{self.global_resource_path}/victory",
         ]
         _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")
@@ -91,7 +90,7 @@ class HuoDong(Package):
                     while True:
                         if event_thread.is_set():
                             return
-                        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+                        coor = get_coor_info(f"{self.global_resource_path}/finish")
                         # 未重复检测到，表示成功点击
                         if coor.is_zero:
                             self.done()

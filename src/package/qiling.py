@@ -1,13 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# qiling.py
-"""契灵"""
-
 from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_finish_once,
     click,
@@ -124,7 +118,7 @@ class QiLing(Package):
 
     @log_function_call
     def timer_jieqi_finish(self):
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+        coor = get_coor_info(f"{self.global_resource_path}/finish")
         if coor.is_zero:
             self._flag_timer_jieqi_finish = False
 

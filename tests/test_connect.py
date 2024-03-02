@@ -13,6 +13,6 @@ def test_api_url():
 
 
 def test_ghproxy_url():
-    ghproxy_url = f"https://mirror.ghproxy.com/"
+    ghproxy_url = "https://mirror.ghproxy.com/"
     r = httpx.get(ghproxy_url, headers=headers)
     assert r.status_code == 200

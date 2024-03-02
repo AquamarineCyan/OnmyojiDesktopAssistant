@@ -7,7 +7,6 @@ from ..utils.coordinate import Coor, RelativeCoor
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     KeyBoard,
     check_click,
     click,
@@ -340,9 +339,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         while True:
                             if event_thread.is_set():
                                 return
-                            check_click(f"{RESOURCE_FIGHT_PATH}/finish")
+                            check_click(f"{self.global_resource_path}/finish")
                             random_sleep()
-                            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+                            coor = get_coor_info(f"{self.global_resource_path}/finish")
                             if coor.is_zero:
                                 break
                         logger.ui("成功攻破3次")
@@ -379,7 +378,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         while True:
             if event_thread.is_set():
                 return
-            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fighting_back_default")
+            coor = get_coor_info(f"{self.global_resource_path}/fighting_back_default")
             if coor.is_zero:
                 continue
             random_sleep(0.4, 0.8)
@@ -512,7 +511,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     random_sleep(4)
 
                     if self.tupo_victory in [3, 6, 9]:
-                        check_click(f"{RESOURCE_FIGHT_PATH}/finish")
+                        check_click(f"{self.global_resource_path}/finish")
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):

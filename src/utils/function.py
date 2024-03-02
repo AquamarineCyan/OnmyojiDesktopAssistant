@@ -7,7 +7,7 @@ import pyautogui
 
 from .application import (
     RESOURCE_DIR_PATH,
-    RESOURCE_FIGHT_PATH,
+    RESOURCE_GLOBAL_PATH,
     SCREENSHOT_DIR_PATH,
     USER_DATA_DIR_PATH
 )
@@ -16,9 +16,6 @@ from .decorator import log_function_call
 from .event import event_thread, event_xuanshang
 from .log import logger
 from .window import window
-
-RESOURCE_FIGHT_PATH = RESOURCE_FIGHT_PATH
-"""通用战斗资源路径"""
 
 
 def random_normal(min: int | float, max: int | float) -> int:
@@ -104,7 +101,7 @@ def image_file_format(file: Path | str) -> str:
             _file = f"{file.__str__()}.png"
         else:
             _file = file.__str__()
-    # 即使传了RESOURCE_FIGHT_PATH，Pathlib会自动合并相同路径
+    # 即使传了self.global_resource_path，Pathlib会自动合并相同路径
     _full_path = RESOURCE_DIR_PATH / _file
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
     # 检查用户素材
@@ -234,7 +231,7 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
     """
     多场景判断，仅遍历一次
 
-    可传带`RESOURCE_FIGHT_PATH`资源
+    可传带`self.global_resource_path`资源
 
     参数:
         scene (list): 多场景列表
@@ -300,12 +297,12 @@ def is_passengers_on_position(flag_passengers: int = 2):
             return
         # 是否3人组队
         if flag_passengers == 3:
-            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/passenger_3")
+            coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/passenger_3")
             if coor.is_zero:
                 logger.ui("队员3就位")
                 return
         else:
-            coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/passenger_2")
+            coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/passenger_2")
             if coor.is_zero:
                 logger.ui("队员2就位")
                 return
@@ -321,15 +318,15 @@ def result() -> bool:
     while True:
         if event_thread.is_set():
             return None
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
+        coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/victory")
         if coor.is_effective:
             logger.ui("胜利")
             return True
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")  # 手快导致提前结束
+        coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/finish")  # 手快导致提前结束
         if coor.is_effective:
             logger.ui("结束")
             return True
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")  # TODO `fail` 需要更新资源
+        coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/fail")  # TODO `fail` 需要更新资源
         if coor.is_effective:
             logger.ui("失败", "warn")
             return False
@@ -342,11 +339,11 @@ def result_once() -> bool | None:
     返回:
         bool | None: Success or Fail or None
     """
-    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/victory")
+    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/victory")
     if coor.is_effective:
         logger.ui("胜利")
         return True
-    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/fail")
     if coor.is_effective:
         logger.ui("失败", "warn")
         return False
@@ -378,11 +375,11 @@ def finish() -> bool:
     while True:
         if event_thread.is_set():
             return
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+        coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/finish")
         if coor.is_effective:
             logger.ui("胜利")
             return True
-        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+        coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/fail")
         if coor.is_effective:
             logger.ui("失败", "warn")
             return False
@@ -394,11 +391,11 @@ def check_finish_once() -> bool | None:
     返回:
         bool: 结束/失败/None
     """
-    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/finish")
     if coor.is_effective:
         logger.ui("胜利")
         return True
-    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/fail")
     if coor.is_effective:
         logger.ui("失败", "warn")
         return False

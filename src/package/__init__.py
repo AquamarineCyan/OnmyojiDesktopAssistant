@@ -12,10 +12,10 @@ from .yongshengzhihai import YongShengZhiHai, YongShengZhiHaiTeam
 from .yuhun import YuHun, YuHunSingle, YuHunTeam
 from .yuling import YuLing
 from .zhaohuan import ZhaoHuan
-from .utils import FightResource
+from .utils import GlobalResource
 
 __all__ = [
-    "FightResource",
+    "GlobalResource",
     "BaiGuiYeXing",
     "DaoGuanTuPo",
     "HuoDong",
@@ -43,7 +43,7 @@ __all__ = [
 def get_package_resource_list():
     print("get_package_resource_list")
     return [
-        FightResource,
+        GlobalResource,
         BaiGuiYeXing,
         DaoGuanTuPo,
         HuoDong,

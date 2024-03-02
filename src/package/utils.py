@@ -1,7 +1,7 @@
 from pathlib import Path
 import time
 
-from ..utils.application import RESOURCE_FIGHT_PATH
+from ..utils.application import RESOURCE_GLOBAL_PATH
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -19,10 +19,10 @@ from ..utils.mysignal import global_ms as ms
 from ..utils.toast import toast
 
 
-class FightResource:
-    """通用战斗资源"""
-    resource_path: str = "fight"  # 路径
-    resource_list: list = [  # 资源列表
+class GlobalResource:
+    """通用资源"""
+    resource_path: str = "global"  # 路径
+    resource_list: list = [
         "accept_invitation",  # 接受邀请
         "fail",  # 失败
         "finish",  # 结束
@@ -31,12 +31,12 @@ class FightResource:
         "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
         "passenger_2",  # 队员2
         "passenger_3",  # 队员3
+        "ready_new",  # 准备-简约主题
+        "ready_old",  # 准备-怀旧主题
         "start_single",  # 单人挑战
         "start_team",  # 组队挑战
         "tanchigui",  # 贪吃鬼
         "victory",  # 成功
-        "ready_old",  # 准备-怀旧主题
-        "ready_new",  # 准备-简约主题
     ]
 
 
@@ -52,8 +52,8 @@ class Package:
     """功能描述"""
     fast_time: int = 0
     """最快通关速度，用于中途等待"""
-    fight_resource_path: Path = RESOURCE_FIGHT_PATH
-    """战斗资源路径"""
+    global_resource_path: Path = RESOURCE_GLOBAL_PATH
+    """通用资源路径"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -100,7 +100,7 @@ class Package:
         logger.scene(scene)
 
     def scene_handle(self, scene: str = None) -> str:
-        if scene == None:
+        if scene is None:
             scene = self.current_scene
         logger.info(f"current scene: {scene}.png")
         if "/" in scene:
@@ -140,7 +140,7 @@ class Package:
         while True:
             if event_thread.is_set():
                 return
-            coor = get_coor_info(f"{self.fight_resource_path}/finish")
+            coor = get_coor_info(f"{self.global_resource_path}/finish")
             # 未重复检测到，表示成功点击
             if coor.is_zero:
                 self.done()

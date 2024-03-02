@@ -30,8 +30,8 @@ if Path(APP_PATH / "src/resource").exists():
 if not RESOURCE_DIR_PATH.exists():
     RESOURCE_DIR_PATH.mkdir(parents=True)
 
-RESOURCE_FIGHT_PATH = RESOURCE_DIR_PATH / "fight"
-"""通用战斗资源路径"""
+RESOURCE_GLOBAL_PATH = RESOURCE_DIR_PATH / "global"
+"""通用资源路径"""
 
 SCREENSHOT_DIR_PATH: Path = USER_DATA_DIR_PATH / "screenshot"
 """截图文件夹路径"""

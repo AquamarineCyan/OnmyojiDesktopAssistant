@@ -1,14 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# yuhun.py
-"""御魂副本"""
-
 import pyautogui
 
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_scene_multiple_once,
     click,
     finish,
@@ -119,9 +113,9 @@ class YuHunTeam(YuHun):
                 return
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
-                f"{RESOURCE_FIGHT_PATH}/finish",
+                f"{self.global_resource_path}/finish",
                 f"{self.resource_path}/finish_2000",
-                f"{RESOURCE_FIGHT_PATH}/tanchigui"
+                f"{self.global_resource_path}/tanchigui"
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
@@ -141,14 +135,14 @@ class YuHunTeam(YuHun):
         # 保留必需图像，提高识别效率
         _g_resource_list: list = [
             f"{self.resource_path}/xiezhanduiwu",  # 组队界面
-            # f"{RESOURCE_FIGHT_PATH}/start_team",  # 组队挑战
-            f"{RESOURCE_FIGHT_PATH}/fighting_friend_default",  # 战斗中好友图标
-            f"{RESOURCE_FIGHT_PATH}/fighting_friend_linshuanghanxue",
-            f"{RESOURCE_FIGHT_PATH}/fighting_friend_chunlvhanqing",
-            f"{RESOURCE_FIGHT_PATH}/accept_invitation"  # 接受邀请
+            # f"{self.global_resource_path}/start_team",  # 组队挑战
+            f"{self.global_resource_path}/fighting_friend_default",  # 战斗中好友图标
+            f"{self.global_resource_path}/fighting_friend_linshuanghanxue",
+            f"{self.global_resource_path}/fighting_friend_chunlvhanqing",
+            f"{self.global_resource_path}/accept_invitation"  # 接受邀请
         ]
         if self.flag_driver:
-            _g_resource_list.append(f"{RESOURCE_FIGHT_PATH}/start_team")
+            _g_resource_list.append(f"{self.global_resource_path}/start_team")
         _resource_list: list = None
         _flag_title_msg: bool = True
 
@@ -230,9 +224,9 @@ class YuHunSingle(YuHun):
 
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
-                f"{RESOURCE_FIGHT_PATH}/finish",
+                f"{self.global_resource_path}/finish",
                 f"{self.resource_path}/finish_2000",
-                f"{RESOURCE_FIGHT_PATH}/tanchigui"
+                f"{self.global_resource_path}/tanchigui"
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
@@ -262,9 +256,9 @@ class YuHunSingle(YuHun):
 
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
-                f"{RESOURCE_FIGHT_PATH}/finish",
+                f"{self.global_resource_path}/finish",
                 f"{self.resource_path}/finish_2000",
-                f"{RESOURCE_FIGHT_PATH}/tanchigui"
+                f"{self.global_resource_path}/tanchigui"
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:

@@ -1,12 +1,6 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# daoguantupo.py
-"""道馆突破"""
-
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_scene_multiple_once,
     click,
     finish_random_left_right,
@@ -118,8 +112,8 @@ class DaoGuanTuPo(Package):
         self.current_resource_list = [
             f"{self.resource_path}/zhuwei",
             f"{self.resource_path}/test_zhuwei_gray",
-            f"{RESOURCE_FIGHT_PATH}/finish",
-            f"{RESOURCE_FIGHT_PATH}/fail",
+            f"{self.global_resource_path}/finish",
+            f"{self.global_resource_path}/fail",
         ]
         _flag_zhuwei_disable = False  # 是否能够助威
 
@@ -151,7 +145,7 @@ class DaoGuanTuPo(Package):
                     while True:
                         if event_thread.is_set():
                             return
-                        coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/fail")
+                        coor = get_coor_info(f"{self.global_resource_path}/fail")
                         # 未重复检测到，表示成功点击
                         if coor.is_zero:
                             self.done()
@@ -177,11 +171,11 @@ class DaoGuanTuPo(Package):
             if event_thread.is_set():
                 return
             self.current_resource_list = [
-                f"{RESOURCE_FIGHT_PATH}/ready_old",
-                f"{RESOURCE_FIGHT_PATH}/ready_new",
-                f"{RESOURCE_FIGHT_PATH}/victory",
-                f"{RESOURCE_FIGHT_PATH}/fail",
-                f"{RESOURCE_FIGHT_PATH}/finish",
+                f"{self.global_resource_path}/ready_old",
+                f"{self.global_resource_path}/ready_new",
+                f"{self.global_resource_path}/victory",
+                f"{self.global_resource_path}/fail",
+                f"{self.global_resource_path}/finish",
             ]
             scene, coor = self.check_scene_multiple_once()
             if scene is None:

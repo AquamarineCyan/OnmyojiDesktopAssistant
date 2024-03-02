@@ -1,7 +1,6 @@
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene,
     click,
@@ -72,7 +71,7 @@ class RiLun(Package):
                     random_sleep()
                     click()
                     random_sleep()
-                    coor = get_coor_info(f"{RESOURCE_FIGHT_PATH}/finish")
+                    coor = get_coor_info(f"{self.global_resource_path}/finish")
                     if coor.is_zero:
                         break
                 break
@@ -88,7 +87,7 @@ class RiLun(Package):
             if self.flag_driver and self.flag_driver_start:
                 is_passengers_on_position(self.flag_passengers)
                 # 开始挑战
-                check_click(f"{RESOURCE_FIGHT_PATH}/start_team", dura=0.25)
+                check_click(f"{self.global_resource_path}/start_team", dura=0.25)
                 logger.ui("开始")
             if not self.flag_fighting:
                 check_click(f"{self.resource_path}/fighting", False)

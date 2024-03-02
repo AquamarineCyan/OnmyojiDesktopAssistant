@@ -1,14 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# yongshengzhihai.py
-"""永生之海副本"""
-
 import pyautogui
 
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
-    RESOURCE_FIGHT_PATH,
     check_click,
     check_scene_multiple_once,
     click,
@@ -42,7 +36,7 @@ class YongShengZhiHai(Package):
         if isinstance(self, YongShengZhiHaiTeam):
             check_click(f"{self.resource_path}/start_team")
         else:
-            check_click(f"{RESOURCE_FIGHT_PATH}/start_single")
+            check_click(f"{self.global_resource_path}/start_single")
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
@@ -114,8 +108,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 return
             # 检测到任一图像
             scene, coor = check_scene_multiple_once([
-                f"{RESOURCE_FIGHT_PATH}/finish",
-                f"{RESOURCE_FIGHT_PATH}/tanchigui"
+                f"{self.global_resource_path}/finish",
+                f"{self.global_resource_path}/tanchigui"
             ])
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
@@ -135,12 +129,12 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         # 保留必需图像，提高识别效率
         _g_resource_list: list = [
             f"{self.resource_path}/title_team",  # 组队界面
-            # f"{RESOURCE_FIGHT_PATH}/start_team",  # 组队挑战
+            # f"{self.global_resource_path}/start_team",  # 组队挑战
             f"{self.resource_path}/fighting",  # 战斗中-小白
-            f"{RESOURCE_FIGHT_PATH}/accept_invitation",  # 接受邀请
+            f"{self.global_resource_path}/accept_invitation",  # 接受邀请
         ]
         if self.flag_driver:
-            _g_resource_list.append(f"{RESOURCE_FIGHT_PATH}/start_team")
+            _g_resource_list.append(f"{self.global_resource_path}/start_team")
         _flag_title_msg: bool = True
 
         logger.num(f"0/{self.max}")

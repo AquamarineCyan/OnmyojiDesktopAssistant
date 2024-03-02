@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# tansuo.py
-"""探索副本-单人"""
-
 import pyautogui
 
 from ..utils.application import RESOURCE_DIR_PATH
