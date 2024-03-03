@@ -1,3 +1,4 @@
+apscheduler
 httpx>=0.23.0
 opencv-python
 PyAutoGUI

@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "onmyoji-python"
-version = "1.7.12"
-description = "auto for Onmyoji"
+version = "1.8.0"
+description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
 repository = "https://github.com/AquamarineCyan/Onmyoji_Python"
@@ -10,24 +10,24 @@ packages = [{include = "src"}]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 apscheduler = "^3.10.4"
-httpx = "^0.26.0"
+httpx = "^0.27.0"
 opencv-python = "^4.9.0.80"
 pyautogui = "^0.9.54"
-pydantic = "^2.6.1"
-pyside6 = "^6.6.1"
+pydantic = "^2.6.3"
+pyside6 = "^6.6.2"
 pywin32 = "^306"
 pyyaml = "^6.0.1"
 win11toast = "^0.34"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.3.0"
-pytest = "^8.0.0"
+pyinstaller = "^6.4.0"
+pytest = "^8.0.2"
 
 [[tool.poetry.source]]
 name = "aliyun"
 url = "https://mirrors.aliyun.com/pypi/simple/"
-priority = "default"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-VERSION: str = "1.7.13"
+VERSION: str = "1.8.0"
 """版本号"""
 
 APP_NAME: str = "Onmyoji_Python"
