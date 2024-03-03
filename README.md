@@ -30,13 +30,15 @@
 8. 普通召唤
     - 清票/狗粮
 9. 百鬼夜行
-   - 清票
-   - 截图，默认启用
+    - 清票
+    - 截图，默认启用
 10. 限时活动
 11. 组队日轮副本
 12. 个人探索
 13. 契灵 🚧
 14. 觉醒副本
+15. 六道之门速刷
+    - 目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”
 
 ## 下载安装
 
@@ -60,7 +62,7 @@
 
    1. 使用 `git` 命令下载源码  
       ```bash
-      git close https://ghproxy.com/https://github.com/AquamarineCyan/Onmyoji_Python.git --depth=1 --single-branch
+      git close https://mirror.ghproxy.com/https://github.com/AquamarineCyan/Onmyoji_Python.git --depth=1 --single-branch
       ```
       后续只需 `git pull`
 
@@ -97,34 +99,6 @@
 ## 主界面
 
 ![效果图](image.png)
-
-- 功能模块
-    - 1.御魂副本
-    - 2.组队永生之海副本
-    - 3.业原火副本
-    - 4.御灵副本
-    - 5.个人突破
-    - 6.寮突破
-    - 7.道馆突破
-    - 8.普通召唤
-    - 9.百鬼夜行
-    - 10.限时活动
-    - 11.组队日轮副本
-    - 12.单人探索
-    - 13.契灵
-- 游戏检测
-    - 手动更新游戏窗口信息，适合窗口移动，或双开
-- 中途停止
-- 设置
-    - 更新模式
-      - 自动更新/关闭
-    - 下载线路
-      - ghproxy/GitHub/Gitee
-    - 悬赏封印
-      - 接受/拒绝/忽略/关闭
-    - 界面风格
-      - Windows/Fusion
-    - 记忆上次所选功能
 
 ## 使用方法
 

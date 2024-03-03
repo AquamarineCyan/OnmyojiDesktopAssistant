@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# paddleocr.py
 import json
+import tempfile
 import os
 from ctypes import *
 from datetime import datetime, timezone
@@ -9,7 +7,7 @@ from datetime import datetime, timezone
 import pyautogui
 import win32api
 
-from .application import APP_PATH, SCREENSHOT_DIR_PATH
+from .application import APP_NAME, APP_PATH, SCREENSHOT_DIR_PATH
 from .coordinate import RectangleCoor
 from .decorator import run_in_thread, time_count
 from .event import event_ocr_init
@@ -134,21 +132,22 @@ class CharacterRecognition:
         p_det_infer = det_infer.encode(encode)
         p_ocrkeys = ocrkeys.encode(encode)
 
-        OCR_DEBUG_FILE = SCREENSHOT_DIR_PATH / "ocr_debug.png"
-        if not SCREENSHOT_DIR_PATH.exists():
-            SCREENSHOT_DIR_PATH.mkdir()
+        # OCR_DEBUG_FILE = SCREENSHOT_DIR_PATH / "ocr_debug.png"
+        # if not SCREENSHOT_DIR_PATH.exists():
+        # SCREENSHOT_DIR_PATH.mkdir()
 
         parameterjson = json.dumps(parameter, default=PaddleOCRParameter2dict)
         paddleOCR.Initializejson(p_det_infer, p_cls_infer, p_rec_infer, p_ocrkeys, parameterjson.encode(encode))
         paddleOCR.Detect.restype = c_wchar_p
 
-        self.img_file = OCR_DEBUG_FILE
+        # self.img_file = OCR_DEBUG_FILE
+        self.img_file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
         self.paddleocr = paddleOCR
         self.flag_init = True
         event_ocr_init.set()
         return True
 
-    def get_raw_result(self) -> dict:
+    def get_raw_result(self) -> dict | None:
         window_width_screenshot = 1138  # 截图宽度
         window_height_screenshot = 679  # 截图高度
 
@@ -170,6 +169,7 @@ class CharacterRecognition:
             logger.info(f"ocr screenshot cost {t2-t1} at {self.img_file}")
         except Exception:
             logger.error("screenshot failed.")
+            return None
 
         # 下面的方法不能实现，只能保存到本地，然后用gbk编码打开
         # byte_image = io.BytesIO()
@@ -184,6 +184,7 @@ class CharacterRecognition:
         self.result = json.loads(result)
         for item in self.result:
             logger.info(f"ocr result: {item}")
+        # TODO 优化返回值，去除多余项
         return self.result
 
     @run_in_thread

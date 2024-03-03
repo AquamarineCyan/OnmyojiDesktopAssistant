@@ -27,7 +27,7 @@ class LiuDaoZhiMen(Package):
         "shop_refresh",  # 商店刷新
         "start",  # 开启挑战
     ]
-    description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容"
+    description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     STATE_START = 1
     STATE_RUNNING = 2
 
@@ -232,8 +232,7 @@ class LiuDaoZhiMen(Package):
                                 continue
                             if ocr_data.text == "柔风抱暖":
                                 self.check_click("imitation")
-                                random_sleep()
-                                KeyBoard.enter()
+                                KeyBoard.enter(1)
                                 random_sleep()
                                 click()
                                 flag_max_buff = False
@@ -266,16 +265,14 @@ class LiuDaoZhiMen(Package):
                     if ocr_data.text == "柔风抱暖":
                         logger.scene("BUFF选取柔风抱暖")
                         click(ocr_data)
-                        random_sleep()
-                        KeyBoard.enter()
+                        KeyBoard.enter(1)
                         break
                 random_sleep()
                 self.check_click("shop_refresh")
                 logger.ui(f"刷新商店第{self.shop_refresh_counts}次")
                 self.shop_refresh_counts += 1
                 # 可能没有"不再提示"
-                random_sleep()
-                KeyBoard.enter()
+                KeyBoard.enter(1)
                 # 需要重新识别，防止和战斗后的选取BUFF冲突
                 break
 
@@ -318,8 +315,7 @@ class LiuDaoZhiMen(Package):
                 if not flag_already_resetting:
                     self.check_click("fight_ready_resetting")
                     flag_already_resetting = True
-                    random_sleep()
-                    KeyBoard.enter()
+                    KeyBoard.enter(1)
                 # 检查每个BUFF
                 for _ in range(1):
                     click(RelativeCoor(760, 150))  # [1,1]
@@ -342,6 +338,7 @@ class LiuDaoZhiMen(Package):
                 click()
                 random_sleep(2)
                 self.check_click("fight")
+                random_sleep(2)
                 break
 
             # 结算

@@ -595,17 +595,21 @@ def screenshot(screenshot_path: str = "cache") -> bool:
 class KeyBoard:
     """键盘事件"""
 
-    def keyboard_input(key: str):
+    def keyboard_input(key: int):
         import ctypes
         ctypes.windll.user32.keybd_event(key, 0, 0, 0)
         ctypes.windll.user32.keybd_event(key, 0, 0x0002, 0)
 
     @classmethod
-    def enter(self):
+    def enter(cls, wait: float = 0):
         """键入`回车键`"""
-        self.keyboard_input(0x0D)
+        if wait:
+            time.sleep(wait)
+        cls.keyboard_input(0x0D)
 
     @classmethod
-    def esc(self):
+    def esc(cls, wait: float = 0):
         """键入`ESC键`"""
-        self.keyboard_input(0x1B)
+        if wait:
+            time.sleep(wait)
+        cls.keyboard_input(0x1B)
