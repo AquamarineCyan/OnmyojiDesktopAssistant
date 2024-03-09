@@ -74,15 +74,18 @@ class HuoDong(Package):
                     _timer = WorkTimer(3, self.timer_check_start)
                     _timer.start()
                 case "fail":
-                    _timer.cancel()
+                    if _timer:
+                        _timer.cancel()
                     logger.ui("失败", "error")
                     break
                 case "victory":
-                    _timer.cancel()
+                    if _timer:
+                        _timer.cancel()
                     logger.ui("胜利")
                     random_sleep(0.4, 0.8)
                 case "finish":
-                    _timer.cancel()
+                    if _timer:
+                        _timer.cancel()
                     logger.ui("结束")
                     random_sleep(0.4, 0.8)
                     finish_random_left_right(is_multiple_drops_y=True)
