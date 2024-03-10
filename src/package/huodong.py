@@ -29,6 +29,7 @@ class HuoDong(Package):
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self._flag_timer_check_start: bool = False
+        self.flag_soul_overflow: bool = False
 
     def start(self) -> None:
         """开始"""
@@ -46,6 +47,7 @@ class HuoDong(Package):
             f"{self.global_resource_path}/finish",
             f"{self.global_resource_path}/fail",
             f"{self.global_resource_path}/victory",
+            f"{self.global_resource_path}/soul_overflow",
         ]
         _flag_title_msg: bool = True
         logger.num(f"0/{self.max}")
@@ -82,24 +84,42 @@ class HuoDong(Package):
                     if _timer:
                         _timer.cancel()
                     logger.ui("胜利")
-                    random_sleep(0.4, 0.8)
+                    random_sleep()
                 case "finish":
                     if _timer:
                         _timer.cancel()
                     logger.ui("结束")
                     random_sleep(0.4, 0.8)
-                    finish_random_left_right(is_multiple_drops_y=True)
+                    _coor_finish = finish_random_left_right(is_multiple_drops_y=True)
                     random_sleep(0.4, 0.8)
+                    if self.flag_soul_overflow:
+                        random_sleep()
+
                     while True:
                         if event_thread.is_set():
                             return
+                        # 先判断御魂上限提醒
+                        coor = get_coor_info(f"{self.global_resource_path}/soul_overflow")
+                        if coor.is_effective:
+                            logger.ui("御魂上限提醒", "warn")
+                            self.flag_soul_overflow = True
+                            click(coor)
+                            continue
+                        
                         coor = get_coor_info(f"{self.global_resource_path}/finish")
                         # 未重复检测到，表示成功点击
                         if coor.is_zero:
-                            self.done()
                             break
-                        click()
-                        random_sleep(0.4, 0.8)
+                        click(_coor_finish)
+
+                    self.done()
+                    random_sleep()
+                case "soul_overflow":
+                    if _timer:
+                        _timer.cancel()
+                    logger.ui("御魂上限提醒", "warn")
+                    self.flag_soul_overflow = True
+                    click(coor)
                 case _:
                     if _flag_title_msg:
                         logger.ui("请检查游戏场景", "warn")
