@@ -11,9 +11,10 @@ packages = [{include = "src"}]
 python = ">=3.10,<3.11"
 apscheduler = "^3.10.4"
 httpx = "^0.27.0"
-opencv-python = "^4.9.0.80"
+opencv-python = {extras = ["numpy"], version = "^4.9.0.80"}
+pillow = "^10.2.0"
 pyautogui = "^0.9.54"
-pydantic = "^2.6.3"
+pydantic = "^2.6.4"
 pyside6 = "^6.6.2"
 pywin32 = "^306"
 pyyaml = "^6.0.1"
@@ -21,8 +22,12 @@ win11toast = "^0.34"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.4.0"
-pytest = "^8.0.2"
+pyinstaller = "^6.5.0"
+pytest = "^8.1.1"
+ruff = "^0.3.3"
+
+[tool.ruff]
+line-length = 88
 
 [[tool.poetry.source]]
 name = "aliyun"

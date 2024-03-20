@@ -613,3 +613,17 @@ class KeyBoard:
         if wait:
             time.sleep(wait)
         cls.keyboard_input(0x1B)
+
+
+def check_user_file_exists(file: str) -> (Path | None):
+    """检查用户素材"""
+    _full_path = RESOURCE_DIR_PATH / file
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
+    if _full_path_user.exists():
+        logger.info(f"使用用户素材{_full_path_user}")
+        return _full_path_user
+    elif _full_path.exists():
+        return _full_path
+    else:
+        logger.ui(f"no such file {file}", "warn")
+        return None

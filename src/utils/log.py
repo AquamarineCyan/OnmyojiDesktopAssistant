@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# log.py
-"""日志"""
-
 import logging
 from datetime import date, datetime
 from pathlib import Path
@@ -34,6 +29,12 @@ class CustomLogger(logging.Logger):
                 send_gui_msg(msg, "red")
                 super()._log(logging.ERROR, msg, args, **kwargs)
 
+    def ui_warn(self, msg, *args, **kwargs):
+        self.ui(msg, "warn", *args, **kwargs)
+
+    def ui_error(self, msg, *args, **kwargs):
+        self.ui(msg, "error", *args, **kwargs)
+
     def scene(self, msg, *args, **kwargs):
         send_gui_msg(msg, "green")
         super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs)
@@ -60,7 +61,8 @@ stream_handler.setLevel(logging.DEBUG)
 # 创建日志格式
 formatter = logging.Formatter(
     fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(pathname)s[line:%(lineno)d]-%(funcName)s %(message)s",
-    datefmt="%H:%M:%S")
+    datefmt="%H:%M:%S",
+)
 file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
 
@@ -79,9 +81,11 @@ def log_clean_up() -> bool:
         logger.error("Not found log dir.")
         return False
     for item in LOG_DIR_PATH.iterdir():
-        log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
+        log_date = date(
+            int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:])
+        )
         # 自动清理
-        if (today-log_date).days > 30:
+        if (today - log_date).days > 30:
             try:
                 item.unlink()
                 n += 1

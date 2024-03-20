@@ -1,3 +1,4 @@
+import win32api
 import win32con
 import win32gui
 
@@ -5,13 +6,20 @@ from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
 
+SCREEN_SIZE = (
+    win32api.GetSystemMetrics(win32con.SM_CXSCREEN),
+    win32api.GetSystemMetrics(win32con.SM_CYSCREEN),
+)
+
 
 def enum_windows(hwnd, result_list):
     result_list.append(hwnd)
     return True
 
 
-def get_all_same_title_window_numbers(title: str = None) -> tuple[int, tuple[int, int, int, int] | None]:
+def get_all_same_title_window_numbers(
+    title: str = None,
+) -> tuple[int, tuple[int, int, int, int] | None]:
     """返回相同标题的窗口数量和矩形坐标
 
     参数:
@@ -97,7 +105,7 @@ class GameWindow:
         return self.handle_rect == new_rect
 
     def update_game_window_rect(self, rect: tuple[int, int, int, int]):
-        """更新游戏窗口矩形坐标       
+        """更新游戏窗口矩形坐标
 
         参数:
             rect (tuple[int, int, int, int]): 窗口矩形坐标
@@ -131,7 +139,11 @@ class GameWindow:
 
     def force_zoom(self):  # TODO 比例差一点
         """强制缩放 1154*687"""
-        if (self.handle is not None) and (self.handle_rect[0] != 0) and (self.window_top != 0):
+        if (
+            (self.handle is not None)
+            and (self.handle_rect[0] != 0)
+            and (self.window_top != 0)
+        ):
             win32gui.SetWindowPos(
                 self.handle,
                 win32con.HWND_TOP,
@@ -139,7 +151,7 @@ class GameWindow:
                 self.handle_rect[1],
                 self.window_standard_width,
                 self.window_standard_height,
-                win32con.SWP_SHOWWINDOW
+                win32con.SWP_SHOWWINDOW,
             )
             self.update_game_window_rect(win32gui.GetWindowRect(self.handle))
             logger.info(f"new_handle_coor:{self.handle_rect}")
@@ -174,11 +186,18 @@ def check_game_handle() -> bool:
     if handle_rect == (0, 0, 0, 0):
         logger.error("Game is close!")
         ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
-    elif handle_rect[0] < -9 or handle_rect[1] < 0 or handle_rect[2] < 0 or handle_rect[3] < 0:
+    elif (
+        handle_rect[0] < -9
+        or handle_rect[1] < 0
+        or handle_rect[2] < 0
+        or handle_rect[3] < 0
+    ):
         logger.error(f"Game is background, handle_rect:{handle_rect}")
         ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
-    elif handle_rect[2] - handle_rect[0] != window.window_standard_width and \
-            handle_rect[3] - handle_rect[1] != window.window_standard_height:
+    elif (
+        handle_rect[2] - handle_rect[0] != window.window_standard_width
+        and handle_rect[3] - handle_rect[1] != window.window_standard_height
+    ):
         ms.main.qmessagbox_update.emit("question", "强制缩放")
     else:
         logger.ui("游戏窗口检测成功")

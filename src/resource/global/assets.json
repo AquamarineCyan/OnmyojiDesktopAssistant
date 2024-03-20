@@ -1,0 +1,71 @@
+{
+    "current_path": "global",
+    "image_data": [
+        {
+            "name": "accept_invitation",
+            "file": "accept_invitation.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "fail",
+            "file": "fail.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"    
+        },
+        {
+            "name": "finish",
+            "file": "finish.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "passenger_2",
+            "file": "passenger_2.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "passenger_3",
+            "file": "passenger_3.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "ready_new",
+            "file": "ready_new.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "ready_old",
+            "file": "ready_old.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "soul_overflow",
+            "file": "soul_overflow.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "start_single",
+            "file": "start_single.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "start_team",
+            "file": "start_team.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "victory",
+            "file": "victory.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ]
+}
