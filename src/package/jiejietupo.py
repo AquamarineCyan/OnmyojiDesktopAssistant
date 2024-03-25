@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 
 import pyautogui
@@ -15,13 +16,11 @@ from ..utils.function import (
     get_coor_info,
     image_file_format,
     random_coor,
-    random_sleep
+    random_sleep,
 )
 from ..utils.log import logger
 from ..utils.window import window
 from .utils import Package
-
-from enum import Enum
 
 
 class LineupState(Enum):
@@ -604,11 +603,13 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 return flag
             else:
                 logger.ui(f"{i} 已失败")
-                i += 1
-                if i == 8:
+                if i < 8:
+                    i += 1
+                else:
                     # 单页上限8个
                     logger.ui("当前页全部失败", "warn")
                     # return -1
+                    random_sleep()
                     self.page_down(4)
                     i = 1
 
