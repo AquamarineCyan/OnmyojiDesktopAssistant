@@ -1,4 +1,4 @@
-from .window import window, SCREEN_SIZE
+from .window import SCREEN_SIZE, window
 
 
 class Point:
@@ -11,13 +11,14 @@ class Point:
         bool(point): 返回坐标是否有效
         point.coor: 返回坐标(x,y)
     """
-    x :float = 0
-    y :float = 0
 
-    def __init__(self, x: float = 0, y:  float = 0) -> None:
+    x: float = 0
+    y: float = 0
+
+    def __init__(self, x: float = 0, y: float = 0) -> None:
         """参数:
-            x (float): 横轴坐标
-            y (float): 纵轴坐标
+        x (float): 横轴坐标
+        y (float): 纵轴坐标
         """
         self.x: float = x
         self.y: float = y
@@ -65,7 +66,7 @@ class RelativePoint(Point):
 class RectanglePoint:
     """矩形坐标"""
 
-    def __init__(self, x1, y1, x2, y2) -> None:
+    def __init__(self, x1: float, y1: float, x2: float, y2: float) -> None:
         self.x1 = x1
         self.x2 = x2
         self.y1 = y1

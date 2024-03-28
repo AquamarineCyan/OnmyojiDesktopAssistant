@@ -2,7 +2,7 @@ import logging
 from datetime import date, datetime
 from pathlib import Path
 
-from .application import LOG_DIR_PATH, APP_NAME
+from .application import APP_NAME, LOG_DIR_PATH
 from .mysignal import global_ms as ms
 
 LOG_LEVEL_GUI: int = 25
@@ -30,10 +30,12 @@ class CustomLogger(logging.Logger):
                 super()._log(logging.ERROR, msg, args, **kwargs)
 
     def ui_warn(self, msg, *args, **kwargs):
-        self.ui(msg, "warn", *args, **kwargs)
+        send_gui_msg(msg, "red")
+        super()._log(logging.WARNING, msg, args, **kwargs)
 
     def ui_error(self, msg, *args, **kwargs):
-        self.ui(msg, "error", *args, **kwargs)
+        send_gui_msg(msg, "red")
+        super()._log(logging.ERROR, msg, args, **kwargs)
 
     def scene(self, msg, *args, **kwargs):
         send_gui_msg(msg, "green")

@@ -1,67 +1,13 @@
-import time
 from pathlib import Path
 from typing import Literal
 
 import cv2
-import numpy as np
-from PIL import ImageGrab
-from pydantic import BaseModel
 
+from .assets import AssetImage
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
-from .window import window
-
-
-class ScreenShot:
-    def __init__(self, rect: tuple[int, int, int, int] = None):
-        self._image = None
-        _rect = (
-            window.window_left,
-            window.window_top,
-            window.window_width,
-            window.window_height,
-        )
-        if rect:
-            self.rect = (_rect[0] + rect[0], _rect[1] + rect[1], rect[2], rect[3])
-        else:
-            self.rect = _rect
-        # self.rect = window.handle_rect if rect is None else rect
-        self._image_mat = None
-        self._screenshot()
-
-    def _screenshot(self):
-        _rect = (
-            self.rect[0],
-            self.rect[1],
-            self.rect[0] + self.rect[2],
-            self.rect[1] + self.rect[3] + 39,
-        )
-        _start = time.perf_counter()
-        image = ImageGrab.grab(_rect)
-        _end = time.perf_counter()
-        logger.info(f"screenshot cost {round((_end - _start) * 1000, 2)}ms")
-        # image.show()
-        self._image = image
-        return image
-
-    def save(self, file):
-        self._image.save(file)
-
-    def return_mat(self):
-        img_np = np.array(self._image)
-        # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
-        img_mat = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
-        self._image_mat = img_mat
-        return img_mat
-
-
-class AssstImage(BaseModel):
-    name: str = None
-    file: str = None
-    region: tuple[int, int, int, int] = None
-    score: float = 0.8
-    method: Literal["COLOR", "GRAYSCALE"] = "COLOR"
+from .screenshot import ScreenShot
 
 
 class RuleImage:
@@ -69,7 +15,7 @@ class RuleImage:
 
     用法:
     ```python
-    image = RuleImage(assstimage=AssstImage)
+    image = RuleImage(assetimage=AssetImage)
     result = image.match()
     if result:
         point = image.center()
@@ -78,7 +24,7 @@ class RuleImage:
 
     def __init__(
         self,
-        assstimage: AssstImage = None,
+        assetimage: AssetImage = None,
         name: str = None,
         file: str | Path = None,
         region: tuple = None,
@@ -87,18 +33,19 @@ class RuleImage:
     ) -> None:
         """
         参数:
-            assstimage (AssstImage): 素材文件
+            assetimage (AssetImage): 素材文件
             file (str | Path): 相对路径
-            region (tuple): 匹配区域
+            name (str): 素材名称
+            region (tuple): 匹配区域（左，上，宽，高）
             score (float): 阈值
-            method (Literal[&quot;COLOR&quot;, &quot;GRAYSCALE&quot;]): method
+            method (Literal[&quot;COLOR&quot;, &quot;GRAYSCALE&quot;]): 匹配方法
         """
-        if assstimage:
-            _file = assstimage.file
-            self.name = assstimage.name
-            self.region = assstimage.region
-            self.score = assstimage.score
-            self.method = assstimage.method
+        if assetimage:
+            _file = assetimage.file
+            self.name = assetimage.name
+            self.region = assetimage.region
+            self.score = assetimage.score
+            self.method = assetimage.method
         else:
             _file = file
             self.name = name
@@ -124,12 +71,19 @@ class RuleImage:
         img = cv2.imread(str(self.file), _method)
         self._image = img
 
-    def match(self, image=None, score: float = None, debug: bool = False) -> bool:
+    def match(
+        self,
+        image: cv2.typing.MatLike | str = None,
+        score: float = None,
+        debug: bool = False,
+    ) -> bool:
         if image is None:
             image = ScreenShot(self.region).return_mat()
             # if debug:
             #     cv2.imshow("image", image)
             #     cv2.waitKey(0)
+        elif isinstance(image, cv2.typing.MatLike):
+            image = image
         else:
             image = cv2.imread(image, cv2.IMREAD_COLOR)
         if score is None:
@@ -139,8 +93,6 @@ class RuleImage:
         res = cv2.matchTemplate(image, self._image, cv2.TM_CCOEFF_NORMED)
         # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
-        # logger.attr(self.name, max_val)
 
         if max_val < score:
             return False
@@ -178,18 +130,19 @@ class RuleImage:
         return RelativePoint(x, y)
 
 
-def check_image_once(image_list: list[AssstImage]) -> RuleImage | None:
+def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
     """图像识别，仅遍历一次
 
     参数:
-        image_list (list[AssstImage]): 图像列表
+        image_list (list[AssetImage]): 图像列表
 
     返回:
         RuleImage | None: 识别结果
     """
+    _screenshot = ScreenShot().return_mat()
     for item in image_list:
         image = RuleImage(item)
         logger.debug(image)
-        if image.match():
+        if image.match(_screenshot):
             return image
     return None

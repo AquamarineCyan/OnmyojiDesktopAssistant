@@ -180,23 +180,18 @@ def check_game_handle() -> bool:
     返回:
         bool: 检测结果
     """
-    # 获取游戏窗口信息
     window.get_game_window_handle()
-    handle_rect = window.handle_rect
-    if handle_rect == (0, 0, 0, 0):
+    _rect = window.handle_rect
+
+    if _rect == (0, 0, 0, 0):
         logger.error("Game is close!")
         ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
-    elif (
-        handle_rect[0] < -9
-        or handle_rect[1] < 0
-        or handle_rect[2] < 0
-        or handle_rect[3] < 0
-    ):
-        logger.error(f"Game is background, handle_rect:{handle_rect}")
+    elif _rect[0] < -9 or _rect[1] < 0 or _rect[2] < 0 or _rect[3] < 0:
+        logger.error(f"Game is background, handle_rect:{_rect}")
         ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
     elif (
-        handle_rect[2] - handle_rect[0] != window.window_standard_width
-        and handle_rect[3] - handle_rect[1] != window.window_standard_height
+        _rect[2] - _rect[0] != window.window_standard_width
+        and _rect[3] - _rect[1] != window.window_standard_height
     ):
         ms.main.qmessagbox_update.emit("question", "强制缩放")
     else:

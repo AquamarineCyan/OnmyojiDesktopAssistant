@@ -1,3 +1,4 @@
+import json
 import random
 import time
 from datetime import datetime, timezone
@@ -9,7 +10,7 @@ from .application import (
     RESOURCE_DIR_PATH,
     RESOURCE_GLOBAL_PATH,
     SCREENSHOT_DIR_PATH,
-    USER_DATA_DIR_PATH
+    USER_DATA_DIR_PATH,
 )
 from .coordinate import AbsoluteCoor, Coor, RelativeCoor
 from .decorator import log_function_call
@@ -25,16 +26,16 @@ def random_normal(min: int | float, max: int | float) -> int:
     sigma = (max - mu) / 3
     while True:
         numb = random.gauss(mu, sigma)
-        if (numb > min and numb < max):
-            logger.info(f"normal index: {numb}")
+        if numb > min and numb < max:
+            logger.info(f"normal index: {round(numb)}")
             break
         else:
-            logger.info(f"normal out of index: {numb}")
+            logger.info(f"normal out of index: {round(numb)}")
     return int(numb)
 
 
 def random_num(minimum: int | float, maximum: int | float) -> float:
-    """返回给定范围的随机值        
+    """返回给定范围的随机值
 
     参数:
         minimum (int | float): 最小值（含）
@@ -104,7 +105,9 @@ def image_file_format(file: Path | str) -> str:
             _file = file.__str__()
     # 即使传了self.global_resource_path，Pathlib会自动合并相同路径
     _full_path = RESOURCE_DIR_PATH / _file
-    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
+        *_full_path.parts[-2:]
+    )
     # 检查用户素材
     if _full_path_user.exists():
         logger.info(f"使用用户素材{_full_path_user}")
@@ -116,8 +119,7 @@ def image_file_format(file: Path | str) -> str:
 
 
 def get_coor_info(
-    file: Path | str,
-    region: tuple[int, int, int, int] = (0, 0, 0, 0)
+    file: Path | str, region: tuple[int, int, int, int] = (0, 0, 0, 0)
 ) -> AbsoluteCoor:
     """图像识别，返回图像的全屏随机坐标
 
@@ -145,14 +147,12 @@ def get_coor_info(
         region[0] + window.window_left,
         region[1] + window.window_top,
         region[2] + window.window_standard_width,
-        region[3] + window.window_standard_height
+        region[3] + window.window_standard_height,
     )
 
     try:
         button_location = pyautogui.locateOnScreen(
-            image=_file_name,
-            region=_region,
-            confidence=0.8
+            image=_file_name, region=_region, confidence=0.8
         )
         # logger.debug(f"button_location: {button_location}")
         if button_location:
@@ -161,7 +161,7 @@ def get_coor_info(
             button_location[0],
             button_location[0] + button_location[2],
             button_location[1],
-            button_location[1] + button_location[3]
+            button_location[1] + button_location[3],
         )
         return coor
     except Exception:
@@ -190,9 +190,9 @@ def get_coor_info_center(file: Path | str, is_log: bool = True) -> Coor:
                 window.window_left,
                 window.window_top,
                 window.window_standard_width,
-                window.window_standard_height
+                window.window_standard_height,
             ),
-            confidence=0.8
+            confidence=0.8,
         )
         if is_log:
             logger.debug(f"button_location: {button_location}")
@@ -228,7 +228,9 @@ def check_scene(file: str, timeout: float = 0) -> bool:
             return True
 
 
-def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[str | None, Coor]:
+def check_scene_multiple_once(
+    scene: list, resource_path: str = None
+) -> tuple[str | None, Coor]:
     """
     多场景判断，仅遍历一次
 
@@ -261,15 +263,13 @@ def check_scene_multiple_once(scene: list, resource_path: str = None) -> tuple[s
 
 
 def check_scene_multiple_while(
-    scene: dict | list = None,
-    resource_path: str = None,
-    text: str = None
+    scene: dict | list = None, resource_path: str = None, text: str = None
 ) -> tuple[str, Coor]:
     """多场景判断，循环遍历，直至符合任意一个场景
 
     参数:
         scene (dict | list): 多场景列表
-        resource_path (str): 路径 
+        resource_path (str): 路径
         text (str): 提示
 
     返回:
@@ -407,7 +407,7 @@ def check_finish_once() -> bool | None:
 def finish_random_left_right(
     is_click: bool = True,
     is_multiple_drops_x: bool = False,
-    is_multiple_drops_y: bool = False
+    is_multiple_drops_y: bool = False,
 ) -> Coor:
     """图像识别，返回图像的局部相对坐标
 
@@ -457,18 +457,18 @@ def finish_random_left_right(
     return RelativeCoor(x, y)
 
 
-def click(coor: Coor = None, dura: float = 0.5, sleeptime: float = 0) -> None:
+def click(
+    coor: AbsoluteCoor | RelativeCoor | OcrData = None,
+    dura: float = 0.5,
+    sleeptime: float = 0,
+) -> None:
     if event_thread.is_set():
         return
     # 延迟
     if sleeptime:
         time.sleep(sleeptime)
     # 补间移动，默认启用
-    list_tween = [
-        pyautogui.easeInQuad,
-        pyautogui.easeOutQuad,
-        pyautogui.easeInOutQuad
-    ]
+    list_tween = [pyautogui.easeInQuad, pyautogui.easeOutQuad, pyautogui.easeInOutQuad]
     random.seed(time.time_ns())
 
     if isinstance(coor, OcrData):
@@ -494,7 +494,7 @@ def check_click(
     is_click: bool = True,
     dura: float = 0.5,
     sleep_time: float = 0,
-    timeout: float = 0
+    timeout: float = 0,
 ) -> bool:
     """图像识别，并点击
 
@@ -527,11 +527,7 @@ def check_click(
 
 
 @log_function_call
-def drag_in_window(
-    x_offset: int = None,
-    y_offset: int = None,
-    duration: float = 0.5
-):
+def drag_in_window(x_offset: int = None, y_offset: int = None, duration: float = 0.5):
     """在当前窗口内移动
 
     参数:
@@ -549,9 +545,7 @@ def drag_in_window(
     y = random_num(y1, y2)
     # TODO 需要先判断当前鼠标是否在移动区域内，减少不必要的移动
     pyautogui.moveTo(
-        x+window.window_left,
-        y+window.window_top,
-        duration=random_num(0.5, 0.8)
+        x + window.window_left, y + window.window_top, duration=random_num(0.5, 0.8)
     )
     pyautogui.drag(x_offset, y_offset, duration, button="left")
     # pyautogui.drag(-400,0, 1,button="left")
@@ -581,8 +575,8 @@ def screenshot(screenshot_path: str = "cache") -> bool:
                 window.window_left - 1,
                 window.window_top,
                 window_width_screenshot,
-                window_height_screenshot
-            )
+                window_height_screenshot,
+            ),
         )
         t2 = datetime.now(timezone.utc)
         logger.info(f"screenshot cost {t2-t1} at {_file}")
@@ -615,10 +609,12 @@ class KeyBoard:
         cls.keyboard_input(0x1B)
 
 
-def check_user_file_exists(file: str) -> (Path | None):
+def check_user_file_exists(file: str) -> Path | None:
     """检查用户素材"""
     _full_path = RESOURCE_DIR_PATH / file
-    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
+        *_full_path.parts[-2:]
+    )
     if _full_path_user.exists():
         logger.info(f"使用用户素材{_full_path_user}")
         return _full_path_user
@@ -627,3 +623,50 @@ def check_user_file_exists(file: str) -> (Path | None):
     else:
         logger.ui(f"no such file {file}", "warn")
         return None
+
+
+def open_asset_file(file: Path) -> dict:
+    data = {}
+    try:
+        with open(str(file), encoding="utf-8") as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        if "myresource" not in str(file):
+            logger.ui_error(f"文件未找到:{file}")
+    except json.JSONDecodeError:
+        logger.ui_error(f"{file}解析错误")
+    except (ValueError, TypeError):
+        logger.ui_error(f"{file}值错误或类型错误")
+    except Exception as e:
+        logger.ui_error(f"{file}打开失败: {e}")
+    finally:
+        return data
+
+
+def merge_dict(base_dict, update_dict):
+    """合并字典
+
+    参数:
+        base_dict (dict): 源字典
+        update_dict (dict): 新字典
+
+    返回:
+        dict: 合并后的字典
+    """
+    if not update_dict:
+        return base_dict
+
+    for data_type in ["image_data", "ocr_data"]:
+        if data_type in base_dict and data_type in update_dict:
+            for item_update_dict in update_dict[data_type]:
+                _name = item_update_dict.get("name")
+                existing = False
+                for item in base_dict.get(data_type):
+                    if item.get("name") == _name:
+                        item.update(item_update_dict)
+                        existing = True
+                        break
+                if not existing:
+                    base_dict[data_type].append(item_update_dict)
+
+    return base_dict
