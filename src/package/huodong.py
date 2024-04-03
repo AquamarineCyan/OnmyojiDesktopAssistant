@@ -6,7 +6,7 @@ from ..utils.function import (
     click,
     finish_random_left_right,
     get_coor_info,
-    random_sleep
+    random_sleep,
 )
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
@@ -15,6 +15,7 @@ from .utils import Package
 
 class HuoDong(Package):
     """限时活动"""
+
     scene_name = "限时活动"
     resource_path = "huodong"
     resource_list: list = [
@@ -44,12 +45,14 @@ class HuoDong(Package):
     def run(self) -> None:
         _g_resource_list: list = [
             f"{self.resource_path}/title",
+            f"{self.resource_path}/result",
             f"{self.global_resource_path}/finish",
             f"{self.global_resource_path}/fail",
             f"{self.global_resource_path}/victory",
             f"{self.global_resource_path}/soul_overflow",
         ]
         _flag_title_msg: bool = True
+        _flag_result_click: bool = False  # 部分活动会有“获得奖励”弹窗
         logger.num(f"0/{self.max}")
         logger.info(f"_g_resource_list:{_g_resource_list}")
 
@@ -72,9 +75,14 @@ class HuoDong(Package):
                     logger.scene(self.activity_name)
                     _flag_title_msg = False
                     self.start()
+                    _flag_result_click = False
                     random_sleep()
                     _timer = WorkTimer(3, self.timer_check_start)
                     _timer.start()
+                case "result":
+                    logger.ui("获得奖励")
+                    finish_random_left_right(is_multiple_drops_y=True)
+                    _flag_result_click = True
                 case "fail":
                     if _timer:
                         _timer.cancel()
@@ -84,6 +92,10 @@ class HuoDong(Package):
                     if _timer:
                         _timer.cancel()
                     logger.ui("胜利")
+                    if _flag_result_click:
+                        click()
+                        self.done()
+                        continue
                     random_sleep()
                 case "finish":
                     if _timer:
@@ -99,13 +111,15 @@ class HuoDong(Package):
                         if event_thread.is_set():
                             return
                         # 先判断御魂上限提醒
-                        coor = get_coor_info(f"{self.global_resource_path}/soul_overflow")
+                        coor = get_coor_info(
+                            f"{self.global_resource_path}/soul_overflow"
+                        )
                         if coor.is_effective:
                             logger.ui("御魂上限提醒", "warn")
                             self.flag_soul_overflow = True
                             click(coor)
                             continue
-                        
+
                         coor = get_coor_info(f"{self.global_resource_path}/finish")
                         # 未重复检测到，表示成功点击
                         if coor.is_zero:
