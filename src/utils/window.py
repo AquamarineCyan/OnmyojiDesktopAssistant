@@ -1,3 +1,5 @@
+import ctypes
+
 import win32api
 import win32con
 import win32gui
@@ -5,6 +7,12 @@ import win32gui
 from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
+
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except AttributeError:
+    logger.ui_warn("SetProcessDPIAware() not found, not running on Windows")
+
 
 SCREEN_SIZE = (
     win32api.GetSystemMetrics(win32con.SM_CXSCREEN),
@@ -180,6 +188,7 @@ def check_game_handle() -> bool:
     返回:
         bool: 检测结果
     """
+    logger.info(f"SCREEN_SIZE: {SCREEN_SIZE}")
     window.get_game_window_handle()
     _rect = window.handle_rect
 

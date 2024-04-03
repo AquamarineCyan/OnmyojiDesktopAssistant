@@ -62,6 +62,12 @@
             "score": "0.8"
         },
         {
+            "name": "tanchigui",
+            "file": "tanchigui.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
             "name": "victory",
             "file": "victory.png",
             "region": [0, 0, 1154, 687],

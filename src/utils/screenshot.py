@@ -9,7 +9,7 @@ from .window import window
 
 
 class ScreenShot:
-    def __init__(self, rect: tuple[int, int, int, int] = None):
+    def __init__(self, rect: tuple[int, int, int, int] = None, _log: bool = True):
         self._image = None
         _rect = (
             window.window_left,
@@ -23,6 +23,7 @@ class ScreenShot:
             self.rect = _rect
         # self.rect = window.handle_rect if rect is None else rect
         self._image_mat = None
+        self._log = _log
         self._screenshot()
 
     def _screenshot(self):
@@ -35,7 +36,8 @@ class ScreenShot:
         _start = time.perf_counter()
         image = ImageGrab.grab(_rect)
         _end = time.perf_counter()
-        logger.info(f"screenshot cost {round((_end - _start) * 1000, 2)}ms")
+        if self._log:
+            logger.info(f"screenshot cost {round((_end - _start) * 1000, 2)}ms")
         # image.show()
         self._image = image
         return image

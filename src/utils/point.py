@@ -40,7 +40,7 @@ class AbsolutePoint(Point):
     def __init__(self, x: float = 0, y: float = 0) -> None:
         super().__init__(x, y)
 
-    def abs_to_rela(self):
+    def abs_to_rela(self) -> "RelativePoint":
         x = self.x - window.window_left
         y = self.y - window.window_top
         return RelativePoint(x, y)
@@ -55,7 +55,7 @@ class RelativePoint(Point):
     def __init__(self, x: float = 0, y: float = 0) -> None:
         super().__init__(x, y)
 
-    def rela_to_abs(self):
+    def rela_to_abs(self) -> "AbsolutePoint":
         x = self.x + window.window_left
         y = self.y + window.window_top
         width, height = SCREEN_SIZE
@@ -74,7 +74,7 @@ class RectanglePoint:
         self.width = x2 - x1
         self.height = y2 - y1
 
-    def get_rela_center_coor(self):
+    def get_rela_center_coor(self) -> "RelativePoint":
         """返回矩形的相对中心坐标"""
         x = self.x1 + self.width / 2
         y = self.y1 + self.height / 2

@@ -213,35 +213,32 @@ class MainWindow(QMainWindow):
         global_scheduler.start()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
-        match level:
-            case "ERROR":
-                QMessageBox.critical(self, level, msg)
-            case "question":
-                match msg:
-                    case "强制缩放":
-                        logger.error("游戏窗口大小不匹配")
-                        choice = QMessageBox.question(
-                            self,
-                            "窗口大小不匹配",
-                            "是否强制缩放，如不缩放，请自行靠近1136*640，\
-                                或者参考 README.MD 在data/myresource文件夹中添加对应素材"
-                        )
-                        if choice == QMessageBox.Yes:
-                            logger.info("用户接受强制缩放")
-                            window.force_zoom()
-                        elif choice == QMessageBox.No:
-                            logger.info("用户拒绝强制缩放")
-                    case "更新重启":
-                        logger.info("提示：更新重启")
-                        if QMessageBox.question(
-                            self,
-                            "检测到更新包",
-                            "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
-                        ) == QMessageBox.Yes:
-                            logger.info("用户接受更新重启")
-                            WorkThread(func=upgrade.restart).start()
-                        else:
-                            logger.info("用户拒绝更新重启")
+        if level == "ERROR":
+            QMessageBox.critical(self, level, msg)
+        elif level == "question":
+            if msg == "强制缩放":
+                logger.error("游戏窗口大小不匹配")
+                if QMessageBox.question(
+                    self,
+                    "窗口大小不匹配",
+                    "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材",
+                ) == QMessageBox.StandardButton.Yes:
+                    logger.info("用户接受强制缩放")
+                    window.force_zoom()
+                else:
+                    logger.info("用户拒绝强制缩放")
+            elif msg == "更新重启":
+                logger.info("提示：更新重启")
+                if QMessageBox.question(
+                    self,
+                    "检测到更新包",
+                    "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包",
+                ) == QMessageBox.StandardButton.Yes:
+                    logger.info("用户接受更新重启")
+                    WorkThread(func=upgrade.restart).start()
+                else:
+                    logger.info("用户拒绝更新重启")
+    
 
     def ui_text_info_update_func(self, msg: str, color: str) -> None:
         """输出内容至文本框

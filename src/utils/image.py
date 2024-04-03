@@ -4,6 +4,7 @@ from typing import Literal
 import cv2
 
 from .assets import AssetImage
+from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
@@ -73,10 +74,11 @@ class RuleImage:
 
     def match(
         self,
-        image: cv2.typing.MatLike | str = None,
+        image: cv2.typing.MatLike | str | None = None,
         score: float = None,
         debug: bool = False,
     ) -> bool:
+        event_xuanshang.wait()
         if image is None:
             image = ScreenShot(self.region).return_mat()
             # if debug:
