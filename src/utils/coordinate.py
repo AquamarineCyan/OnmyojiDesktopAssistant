@@ -1,23 +1,18 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# coordinate.py
-"""坐标"""
-
-import pyautogui
 from .window import window
 
 
 class Coor:
     """
     一般坐标
+    接口保留，后续使用 `Point`
 
     也可使用 `AbsoluteCoor()` `RelativeCoor()` 做精确区分
     """
 
     def __init__(self, x: int | float = 0, y: int | float = 0) -> None:
         """参数:
-            x (int | float): 横轴坐标
-            y (int | float): 纵轴坐标
+        x (int | float): 横轴坐标
+        y (int | float): 纵轴坐标
         """
         self.x: int | float = x
         self.y: int | float = y
@@ -31,16 +26,10 @@ class Coor:
         return (self.x, self.y)
 
     def _is_zero_func(self) -> bool:
-        if self.x == 0 or self.y == 0:
-            return True
-        else:
-            return False
+        return self.x == 0 or self.y == 0
 
     def _is_effective_func(self) -> bool:
-        if self.x != 0 and self.y != 0:
-            return True
-        else:
-            return False
+        return self.x != 0 and self.y != 0
 
 
 class AbsoluteCoor(Coor):
@@ -70,8 +59,7 @@ class RelativeCoor(Coor):
     def rela_to_abs(self):
         x = self.x + window.window_left
         y = self.y + window.window_top
-        if pyautogui.onScreen(x, y):
-            return AbsoluteCoor(x, y)
+        return AbsoluteCoor(x, y)
 
 
 class RectangleCoor:
@@ -85,6 +73,6 @@ class RectangleCoor:
 
     def get_rela_center_coor(self):
         """返回矩形的相对中心坐标"""
-        x = (self.x1 + self.x2)/2
-        y = (self.y1 + self.y2)/2
+        x = (self.x1 + self.x2) / 2
+        y = (self.y1 + self.y2) / 2
         return RelativeCoor(x, y)

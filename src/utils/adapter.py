@@ -9,7 +9,7 @@ from .event import event_thread, event_xuanshang
 from .log import logger
 from .paddleocr import OcrData
 from .point import AbsolutePoint, RelativePoint
-from .window import SCREEN_SIZE
+from .window import SCREEN_SIZE, window
 
 __all__ = ["Mouse", "KeyBoard"]
 
@@ -60,6 +60,7 @@ class Mouse:
     @classmethod
     def move(
         cls,
+        point: AbsolutePoint | RelativePoint | None = None,
         x: float = None,
         y: float = None,
         xOffset: float = None,
@@ -67,7 +68,9 @@ class Mouse:
         duration: float = None,
         tween=linear,
     ):
-        """Handles the actual move or drag event, since different platforms
+        """
+        移动
+        Handles the actual move or drag event, since different platforms
         implement them differently.
 
         On Windows & Linux, a drag is a normal mouse move while a mouse button is
@@ -99,9 +102,19 @@ class Mouse:
 
         startx, starty = position()
 
-        x = int(x) if x else startx
-        y = int(y) if y else starty
-
+        if point is None:
+            x = int(x) if x else startx
+            y = int(y) if y else starty
+        elif isinstance(point, RelativePoint):
+            x = int(window.window_left + point.x)
+            y = int(window.window_top + point.y)
+        elif isinstance(point, AbsolutePoint):
+            x = int(point.x)
+            y = int(point.y)
+        else:
+            raise TypeError(
+                "The point argument must be an AbsolutePoint or a RelativePoint."
+            )
         x += xOffset
         y += yOffset
 
@@ -168,6 +181,13 @@ class Mouse:
         duration: float = 0.5,
         wait: float = 0,
     ) -> None:
+        """点击
+
+        参数:
+            point (AbsolutePoint | RelativePoint | OcrData | None): 坐标
+            duration (float): 持续时间
+            wait (float): 前置等待时间
+        """
         if bool(event_thread):
             return
         # 延迟
@@ -191,7 +211,7 @@ class Mouse:
         else:
             _x, _y = point.coor
 
-        cls.move(_x, _y, duration=duration, tween=random.choice(list_tween))
+        cls.move(x=_x, y=_y, duration=duration, tween=random.choice(list_tween))
         logger.info(f"click at ({_x},{_y})")
         cls.send_mouse_event(0x6, _x, _y, 0)
         # try:
@@ -200,8 +220,25 @@ class Mouse:
         #     logger.ui("安全错误，可能是您点击了屏幕左上角，请重启后使用", "error")
 
     @classmethod
+    def drag(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+        """拖动，使用前需要先移动鼠标至当前位置
+
+        参数:
+            x_offset (int): 横轴拖动量
+            y_offset (int): 纵轴拖动量
+            duration (float): 持续时间
+        """
+        # 按下鼠标
+        cls.send_mouse_event(0x0002, 0, 0, 0)
+        # 拖动鼠标
+        cls.move(xOffset=x_offset, yOffset=y_offset, duration=duration)
+        # 释放鼠标
+        cls.send_mouse_event(0x0004, 0, 0, 0)
+
+    @classmethod
     def scroll(cls, distance: int) -> None:
         """
+        滚轮
         Scrolls the mouse wheel.
 
         Args:

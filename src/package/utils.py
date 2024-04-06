@@ -1,13 +1,15 @@
-import json
 import time
 from pathlib import Path
+from typing import Literal
 
-from ..utils.adapter import mouse_click
+from ..utils.adapter import Mouse
 from ..utils.application import (
     RESOURCE_DIR_PATH,
     RESOURCE_GLOBAL_PATH,
+    SCREENSHOT_DIR_PATH,
     USER_DATA_DIR_PATH,
 )
+from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.function import (
@@ -16,71 +18,45 @@ from ..utils.function import (
     click,
     finish_random_left_right,
     get_coor_info,
+    merge_dict,
+    open_asset_file,
     random_sleep,
-    screenshot,
 )
-from ..utils.image import AssstImage, RuleImage
+from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
 from ..utils.mysignal import global_ms as ms
+from ..utils.paddleocr import RuleOcr
+from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
 
 
-def open_file(file: Path) -> dict:
-    data = {}
-    try:
-        with open(str(file)) as f:
-            data = json.load(f)
-    except FileNotFoundError:
-        if "myresource" not in str(file):
-            logger.ui_error(f"文件未找到:{file}")
-    except json.JSONDecodeError:
-        logger.ui_error(f"{file}解析错误")
-    except (ValueError, TypeError):
-        logger.ui_error(f"{file}值错误或类型错误")
-    except Exception as e:
-        logger.ui_error(f"{file}打开失败: {e}")
-    finally:
-        return data
-
-
-def merge_dict(dict1, dict2):
-    """合并两个字典"""
-    if dict2 == {}:
-        return dict1
-    for image_dict2 in dict2["image_data"]:
-        name2 = image_dict2["name"]
-        existing = False
-        for image_dict1 in dict1["image_data"]:
-            if image_dict1["name"] == name2:
-                image_dict1.update(image_dict2)
-                existing = True
-                break
-        if not existing:
-            dict1["image_data"].append(image_dict2)
-    return dict1
-
-
-def load_asset(resource_path) -> dict:
+def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
     _full_path = RESOURCE_DIR_PATH / resource_path / "assets.json"
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
         *_full_path.parts[-2:]
     )
 
-    data_default = open_file(_full_path)
+    data_default = open_asset_file(_full_path)
     assets_file = _full_path
-    data_user = open_file(_full_path_user)
+    data_user = open_asset_file(_full_path_user)
     if data_user != {}:
         assets_file = _full_path_user
 
     data = merge_dict(data_default, data_user)
+    if data.get(f"{type}_data") is None:
+        return None
 
     try:
-        current_asset = data["current_path"]
-        data = data["image_data"]
-        for item in data:
-            _item = item["file"]
-            item["file"] = f"{current_asset}/{_item}"
-        return data
+        if type == "image":
+            current_asset = data["current_path"]
+            data = data["image_data"]
+            for item in data:
+                _item = item["file"]
+                item["file"] = f"{current_asset}/{_item}"
+            return data
+        elif type == "ocr":
+            data = data["ocr_data"]
+            return data
     except KeyError:
         logger.ui_error(f"{assets_file}文件内容格式错误")
     except Exception as e:
@@ -117,17 +93,17 @@ class GlobalResource:
     ]
 
     def __init__(self):
-        self.image_data = load_asset(self.resource_path)
+        self.image_data = load_asset(self.resource_path, "image")
         if self.image_data == {}:
             logger.ui_error(f"{self.resource_path}/assets.json文件解析失败")
             return
         try:
-            self.IMAGE_FAIL = AssstImage(**get_asset(self.image_data, "fail"))
-            self.IMAGE_FINISH = AssstImage(**get_asset(self.image_data, "finish"))
-            self.IMAGE_SOUL_OVERFLOW = AssstImage(
+            self.IMAGE_FAIL = AssetImage(**get_asset(self.image_data, "fail"))
+            self.IMAGE_FINISH = AssetImage(**get_asset(self.image_data, "finish"))
+            self.IMAGE_SOUL_OVERFLOW = AssetImage(
                 **get_asset(self.image_data, "soul_overflow")
             )
-            self.IMAGE_VICTORY = AssstImage(**get_asset(self.image_data, "victory"))
+            self.IMAGE_VICTORY = AssetImage(**get_asset(self.image_data, "victory"))
         except Exception as e:
             logger.ui_error(f"{self.resource_path}/assets.json文件内容解析失败: {e}")
             return
@@ -146,6 +122,7 @@ class Package:
     """最快通关速度，用于中途等待"""
     global_resource_path: Path = RESOURCE_GLOBAL_PATH
     """通用资源路径"""
+    ASSET: bool = False
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -157,40 +134,23 @@ class Package:
         """当前使用的资源列表"""
         self.current_scene: str = None
         """当前场景"""
-        self.global_image = GlobalResource()
-        """通用资源"""
-
-        self.load_asset()
+        if self.ASSET:
+            self.global_image = GlobalResource()
+            """通用资源"""
+            self.load_asset()
 
     def load_asset(self):
-        self.asset_list = load_asset(self.resource_path)
+        self.asset_image_list = load_asset(self.resource_path, "image")
+        self.asset_ocr_list = load_asset(self.resource_path, "ocr")
 
     def get_coor_info(self, file, *args, **kwargs):
         return get_coor_info(f"{self.resource_path}/{file}", *args, **kwargs)
-
-    def check_click(self, file, *args, **kwargs):
-        return check_click(f"{self.resource_path}/{file}", *args, **kwargs)
 
     def check_scene_multiple_once(self, *args, **kwargs):
         return check_scene_multiple_once(self.current_resource_list, *args, **kwargs)
 
     def title_error_msg(self):
         logger.ui("请检查游戏场景", "warn")
-
-    @log_function_call
-    def check_title(self):
-        """检查主场景"""
-        _flag_title_msg = True
-        while True:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info("title")
-            if coor.is_effective:
-                logger.scene(self.scene_name)
-                return
-            elif _flag_title_msg:
-                _flag_title_msg = False
-                self.title_error_msg()
 
     def scene_print(self, scene: str = None) -> None:  # FIXME remove
         """打印当前场景"""
@@ -215,17 +175,64 @@ class Package:
         for item in self.current_resource_list:
             logger.info(item)
 
-    def log_current_image_list(self) -> None:
+    def log_current_asset_list(self) -> None:
         """记录当前匹配的资源列表"""
-        if self.current_image_list is None:
+        if self.current_asset_list is None:
             return
-        logger.info(f"current_image_list: {len(self.current_image_list)}")
-        for item in self.current_image_list:
+        logger.info(f"current_image_list: {len(self.current_asset_list)}")
+        for item in self.current_asset_list:
             logger.info(item)
 
-    def check_image_click(
-        self, assstimage: AssstImage = None, timeout: float = 0, *args, **kwargs
+    @log_function_call
+    def check_title(self):
+        """检查主场景"""
+        _flag_title_msg = True
+        _asset_title = None
+
+        # 判断标题采用何种识别方法
+        try:
+            _asset_title = self.OCR_TITLE
+        except AttributeError:
+            logger.warn("no OCR_TITLE")
+        try:
+            _asset_title = self.IMAGE_TITLE
+        except AttributeError:
+            logger.warn("no IMAGE_TITLE")
+
+        while True:
+            if bool(event_thread):
+                return
+
+            if isinstance(_asset_title, AssetOcr):
+                if RuleOcr(_asset_title).match():
+                    logger.scene(self.scene_name)
+                    return
+            elif isinstance(_asset_title, AssetImage):
+                if RuleImage(_asset_title).match():
+                    logger.scene(self.scene_name)
+                    return
+            else:  # FIXME 兼容旧方法
+                coor = self.get_coor_info("title")
+                if coor.is_effective:
+                    logger.scene(self.scene_name)
+                    return
+
+            if _flag_title_msg:
+                _flag_title_msg = False
+                self.title_error_msg()
+
+    def check_click(
+        self,
+        asset: AssetImage | AssetOcr = None,
+        timeout: float = 0,
+        point_type: Literal["random", "center"] = "random",
+        *args,
+        **kwargs,
     ) -> bool:
+        if isinstance(asset, str):
+            check_click(f"{self.resource_path}/{asset}", *args, **kwargs)
+            return
+
         if timeout:
             _start = time.time()
         while True:
@@ -235,22 +242,37 @@ class Package:
                 logger.error("check_image_click timeout")
                 return False
 
-            image = RuleImage(assstimage)
-            if image.match():
-                mouse_click(image.random_point(), *args, **kwargs)
-                return True
+            if isinstance(asset, AssetImage):
+                image = RuleImage(asset)
+                if image.match():
+                    if point_type == "random":
+                        Mouse.click(image.random_point(), *args, **kwargs)
+                    elif point_type == "center":
+                        Mouse.click(image.center_point(), *args, **kwargs)
+                    return True
+            elif isinstance(asset, AssetOcr):
+                ocr = RuleOcr(asset)
+                if result := ocr.match():
+                    Mouse.click(result.rect.get_rela_center_coor(), *args, **kwargs)
+                    return True
 
     def start(self, *args, **kwargs) -> None:
         """挑战开始"""
         # coor = random_coor(1067 - 50, 1067 + 50, 602 - 50, 602 + 50)
         # click(coor, sleeptime=sleeptime)
-        self.check_image_click(self.IMAGE_START, *args, **kwargs)
+        self.check_click(self.IMAGE_START, *args, **kwargs)
 
     def screenshot(self) -> None:
-        _screenshot_path = self.resource_path
-        if self.resource_path is None:
-            _screenshot_path = "cache"
-        screenshot(_screenshot_path)
+        screenshot_path = "cache" if self.resource_path is None else self.resource_path
+        screenshot_path = SCREENSHOT_DIR_PATH / screenshot_path
+        if not screenshot_path.exists():
+            screenshot_path.mkdir(parents=True)
+
+        screenshot_file = (
+            screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
+        )
+        ScreenShot().save(str(screenshot_file))
+        logger.info(f"screenshot: {screenshot_file}")
 
     def done(self) -> None:
         """更新一次完成次数"""
@@ -283,6 +305,8 @@ class Package:
         # 禁用按钮
         ms.main.is_fighting_update.emit(True)
         _start = time.perf_counter()
+        if self.max:
+            logger.num(f"0/{self.max}")
         self.run()
         _end = time.perf_counter()
         _cost = _end - _start

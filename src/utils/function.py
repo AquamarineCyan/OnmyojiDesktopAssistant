@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pyautogui
 
+from .adapter import Mouse
 from .application import (
     RESOURCE_DIR_PATH,
     RESOURCE_GLOBAL_PATH,
@@ -17,6 +18,7 @@ from .decorator import log_function_call
 from .event import event_thread, event_xuanshang
 from .log import logger
 from .paddleocr import OcrData
+from .point import AbsolutePoint
 from .window import window
 
 
@@ -262,33 +264,6 @@ def check_scene_multiple_once(
     return None, Coor(0, 0)
 
 
-def check_scene_multiple_while(
-    scene: dict | list = None, resource_path: str = None, text: str = None
-) -> tuple[str, Coor]:
-    """多场景判断，循环遍历，直至符合任意一个场景
-
-    参数:
-        scene (dict | list): 多场景列表
-        resource_path (str): 路径
-        text (str): 提示
-
-    返回:
-        tuple[str, Coor]: 场景名称, 坐标
-    """
-    _flag: bool = True  # 提示
-    _text = text if text is not None else "请检查游戏场景"
-    while True:
-        if event_thread.is_set():
-            return
-        scene, coor = check_scene_multiple_once(scene, resource_path)
-        if coor.is_effective():
-            logger.info(f"{scene}, ({coor.x},{coor.y})")
-            return scene, coor
-        elif _flag:
-            _flag = False
-            logger.ui(_text, "warn")
-
-
 @log_function_call
 def is_passengers_on_position(flag_passengers: int = 2):
     """队员就位"""
@@ -331,39 +306,6 @@ def result() -> bool:
         if coor.is_effective:
             logger.ui("失败", "warn")
             return False
-
-
-@log_function_call
-def result_once() -> bool | None:
-    """结果判断，遍历一次
-
-    返回:
-        bool | None: Success or Fail or None
-    """
-    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/victory")
-    if coor.is_effective:
-        logger.ui("胜利")
-        return True
-    coor = get_coor_info(f"{RESOURCE_GLOBAL_PATH}/fail")
-    if coor.is_effective:
-        logger.ui("失败", "warn")
-        return False
-    return None
-
-
-@log_function_call
-def result_while() -> bool | None:
-    """结果判断，循环遍历
-
-    返回:
-        bool | None: Success or Fail
-    """
-    while True:
-        if event_thread.is_set():
-            return
-        result = result_once()
-        if result != None:  # 可能Fail
-            break
 
 
 @log_function_call
@@ -462,31 +404,18 @@ def click(
     dura: float = 0.5,
     sleeptime: float = 0,
 ) -> None:
-    if event_thread.is_set():
-        return
-    # 延迟
-    if sleeptime:
-        time.sleep(sleeptime)
-    # 补间移动，默认启用
-    list_tween = [pyautogui.easeInQuad, pyautogui.easeOutQuad, pyautogui.easeInOutQuad]
-    random.seed(time.time_ns())
-
     if isinstance(coor, OcrData):
         coor = coor.rect.get_rela_center_coor()
 
     if coor is None:
-        _x, _y = pyautogui.position()
+        Mouse.click()
+        return
     elif isinstance(coor, RelativeCoor):
         _x, _y = coor.rela_to_abs().coor
     else:
         _x, _y = coor.coor
-    try:
-        pyautogui.moveTo(_x, _y, duration=dura, tween=random.choice(list_tween))
-        logger.info(f"click at ({_x},{_y})")
-        pyautogui.click()
-    except pyautogui.FailSafeException:
-        logger.info(f"error at ({_x},{_y})", "error")
-        logger.ui("安全错误，可能是您点击了屏幕左上角，请重启后使用", "error")
+
+    Mouse.click(AbsolutePoint(_x, _y), duration=dura, wait=sleeptime)
 
 
 def check_click(
@@ -643,7 +572,7 @@ def open_asset_file(file: Path) -> dict:
         return data
 
 
-def merge_dict(base_dict, update_dict):
+def merge_dict(base_dict, update_dict) -> dict:
     """合并字典
 
     参数:

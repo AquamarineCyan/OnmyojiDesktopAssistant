@@ -1,18 +1,19 @@
 import json
-import tempfile
 import os
+import tempfile
 from ctypes import *
 from datetime import datetime, timezone
+from typing import Literal
 
-import pyautogui
 import win32api
 
-from .application import APP_NAME, APP_PATH, SCREENSHOT_DIR_PATH
-from .coordinate import RectangleCoor
+from .application import APP_NAME, APP_PATH
+from .assets import AssetOcr
 from .decorator import run_in_thread, time_count
 from .event import event_ocr_init
 from .log import logger
-from .window import window
+from .point import RectanglePoint
+from .screenshot import ScreenShot
 
 
 class PaddleOCRParameter(Structure):
@@ -118,7 +119,7 @@ class CharacterRecognition:
         os.environ["path"] += f";{dll_path}"
         os.add_dll_directory(dll_path)
 
-        # https://gitee.com/raoyutian/paddle-ocrsharp/tree/dev/PaddleOCRDemo/python
+        # https://gitee.com/raoyutian/PaddleOCRSharp/tree/dev/PaddleOCRDemo/python
         paddleOCR = cdll.LoadLibrary("PaddleOCR.dll")
         encode = "gbk"
         cls_infer = os.path.join(model_path, "ch_ppocr_mobile_v2.0_cls_infer")
@@ -137,7 +138,13 @@ class CharacterRecognition:
         # SCREENSHOT_DIR_PATH.mkdir()
 
         parameterjson = json.dumps(parameter, default=PaddleOCRParameter2dict)
-        paddleOCR.Initializejson(p_det_infer, p_cls_infer, p_rec_infer, p_ocrkeys, parameterjson.encode(encode))
+        paddleOCR.Initializejson(
+            p_det_infer,
+            p_cls_infer,
+            p_rec_infer,
+            p_ocrkeys,
+            parameterjson.encode(encode),
+        )
         paddleOCR.Detect.restype = c_wchar_p
 
         # self.img_file = OCR_DEBUG_FILE
@@ -148,28 +155,10 @@ class CharacterRecognition:
         return True
 
     def get_raw_result(self) -> dict | None:
-        window_width_screenshot = 1138  # 截图宽度
-        window_height_screenshot = 679  # 截图高度
-
         if not self.flag_init:
             return None
 
-        try:
-            t1 = datetime.now(timezone.utc)
-            pyautogui.screenshot(
-                imageFilename=self.img_file,
-                region=(
-                    window.window_left - 1,
-                    window.window_top,
-                    window_width_screenshot,
-                    window_height_screenshot
-                )
-            )
-            t2 = datetime.now(timezone.utc)
-            logger.info(f"ocr screenshot cost {t2-t1} at {self.img_file}")
-        except Exception:
-            logger.error("screenshot failed.")
-            return None
+        ScreenShot().save(self.img_file)
 
         # 下面的方法不能实现，只能保存到本地，然后用gbk编码打开
         # byte_image = io.BytesIO()
@@ -235,13 +224,100 @@ class OcrData:
                 case 2:
                     self.x2: int = _BoxPoints[i]["X"]
                     self.y2: int = _BoxPoints[i]["Y"]
-        self.rect = RectangleCoor(self.x1, self.x2, self.y1, self.y2)
+        self.rect = RectanglePoint(self.x1, self.y1, self.x2, self.y2)
 
 
-def check_raw_result_once(text: str = None, score: float = 0.8) -> (OcrData | None):
+def check_raw_result_once(text: str = None, score: float = 0.8) -> OcrData | None:
     result = ocr.get_raw_result()
     for item in result:
         ocr_data = OcrData(item)
         if ocr_data.score >= score and ocr_data.text == text:
             return ocr_data
+    return None
+
+
+class RuleOcr:
+    def __init__(
+        self,
+        assetocr: AssetOcr = None,
+        name: str = None,
+        keyword: str = None,
+        region: tuple = None,
+        score: float = 0.8,
+        method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
+    ) -> None:
+        if assetocr:
+            self.keyword = assetocr.keyword
+            self.name = assetocr.name
+            self.region = assetocr.region
+            self.score = assetocr.score
+            self.method = assetocr.method
+        else:
+            self.keyword = keyword
+            self.name = name
+            self.region = region
+            self.score = score
+            self.method = method
+
+    def get_raw_result(self, file: str = None) -> list[OcrData]:
+        if file is None:
+            file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
+            ScreenShot().save(file)
+        image = file.encode("gbk")
+        result = ocr.paddleocr.Detect(image)
+        result = json.loads(result)
+        list_ = []
+        for item in result:
+            logger.info(f"ocr result: {item}")
+            ocr_data = OcrData(item)
+            list_.append(ocr_data)
+        return list_
+
+    def match(
+        self,
+        ocr_result: str | list[OcrData] = None,
+        keyword: str = None,
+        score: float = None,
+        debug: bool = False,
+    ) -> OcrData | None:
+        if not bool(event_ocr_init):
+            ocr.init()
+
+        if not isinstance(ocr_result, list):
+            ocr_result = self.get_raw_result(ocr_result)
+
+        if keyword is None:
+            keyword = self.keyword
+        if score is None:
+            score = self.score
+        for item in ocr_result:
+            # TODO match region first
+            if item.score < score:
+                continue
+            if self.method == "PERFACT":
+                if item.text == self.keyword:
+                    logger.ui(f"{self.name} ocr match successfully.")
+                    return item
+            elif self.method == "INCLUDE":
+                if self.keyword in item.text:
+                    logger.ui(f"{self.name} ocr match successfully.")
+                    return item
+
+        return None
+
+
+def ocr_match_once(asset_list: list[AssetOcr]) -> OcrData | None:
+    """文字匹配
+
+    参数:
+        ocr_list (list[AssetOcr]): 关键字列表
+
+    返回:
+        OcrData | None: 识别结果
+    """
+    ocr_result = RuleOcr().get_raw_result()
+    for item in asset_list:
+        result = RuleOcr(item).match(ocr_result)
+        if result:
+            return result
     return None

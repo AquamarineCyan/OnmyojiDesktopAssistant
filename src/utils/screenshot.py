@@ -1,15 +1,18 @@
 import time
 
-import cv2
-import numpy as np
-from PIL import ImageGrab
+from PIL import Image, ImageGrab
 
 from .log import logger
 from .window import window
 
 
 class ScreenShot:
-    def __init__(self, rect: tuple[int, int, int, int] = None, _log: bool = True):
+    def __init__(
+        self,
+        rect: tuple[int, int, int, int] = None,
+        _log: bool = False,
+        debug: bool = False,
+    ) -> None:
         self._image = None
         _rect = (
             window.window_left,
@@ -24,9 +27,9 @@ class ScreenShot:
         # self.rect = window.handle_rect if rect is None else rect
         self._image_mat = None
         self._log = _log
-        self._screenshot()
+        self._screenshot(debug)
 
-    def _screenshot(self):
+    def _screenshot(self, debug: bool = False) -> Image.Image:
         _rect = (
             self.rect[0],
             self.rect[1],
@@ -36,18 +39,17 @@ class ScreenShot:
         _start = time.perf_counter()
         image = ImageGrab.grab(_rect)
         _end = time.perf_counter()
+        self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot cost {round((_end - _start) * 1000, 2)}ms")
-        # image.show()
+            logger.info(f"screenshot cost {self.time_cost} ms")
+        if debug:
+            image.show()
         self._image = image
         return image
 
-    def save(self, file, *args, **kwargs):
+    def save(self, file, *args, **kwargs) -> None:
         self._image.save(file, *args, **kwargs)
+        logger.info(f"screenshot cost {self.time_cost} ms, at {file}")
 
-    def return_mat(self) -> cv2.typing.MatLike:
-        img_np = np.array(self._image)
-        # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
-        img_mat = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
-        self._image_mat = img_mat
-        return img_mat
+    def get_image(self) -> Image.Image:
+        return self._image

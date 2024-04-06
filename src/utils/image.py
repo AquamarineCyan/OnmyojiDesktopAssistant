@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Literal
 
 import cv2
+import numpy as np
+from PIL.Image import Image
 
 from .assets import AssetImage
 from .event import event_xuanshang
@@ -9,6 +11,21 @@ from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
 from .screenshot import ScreenShot
+from .window import window
+
+
+def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
+    """将RGB格式的图像转换为BGR格式
+
+    参数:
+        image (Image): RGB图像
+
+    返回:
+        cv2.typing.MatLike: BGR图像
+    """
+    img_np = np.array(image)
+    # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
+    return cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
 
 
 class RuleImage:
@@ -41,6 +58,7 @@ class RuleImage:
             score (float): 阈值
             method (Literal[&quot;COLOR&quot;, &quot;GRAYSCALE&quot;]): 匹配方法
         """
+        # 优先使用给定的素材
         if assetimage:
             _file = assetimage.file
             self.name = assetimage.name
@@ -54,7 +72,10 @@ class RuleImage:
             self.score = score
             self.method = method
 
+        # 获得图像的绝对路径
         self.file = check_user_file_exists(_file)
+        if self.region is None:
+            self.region = (0, 0, window.window_width, window.window_height)
         self._image = None
         self.match_result = None
 
@@ -74,18 +95,17 @@ class RuleImage:
 
     def match(
         self,
-        image: cv2.typing.MatLike | str | None = None,
+        image: ScreenShot | Image | str | None = None,
         score: float = None,
         debug: bool = False,
     ) -> bool:
         event_xuanshang.wait()
         if image is None:
-            image = ScreenShot(self.region).return_mat()
-            # if debug:
-            #     cv2.imshow("image", image)
-            #     cv2.waitKey(0)
-        elif isinstance(image, cv2.typing.MatLike):
-            image = image
+            image = convert_image_rgb_to_bgr(ScreenShot(self.region).get_image())
+        elif isinstance(image, ScreenShot):
+            image = convert_image_rgb_to_bgr(image.get_image())
+        elif isinstance(image, Image):
+            image = convert_image_rgb_to_bgr(image)
         else:
             image = cv2.imread(image, cv2.IMREAD_COLOR)
         if score is None:
@@ -99,6 +119,7 @@ class RuleImage:
         if max_val < score:
             return False
 
+        logger.info(f"{self.name} 匹配成功，相似度: {round(max_val, 2)}")
         # https://blog.csdn.net/m0_37579176/article/details/116950903
         # 匹配区域里的相对坐标
         x1, y1 = max_loc
@@ -141,10 +162,9 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
     返回:
         RuleImage | None: 识别结果
     """
-    _screenshot = ScreenShot().return_mat()
+    _screenshot = ScreenShot()
     for item in image_list:
         image = RuleImage(item)
-        logger.debug(image)
         if image.match(_screenshot):
             return image
     return None
