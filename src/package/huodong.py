@@ -1,16 +1,12 @@
+from ..utils.adapter import Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_click,
-    check_scene_multiple_once,
-    click,
-    finish_random_left_right,
-    get_coor_info,
-    random_sleep,
-)
+from ..utils.function import finish_random_left_right, sleep
+from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class HuoDong(Package):
@@ -25,116 +21,122 @@ class HuoDong(Package):
     activity_name = "循音试炼"
     description = f"适配活动「{activity_name}」\
                     可自行替换 /data/myresource/huodong 下的素材"
+    ASSET = True
+    # 两种结算方式
+    STATE_NORMAL = 1  # 「达摩蛋」弹出
+    STATE_RESULT = 2  # 「获得奖励」弹窗
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self._flag_timer_check_start: bool = False
         self.flag_soul_overflow: bool = False
+        self.state = None
+
+    def load_asset(self) -> None:
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
+        self.IMAGE_RESULT = AssetImage(**get_asset(self.asset_image_list, "result"))
 
     def start(self) -> None:
         """开始"""
-        check_click(f"{self.resource_path}/start")
+        self.check_click(self.IMAGE_START)
 
     @log_function_call
     def timer_check_start(self):
-        coor = get_coor_info(f"{self.resource_path}/title")
-        if coor.is_effective:
+        if RuleImage(self.IMAGE_TITLE).match():
             self._flag_timer_check_start = True
 
     def run(self) -> None:
-        _g_resource_list: list = [
-            f"{self.resource_path}/title",
-            f"{self.resource_path}/result",
-            f"{self.global_resource_path}/finish",
-            f"{self.global_resource_path}/fail",
-            f"{self.global_resource_path}/victory",
-            f"{self.global_resource_path}/soul_overflow",
+        self.current_asset_list = [
+            self.IMAGE_TITLE,
+            self.IMAGE_START,
+            self.IMAGE_RESULT,
+            self.global_image.IMAGE_FINISH,
+            self.global_image.IMAGE_FAIL,
+            self.global_image.IMAGE_VICTORY,
+            self.global_image.IMAGE_SOUL_OVERFLOW,
         ]
         _flag_title_msg: bool = True
         _flag_result_click: bool = False  # 部分活动会有“获得奖励”弹窗
-        logger.num(f"0/{self.max}")
-        logger.info(f"_g_resource_list:{_g_resource_list}")
+        self.log_current_asset_list()
 
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            scene, coor = check_scene_multiple_once(_g_resource_list)
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-
-            scene = self.scene_handle(scene)
 
             if self._flag_timer_check_start:
                 self._flag_timer_check_start = False
-                logger.ui("进入挑战失败", "error")
+                logger.ui_error("进入挑战失败")
                 break
-
-            match scene:
+            logger.info(f"current result name: {result.name}")
+            match result.name:
                 case "title":
                     logger.scene(self.activity_name)
                     _flag_title_msg = False
                     self.start()
                     _flag_result_click = False
-                    random_sleep()
+                    sleep()
                     _timer = WorkTimer(3, self.timer_check_start)
                     _timer.start()
                 case "result":
+                    self.state = self.STATE_RESULT
                     logger.ui("获得奖励")
                     finish_random_left_right(is_multiple_drops_y=True)
                     _flag_result_click = True
+                    sleep(0.4, 0.8)
                 case "fail":
                     if _timer:
                         _timer.cancel()
-                    logger.ui("失败", "error")
+                    logger.ui_error("失败")
                     break
                 case "victory":
                     if _timer:
                         _timer.cancel()
                     logger.ui("胜利")
                     if _flag_result_click:
-                        click()
+                        Mouse.click()
                         self.done()
                         continue
-                    random_sleep()
+                    sleep()
                 case "finish":
                     if _timer:
                         _timer.cancel()
                     logger.ui("结束")
-                    random_sleep(0.4, 0.8)
-                    _coor_finish = finish_random_left_right(is_multiple_drops_y=True)
-                    random_sleep(0.4, 0.8)
+                    sleep(0.4, 0.8)
+                    _coor_point = finish_random_left_right(is_multiple_drops_y=True)
+                    sleep()
                     if self.flag_soul_overflow:
-                        random_sleep()
+                        sleep()
 
                     while True:
-                        if event_thread.is_set():
+                        if bool(event_thread):
                             return
                         # 先判断御魂上限提醒
-                        coor = get_coor_info(
-                            f"{self.global_resource_path}/soul_overflow"
-                        )
-                        if coor.is_effective:
-                            logger.ui("御魂上限提醒", "warn")
+                        result = RuleImage(self.global_image.IMAGE_SOUL_OVERFLOW)
+                        if result.match():
+                            logger.ui_warn("御魂上限提醒")
                             self.flag_soul_overflow = True
-                            click(coor)
+                            Mouse.click(result.center_point())
                             continue
 
-                        coor = get_coor_info(f"{self.global_resource_path}/finish")
                         # 未重复检测到，表示成功点击
-                        if coor.is_zero:
+                        if not RuleImage(self.global_image.IMAGE_FINISH).match():
                             break
-                        click(_coor_finish)
+                        Mouse.click(_coor_point)
 
                     self.done()
-                    random_sleep()
+                    sleep()
                 case "soul_overflow":
                     if _timer:
                         _timer.cancel()
-                    logger.ui("御魂上限提醒", "warn")
+                    logger.ui_warn("御魂上限提醒")
                     self.flag_soul_overflow = True
-                    click(coor)
+                    Mouse.click(result.center_point())
                 case _:
                     if _flag_title_msg:
-                        logger.ui("请检查游戏场景", "warn")
+                        logger.ui_warn("请检查游戏场景")
                         _flag_title_msg = False

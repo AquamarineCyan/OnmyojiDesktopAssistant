@@ -1,23 +1,21 @@
-import pyautogui
-
+from ..utils.adapter import KeyBoard, Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import (
     check_scene_multiple_once,
     click,
-    finish,
     finish_random_left_right,
-    is_passengers_on_position,
-    random_sleep,
-    result
+    sleep,
 )
+from ..utils.image import check_image_once
 from ..utils.log import logger
-from ..utils.window import window
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class YuHun(Package):
     """御魂副本"""
+
     scene_name = "御魂副本"
     resource_path = "yuhun"
     resource_list = [
@@ -25,39 +23,64 @@ class YuHun(Package):
         "title_11",  # 魂土
         "title_12",  # 神罚
         "xiezhanduiwu",  # 组队界面
-        "passenger_2",  # 队员2
-        "passenger_3",  # 队员3
+        # "passenger_2",  # 队员2
+        # "passenger_3",  # 队员3
         "start_team",  # 组队挑战
         "start_single",  # 单人挑战
-        "fighting",  # 魂土进行中
+        # "fighting",  # 魂土进行中
         "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
         "fighting_shenfa",  # 神罚战斗场景
         "finish_damage",  # 结束特征图像
-        "finish_damage_2000",  # 结束特征图像-鎏金圣域
+        # "finish_damage_2000",  # 结束特征图像-鎏金圣域
         "finish_damage_shenfa",  # 结束特征图像-神罚
-        "accept_invitation",  # 接受邀请
     ]
     description = "已适配组队/单人 魂十、魂土、神罚副本\
                     司机请在组队界面等待\
                     新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”"
     fast_time = 13 - 2
+    ASSET = True
+
+    @log_function_call
+    def __init__(self, n) -> None:
+        super().__init__(n)
+
+    def load_asset(self):
+        self.IMAGE_FIGHTING_LINSHUANGHANXUE = AssetImage(
+            **get_asset(self.asset_image_list, "fighting_linshuanghanxue")
+        )
+        self.IMAGE_FIGHTING_SHENFA = AssetImage(
+            **get_asset(self.asset_image_list, "fighting_shenfa")
+        )
+        self.IMAGE_FINISH_DAMAGE = AssetImage(
+            **get_asset(self.asset_image_list, "finish_damage")
+        )
+        self.IMAGE_FINISH_DAMAGE_2000 = AssetImage(
+            **get_asset(self.asset_image_list, "finish_damage_2000")
+        )
+        self.IMAGE_FINISH_DAMAGE_SHENFA = AssetImage(
+            **get_asset(self.asset_image_list, "finish_damage_shenfa")
+        )
+        self.IMAGE_TITLE_10 = AssetImage(**get_asset(self.asset_image_list, "title_10"))
+        self.IMAGE_TITLE_11 = AssetImage(**get_asset(self.asset_image_list, "title_11"))
+        self.IMAGE_TITLE_12 = AssetImage(**get_asset(self.asset_image_list, "title_12"))
 
     @log_function_call
     def start(self) -> None:
         """挑战"""
         if isinstance(self, YuHunTeam):
-            self.check_click("start_team")
+            self.check_click(self.global_image.IMAGE_START_TEAM)
         elif isinstance(self, YuHunSingle):
-            self.check_click("start_single")
+            self.check_click(self.global_image.IMAGE_START_SINGLE)
 
 
 class YuHunTeam(YuHun):
     """组队御魂副本"""
+
     scene_name = "组队御魂副本"
     resource_list = [  # 资源列表
         "xiezhanduiwu",  # 组队界面
-        "passenger_2",  # 队员2
-        "passenger_3",  # 队员3
+        # "passenger_2",  # 队员2
+        # "passenger_3",  # 队员3
         "start_team",  # 组队挑战
         "fighting",  # 魂土进行中
         "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
@@ -74,7 +97,7 @@ class YuHunTeam(YuHun):
         n: int = 0,
         flag_driver: bool = False,
         flag_passengers: int = 2,
-        flag_drop_statistics: bool = False
+        flag_drop_statistics: bool = False,
     ) -> None:
         super().__init__(n)
         """组队御魂副本
@@ -99,90 +122,85 @@ class YuHunTeam(YuHun):
         """
         _flag_screenshot = True
         _flag_first = True
-        result()
-        random_sleep(0.4, 0.8)
+        self.check_result()
+        sleep(0.4, 0.8)
         # 结算
-        coor = finish_random_left_right(False, is_multiple_drops_x=True)
+        finish_random_left_right(is_multiple_drops_x=True)
+        Mouse.click(wait=0.5)
 
-        if event_thread.is_set():
-            return
-        pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
-        pyautogui.doubleClick()
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
             # 检测到任一图像
-            scene, coor = check_scene_multiple_once([
-                f"{self.global_resource_path}/finish",
-                f"{self.resource_path}/finish_2000",
-                f"{self.global_resource_path}/tanchigui"
-            ])
-            if coor.is_effective:
+            result = check_image_once(
+                [
+                    self.global_image.IMAGE_FINISH,
+                    self.IMAGE_FINISH_DAMAGE_2000,
+                    self.global_image.IMAGE_TANCHIGUI,
+                ]
+            )
+
+            # 直到第一次识别到
+            if _flag_first and result is None:
+                continue
+            if result:
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
-                click()
+                Mouse.click()
                 _flag_first = False
-                random_sleep(0.6, 1)
+                sleep(0.6, 1)
             # 所有图像都未检测到，退出循环
-            elif _flag_first:
-                continue
-            elif coor.is_zero:
+            else:
                 logger.ui("结束")
                 return
 
     def run(self):
-        # 保留必需图像，提高识别效率
-        _g_resource_list: list = [
-            f"{self.resource_path}/xiezhanduiwu",  # 组队界面
-            # f"{self.global_resource_path}/start_team",  # 组队挑战
-            f"{self.global_resource_path}/fighting_friend_default",  # 战斗中好友图标
-            f"{self.global_resource_path}/fighting_friend_linshuanghanxue",
-            f"{self.global_resource_path}/fighting_friend_chunlvhanqing",
-            f"{self.global_resource_path}/accept_invitation"  # 接受邀请
+        self.current_asset_list = [
+            self.global_image.IMAGE_XIEZHANDUIWU,
+            self.global_image.IMAGE_FIGHTING,
+            self.global_image.IMAGE_ACCEPT_INVITATION,
         ]
+
         if self.flag_driver:
-            _g_resource_list.append(f"{self.global_resource_path}/start_team")
-        _resource_list: list = None
-        _flag_title_msg: bool = True
+            self.current_asset_list.append(self.global_image.IMAGE_START_TEAM)
+        msg_title: bool = True
 
-        logger.num(f"0/{self.max}")
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            _resource_list = _g_resource_list if _resource_list is None else _resource_list
-            scene, coor = check_scene_multiple_once(_resource_list)
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-            self.scene_handle(scene)
 
-            match self.current_scene:
+            match result.name:
                 case "xiezhanduiwu":
-                    logger.ui('组队界面准备中')
+                    logger.ui("组队界面准备中")
                     if self.flag_driver:
-                        is_passengers_on_position(self.flag_passengers)
+                        self.is_passengers_on_position(self.flag_passengers)
                         self.start()
-                    random_sleep()
-                    _flag_title_msg = False
-                case "fighting_friend_default" | "fighting_friend_linshuanghanxue" | "fighting_friend_chunlvhanqing":
+                    sleep()
+                    msg_title = False
+                case "fighting":
                     logger.ui("对局进行中")
                     self.finish()
                     self.done()
-                    _resource_list = None
-                    _flag_title_msg = False
-                    random_sleep()
+                    msg_title = False
+                    sleep()
+                    KeyBoard.enter()
                 case "accept_invitation":
                     # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
                     logger.ui("接受邀请")
-                    click(coor)
+                    Mouse.click(result.center_point())
                 case _:
-                    if _flag_title_msg:
-                        logger.ui("请检查游戏场景", "warn")
-                        _flag_title_msg = False
+                    if msg_title:
+                        self.title_error_msg()
+                        msg_title = False
 
 
 class YuHunSingle(YuHun):
     """单人御魂副本"""
+
     scene_name = "单人御魂副本"
     resource_list = [
         "title_10",  # 魂十
@@ -211,29 +229,30 @@ class YuHunSingle(YuHun):
     @log_function_call
     def finish_fast(self):  # FIXME
         """结束"""
-        result()
-        random_sleep(0.4, 0.8)
+        self.check_result()
+        sleep(0.4, 0.8)
         # 结算
-        coor = finish_random_left_right(False, is_multiple_drops_x=True)
+        finish_random_left_right(is_multiple_drops_x=True)
         _flag_screenshot = True
-        pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
-        pyautogui.doubleClick()
+        Mouse.click(wait=0.5)
         while True:
             if event_thread.is_set():
                 return
 
             # 检测到任一图像
-            scene, coor = check_scene_multiple_once([
-                f"{self.global_resource_path}/finish",
-                f"{self.resource_path}/finish_2000",
-                f"{self.global_resource_path}/tanchigui"
-            ])
+            scene, coor = check_scene_multiple_once(
+                [
+                    f"{self.global_resource_path}/finish",
+                    f"{self.resource_path}/finish_2000",
+                    f"{self.global_resource_path}/tanchigui",
+                ]
+            )
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
                 click()
-                random_sleep(0.6, 1)
+                sleep(0.6, 1)
             # 所有图像都未检测到，退出循环
             elif coor.is_zero:
                 logger.ui("结束")
@@ -243,75 +262,96 @@ class YuHunSingle(YuHun):
         """
         结束 等待自动掉落
         """
-        finish()
-        random_sleep(0.4, 0.8)
+        self.check_finish()
+        sleep(0.4, 0.8)
         # 结算
-        coor = finish_random_left_right(False, is_multiple_drops_x=True)
+        point = finish_random_left_right(False, is_multiple_drops_x=True)
         _flag_screenshot = True
-        pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
+        Mouse.move(point)
         # pyautogui.doubleClick()
         while True:
             if event_thread.is_set():
                 return
 
             # 检测到任一图像
-            scene, coor = check_scene_multiple_once([
-                f"{self.global_resource_path}/finish",
-                f"{self.resource_path}/finish_2000",
-                f"{self.global_resource_path}/tanchigui"
-            ])
+            scene, coor = check_scene_multiple_once(
+                [
+                    f"{self.global_resource_path}/finish",
+                    f"{self.resource_path}/finish_2000",
+                    f"{self.global_resource_path}/tanchigui",
+                ]
+            )
             if coor.is_effective:
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
                 click()
-                random_sleep(1.5)
+                sleep(1.5)
             # 所有图像都未检测到，退出循环
             elif coor.is_zero:
                 logger.ui("结束")
                 return
 
     def run(self):
-        _g_resource_list: list = [
-            "title_10",  # 魂十
-            "title_11",  # 魂土
-            "title_12",  # 神罚
-            "start_single",  # 单人挑战
-            "fighting",  # 魂土进行中
-            "fighting_linshuanghanxue",  # 凛霜寒雪战斗主题
-            "fighting_shenfa",  # 神罚战斗场景
+        msg_title: bool = True
+        msg_fighting: bool = True
+        self.current_asset_list = [
+            self.IMAGE_TITLE_10,
+            self.IMAGE_TITLE_11,
+            self.IMAGE_TITLE_12,
+            self.IMAGE_FIGHTING_LINSHUANGHANXUE,
+            self.IMAGE_FIGHTING_SHENFA,
+            self.global_image.IMAGE_START_SINGLE,
+            self.global_image.IMAGE_FIGHTING,
+            self.global_image.IMAGE_FAIL,
+            self.global_image.IMAGE_FINISH,
+            self.global_image.IMAGE_VICTORY,
+            self.global_image.IMAGE_SOUL_OVERFLOW,
         ]
-        _resource_list: list = None
-        _flag_title_msg: bool = True
 
-        logger.num(f"0/{self.max}")
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            _resource_list = _g_resource_list if _resource_list is None else _resource_list
-            scene, coor = check_scene_multiple_once(_resource_list, self.resource_path)
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-            self.scene_handle(scene)
 
-            match self.current_scene:
+            match result.name:
                 case "title_10" | "title_11" | "title_12":
                     self.start()
-                    random_sleep(self.fast_time)
-                    _flag_title_msg = False
+                    sleep(self.fast_time)
+                    msg_title = False
                 case "start_single":
-                    click(coor)
-                    random_sleep(self.fast_time)
-                    # 只判断下列图像，提高效率
-                    _resource_list = ["fighting", "fighting_linshuanghanxue", "fighting_shenfa"]
-                    _flag_title_msg = False
+                    Mouse.click(result.center_point())
+                    sleep(self.fast_time)
+                    msg_title = False
                 case "fighting" | "fighting_linshuanghanxue" | "fighting_shenfa":
-                    logger.ui("对局进行中")
-                    self.finish_slow()
+                    if msg_fighting:
+                        logger.ui("对局进行中")
+                        msg_fighting = False
+                    # self.finish_slow()
+                    # self.done()
+                    msg_title = False
+                case "fail":
+                    logger.ui_warn("失败，需要手动处理")
+                    break
+                case "victory":
+                    logger.ui("胜利")
+                    sleep()
+                case "finish":
+                    logger.ui("结束")
+                    if self.check_click(
+                        self.global_image.IMAGE_SOUL_OVERFLOW, timeout=2
+                    ):
+                        logger.ui_warn("御魂上限")  # TODO 测试
+                    finish_random_left_right()
                     self.done()
-                    _resource_list = None
-                    _flag_title_msg = False
+                    msg_fighting = False
+                    sleep(2)
+                case "soul_overflow":  # 正常情况下会在结束界面点击，这是备用方案
+                    logger.ui_warn("御魂上限")
+                    Mouse.click(result.random_point())
                 case _:
-                    if _flag_title_msg:
-                        logger.ui("请检查游戏场景", "warn")
-                        _flag_title_msg = False
+                    if msg_title:
+                        self.title_error_msg()
+                        msg_title = False

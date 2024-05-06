@@ -1,0 +1,11 @@
+{
+    "current_path": "rilun",
+    "image_data": [
+        {
+            "name": "fighting",
+            "file": "fighting.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ]
+}

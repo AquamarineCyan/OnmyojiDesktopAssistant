@@ -1,18 +1,16 @@
+from ..utils.adapter import Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_click,
-    check_scene_multiple_once,
-    click,
-    finish_random_left_right,
-    random_sleep
-)
+from ..utils.function import finish_random_left_right, sleep
+from ..utils.image import check_image_once
 from ..utils.log import logger
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class YeYuanHuo(Package):
     """业原火副本"""
+
     scene_name = "业原火副本"
     resource_path = "yeyuanhuo"
     resource_list = [
@@ -21,56 +19,62 @@ class YeYuanHuo(Package):
     ]
     description = "默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材"
     fast_time = 13
+    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
-    @log_function_call
-    def start(self):
-        """挑战开始"""
-        check_click(f"{self.resource_path}/start")
+    def load_asset(self):
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
 
     def run(self):
-        self.current_resource_list = [
-            f"{self.resource_path}/title",
-            f"{self.resource_path}/start",
-            f"{self.global_resource_path}/finish",
-            f"{self.global_resource_path}/fail",
-            f"{self.global_resource_path}/victory",
+        self.current_asset_list = [
+            self.IMAGE_TITLE,
+            self.IMAGE_START,
+            self.global_image.IMAGE_FINISH,
+            self.global_image.IMAGE_VICTORY,
         ]
-        _flag_title_msg: bool = True
-        logger.num(f"0/{self.max}")
-        self.log_current_scene_list()
+        msg_title: bool = True
+        self.log_current_asset_list()
 
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            scene, coor = check_scene_multiple_once(self.current_resource_list)
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-            scene = self.scene_handle(scene)
 
-            match scene:
+            logger.info(f"current result name: {result.name}")
+            match result.name:
                 case "title":
                     logger.scene(self.scene_name)
-                    _flag_title_msg = False
-                    self.start()
-                    random_sleep(self.fast_time)
+                    msg_title = False
+                    self.start(timeout=10)
+                    sleep(self.fast_time)
                 case "start":
-                    click(coor)
-                    random_sleep(self.fast_time)
+                    Mouse.click(result.random_point())
+                    sleep(self.fast_time)
                 case "fail":
-                    logger.ui("失败，需要手动处理", "warn")
+                    logger.ui_warn("失败，需要手动处理")
                     break
                 case "victory":
                     logger.ui("胜利")
-                    random_sleep()
+                    sleep()
                 case "finish":
+                    logger.ui("结束")
+                    if self.check_click(
+                        self.global_image.IMAGE_SOUL_OVERFLOW, timeout=2
+                    ):
+                        logger.ui_warn("御魂上限")
                     finish_random_left_right()
                     self.done()
-                    random_sleep(2)
+                    sleep(2)
+                case "soul_overflow":  # 正常情况下会在结束界面点击，这是备用方案
+                    logger.ui_warn("御魂上限")
+                    Mouse.click(result.random_point())
                 case _:
-                    if _flag_title_msg:
-                        logger.ui("请检查游戏场景", "warn")
-                        _flag_title_msg = False
+                    if msg_title:
+                        self.title_error_msg()
+                        msg_title = False

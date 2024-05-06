@@ -14,6 +14,18 @@
             "score": "0.8"    
         },
         {
+            "name": "fighting",
+            "file": "fighting.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"    
+        },
+        {
+            "name": "fighting_back_default",
+            "file": "fighting_back_default.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
             "name": "finish",
             "file": "finish.png",
             "region": [0, 0, 1154, 687],
@@ -70,6 +82,12 @@
         {
             "name": "victory",
             "file": "victory.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "xiezhanduiwu",
+            "file": "xiezhanduiwu.png",
             "region": [0, 0, 1154, 687],
             "score": "0.8"
         }

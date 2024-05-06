@@ -1,0 +1,71 @@
+{
+    "current_path": "daoguantupo",
+    "image_data": [
+        {
+            "name": "button_zhuwei",
+            "file": "button_zhuwei.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "chuzhan",
+            "file": "chuzhan.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "daojishi",
+            "file": "daojishi.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "guanzhan",
+            "file": "guanzhan.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "qianwang",
+            "file": "qianwang.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "shengyutuposhijian",
+            "file": "shengyutuposhijian.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "tiaozhan",
+            "file": "tiaozhan.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "zhanbao",
+            "file": "zhanbao.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "zhuwei",
+            "file": "zhuwei.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "zhuwei_gray",
+            "file": "test_zhuwei_gray.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ]
+}

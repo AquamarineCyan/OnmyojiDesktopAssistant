@@ -1,0 +1,35 @@
+{
+    "current_path": "baiguiyexing",
+    "image_data": [
+        {
+            "name": "baiguiqiyueshu",
+            "file": "baiguiqiyueshu.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "jinru",
+            "file": "jinru.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "kaishi",
+            "file": "kaishi.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "choose",
+            "file": "ya.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ]
+}

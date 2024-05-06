@@ -1,20 +1,17 @@
+from ..utils.adapter import KeyBoard
+from ..utils.assets import AssetImage
 from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    KeyBoard,
-    check_click,
-    click,
-    finish_random_left_right,
-    random_sleep
-)
+from ..utils.function import click, finish_random_left_right, sleep
 from ..utils.log import logger
-from ..utils.paddleocr import ocr, OcrData
-from .utils import Package
+from ..utils.paddleocr import OcrData, ocr
+from .utils import Package, get_asset
 
 
 class LiuDaoZhiMen(Package):
     """六道之门速刷"""
+
     scene_name = "六道之门速刷"
     resource_path = "liudaozhimen"
     resource_list: list = [
@@ -30,25 +27,44 @@ class LiuDaoZhiMen(Package):
     description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     STATE_START = 1
     STATE_RUNNING = 2
+    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self.state = self.STATE_START
 
-    def check_click(self, file, timeout=3, *args, **kwargs):
-        return check_click(f"{self.resource_path}/{file}", timeout=timeout, *args, **kwargs)
+    def load_asset(self):
+        self.IMAGE_DETERMINE = AssetImage(
+            **get_asset(self.asset_image_list, "determine")
+        )
+        self.IMAGE_FIGHT_READY_QUIT = AssetImage(
+            **get_asset(self.asset_image_list, "fight_ready_quit")
+        )
+        self.IMAGE_FIGHT_READY_REFRESH = AssetImage(
+            **get_asset(self.asset_image_list, "fight_ready_refresh")
+        )
+        self.IMAGE_FIGHT_READY_RESETTING = AssetImage(
+            **get_asset(self.asset_image_list, "fight_ready_resetting")
+        )
+        self.IMAGE_FIGHT = AssetImage(**get_asset(self.asset_image_list, "fight"))
+        self.IMAGE_IMITATION = AssetImage(
+            **get_asset(self.asset_image_list, "imitation")
+        )
+        self.IMAGE_OPEN = AssetImage(**get_asset(self.asset_image_list, "open"))
+        self.IMAGE_SHOP_REFRESH = AssetImage(
+            **get_asset(self.asset_image_list, "shop_refresh")
+        )
+        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
 
-    def check_ocr_result(self, text: str | list = None) -> (OcrData | None):
+    def check_ocr_result(self, text: str | list = None) -> OcrData | None:
         result = ocr.get_raw_result()
         for item in result:
             ocr_data = OcrData(item)
             if ocr_data.score < 0.8:
                 continue
-            if (
-                (isinstance(text, str) and ocr_data.text == text)
-                or
-                (isinstance(text, list) and ocr_data.text in text)
+            if (isinstance(text, str) and ocr_data.text == text) or (
+                isinstance(text, list) and ocr_data.text in text
             ):
                 logger.scene(ocr_data.text)
             return ocr_data
@@ -91,23 +107,25 @@ class LiuDaoZhiMen(Package):
             while True:
                 if event_thread.is_set():
                     return
-                data = self.check_result_mult(["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"])
+                data = self.check_result_mult(
+                    ["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"]
+                )
                 if data is None:
                     continue
                 if data.text == "月之海":
                     click(data.rect.get_rela_center_coor())
                     break
-            random_sleep(2)
+            sleep(2)
 
         if self.check_result_once("月之海"):
             # 如果在月之海
-            self.check_click("start")
+            self.check_click(self.IMAGE_START, timeout=3)
             # 跳转
-            random_sleep(2)
+            sleep(2)
             # 选择试炼式神
-            self.check_click("determine")
+            self.check_click(self.IMAGE_DETERMINE, timeout=3)
             # 选择队友
-            self.check_click("start")
+            self.check_click(self.IMAGE_START, timeout=3)
 
     def check_current_scene(self) -> int:
         """判断当前场景，使用状态机记录"""
@@ -134,7 +152,7 @@ class LiuDaoZhiMen(Package):
                     logger.scene(f"选择初始BUFF{initial_buff_counts}")
                     click(ocr_data)
                     return
-        logger.ui("选择初始BUFF出错", "error")
+        logger.ui_error("选择初始BUFF出错")
 
     def fight(self):
         # TODO 判断地图上的点位 文字识别&图像识别均失败 使用固定坐标范围
@@ -175,7 +193,7 @@ class LiuDaoZhiMen(Package):
                 click(_coor)
 
                 logger.ui(f"检查是否生效，第{self.map_node_numbers}次")
-                random_sleep()
+                sleep()
                 new_result = ocr.get_raw_result()
                 flag_map_coor_counts = True
                 for item in new_result:
@@ -193,27 +211,32 @@ class LiuDaoZhiMen(Package):
                 flag_has_buff = False
                 for item in result:
                     ocr_data = OcrData(item)
-                    if ocr_data.text in ["幸运宝匣", "幸运宝厘", "幸运宝匝", "幸运宝画"]:
+                    if ocr_data.text in [
+                        "幸运宝匣",
+                        "幸运宝厘",
+                        "幸运宝匝",
+                        "幸运宝画",
+                    ]:
                         logger.scene("幸运宝匣")
                         click(ocr_data)
-                        random_sleep(2)
-                        self.check_click("open")
+                        sleep(2)
+                        self.check_click(self.IMAGE_OPEN, timeout=3)
                         flag_has_buff = True
                         break
                 if not flag_has_buff:
                     click(RelativeCoor(560, 315))
-                    self.check_click("fight")
+                    self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text in ["战之屿", "噻战之屿", "鹰战之屿", "鑫战之屿"]:
                 logger.scene("鏖战之屿")
                 _coor = RelativeCoor(650, 300)  # 右侧怪 - 技能BUFF
                 click(_coor)
-                self.check_click("fight")
+                self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "星之屿":
                 logger.scene("星之屿")
                 click(RelativeCoor(380, 300))  # 左侧怪
-                self.check_click("fight")
+                self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "神秘之屿":
                 logger.scene("神秘之屿")
@@ -231,20 +254,20 @@ class LiuDaoZhiMen(Package):
                             if ocr_data.score < 0.8:
                                 continue
                             if ocr_data.text == "柔风抱暖":
-                                self.check_click("imitation")
+                                self.check_click(self.IMAGE_IMITATION, timeout=3)
                                 KeyBoard.enter(1)
-                                random_sleep()
+                                sleep()
                                 click()
                                 flag_max_buff = False
                                 break
                         if flag_max_buff:
                             logger.ui("buff已满级")
-                            self.check_click("fight_ready_quit")
+                            self.check_click(self.IMAGE_FIGHT_READY_QUIT, timeout=3)
                         break
                     elif ocr_data.text == "技能转换":
                         logger.scene("技能转换")
-                        logger.ui("未来可期", "warn")
-                        self.check_click("fight_ready_quit")
+                        logger.ui_warn("未来可期")
+                        self.check_click(self.IMAGE_FIGHT_READY_QUIT, timeout=3)
                         break
                 break
             elif ocr_data.text == "宁息之屿":
@@ -267,8 +290,8 @@ class LiuDaoZhiMen(Package):
                         click(ocr_data)
                         KeyBoard.enter(1)
                         break
-                random_sleep()
-                self.check_click("shop_refresh")
+                sleep()
+                self.check_click(self.IMAGE_SHOP_REFRESH)
                 logger.ui(f"刷新商店第{self.shop_refresh_counts}次")
                 self.shop_refresh_counts += 1
                 # 可能没有"不再提示"
@@ -308,19 +331,19 @@ class LiuDaoZhiMen(Package):
                 break
             elif ocr_data.text == "备战":
                 logger.scene("备战")
-                self.check_click("fight_ready_refresh")
+                self.check_click(self.IMAGE_FIGHT_READY_REFRESH, timeout=3)
                 break
             elif ocr_data.text == "技能装配":
                 logger.scene("技能装配")
                 if not flag_already_resetting:
-                    self.check_click("fight_ready_resetting")
+                    self.check_click(self.IMAGE_FIGHT_READY_RESETTING, timeout=3)
                     flag_already_resetting = True
                     KeyBoard.enter(1)
                 # 检查每个BUFF
                 for _ in range(1):
                     click(RelativeCoor(760, 150))  # [1,1]
                     # click(RelativeCoor(760, 240))  # [2,1]
-                    random_sleep()
+                    sleep()
                     new_result = ocr.get_raw_result()
                     for item in new_result:
                         ocr_data = OcrData(item)
@@ -328,24 +351,32 @@ class LiuDaoZhiMen(Package):
                             for item in new_result:
                                 ocr_data = OcrData(item)
                                 if ocr_data.text == "装备":
-                                    logger.scene(ocr_data.rect.get_rela_center_coor().coor)
+                                    logger.scene(
+                                        ocr_data.rect.get_rela_center_coor().coor
+                                    )
                                     click(ocr_data)
                                     break
                             break
-                random_sleep()
-                self.check_click("fight_ready_quit")
-                random_sleep()
+                sleep()
+                self.check_click(self.IMAGE_FIGHT_READY_QUIT, timeout=3)
+                sleep()
                 click()
-                random_sleep(2)
-                self.check_click("fight")
-                random_sleep(2)
+                sleep(2)
+                self.check_click(self.IMAGE_FIGHT, timeout=3)
+                sleep(2)
                 break
-
+            elif "战斗失败" in ocr_data.text:
+                logger.ui("战斗失败", "warn")
+                for item in result:
+                    ocr_data = OcrData(item)
+                    if ocr_data.text == "放弃前行":
+                        click(ocr_data)
+                        KeyBoard.enter(1)
             # 结算
             elif "击败普通妖怪" in ocr_data.text:
                 logger.scene("结算")
                 logger.ui("等待万相赐福")
-                random_sleep(2)
+                sleep(2)
                 new_result = ocr.get_raw_result()
                 for item in new_result:
                     ocr_data = OcrData(item)
@@ -362,7 +393,7 @@ class LiuDaoZhiMen(Package):
                                 click(ocr_data)
                                 break
                         break
-                random_sleep()
+                sleep()
                 finish_random_left_right()
                 click()
                 self.done()
@@ -373,16 +404,16 @@ class LiuDaoZhiMen(Package):
         self.check_current_scene()
 
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
             if self.state == self.STATE_START:
                 self.check_title()
                 # self.check_title_jiaotu() #TODO
-                random_sleep()
+                sleep()
                 self.choose_initial_buff(1)
                 self.map_node_numbers = 0  # 地图上节点的个数
                 self.shop_refresh_counts = 0  # 商店刷新次数
                 self.state = self.STATE_RUNNING
 
             self.fight()
-            random_sleep(2)
+            sleep(2)

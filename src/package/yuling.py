@@ -1,16 +1,14 @@
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    finish,
-    finish_random_left_right,
-    random_sleep
-)
+from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class YuLing(Package):
     """御灵副本"""
+
     scene_name = "御灵副本"
     resource_path = "yuling"
     resource_list = [
@@ -22,31 +20,32 @@ class YuLing(Package):
          暗黑豹-周四六
          暗孔雀-周五六日
          绘卷期间请减少使用"""
+    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
-    def start(self) -> None:
-        """开始"""
-        self.check_click("start")
+    def load_asset(self):
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
 
     def run(self) -> None:
         self.check_title()
-        logger.num(f"0/{self.max}")
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            random_sleep()
+            sleep()
             # 开始
-            self.start()
+            self.check_click(self.IMAGE_START)
             # 结束
-            finish()
-            random_sleep()
+            self.check_finish()
+            sleep()
             # 结算
             finish_random_left_right(is_multiple_drops_y=True)
-            random_sleep()
+            sleep()
             self.done()
             # TODO 强制等待，后续优化
             if self.n in {12, 25, 39, 59, 73}:
-                random_sleep(10, 20)
+                logger.info("强制等待中，请稍等...")
+                sleep(10, 20)

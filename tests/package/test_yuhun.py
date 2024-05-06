@@ -18,7 +18,6 @@ class YuHun(Package):
         "finish_damage",
         "finish_damage_2000",
         "finish_damage_shenfa",
-        "accept_invitation",
     ]
 
 

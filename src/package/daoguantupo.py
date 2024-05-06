@@ -1,18 +1,16 @@
+from ..utils.adapter import Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_scene_multiple_once,
-    click,
-    finish_random_left_right,
-    get_coor_info,
-    random_sleep
-)
+from ..utils.function import finish_random_left_right, sleep
+from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class DaoGuanTuPo(Package):
     """道馆突破"""
+
     scene_name = "道馆突破"
     resource_path = "daoguantupo"
     resource_list = [
@@ -20,7 +18,7 @@ class DaoGuanTuPo(Package):
         "chuzhan",  # 出战
         "daojishi",  # 倒计时
         "guanzhan",  # 观战
-        "guanzhuzhan",  # TODO 馆主战
+        # "guanzhuzhan",  # TODO 移除馆主战
         "jijie",  # 集结
         "qianwang",  # 前往-助威
         "shengyutuposhijian",  # 剩余突破时间
@@ -29,174 +27,159 @@ class DaoGuanTuPo(Package):
         "zhanbao",  # 战报
     ]
     description = "目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景"
+    ASSET = True
+    STATE_IDLE = 1  # 准备界面
+    STATE_FIGHTING = 2  # 进行中
 
     @log_function_call
     def __init__(self, flag_guanzhan: bool = False) -> None:
         super().__init__()
         self.flag_guanzhan = flag_guanzhan  # 是否观战
         self.flag_fighting = False  # 是否进行中
+        self.state = self.STATE_IDLE
 
+    def load_asset(self):
+        self.IMAGE_BUTTON_ZHUWEI = AssetImage(
+            **get_asset(self.asset_image_list, "button_zhuwei")
+        )
+        self.IMAGE_CHUZHAN = AssetImage(**get_asset(self.asset_image_list, "chuzhan"))
+        self.IMAGE_DAOJISHI = AssetImage(**get_asset(self.asset_image_list, "daojishi"))
+        self.IMAGE_GUANZHAN = AssetImage(**get_asset(self.asset_image_list, "guanzhan"))
+        # self.IMAGE_GUANZHUZHAN = AssetImage(
+        #     **get_asset(self.asset_image_list, "guanzhuzhan")
+        # )
+        # self.IMAGE_JIJIE = AssetImage(**get_asset(self.asset_image_list, "jijie"))
+        self.IMAGE_QIANWANG = AssetImage(**get_asset(self.asset_image_list, "qianwang"))
+        self.IMAGE_SHENYUTUPO = AssetImage(
+            **get_asset(self.asset_image_list, "shengyutuposhijian")
+        )
+        self.IMAGE_TIAOZHAN = AssetImage(**get_asset(self.asset_image_list, "tiaozhan"))
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_ZHANBAO = AssetImage(**get_asset(self.asset_image_list, "zhanbao"))
+        self.IMAGE_ZHUWEI = AssetImage(**get_asset(self.asset_image_list, "zhuwei"))
+        self.IMAGE_ZHUWEI_GRAY = AssetImage(
+            **get_asset(self.asset_image_list, "zhuwei_gray")
+        )
+
+    @log_function_call
     def check_title(self) -> None:
-        """场景"""
-        _flag_title_msg = True
+        msg_title = True
         self.flag_fighting = False  # 进行中
-        _flag_daojishi = True  # 倒计时
+        msg_daojishi = True  # 倒计时
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            coor_title = self.get_coor_info("title")
-            coor_fighting = self.get_coor_info("button_zhuwei")
 
-            if coor_title.is_effective:
+            if RuleImage(self.IMAGE_TITLE).match():
                 logger.scene(self.scene_name)
-                self.current_resource_list = [
-                    f"{self.resource_path}/daojishi",
-                    f"{self.resource_path}/shengyutuposhijian",
-                    f"{self.resource_path}/guanzhuzhan",
-                    f"{self.resource_path}/button_zhuwei",
-                ]
-                self.log_current_scene_list()
-                while True:
-                    if event_thread.is_set():
-                        return
-                    scene, _ = check_scene_multiple_once(self.current_resource_list)
-                    if scene is None:
-                        continue
-                    scene = self.scene_handle(scene)
-
-                    match scene:
-                        case "daojishi":  # 等待倒计时自动进入
-                            if _flag_daojishi:
-                                logger.ui("等待倒计时自动进入")
-                                _flag_daojishi = False
-                            self.flag_fighting = True
-                            return
-                        case "shengyutuposhijian":  # 可进攻
-                            self.flag_fighting = False
-                            return
-                        case "guanzhuzhan":  # 馆主战
-                            logger.ui("馆主战，待开发", "warn")
-                            return
-
-            # 道馆突破进行中
-            elif coor_fighting.is_effective:
+                if RuleImage(self.IMAGE_DAOJISHI).match():
+                    if msg_daojishi:
+                        logger.ui("等待倒计时自动进入")
+                        msg_daojishi = False
+                elif RuleImage(self.IMAGE_SHENYUTUPO).match():
+                    logger.ui("可进攻")
+                    return
+            elif RuleImage(self.IMAGE_BUTTON_ZHUWEI).match():
                 logger.ui("道馆突破进行中")
-                self.flag_fighting = True
-                return True
-            elif _flag_title_msg:
-                _flag_title_msg = False
-                logger.ui("请检查游戏场景", "warn")
+                self.state = self.STATE_FIGHTING
+                return
+            elif msg_title:
+                msg_title = False
+                self.title_error_msg()
 
     def guanzhan(self):
         """观战"""
-        logger.ui("观战中，暂无法自动退出，可手动退出", "warn")
+        logger.ui_warn("观战中，暂无法自动退出，可手动退出")
         # 战报按钮
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            coor = self.get_coor_info("qianwang")
-            if coor.is_effective:
+            if RuleImage(self.IMAGE_TITLE).match():
+                self.check_click(self.IMAGE_ZHANBAO, timeout=5)
+                self.check_click(self.IMAGE_QIANWANG, timeout=5)
                 break
-            self.check_click("zhanbao")
-            random_sleep()
-        # 前往按钮
-        while True:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info("jijie")
-            if coor.is_effective:
-                break
-            self.check_click("qianwang")
-            random_sleep()
+        sleep(2)
 
-        self.current_resource_list = [
-            f"{self.resource_path}/zhuwei",
-            f"{self.resource_path}/test_zhuwei_gray",
-            f"{self.global_resource_path}/finish",
-            f"{self.global_resource_path}/fail",
+        self.current_asset_list = [
+            self.IMAGE_ZHUWEI,
+            self.IMAGE_ZHUWEI_GRAY,
+            self.global_image.IMAGE_FINISH,
+            self.global_image.IMAGE_FAIL,
         ]
         _flag_zhuwei_disable = False  # 是否能够助威
 
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            scene, coor = self.check_scene_multiple_once()
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-            logger.info(f"current scene: {scene}")
-            if "/" in scene:
-                scene = scene.split("/")[-1]
 
-            match scene:
+            logger.info(f"current result name: {result.name}")
+            match result.name:
                 case "zhuwei":
-                    click(coor)
+                    Mouse.click(result.random_point())
                     logger.ui("助威成功")
                     _flag_zhuwei_disable = True
-                case "test_zhuwei_gray":
+                case "zhuwei_gray":
                     if _flag_zhuwei_disable:
                         logger.ui("无法助威")
                         _flag_zhuwei_disable = False
                 case "finish":
                     self.ensure_finish()
                 case "fail":
-                    logger.ui("失败", "warn")
-                    random_sleep(0.4, 0.8)
+                    logger.ui_warn("失败")
+                    sleep(0.4, 0.8)
                     finish_random_left_right()
                     while True:
-                        if event_thread.is_set():
+                        if bool(event_thread):
                             return
-                        coor = get_coor_info(f"{self.global_resource_path}/fail")
                         # 未重复检测到，表示成功点击
-                        if coor.is_zero:
+                        if not RuleImage(self.global_image.IMAGE_FAIL).match():
                             self.done()
                             break
-                        click()
-                        random_sleep(0.4, 0.8)
-            random_sleep(4)
-
-    def guanzhuzhan(self) -> None:  # TODO
-        """馆主战"""
-        pass
+                        Mouse.click()
+                        sleep(0.4, 0.8)
+            sleep(4)
 
     def run(self):
         self.check_title()
         logger.num(0)
-        random_sleep(2, 4)
-        if not self.flag_fighting:
-            self.check_click("tiaozhan")
-        random_sleep(2, 4)
-        # TODO调整预设队伍
+        sleep(2, 4)
+        if self.state != self.STATE_FIGHTING:
+            self.check_click(self.IMAGE_TIAOZHAN)
+        sleep(2, 4)
+        # TODO 调整预设队伍
         # 开始
-        while True:
-            if event_thread.is_set():
-                return
-            self.current_resource_list = [
-                f"{self.global_resource_path}/ready_old",
-                f"{self.global_resource_path}/ready_new",
-                f"{self.global_resource_path}/victory",
-                f"{self.global_resource_path}/fail",
-                f"{self.global_resource_path}/finish",
-            ]
-            scene, coor = self.check_scene_multiple_once()
-            if scene is None:
-                continue
-            logger.info(f"coor: {coor.coor}")
-            scene = self.scene_handle(scene)
 
-            match scene:
+        self.current_asset_list = [
+            self.global_image.IMAGE_READY_OLD,
+            self.global_image.IMAGE_READY_NEW,
+            self.global_image.IMAGE_VICTORY,
+            self.global_image.IMAGE_FAIL,
+            self.global_image.IMAGE_FINISH,
+        ]
+
+        while True:
+            if bool(event_thread):
+                return
+
+            result = check_image_once(self.current_asset_list)
+            if result is None:
+                continue
+
+            logger.info(f"current result name: {result.name}")
+            match result.name:
                 case "ready_old" | "ready_new":
                     logger.ui("准备")
-                    click(coor)
+                    Mouse.click(result.random_point())
                     self.n += 1
                     logger.num(str(self.n))
-                    random_sleep()
-                case "victory":
-                    random_sleep()
                 case "finish":
                     finish_random_left_right()
                     break
                 case "fail":
-                    logger.ui("失败，需要手动处理", "warn")
+                    logger.ui_warn("失败，需要手动处理")
                     break
 
         if self.flag_guanzhan:

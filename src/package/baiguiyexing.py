@@ -1,19 +1,18 @@
-from ..utils.coordinate import RelativeCoor
+from ..utils.adapter import Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    click,
-    random_coor,
-    random_num,
-    random_sleep
-)
+from ..utils.function import random_num, random_point, sleep
+from ..utils.image import RuleImage
 from ..utils.log import logger
+from ..utils.point import RelativePoint
 from ..utils.window import window
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class BaiGuiYeXing(Package):
     """百鬼夜行"""
+
     scene_name = "百鬼夜行"
     resource_path = "baiguiyexing"
     resource_list = [
@@ -24,28 +23,24 @@ class BaiGuiYeXing(Package):
         "baiguiqiyueshu",  # 百鬼契约书
     ]
     description = "仅适用于清票，无法指定鬼王"
+    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
-    def check_title(self) -> bool:
-        """场景"""
-        _flag_title_msg = True
-        while True:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info("title")
-            if coor.is_effective:
-                logger.scene(self.scene_name)
-                return
-            elif _flag_title_msg:
-                _flag_title_msg = False
-                logger.ui("请检查游戏场景", "warn")
+    def load_asset(self):
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_JINRU = AssetImage(**get_asset(self.asset_image_list, "jinru"))
+        self.IMAGE_CHOOSE = AssetImage(**get_asset(self.asset_image_list, "choose"))
+        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "kaishi"))
+        self.IMAGE_FINISH = AssetImage(
+            **get_asset(self.asset_image_list, "baiguiqiyueshu")
+        )
 
     def start(self):
         """开始"""
-        self.check_click("jinru")
+        self.check_click(self.IMAGE_JINRU)
 
     def choose(self):
         """鬼王选择"""
@@ -58,7 +53,7 @@ class BaiGuiYeXing(Package):
         _y1 = 300
         _y2 = 550
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
             m = random_num(1, 4)
             if m < 2:
@@ -70,60 +65,60 @@ class BaiGuiYeXing(Package):
             else:
                 x1 = _x3_left
                 x2 = _x3_right
-            x, y = random_coor(x1, x2, _y1, _y2).coor
-            click(RelativeCoor(x, y))
-            random_sleep()
-            coor = self.get_coor_info("ya")
-            if coor.is_effective:
+
+            point: RelativePoint = random_point(x1, x2, _y1, _y2)
+            Mouse.click(point)
+            sleep()
+            if RuleImage(self.IMAGE_CHOOSE).match():
                 logger.ui("已选择鬼王")
                 break
-        self.check_click("kaishi")
+
+        self.check_click(self.IMAGE_START)
 
     def fighting(self):
         """砸豆子"""
-        random_sleep()
+        sleep()
         for _ in range(250, 0, -5):
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            random_sleep(0.2, 1)
-            x, y = random_coor(
+            sleep(0.2, 1)
+            point: RelativePoint = random_point(
                 60,
-                window.window_standard_width - 120,
+                window.window_width - 120,
                 300,
-                window.window_standard_height - 100
-            ).coor
-            click(RelativeCoor(x, y), dura=0.25)
+                window.window_height - 100,
+            )
+            Mouse.click(point, duration=0.25)
 
     def finish(self):
         """结束"""
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            coor = self.get_coor_info("baiguiqiyueshu")
-            random_sleep()
-            if coor.is_effective:
+            result = RuleImage(self.IMAGE_FINISH)
+            if result.match():
+                point = result.random_point()
+                sleep()
                 self.screenshot()
-                click(coor)
+                Mouse.click(point)
                 break
 
     def run(self):
         self.check_title()
-        logger.num(f"0/{self.max}")
-        random_sleep(1, 3)
-
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            random_sleep(0, 2)
+            sleep()
             self.start()
-            random_sleep(1, 3)
+            sleep(2)
             self.choose()
-            random_sleep(2, 4)
+            sleep(2, 4)
             self.fighting()
-            random_sleep(2, 4)
+            sleep(2, 4)
             self.finish()
             self.done()
-            random_sleep(3)
+            sleep(3)
+
             # TODO 更新随机判断
             if self.n in {12, 25, 39}:
-                random_sleep(10, 20)
+                sleep(10, 20)

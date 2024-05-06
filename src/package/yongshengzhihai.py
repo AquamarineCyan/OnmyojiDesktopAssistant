@@ -1,22 +1,16 @@
-import pyautogui
-
+from ..utils.adapter import Mouse
+from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_click,
-    check_scene_multiple_once,
-    click,
-    finish_random_left_right,
-    random_sleep,
-    result
-)
+from ..utils.function import finish_random_left_right, sleep
+from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from ..utils.window import window
-from .utils import Package
+from .utils import Package, get_asset
 
 
 class YongShengZhiHai(Package):
     """永生之海副本"""
+
     scene_name = "永生之海副本"
     resource_path = "yongshengzhihai"
     resource_list = [
@@ -29,22 +23,38 @@ class YongShengZhiHai(Package):
     ]
     description = "默认打手30次"
     fast_time = 13 - 2
+    ASSET = True
+
+    @log_function_call
+    def __init__(self, n: int = 0) -> None:
+        super().__init__(n)
+
+    def load_asset(self):
+        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
+        self.IMAGE_PASSENGER = AssetImage(
+            **get_asset(self.asset_image_list, "passenger")
+        )
+        self.IMAGE_START_TEAM = AssetImage(
+            **get_asset(self.asset_image_list, "start_team")
+        )
+        self.IMAGE_FIGHTING = AssetImage(**get_asset(self.asset_image_list, "fighting"))
 
     @log_function_call
     def start(self) -> None:
         """挑战"""
         if isinstance(self, YongShengZhiHaiTeam):
-            check_click(f"{self.resource_path}/start_team")
+            self.check_click(self.IMAGE_START_TEAM)
         else:
-            check_click(f"{self.global_resource_path}/start_single")
+            self.check_click(self.global_image.IMAGE_START_SINGLE)
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
     """组队永生之海副本"""
+
     scene_name = "组队永生之海副本"
     resource_list = [
         "title_team",  # 组队界面
-        "passenger_2",  # 队员2
+        # "passenger_2",  # 队员2
         "start_team",  # 组队挑战
         "fighting",  # 进行中
         "accept_invitation",  # 接受邀请
@@ -55,7 +65,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         self,
         n: int = 0,
         flag_driver: bool = False,
-        flag_drop_statistics: bool = False  # TODO
+        flag_drop_statistics: bool = False,  # TODO
     ) -> None:
         """
         组队永生之海副本
@@ -72,16 +82,15 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
     @log_function_call
-    def is_passengers_on_position(self):
+    def is_passengers_on_position(self) -> bool:
         """队员就位"""
         logger.ui("等待队员")
         while True:
-            if event_thread.is_set():
-                return
-            coor = self.get_coor_info("passenger")
-            if coor.is_zero:
+            if bool(event_thread):
+                return False
+            if not RuleImage(self.IMAGE_PASSENGER).match():
                 logger.ui("队员就位")
-                return
+                return True
 
     @log_function_call
     def finish(self):
@@ -96,77 +105,72 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         """
         _flag_screenshot = True
         _flag_first = True
-        result()
-        random_sleep(0.4, 0.8)
+        self.check_result()
+        sleep(0.4, 0.8)
         # 结算
-        coor = finish_random_left_right(False, is_multiple_drops_x=True)
-
-        pyautogui.moveTo(coor.x + window.window_left, coor.y + window.window_top, duration=0.25)
-        pyautogui.doubleClick()
+        finish_random_left_right(is_multiple_drops_x=True)
+        Mouse.click(wait=0.5)
         while True:
             if event_thread.is_set():
                 return
             # 检测到任一图像
-            scene, coor = check_scene_multiple_once([
-                f"{self.global_resource_path}/finish",
-                f"{self.global_resource_path}/tanchigui"
-            ])
-            if coor.is_effective:
+            result = check_image_once(
+                [
+                    self.global_image.IMAGE_FINISH,
+                    self.global_image.IMAGE_TANCHIGUI,
+                ]
+            )
+            # 直到第一次识别到
+            if _flag_first and result is None:
+                continue
+            if result:
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
-                click()
+                Mouse.click()
                 _flag_first = False
-                random_sleep(0.6, 1)
+                sleep(0.6, 1)
             # 所有图像都未检测到，退出循环
-            elif _flag_first:
-                continue
-            elif coor.is_zero:
+            else:
                 logger.ui("结束")
                 return
 
     def run(self):
-        # 保留必需图像，提高识别效率
-        _g_resource_list: list = [
-            f"{self.resource_path}/title_team",  # 组队界面
-            # f"{self.global_resource_path}/start_team",  # 组队挑战
-            f"{self.resource_path}/fighting",  # 战斗中-小白
-            f"{self.global_resource_path}/accept_invitation",  # 接受邀请
+        msg_title: bool = True
+        self.current_asset_list = [
+            self.IMAGE_TITLE,
+            self.IMAGE_FIGHTING,
+            self.global_image.IMAGE_ACCEPT_INVITATION,
         ]
         if self.flag_driver:
-            _g_resource_list.append(f"{self.global_resource_path}/start_team")
-        _flag_title_msg: bool = True
+            self.current_asset_list.append(self.global_image.IMAGE_START_TEAM)
 
-        logger.num(f"0/{self.max}")
         while self.n < self.max:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            self.current_resource_list = _g_resource_list
-            scene, coor = self.check_scene_multiple_once()
-            if scene is None:
+            result = check_image_once(self.current_asset_list)
+            if result is None:
                 continue
-            self.scene_handle(scene)
 
-            match self.current_scene:
-                case "title_team":
+            match result.name:
+                case "title":
                     logger.ui("组队界面准备中")
                     if self.flag_driver:
                         self.is_passengers_on_position()
                         self.start()
-                        # self.start()
-                    random_sleep()
-                    _flag_title_msg = False
+                    sleep()
+                    msg_title = False
                 case "fighting":
                     logger.ui("对局进行中")
                     self.finish()
                     self.done()
-                    random_sleep()
-                    _flag_title_msg = False
+                    sleep()
+                    msg_title = False
                 case "accept_invitation":
                     # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
                     logger.ui("接受邀请")
-                    click(coor)
+                    Mouse.click(result.center_point())
                 case _:
-                    if _flag_title_msg:
-                        logger.ui("请检查游戏场景", "warn")
-                        _flag_title_msg = False
+                    if msg_title:
+                        self.title_error_msg()
+                        msg_title = False

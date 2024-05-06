@@ -1,5 +1,3 @@
-import ctypes
-
 import win32api
 import win32con
 import win32gui
@@ -7,12 +5,6 @@ import win32gui
 from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
-
-try:
-    ctypes.windll.user32.SetProcessDPIAware()
-except AttributeError:
-    logger.ui_warn("SetProcessDPIAware() not found, not running on Windows")
-
 
 SCREEN_SIZE = (
     win32api.GetSystemMetrics(win32con.SM_CXSCREEN),
@@ -89,7 +81,7 @@ class GameWindow:
         s += f"右侧横坐标:{self.window_right}\n"
         s += f"底部纵坐标:{self.window_bottom}\n"
         s += f"窗口宽度:{self.window_width}\n"
-        s += f"窗口高度:{self.window_height}\n"
+        s += f"窗口高度:{self.window_height}"
         logger.ui(s)
 
     def get_top_window_handle(self) -> tuple[int, int, int, int]:

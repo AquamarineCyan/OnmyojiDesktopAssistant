@@ -1,0 +1,35 @@
+{
+    "current_path": "qiling",
+    "image_data": [
+        {
+            "name": "mingqizhaohuan",
+            "file": "mingqizhaohuan.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "queding",
+            "file": "queding.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"    
+        },
+        {
+            "name": "start_jieqi",
+            "file": "start_jieqi.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "start_tancha",
+            "file": "start_tancha.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ]
+}

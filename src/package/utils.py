@@ -13,14 +13,11 @@ from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.function import (
-    check_click,
     check_scene_multiple_once,
-    click,
     finish_random_left_right,
-    get_coor_info,
     merge_dict,
     open_asset_file,
-    random_sleep,
+    sleep,
 )
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
@@ -78,10 +75,12 @@ class GlobalResource:
     resource_list: list = [
         "accept_invitation",  # 接受邀请
         "fail",  # 失败
+        "fighting",  # 战斗中
+        "fighting_back_default",  # 战斗中返回
+        # "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
+        # "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
+        # "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
         "finish",  # 结束
-        "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
-        "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
-        "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
         "passenger_2",  # 队员2
         "passenger_3",  # 队员3
         "ready_new",  # 准备-简约主题
@@ -98,15 +97,36 @@ class GlobalResource:
             logger.ui_error(f"{self.resource_path}/assets.json文件解析失败")
             return
         try:
-            self.IMAGE_FAIL = AssetImage(**get_asset(self.image_data, "fail"))
-            self.IMAGE_FINISH = AssetImage(**get_asset(self.image_data, "finish"))
-            self.IMAGE_SOUL_OVERFLOW = AssetImage(
-                **get_asset(self.image_data, "soul_overflow")
-            )
-            self.IMAGE_VICTORY = AssetImage(**get_asset(self.image_data, "victory"))
+            self.load_asset()
         except Exception as e:
             logger.ui_error(f"{self.resource_path}/assets.json文件内容解析失败: {e}")
-            return
+
+    def load_asset(self):
+        self.IMAGE_ACCEPT_INVITATION = AssetImage(
+            **get_asset(self.image_data, "accept_invitation")
+        )
+        self.IMAGE_FAIL = AssetImage(**get_asset(self.image_data, "fail"))
+        self.IMAGE_FIGHTING = AssetImage(**get_asset(self.image_data, "fighting"))
+        self.IMAGE_FIGHTING_BACK_DEFAULT = AssetImage(
+            **get_asset(self.image_data, "fighting_back_default")
+        )
+        self.IMAGE_FINISH = AssetImage(**get_asset(self.image_data, "finish"))
+        self.IMAGE_PASSENGER_2 = AssetImage(**get_asset(self.image_data, "passenger_2"))
+        self.IMAGE_PASSENGER_3 = AssetImage(**get_asset(self.image_data, "passenger_3"))
+        self.IMAGE_READY_NEW = AssetImage(**get_asset(self.image_data, "ready_new"))
+        self.IMAGE_READY_OLD = AssetImage(**get_asset(self.image_data, "ready_old"))
+        self.IMAGE_START_SINGLE = AssetImage(
+            **get_asset(self.image_data, "start_single")
+        )
+        self.IMAGE_START_TEAM = AssetImage(**get_asset(self.image_data, "start_team"))
+        self.IMAGE_SOUL_OVERFLOW = AssetImage(
+            **get_asset(self.image_data, "soul_overflow")
+        )
+        self.IMAGE_TANCHIGUI = AssetImage(**get_asset(self.image_data, "tanchigui"))
+        self.IMAGE_VICTORY = AssetImage(**get_asset(self.image_data, "victory"))
+        self.IMAGE_XIEZHANDUIWU = AssetImage(
+            **get_asset(self.image_data, "xiezhanduiwu")
+        )
 
 
 class Package:
@@ -132,31 +152,34 @@ class Package:
         """总次数"""
         self.current_resource_list: list = None
         """当前使用的资源列表"""
+        self.current_asset_list: list = None
+        """当前使用的资源列表"""
         self.current_scene: str = None
         """当前场景"""
         if self.ASSET:
             self.global_image = GlobalResource()
             """通用资源"""
-            self.load_asset()
+            self.load_asset_list()
+            try:
+                self.load_asset()
+            except Exception as e:
+                logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
+                logger.ui_error(
+                    f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
+                )
 
-    def load_asset(self):
+    def load_asset_list(self):
         self.asset_image_list = load_asset(self.resource_path, "image")
         self.asset_ocr_list = load_asset(self.resource_path, "ocr")
 
-    def get_coor_info(self, file, *args, **kwargs):
-        return get_coor_info(f"{self.resource_path}/{file}", *args, **kwargs)
+    def load_asset(self):
+        pass
 
     def check_scene_multiple_once(self, *args, **kwargs):
         return check_scene_multiple_once(self.current_resource_list, *args, **kwargs)
 
     def title_error_msg(self):
         logger.ui("请检查游戏场景", "warn")
-
-    def scene_print(self, scene: str = None) -> None:  # FIXME remove
-        """打印当前场景"""
-        if "/" in scene:
-            scene = scene.split("/")[-1]
-        logger.scene(scene)
 
     def scene_handle(self, scene: str = None) -> str:
         if scene is None:
@@ -166,14 +189,6 @@ class Package:
             scene = scene.split("/")[-1]
         self.current_scene = scene
         return scene
-
-    def log_current_scene_list(self) -> None:
-        """记录当前匹配的资源列表"""
-        if self.current_resource_list is None:
-            return
-        logger.info(f"current_resource_list: {len(self.current_resource_list)}")
-        for item in self.current_resource_list:
-            logger.info(item)
 
     def log_current_asset_list(self) -> None:
         """记录当前匹配的资源列表"""
@@ -186,16 +201,16 @@ class Package:
     @log_function_call
     def check_title(self):
         """检查主场景"""
-        _flag_title_msg = True
-        _asset_title = None
+        msg_title: bool = True
+        asset = None
 
         # 判断标题采用何种识别方法
         try:
-            _asset_title = self.OCR_TITLE
+            asset = self.OCR_TITLE
         except AttributeError:
             logger.warn("no OCR_TITLE")
         try:
-            _asset_title = self.IMAGE_TITLE
+            asset = self.IMAGE_TITLE
         except AttributeError:
             logger.warn("no IMAGE_TITLE")
 
@@ -203,23 +218,21 @@ class Package:
             if bool(event_thread):
                 return
 
-            if isinstance(_asset_title, AssetOcr):
-                if RuleOcr(_asset_title).match():
+            if isinstance(asset, AssetOcr):
+                if RuleOcr(asset).match():
                     logger.scene(self.scene_name)
                     return
-            elif isinstance(_asset_title, AssetImage):
-                if RuleImage(_asset_title).match():
+            elif isinstance(asset, AssetImage):
+                if RuleImage(asset).match():
                     logger.scene(self.scene_name)
                     return
-            else:  # FIXME 兼容旧方法
-                coor = self.get_coor_info("title")
-                if coor.is_effective:
-                    logger.scene(self.scene_name)
-                    return
+            else:
+                logger.error("no title asset")
+                return
 
-            if _flag_title_msg:
-                _flag_title_msg = False
+            if msg_title:
                 self.title_error_msg()
+                msg_title = False
 
     def check_click(
         self,
@@ -230,8 +243,7 @@ class Package:
         **kwargs,
     ) -> bool:
         if isinstance(asset, str):
-            check_click(f"{self.resource_path}/{asset}", *args, **kwargs)
-            return
+            raise TypeError("asset must be AssetImage or AssetOcr")
 
         if timeout:
             _start = time.time()
@@ -256,6 +268,43 @@ class Package:
                     Mouse.click(result.rect.get_rela_center_coor(), *args, **kwargs)
                     return True
 
+    def check_scene(
+        self,
+        asset: AssetImage | AssetOcr = None,
+        timeout: float = 0,
+    ) -> bool:
+        if timeout:
+            _start = time.time()
+        while True:
+            if bool(event_thread):
+                return False
+            if timeout and (time.time() - _start > timeout):
+                logger.error("check_scene timeout")
+                return False
+
+            if isinstance(asset, AssetImage):
+                if RuleImage(asset).match():
+                    return True
+            elif isinstance(asset, AssetOcr):
+                if RuleOcr(asset).match():
+                    return True
+
+    @log_function_call
+    def is_passengers_on_position(self, passengers: int = 2):
+        """队员就位"""
+        logger.ui("等待队员")
+        while True:
+            if bool(event_thread):
+                return False
+            # 是否3人组队
+            if passengers == 3:
+                if not RuleImage(self.global_image.IMAGE_PASSENGER_3).match():
+                    logger.ui("队员3 就位")
+                    return True
+            elif not RuleImage(self.global_image.IMAGE_PASSENGER_2).match():
+                logger.ui("队员2 就位")
+                return True
+
     def start(self, *args, **kwargs) -> None:
         """挑战开始"""
         # coor = random_coor(1067 - 50, 1067 + 50, 602 - 50, 602 + 50)
@@ -279,21 +328,59 @@ class Package:
         self.n += 1
         logger.num(f"{self.n}/{self.max}")
 
+    @log_function_call
+    def check_result(self) -> bool:
+        """结果判断
+
+        返回:
+            bool: Success or Fail
+        """
+        while True:
+            if bool(event_thread):
+                return None
+            _screenshot = ScreenShot()
+            if RuleImage(self.global_image.IMAGE_VICTORY).match(_screenshot):
+                logger.ui("胜利")
+                return True
+            if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
+                logger.ui("结束")
+                return True
+            if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
+                logger.ui_warn("失败")
+                return False
+
+    @log_function_call
+    def check_finish(self) -> bool:
+        """结束/掉落判断
+
+        返回:
+            bool: Success or Fail
+        """
+        while True:
+            if bool(event_thread):
+                return None
+            _screenshot = ScreenShot()
+            if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
+                logger.ui("结束")
+                return True
+            if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
+                logger.ui_warn("失败")
+                return False
+
     def ensure_finish(self):
         """确保结束"""
         logger.ui("结束")
-        random_sleep(0.4, 0.8)
+        sleep(0.4, 0.8)
         finish_random_left_right()
         while True:
-            if event_thread.is_set():
+            if bool(event_thread):
                 return
-            coor = get_coor_info(f"{self.global_resource_path}/finish")
             # 未重复检测到，表示成功点击
-            if coor.is_zero:
+            if not RuleImage(self.global_image.IMAGE_FINISH).match():
                 self.done()
                 break
-            click()
-            random_sleep(0.4, 0.8)
+            Mouse.click()
+            sleep(0.4, 0.8)
 
     def run(self):
         """任务内容"""

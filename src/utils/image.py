@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Literal
 
@@ -71,6 +72,8 @@ class RuleImage:
             self.region = region
             self.score = score
             self.method = method
+        if region:
+            self.region = region
 
         # 获得图像的绝对路径
         self.file = check_user_file_exists(_file)
@@ -90,8 +93,11 @@ class RuleImage:
         elif self.method == "GRAYSCALE":
             _method = cv2.IMREAD_GRAYSCALE
 
-        img = cv2.imread(str(self.file), _method)
-        self._image = img
+        if os.path.exists(str(self.file)):
+            img = cv2.imread(str(self.file), _method)
+            self._image = img
+        else:
+            logger.warning(f"{self.file} 文件不存在")
 
     def match(
         self,
