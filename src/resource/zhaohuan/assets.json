@@ -1,0 +1,41 @@
+{
+    "current_path": "zhaohuan",
+    "image_data": [
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        }
+    ],
+    "ocr_data": [
+        {
+            "name": "title",
+            "keyword": "召唤",
+            "region": [70, 40, 200, 100],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "zhaohuan",
+            "keyword": "普通召唤",
+            "region": [320, 630, 150, 80],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "queding",
+            "keyword": "确定",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "again",
+            "keyword": "再次召唤",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8",
+            "method": "PERFACT"
+        }
+    ]
+}
