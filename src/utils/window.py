@@ -155,8 +155,10 @@ class GameWindow:
             )
             self.update_game_window_rect(win32gui.GetWindowRect(self.handle))
             logger.info(f"new_handle_coor:{self.handle_rect}")
+            return True
         else:
-            logger.ui("强制缩放失败", "error")
+            logger.ui_error("强制缩放失败")
+            return False
 
     def scheduler_get_game_window_handle(self):
         """定时任务：获取游戏窗口句柄"""

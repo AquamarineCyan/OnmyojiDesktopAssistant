@@ -5,8 +5,14 @@ from enum import Enum
 from pathlib import Path
 
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import (QComboBox, QDialogButtonBox, QMainWindow,
-                               QMessageBox, QPushButton, QWidget)
+from PySide6.QtWidgets import (
+    QComboBox,
+    QDialogButtonBox,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QWidget,
+)
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
@@ -36,6 +42,7 @@ def get_global_icon():
 
 class GameFunction(Enum):
     """游戏功能"""
+
     YUHUN = 1  # 御魂副本
     YONGSHENGZHIHAI = 2  # 永生之海副本
     YEYUANHUO = 3  # 业原火副本
@@ -55,6 +62,7 @@ class GameFunction(Enum):
 
 class StackedWidgetIndex(Enum):
     """高级设置窗口索引"""
+
     NONE = 0
     YUHUN = 1
     JIEJIETUPO = 2
@@ -64,6 +72,7 @@ class StackedWidgetIndex(Enum):
 
 class MainWindow(QMainWindow):
     """主界面"""
+
     _list_function = [  # 功能列表
         "1.御魂副本",
         "2.永生之海副本",
@@ -125,7 +134,9 @@ class MainWindow(QMainWindow):
         # 运行状态更新
         ms.main.is_fighting_update.connect(self.is_fighting)
         # 完成次数更新
-        ms.main.ui_text_completion_times_update.connect(self.ui_text_completion_times_update_func)
+        ms.main.ui_text_completion_times_update.connect(
+            self.ui_text_completion_times_update_func
+        )
         # 退出程序
         ms.main.sys_exit.connect(self.exit_func)
         # 显示更新窗口
@@ -144,8 +155,12 @@ class MainWindow(QMainWindow):
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         # GitHub地址悬停事件
         self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
-        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
-        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
+        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(
+            self.buttonGroup_yuhun_mode_change
+        )
+        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(
+            self.buttonGroup_jiejietupo_switch_change
+        )
 
         # 设置项
         # 更新模式
@@ -172,6 +187,14 @@ class MainWindow(QMainWindow):
         # 程序开启运行
         self.application_init()
 
+    def application_init_ready(self) -> None:
+        """程序初始化成功"""
+        logger.ui("初始化成功")
+        self.ui.combo_choice.setEnabled(True)
+        self.ui.spin_times.setEnabled(True)
+        logger.ui("移动游戏窗口后，点击下方“游戏检测”即可")
+        logger.ui("请选择功能以加载内容，请确保锁定阵容")
+
     @log_function_call
     @run_in_thread
     def application_init(self) -> None:
@@ -180,21 +203,20 @@ class MainWindow(QMainWindow):
         logger.info(f"resource path: {RESOURCE_DIR_PATH}")
         logger.info(f"[VERSION] {VERSION}")
         logger.info(f"config_user: {config.config_user}")
-        logger.ui("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
-使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止")
-        if self._check_enviroment():
-            logger.ui("环境完整")
-            self.ui.combo_choice.setEnabled(True)
-            self.ui.spin_times.setEnabled(True)
-            logger.ui("移动游戏窗口后，点击下方“游戏检测”即可")
-            logger.ui("请选择功能以加载内容，请确保锁定阵容")
+        logger.ui(
+            "未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
+使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止"
+        )
+        if self.check_enviroment():
+            self.application_init_ready()
         else:
-            logger.ui("环境损坏", "error")
+            logger.ui_error("初始化失败")
 
-        logger.ui("初始化完成")
-        logger.ui("主要战斗场景UI为「怀旧主题」，持续兼容部分新场景中，可在游戏内图鉴中设置")
+        logger.ui("主要战斗场景UI为「怀旧主题」与「简约主题」，需要在游戏内图鉴中设置")
         if config.config_user.remember_last_choice > 0:
-            self.ui.combo_choice.setCurrentIndex(config.config_user.remember_last_choice - 1)
+            self.ui.combo_choice.setCurrentIndex(
+                config.config_user.remember_last_choice - 1
+            )
         log_clean_up()
         Restart().move_screenshot()
         upgrade.check_latest()
@@ -218,27 +240,33 @@ class MainWindow(QMainWindow):
         elif level == "question":
             if msg == "强制缩放":
                 logger.error("游戏窗口大小不匹配")
-                if QMessageBox.question(
-                    self,
-                    "窗口大小不匹配",
-                    "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材",
-                ) == QMessageBox.StandardButton.Yes:
+                if (
+                    QMessageBox.question(
+                        self,
+                        "窗口大小不匹配",
+                        "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材",
+                    )
+                    == QMessageBox.StandardButton.Yes
+                ):
                     logger.info("用户接受强制缩放")
-                    window.force_zoom()
+                    if window.force_zoom():
+                        self.application_init_ready()
                 else:
                     logger.info("用户拒绝强制缩放")
             elif msg == "更新重启":
                 logger.info("提示：更新重启")
-                if QMessageBox.question(
-                    self,
-                    "检测到更新包",
-                    "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包",
-                ) == QMessageBox.StandardButton.Yes:
+                if (
+                    QMessageBox.question(
+                        self,
+                        "检测到更新包",
+                        "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包",
+                    )
+                    == QMessageBox.StandardButton.Yes
+                ):
                     logger.info("用户接受更新重启")
                     WorkThread(func=upgrade.restart).start()
                 else:
                     logger.info("用户拒绝更新重启")
-    
 
     def ui_text_info_update_func(self, msg: str, color: str) -> None:
         """输出内容至文本框
@@ -267,14 +295,16 @@ class MainWindow(QMainWindow):
         """
         self.ui.text_completion_times.setText(msg)
 
-    def ui_spin_times_set_value_func(self, current: int = 1, min: int = 0, max: int = 99):
+    def ui_spin_times_set_value_func(
+        self, current: int = 1, min: int = 0, max: int = 99
+    ):
         widget = self.ui.spin_times
         widget.setValue(current)
         widget.setMinimum(min)
         widget.setMaximum(max)
 
     @log_function_call
-    def _check_enviroment(self) -> bool:
+    def check_enviroment(self) -> bool:
         """环境检测
 
         返回:
@@ -286,7 +316,7 @@ class MainWindow(QMainWindow):
             return False
         # 资源文件夹完整度
         if not self.is_resource_directory_complete():
-            logger.ui("资源丢失", "error")
+            logger.ui_error("资源丢失")
             return False
         # 游戏窗口检测
         if not self.check_game_handle():
@@ -306,16 +336,20 @@ class MainWindow(QMainWindow):
         _package_resource_list = get_package_resource_list()
         for P in _package_resource_list:
             # 检查子文件夹
-            if not Path(RESOURCE_DIR_PATH/P.resource_path).exists():
+            if not Path(RESOURCE_DIR_PATH / P.resource_path).exists():
                 logger.ui("资源文件夹不存在！", "error")
                 ms.main.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
                 return False
             else:
                 # 检查资源文件
                 for item in P.resource_list:
-                    if not Path(RESOURCE_DIR_PATH/P.resource_path/f"{item}.png").exists():
+                    if not Path(
+                        RESOURCE_DIR_PATH / P.resource_path / f"{item}.png"
+                    ).exists():
                         logger.ui(f"未找到资源：{P.resource_path}/{item}.png", "error")
-                        ms.main.qmessagbox_update.emit("ERROR", f"无{P.resource_path}/{item}.png资源文件")
+                        ms.main.qmessagbox_update.emit(
+                            "ERROR", f"无{P.resource_path}/{item}.png资源文件"
+                        )
                         return False
         logger.info("资源完整")
         return True
@@ -362,9 +396,13 @@ class MainWindow(QMainWindow):
 
     def game_function_description(self):
         """功能描述"""
-        self.game_function_choice = GameFunction(self.ui.combo_choice.currentIndex() + 1)
+        self.game_function_choice = GameFunction(
+            self.ui.combo_choice.currentIndex() + 1
+        )
         if config.config_user.remember_last_choice != -1:
-            config.config_user_changed("remember_last_choice", self.game_function_choice.value)
+            config.config_user_changed(
+                "remember_last_choice", self.game_function_choice.value
+            )
         self.ui.button_start.setEnabled(True)
         self.ui.spin_times.setEnabled(True)
         self.ui_spin_times_set_value_func(1, 1, 999)
@@ -400,7 +438,9 @@ class MainWindow(QMainWindow):
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
             case GameFunction.GERENTUPO:
                 logger.ui(JieJieTuPoGeRen.description)
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
+                self.ui.stackedWidget.setCurrentIndex(
+                    StackedWidgetIndex.JIEJIETUPO.value
+                )
                 self.ui.button_jiejietupo_switch_rule.setChecked(True)
                 self.ui.button_jiejietupo_current_level_60.setChecked(True)
                 self.ui.button_jiejietupo_target_level_60.setChecked(True)
@@ -423,7 +463,9 @@ class MainWindow(QMainWindow):
                 self.ui_spin_times_set_value_func(_current, 1, 200)
             case GameFunction.DAOGUANTUPO:
                 logger.ui(DaoGuanTuPo.description)
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
+                self.ui.stackedWidget.setCurrentIndex(
+                    StackedWidgetIndex.DAOGUANTUPO.value
+                )
                 self.ui.spin_times.setEnabled(False)
             case GameFunction.ZHAOHUAN:
                 logger.ui(ZhaoHuan.description)
@@ -473,12 +515,11 @@ class MainWindow(QMainWindow):
                         n=n,
                         flag_driver=flag_driver,
                         flag_passengers=flag_passengers,
-                        flag_drop_statistics=flag_drop_statistics
+                        flag_drop_statistics=flag_drop_statistics,
                     ).task_start()
                 else:
                     YuHunSingle(
-                        n=n,
-                        flag_drop_statistics=flag_drop_statistics
+                        n=n, flag_drop_statistics=flag_drop_statistics
                     ).task_start()
             case GameFunction.YONGSHENGZHIHAI:
                 if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
@@ -488,7 +529,7 @@ class MainWindow(QMainWindow):
                     YongShengZhiHaiTeam(
                         n=n,
                         flag_driver=flag_driver,
-                        flag_drop_statistics=flag_drop_statistics
+                        flag_drop_statistics=flag_drop_statistics,
                     ).task_start()
             case GameFunction.YEYUANHUO:
                 YeYuanHuo(n=n).task_start()
@@ -497,7 +538,10 @@ class MainWindow(QMainWindow):
             case GameFunction.GERENTUPO:
                 flag_refresh_need = 0
                 current_level = target_level = 60
-                if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
+                if (
+                    self.ui.buttonGroup_jiejietupo_switch.checkedButton().text()
+                    == "卡级"
+                ):
                     current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
                     target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
                 else:
@@ -506,7 +550,7 @@ class MainWindow(QMainWindow):
                     n=n,
                     flag_refresh_rule=flag_refresh_need,
                     flag_current_level=current_level,
-                    flag_target_level=target_level
+                    flag_target_level=target_level,
                 ).task_start()
             case GameFunction.LIAOTUPO:
                 JieJieTuPoYinYangLiao(n=n).task_start()
@@ -527,9 +571,7 @@ class MainWindow(QMainWindow):
                     self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
                 )
                 RiLun(
-                    n=n,
-                    flag_driver=flag_driver,
-                    flag_passengers=flag_passengers
+                    n=n, flag_driver=flag_driver, flag_passengers=flag_passengers
                 ).task_start()
             case GameFunction.TANSUO:
                 TanSuo(n=n).task_start()
@@ -603,6 +645,7 @@ class MainWindow(QMainWindow):
 
     def open_GitHub_address(self, *args) -> None:
         import webbrowser
+
         logger.info("open GitHub address.")
         webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
 
@@ -635,7 +678,9 @@ class UpdateRecordWindow(QWidget):
         self.setWindowIcon(get_global_icon())
         # 关联事件
         ms.update_record.text_update.connect(self.textBrowser_update_func)
-        ms.update_record.text_markdown_update.connect(self.textBrowser_markdown_update_func)
+        ms.update_record.text_markdown_update.connect(
+            self.textBrowser_markdown_update_func
+        )
         # 初始化
         update_record()
 
@@ -664,9 +709,15 @@ class UpgradeNewVersionWindow(QWidget):
         button_download = QPushButton("仅下载", self)
         button_cancel = QPushButton("忽略本次", self)
 
-        self.ui.buttonBox.addButton(button_update, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_download, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_cancel, QDialogButtonBox.ButtonRole.RejectRole)
+        self.ui.buttonBox.addButton(
+            button_update, QDialogButtonBox.ButtonRole.AcceptRole
+        )
+        self.ui.buttonBox.addButton(
+            button_download, QDialogButtonBox.ButtonRole.AcceptRole
+        )
+        self.ui.buttonBox.addButton(
+            button_cancel, QDialogButtonBox.ButtonRole.RejectRole
+        )
         self.ui.progressBar.hide()
 
         button_update.clicked.connect(self.button_update_clicked_func)
@@ -677,7 +728,9 @@ class UpgradeNewVersionWindow(QWidget):
         ms.upgrade_new_version.progressBar_update.connect(self.progressBar_update_func)
         ms.upgrade_new_version.close_ui.connect(self.close)
 
-        ms.upgrade_new_version.text_update.emit(f"v{upgrade.new_version}\n{upgrade.new_version_info}")
+        ms.upgrade_new_version.text_update.emit(
+            f"v{upgrade.new_version}\n{upgrade.new_version_info}"
+        )
 
     def textBrowser_update_func(self, msg: str) -> None:
         """输出内容至文本框
@@ -697,7 +750,9 @@ class UpgradeNewVersionWindow(QWidget):
         """
         cursor = self.ui.textBrowser.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
-        cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
+        cursor.movePosition(
+            QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor
+        )
         cursor.removeSelectedText()
         cursor.insertText(msg)
 
