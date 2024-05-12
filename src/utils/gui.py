@@ -30,7 +30,7 @@ from .restart import Restart
 from .paddleocr import ocr
 from .update import get_update_info, update_record
 from .upgrade import upgrade
-from .window import window, check_game_handle
+from .window import window
 
 
 def get_global_icon():
@@ -223,8 +223,9 @@ class MainWindow(QMainWindow):
         get_update_info()
         global_scheduler.add_job(
             window.scheduler_get_game_window_handle,
-            "interval", seconds=1,
-            id='scheduler_get_game_window_handle'
+            "interval",
+            seconds=1,
+            id="scheduler_get_game_window_handle",
         )
         task_xuanshangfengyin.task_start()
         # 文字识别
@@ -392,7 +393,7 @@ class MainWindow(QMainWindow):
         config.config_user_changed("remember_last_choice", _status)
 
     def check_game_handle(self):
-        return check_game_handle()
+        return window.check_game_handle()
 
     def game_function_description(self):
         """功能描述"""

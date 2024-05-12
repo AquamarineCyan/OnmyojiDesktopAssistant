@@ -42,6 +42,54 @@ def get_all_same_title_window_numbers(
     return _window_number, _rect
 
 
+class WindowResolution:
+    screen_size: tuple[int, int]
+    """屏幕尺寸，16:9"""
+    window_standard_width: int
+    """窗口标准宽度"""
+    window_standard_height: int
+    """窗口标准高度"""
+
+
+class WindowResolution1920(WindowResolution):
+    """1920x1080"""
+
+    screen_size = (1920, 1080)
+    window_standard_width: int = 1136 + 18
+    window_standard_height: int = 640 + 39 + 8
+
+
+class WindowResolution2560(WindowResolution):
+    """2560x1440"""
+
+    # (704, 369, 1856, 1048)
+    screen_size = (2560, 1440)
+    window_standard_width: int = 1152
+    window_standard_height: int = 679
+
+
+def proportional_scaling(win_res: WindowResolution, handle_rect, _rect):
+    """等比例缩放
+
+    参数:
+        win_res (WindowResolution): 屏幕分辨率
+        handle_rect (_type_): 窗口矩形坐标
+        _rect (_type_): 标准矩形(长宽)
+
+    返回:
+        _type_: 缩放后的矩形(长宽)
+    """
+    new_rect = [0, 0, 0, 0]
+    width = handle_rect[2] - handle_rect[0]
+    height = handle_rect[3] - handle_rect[1]
+    new_rect[0] = int(_rect[0] / win_res.window_standard_width * width)
+    new_rect[1] = int(_rect[1] / win_res.window_standard_height * height)
+    new_rect[2] = int(_rect[2] / win_res.window_standard_width * width)
+    new_rect[3] = int(_rect[3] / win_res.window_standard_height * height)
+    logger.info(f"proportional_scaling: {new_rect}")
+    return new_rect
+
+
 class GameWindow:
     """游戏窗口"""
 
@@ -71,6 +119,9 @@ class GameWindow:
     """窗口坐标 (left, top, right, bottom)"""
     handle_number: int = 0
     """单开/多开数量"""
+
+    current_window_resolution: WindowResolution = None
+    """当前游戏窗口的分辨率"""
 
     def window_info_display(self):
         if self.handle_number == 0:
@@ -172,33 +223,51 @@ class GameWindow:
             self.update_game_window_rect(_rect)
             logger.ui("已自动更新游戏窗口坐标")
 
+    def proportional_scaling(self, rect):
+        return proportional_scaling(
+            self.current_window_resolution, self.handle_rect, rect
+        )
+
+    def check_game_handle(self) -> bool:
+        """游戏窗口检测
+
+        返回:
+            bool: 检测结果
+        """
+        logger.info(f"SCREEN_SIZE: {SCREEN_SIZE}")
+        self.get_game_window_handle()
+        _rect = self.handle_rect
+        if SCREEN_SIZE == WindowResolution1920.screen_size:
+            self.current_window_resolution = WindowResolution1920()
+        elif SCREEN_SIZE == WindowResolution2560.screen_size:
+            self.current_window_resolution = WindowResolution2560()
+
+        if _rect == (0, 0, 0, 0):
+            logger.error("Game is close!")
+            ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
+        elif _rect[0] < -9 or _rect[1] < 0 or _rect[2] < 0 or _rect[3] < 0:
+            logger.error(f"Game is background, handle_rect:{_rect}")
+            ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
+        elif not is_rect_within_range(
+            _rect,
+            self.current_window_resolution.window_standard_width,
+            self.current_window_resolution.window_standard_height,
+        ):
+            ms.main.qmessagbox_update.emit("question", "强制缩放")
+        else:
+            logger.info("游戏窗口检测成功")
+            return True
+        logger.ui_error("游戏窗口检测失败")
+        return False
+
 
 window = GameWindow()
 
 
-def check_game_handle() -> bool:
-    """游戏窗口检测
-
-    返回:
-        bool: 检测结果
-    """
-    logger.info(f"SCREEN_SIZE: {SCREEN_SIZE}")
-    window.get_game_window_handle()
-    _rect = window.handle_rect
-
-    if _rect == (0, 0, 0, 0):
-        logger.error("Game is close!")
-        ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
-    elif _rect[0] < -9 or _rect[1] < 0 or _rect[2] < 0 or _rect[3] < 0:
-        logger.error(f"Game is background, handle_rect:{_rect}")
-        ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
-    elif (
-        _rect[2] - _rect[0] != window.window_standard_width
-        and _rect[3] - _rect[1] != window.window_standard_height
-    ):
-        ms.main.qmessagbox_update.emit("question", "强制缩放")
-    else:
-        logger.ui("游戏窗口检测成功")
-        return True
-    logger.ui("游戏窗口检测失败", "error")
-    return False
+def is_rect_within_range(rect, range_width, range_height):
+    x1, y1, x2, y2 = rect
+    offset = 5
+    return (
+        0 - offset <= (x2 - x1) < range_width + offset
+        and 0 <= (y2 - y1) < range_height + offset
+    )
