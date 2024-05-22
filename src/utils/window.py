@@ -268,6 +268,6 @@ def is_rect_within_range(rect, range_width, range_height):
     x1, y1, x2, y2 = rect
     offset = 5
     return (
-        0 - offset <= (x2 - x1) < range_width + offset
-        and 0 <= (y2 - y1) < range_height + offset
+        range_width - offset <= (x2 - x1) < range_width + offset
+        and range_height <= (y2 - y1) < range_height + offset
     )
