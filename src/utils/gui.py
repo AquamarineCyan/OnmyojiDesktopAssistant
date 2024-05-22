@@ -192,8 +192,6 @@ class MainWindow(QMainWindow):
         logger.ui("初始化成功")
         self.ui.combo_choice.setEnabled(True)
         self.ui.spin_times.setEnabled(True)
-        logger.ui("移动游戏窗口后，点击下方“游戏检测”即可")
-        logger.ui("请选择功能以加载内容，请确保锁定阵容")
 
     @log_function_call
     @run_in_thread
@@ -473,7 +471,7 @@ class MainWindow(QMainWindow):
             case GameFunction.BAIGUIYEXING:
                 logger.ui(BaiGuiYeXing.description)
             case GameFunction.HUODONG:
-                logger.ui(HuoDong.description)
+                HuoDong().show_description()
             case GameFunction.RILUN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(50)

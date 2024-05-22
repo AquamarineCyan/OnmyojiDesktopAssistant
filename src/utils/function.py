@@ -339,3 +339,18 @@ def merge_dict(base_dict, update_dict) -> dict:
                     base_dict[data_type].append(item_update_dict)
 
     return base_dict
+
+
+def get_asset_data(resource_path) -> tuple[Path | dict]:
+    _full_path = RESOURCE_DIR_PATH / resource_path / "assets.json"
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
+        *_full_path.parts[-2:]
+    )
+
+    data_default = open_asset_file(_full_path)
+    assets_file = _full_path
+    data_user = open_asset_file(_full_path_user)
+    if data_user != {}:
+        assets_file = _full_path_user
+
+    return (assets_file, merge_dict(data_default, data_user))

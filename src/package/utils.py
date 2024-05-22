@@ -4,10 +4,8 @@ from typing import Literal
 
 from ..utils.adapter import Mouse
 from ..utils.application import (
-    RESOURCE_DIR_PATH,
     RESOURCE_GLOBAL_PATH,
     SCREENSHOT_DIR_PATH,
-    USER_DATA_DIR_PATH,
 )
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
@@ -15,8 +13,7 @@ from ..utils.event import event_thread
 from ..utils.function import (
     check_scene_multiple_once,
     finish_random_left_right,
-    merge_dict,
-    open_asset_file,
+    get_asset_data,
     sleep,
 )
 from ..utils.image import AssetImage, RuleImage
@@ -28,18 +25,7 @@ from ..utils.toast import toast
 
 
 def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
-    _full_path = RESOURCE_DIR_PATH / resource_path / "assets.json"
-    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
-        *_full_path.parts[-2:]
-    )
-
-    data_default = open_asset_file(_full_path)
-    assets_file = _full_path
-    data_user = open_asset_file(_full_path_user)
-    if data_user != {}:
-        assets_file = _full_path_user
-
-    data = merge_dict(data_default, data_user)
+    assets_file, data = get_asset_data(resource_path)
     if data.get(f"{type}_data") is None:
         return None
 

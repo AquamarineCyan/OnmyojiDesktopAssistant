@@ -2,7 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import finish_random_left_right, sleep
+from ..utils.function import finish_random_left_right, get_asset_data, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
@@ -18,9 +18,7 @@ class HuoDong(Package):
         "title",
         "start",
     ]
-    activity_name = "循音试炼"
-    description = f"适配活动「{activity_name}」\
-                    可自行替换 /data/myresource/huodong 下的素材"
+    activity_name: str
     ASSET = True
     # 两种结算方式
     STATE_NORMAL = 1  # 「达摩蛋」弹出
@@ -29,9 +27,16 @@ class HuoDong(Package):
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+        _, data = get_asset_data(self.resource_path)
+        self.activity_name = data.get("activity_name")
         self._flag_timer_check_start: bool = False
         self.flag_soul_overflow: bool = False
         self.state = None
+
+    def show_description(self) -> None:
+        logger.ui(
+            f"""适配活动「{self.activity_name}」，可自行替换 /data/myresource/huodong 下的素材"""
+        )
 
     def load_asset(self) -> None:
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
