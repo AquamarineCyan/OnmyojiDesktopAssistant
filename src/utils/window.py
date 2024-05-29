@@ -51,6 +51,14 @@ class WindowResolution:
     """窗口标准高度"""
 
 
+class WindowResolutionDefault(WindowResolution):
+    """默认值"""
+
+    screen_size = (1920, 1080)
+    window_standard_width: int = 1136 + 18
+    window_standard_height: int = 640 + 39 + 8
+
+
 class WindowResolution1920(WindowResolution):
     """1920x1080"""
 
@@ -241,6 +249,8 @@ class GameWindow:
             self.current_window_resolution = WindowResolution1920()
         elif SCREEN_SIZE == WindowResolution2560.screen_size:
             self.current_window_resolution = WindowResolution2560()
+        else:
+            self.current_window_resolution = WindowResolutionDefault()
 
         if _rect == (0, 0, 0, 0):
             logger.error("Game is close!")
@@ -264,6 +274,7 @@ class GameWindow:
 window = GameWindow()
 
 
+@log_function_call
 def is_rect_within_range(rect, range_width, range_height):
     x1, y1, x2, y2 = rect
     offset = 5
