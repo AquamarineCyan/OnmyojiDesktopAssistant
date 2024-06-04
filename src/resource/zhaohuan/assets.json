@@ -19,7 +19,7 @@
         {
             "name": "zhaohuan",
             "keyword": "普通召唤",
-            "region": [320, 630, 150, 80],
+            "region": [360, 630, 100, 50],
             "score": "0.8",
             "method": "PERFACT"
         },
