@@ -58,6 +58,7 @@ class GameFunction(Enum):
     QILING = 13  # 契灵
     JUEXING = 14  # 觉醒副本
     LIUDAOZHIMEN = 15  # 六道之门
+    DOUJI = 16  # 斗技自动上阵
 
 
 class StackedWidgetIndex(Enum):
@@ -88,6 +89,9 @@ class MainWindow(QMainWindow):
         "12.单人探索",
         "13.契灵",
         "14.觉醒副本",
+        # 下方需要ocr，目前做可选项
+        # "15.六道之门",
+        # "16.斗技自动上阵",
     ]
 
     def __init__(self):
@@ -230,6 +234,7 @@ class MainWindow(QMainWindow):
         ocr.init()
         if event_ocr_init.is_set():
             self.ui.combo_choice.addItem("15.六道之门")
+            self.ui.combo_choice.addItem("16.斗技自动上阵")
         logger.info(global_scheduler.get_jobs())
         global_scheduler.start()
 
@@ -494,6 +499,8 @@ class MainWindow(QMainWindow):
                 logger.ui(JueXing.description)
             case GameFunction.LIUDAOZHIMEN:
                 logger.ui(LiuDaoZhiMen.description, "warn")
+            case GameFunction.DOUJI:
+                logger.ui(DouJi.description, "warn")
 
     def _app_start(self) -> None:
         n = self.ui.spin_times.value()
@@ -584,12 +591,14 @@ class MainWindow(QMainWindow):
                     _flag_tancha=flag_tancha,
                     _flag_jieqi=flag_jieqi,
                     _stone_pokemon=stone_pokemon,
-                    _stone_numbers=stone_numbers
+                    _stone_numbers=stone_numbers,
                 ).task_start()
             case GameFunction.JUEXING:
                 JueXing(n=n).task_start()
             case GameFunction.LIUDAOZHIMEN:
                 LiuDaoZhiMen(n=n).task_start()
+            case GameFunction.DOUJI:
+                DouJi(n=n).task_start()
 
     def _app_stop(self) -> None:
         event_thread.set()

@@ -165,6 +165,7 @@ class CharacterRecognition:
         # img.save(byte_image, format="PNG")
         # byte_image = byte_image.getvalue()
 
+        t2 = datetime.now(timezone.utc)
         img = str(self.img_file).encode("gbk")
         result = self.paddleocr.Detect(img)
         t3 = datetime.now(timezone.utc)
@@ -259,6 +260,8 @@ class RuleOcr:
             self.score = score
             self.method = method
 
+        self.match_result :OcrData= None
+
     def get_raw_result(self, file: str = None) -> list[OcrData]:
         if file is None:
             file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
@@ -297,27 +300,30 @@ class RuleOcr:
             if self.method == "PERFACT":
                 if item.text == self.keyword:
                     logger.ui(f"{self.name} ocr match successfully.")
+                    self.match_result = item
                     return item
             elif self.method == "INCLUDE":
                 if self.keyword in item.text:
                     logger.ui(f"{self.name} ocr match successfully.")
+                    self.match_result = item
                     return item
 
         return None
 
 
-def ocr_match_once(asset_list: list[AssetOcr]) -> OcrData | None:
+def ocr_match_once(asset_list: list[AssetOcr]) -> AssetOcr | None:
     """文字匹配
 
     参数:
-        ocr_list (list[AssetOcr]): 关键字列表
+        asset_list (list[AssetOcr]): 关键字列表
 
     返回:
-        OcrData | None: 识别结果
+        AssetOcr | None: 识别结果
     """
     ocr_result = RuleOcr().get_raw_result()
     for item in asset_list:
-        result = RuleOcr(item).match(ocr_result)
+        rule = RuleOcr(item)
+        result = rule.match(ocr_result)
         if result:
-            return result
+            return rule
     return None

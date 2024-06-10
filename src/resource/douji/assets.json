@@ -1,0 +1,54 @@
+{
+    "current_path": "douji",
+    "ocr_data": [
+        {
+            "name": "title",
+            "keyword": "斗技",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "fight",
+            "keyword": "战",
+            "region": [0, 0, 0, 0],
+            "score": "0.6",
+            "method": "PERFACT"
+        },
+        {
+            "name": "update_team",
+            "keyword": "上阵",
+            "region": [0, 0, 0, 0],
+            "score": "0.6",
+            "method": "PERFACT"
+        },
+        {
+            "name": "intentional",
+            "keyword": "手动",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "continue",
+            "keyword": "点击屏幕继续",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "victory",
+            "keyword": "胜利",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "fail",
+            "keyword": "失败",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        }
+    ]
+}
