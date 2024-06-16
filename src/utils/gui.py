@@ -220,6 +220,12 @@ class MainWindow(QMainWindow):
                 config.config_user.remember_last_choice - 1
             )
         log_clean_up()
+        # 检查文字识别资源
+        if paddleocr.check_ocr_folder():
+            logger.info("文字识别资源检查通过")
+        else:
+            logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")
+            config.config_user_changed("update_download", "ghproxy")
         Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()

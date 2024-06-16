@@ -97,6 +97,23 @@ def PaddleOCRParameter2dict(param):
     }
 
 
+def check_ocr_folder():
+    """检查当前目录下是否存在名为`ocr`的文件夹"""
+    current_dir = os.getcwd()
+    ocr_folder = os.path.join(current_dir, "ocr")
+
+    if not os.path.exists(ocr_folder):
+        return False
+
+    dll_folder = os.path.join(ocr_folder, "dll")
+    model_folder = os.path.join(ocr_folder, "model")
+
+    if not (os.path.exists(dll_folder) and os.path.exists(model_folder)):
+        return False
+
+    return True
+
+
 class CharacterRecognition:
     """文字识别"""
 
