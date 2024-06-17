@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# config.py
-"""配置"""
-
 import yaml
 from pydantic import BaseModel
 
@@ -11,7 +6,7 @@ from .log import logger
 
 _update_list = ["自动更新", "关闭"]
 """更新模式"""
-_update_download_list = ["gitee", "ghproxy", "GitHub"]
+_update_download_list = ["ghproxy", "GitHub", "gitee"]
 """下载线路"""
 _xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
 """悬赏封印"""
@@ -23,6 +18,7 @@ _window_style_list = ["Windows", "Fusion"]
 
 class DefaultConfig(BaseModel):
     """默认配置"""
+
     update: list = _update_list
     update_download: list = _update_download_list
     xuanshangfengyin: list = _xuanshangfengyin_list
@@ -33,6 +29,7 @@ class DefaultConfig(BaseModel):
 
 class UserConfig(BaseModel):
     """用户配置"""
+
     update: str = _update_list[0]
     """更新模式"""
     update_download: str = _update_download_list[0]
@@ -47,7 +44,7 @@ class UserConfig(BaseModel):
     """记忆上次所选功能 -1:关闭 0:开启 1-12:各项功能"""
 
 
-class Config():
+class Config:
     """配置"""
 
     config_path = USER_DATA_DIR_PATH / "config.yaml"
@@ -69,7 +66,7 @@ class Config():
             self.config_user = UserConfig(**data)
             self._check_outdated_config_data(data)
         else:
-            logger.ui("Cannot find config file.", "warn")
+            logger.ui_warn("Cannot find config file.")
             self._save_config_yaml(self.config_user)
 
     def _read_config_yaml(self) -> dict:
@@ -85,27 +82,9 @@ class Config():
             with open(self.config_path, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, allow_unicode=True, sort_keys=False)
         else:
-            logger.ui("file config.yaml save failed.", "error")
+            logger.ui_error("file config.yaml save failed.")
             return False
         return True
-
-    def check_config_data(self, data: dict) -> None:  # TODO Unused
-        """检查配置字典的键值
-
-        参数:
-            data (dict): 待检查的字典
-        """
-        value = data["更新模式"]
-        if value in _update_list:
-            self.config_user.update = value
-
-        value = data["下载线路"]
-        if value in _update_download_list:
-            self.config_user.update_download = value
-
-        value = data["悬赏封印"]
-        if value in _xuanshangfengyin_list:
-            self.config_user.xuanshangfengyin = value
 
     def config_user_changed(self, key: str, value: str) -> None:
         """设置项更改
@@ -156,10 +135,11 @@ def is_Chinese_Path() -> bool:
     `opencv` 需要英文路径
     """
     from re import compile
-    zhPattern = compile(u'[\u4e00-\u9fa5]+')
+
+    zhPattern = compile("[\u4e00-\u9fa5]+")
     match = zhPattern.search(str(APP_PATH))
     if not match:
         logger.info("English Path")
         return False
-    logger.ui("Chinese Path", "error")
+    logger.ui_error("Chinese Path")
     return True
