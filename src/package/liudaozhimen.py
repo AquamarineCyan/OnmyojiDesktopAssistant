@@ -1,4 +1,4 @@
-from ..utils.adapter import KeyBoard
+from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
 from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call
@@ -113,7 +113,7 @@ class LiuDaoZhiMen(Package):
                 if data is None:
                     continue
                 if data.text == "月之海":
-                    click(data.rect.get_rela_center_coor())
+                    Mouse.click(data.rect.get_rela_center_coor())
                     break
             sleep(2)
 
@@ -306,7 +306,7 @@ class LiuDaoZhiMen(Package):
                     # fight_buff_need = 3
                     _coor = ocr_data.rect.get_rela_center_coor()
                     _coor.y += 217
-                    click(_coor)
+                    Mouse.click(_coor)
                 if ocr_data.text == "万相之赐":
                     logger.scene("万相之赐")
                     fight_buff_need = 4
@@ -326,7 +326,7 @@ class LiuDaoZhiMen(Package):
                     if ocr_data.text == "当前装配":
                         _coor = ocr_data.rect.get_rela_center_coor()
                         _coor.x -= 80
-                        click(_coor)
+                        Mouse.click(_coor)
                         break
                 break
             elif ocr_data.text == "备战":
@@ -360,7 +360,7 @@ class LiuDaoZhiMen(Package):
                 sleep()
                 self.check_click(self.IMAGE_FIGHT_READY_QUIT, timeout=3)
                 sleep()
-                click()
+                Mouse.click()
                 sleep(2)
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 sleep(2)
@@ -395,7 +395,7 @@ class LiuDaoZhiMen(Package):
                         break
                 sleep()
                 finish_random_left_right()
-                click()
+                Mouse.click()
                 self.done()
                 self.state = self.STATE_START
 
