@@ -14,17 +14,17 @@ httpx = "^0.27.0"
 opencv-python = {extras = ["numpy"], version = "^4.9.0.80"}
 pillow = "^10.3.0"
 pyautogui = "^0.9.54"
-pydantic = "^2.7.2"
-pyside6 = "^6.7.1"
+pydantic = "^2.7.4"
+pyside6 = "^6.7.2"
 pywin32 = "^306"
 pyyaml = "^6.0.1"
-win11toast = "^0.34"
+win11toast = "^0.35"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.7.0"
-pytest = "^8.2.1"
-ruff = "^0.4.7"
+pyinstaller = "^6.8.0"
+pytest = "^8.2.2"
+ruff = "^0.4.9"
 
 [tool.ruff]
 line-length = 88

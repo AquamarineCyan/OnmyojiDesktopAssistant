@@ -272,6 +272,9 @@ def click(
         return
     elif isinstance(coor, RelativeCoor):
         _x, _y = coor.rela_to_abs().coor
+    elif isinstance(coor, RelativePoint):
+        Mouse.click(coor)  #使用Point
+        return
     else:
         _x, _y = coor.coor
 
