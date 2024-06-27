@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.7.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -55,11 +55,11 @@ class Ui_MainWindow(object):
         self.groupBox_info.setObjectName(u"groupBox_info")
         self.gridLayout_groupBox_info = QGridLayout(self.groupBox_info)
         self.gridLayout_groupBox_info.setObjectName(u"gridLayout_groupBox_info")
-        self.horizontalSpacer_groupBox_info_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_groupBox_info_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_groupBox_info.addItem(self.horizontalSpacer_groupBox_info_right, 0, 4, 1, 1)
 
-        self.horizontalSpacer_groupBox_info_left = QSpacerItem(10, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_groupBox_info_left = QSpacerItem(10, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.gridLayout_groupBox_info.addItem(self.horizontalSpacer_groupBox_info_left, 0, 1, 1, 1)
 
@@ -82,8 +82,8 @@ class Ui_MainWindow(object):
         self.label_completion_times = QLabel(self.groupBox_info)
         self.label_completion_times.setObjectName(u"label_completion_times")
         self.label_completion_times.setFont(font)
-        self.label_completion_times.setLayoutDirection(Qt.LeftToRight)
-        self.label_completion_times.setAlignment(Qt.AlignCenter)
+        self.label_completion_times.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.label_completion_times.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.gridLayout_groupBox_info.addWidget(self.label_completion_times, 0, 2, 1, 1)
 
@@ -94,7 +94,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_button_start.setObjectName(u"horizontalLayout_button_start")
         self.button_start = QPushButton(self.tab_home)
         self.button_start.setObjectName(u"button_start")
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.button_start.sizePolicy().hasHeightForWidth())
@@ -111,7 +111,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_tab_home.addLayout(self.horizontalLayout_button_start, 7, 0, 1, 1)
 
-        self.verticalSpacer_button_start_up = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_button_start_up = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_tab_home.addItem(self.verticalSpacer_button_start_up, 3, 0, 1, 1)
 
@@ -277,13 +277,13 @@ class Ui_MainWindow(object):
         self.label_qiling_jieqi_stone = QLabel(self._4_qiling)
         self.label_qiling_jieqi_stone.setObjectName(u"label_qiling_jieqi_stone")
         self.label_qiling_jieqi_stone.setGeometry(QRect(10, 90, 41, 20))
-        self.label_qiling_jieqi_stone.setAlignment(Qt.AlignCenter)
+        self.label_qiling_jieqi_stone.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.combo_qiling_jieqi_stone = QComboBox(self._4_qiling)
         self.combo_qiling_jieqi_stone.setObjectName(u"combo_qiling_jieqi_stone")
         self.combo_qiling_jieqi_stone.setGeometry(QRect(55, 90, 70, 20))
         self.spin_qiling_jieqi_stone = QSpinBox(self._4_qiling)
         self.spin_qiling_jieqi_stone.setObjectName(u"spin_qiling_jieqi_stone")
-        self.spin_qiling_jieqi_stone.setGeometry(QRect(130, 90, 51, 20))
+        self.spin_qiling_jieqi_stone.setGeometry(QRect(130, 90, 88, 20))
         font3 = QFont()
         font3.setFamilies([u"\u5b8b\u4f53"])
         font3.setPointSize(10)
@@ -305,7 +305,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_groupBox_basic_1.setObjectName(u"horizontalLayout_groupBox_basic_1")
         self.label_function = QLabel(self.groupBox_basic)
         self.label_function.setObjectName(u"label_function")
-        self.label_function.setAlignment(Qt.AlignCenter)
+        self.label_function.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_groupBox_basic_1.addWidget(self.label_function)
 
@@ -323,7 +323,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_groupBox_basic_2.setObjectName(u"horizontalLayout_groupBox_basic_2")
         self.label_numbers = QLabel(self.groupBox_basic)
         self.label_numbers.setObjectName(u"label_numbers")
-        self.label_numbers.setAlignment(Qt.AlignCenter)
+        self.label_numbers.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_groupBox_basic_2.addWidget(self.label_numbers)
 
@@ -335,13 +335,13 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_groupBox_basic_2.addWidget(self.spin_times)
 
-        self.horizontalSpacer_groupBox_basic = QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_groupBox_basic = QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_groupBox_basic_2.addItem(self.horizontalSpacer_groupBox_basic)
 
         self.horizontalLayout_groupBox_basic_2.setStretch(0, 2)
-        self.horizontalLayout_groupBox_basic_2.setStretch(1, 2)
-        self.horizontalLayout_groupBox_basic_2.setStretch(2, 3)
+        self.horizontalLayout_groupBox_basic_2.setStretch(1, 5)
+        self.horizontalLayout_groupBox_basic_2.setStretch(2, 1)
 
         self.gridLayout_groupBox_basic.addLayout(self.horizontalLayout_groupBox_basic_2, 3, 0, 1, 1)
 
@@ -362,7 +362,7 @@ class Ui_MainWindow(object):
 
         self.gridLayout_tab_home.addWidget(self.groupBox_basic, 0, 0, 1, 1)
 
-        self.verticalSpacer_button_start_down = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_button_start_down = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.gridLayout_tab_home.addItem(self.verticalSpacer_button_start_down, 11, 0, 1, 1)
 
@@ -386,7 +386,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_setting.setObjectName(u"verticalLayout_setting")
         self.label_tip_setting_restart = QLabel(self.scrollAreaWidgetContents)
         self.label_tip_setting_restart.setObjectName(u"label_tip_setting_restart")
-        self.label_tip_setting_restart.setAlignment(Qt.AlignCenter)
+        self.label_tip_setting_restart.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.verticalLayout_setting.addWidget(self.label_tip_setting_restart)
 
@@ -396,17 +396,17 @@ class Ui_MainWindow(object):
         self.vboxLayout.setObjectName(u"vboxLayout")
         self.horizontalLayout_setting_update = QHBoxLayout()
         self.horizontalLayout_setting_update.setObjectName(u"horizontalLayout_setting_update")
-        self.horizontalSpacer_setting_update_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update.addItem(self.horizontalSpacer_setting_update_left)
 
         self.setting_update_label = QLabel(self.groupBox_config)
         self.setting_update_label.setObjectName(u"setting_update_label")
-        self.setting_update_label.setAlignment(Qt.AlignCenter)
+        self.setting_update_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_setting_update.addWidget(self.setting_update_label)
 
-        self.horizontalSpacer_setting_update_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update.addItem(self.horizontalSpacer_setting_update_middle)
 
@@ -416,7 +416,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_update.addWidget(self.setting_update_comboBox)
 
-        self.horizontalSpacer_setting_update_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update.addItem(self.horizontalSpacer_setting_update_right)
 
@@ -429,17 +429,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_update_download = QHBoxLayout()
         self.horizontalLayout_setting_update_download.setObjectName(u"horizontalLayout_setting_update_download")
-        self.horizontalSpacer_setting_update_download_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_download_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_left)
 
         self.setting_update_download_label = QLabel(self.groupBox_config)
         self.setting_update_download_label.setObjectName(u"setting_update_download_label")
-        self.setting_update_download_label.setAlignment(Qt.AlignCenter)
+        self.setting_update_download_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_setting_update_download.addWidget(self.setting_update_download_label)
 
-        self.horizontalSpacer_setting_update_download_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_download_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_middle)
 
@@ -449,7 +449,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_update_download.addWidget(self.setting_update_download_comboBox)
 
-        self.horizontalSpacer_setting_update_download_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_update_download_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_update_download.addItem(self.horizontalSpacer_setting_update_download_right)
 
@@ -462,17 +462,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_xuanshangfengyin = QHBoxLayout()
         self.horizontalLayout_setting_xuanshangfengyin.setObjectName(u"horizontalLayout_setting_xuanshangfengyin")
-        self.horizontalSpacer_setting_xuanshangfengyin_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_xuanshangfengyin_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_xuanshangfengyin.addItem(self.horizontalSpacer_setting_xuanshangfengyin_left)
 
         self.setting_xuanshangfengyin_label = QLabel(self.groupBox_config)
         self.setting_xuanshangfengyin_label.setObjectName(u"setting_xuanshangfengyin_label")
-        self.setting_xuanshangfengyin_label.setAlignment(Qt.AlignCenter)
+        self.setting_xuanshangfengyin_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_setting_xuanshangfengyin.addWidget(self.setting_xuanshangfengyin_label)
 
-        self.horizontalSpacer_setting_xuanshangfengyin_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_xuanshangfengyin_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_xuanshangfengyin.addItem(self.horizontalSpacer_setting_xuanshangfengyin_middle)
 
@@ -482,7 +482,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_xuanshangfengyin.addWidget(self.setting_xuanshangfengyin_comboBox)
 
-        self.horizontalSpacer_setting_xuanshangfengyin_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_xuanshangfengyin_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_xuanshangfengyin.addItem(self.horizontalSpacer_setting_xuanshangfengyin_right)
 
@@ -495,17 +495,17 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_window_style = QHBoxLayout()
         self.horizontalLayout_setting_window_style.setObjectName(u"horizontalLayout_setting_window_style")
-        self.horizontalSpacer_setting_window_style = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_window_style = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style)
 
         self.setting_window_style_label = QLabel(self.groupBox_config)
         self.setting_window_style_label.setObjectName(u"setting_window_style_label")
-        self.setting_window_style_label.setAlignment(Qt.AlignCenter)
+        self.setting_window_style_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.horizontalLayout_setting_window_style.addWidget(self.setting_window_style_label)
 
-        self.horizontalSpacer_setting_window_style_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_window_style_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style_middle)
 
@@ -515,7 +515,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_setting_window_style.addWidget(self.setting_window_style_comboBox)
 
-        self.horizontalSpacer_setting_window_style_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_window_style_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_setting_window_style.addItem(self.horizontalSpacer_setting_window_style_right)
 
@@ -528,7 +528,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_left)
 
@@ -537,7 +537,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.setting_remember_last_choice_button)
 
-        self.horizontalSpacer_setting_remember_last_choice_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_setting_remember_last_choice_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_right)
 
@@ -547,13 +547,13 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
 
-        self.verticalSpacer_setting = QSpacerItem(20, 10, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer_setting = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_setting.addItem(self.verticalSpacer_setting)
 
         self.horizontalLayout_restart_update_record = QHBoxLayout()
         self.horizontalLayout_restart_update_record.setObjectName(u"horizontalLayout_restart_update_record")
-        self.horizontalSpacer_restart_update_record_left = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_restart_update_record_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_left)
 
@@ -562,7 +562,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_restart)
 
-        self.horizontalSpacer_restart_update_record_middle = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_restart_update_record_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_middle)
 
@@ -571,7 +571,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_update_record)
 
-        self.horizontalSpacer_restart_update_record_right = QSpacerItem(40, 20, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.horizontalSpacer_restart_update_record_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
         self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_right)
 
@@ -585,9 +585,9 @@ class Ui_MainWindow(object):
 
         self.label_GitHub_address = QLabel(self.scrollAreaWidgetContents)
         self.label_GitHub_address.setObjectName(u"label_GitHub_address")
-        self.label_GitHub_address.setFocusPolicy(Qt.NoFocus)
-        self.label_GitHub_address.setLayoutDirection(Qt.LeftToRight)
-        self.label_GitHub_address.setAlignment(Qt.AlignCenter)
+        self.label_GitHub_address.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.label_GitHub_address.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        self.label_GitHub_address.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.verticalLayout_setting.addWidget(self.label_GitHub_address)
 
