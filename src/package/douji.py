@@ -10,7 +10,7 @@ from .utils import Package, get_asset
 class DouJi(Package):
     scene_name = "斗技"
     resource_path = "douji"
-    description = "开始战斗后可能无法识别到左下角的“手动”按钮，等待20秒后系统自动既可"
+    description = "支持五段至名士之间的固定翻牌上阵"
     ASSET = True
 
     def __init__(self, n: int = 0) -> None:
@@ -159,29 +159,29 @@ class DouJi(Package):
                     logger.ui("开始战斗")
                     if _flag:
                         continue
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
                     _flag = True
                     self.current_asset_list.remove(self.OCR_FIGHT)
                 case "update_team":
                     logger.ui("自动上阵")
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
                 case "intentional":
                     logger.ui("手动技能")
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
 
                 case "continue":
                     logger.ui("点击屏幕继续")
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
                     self.done()
                     return
                 case "victory":
                     logger.ui("胜利")
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
                     self.done()
                     return
                 case "fail":
                     logger.ui_warn("失败")
-                    Mouse.click(result.match_result.rect.get_rela_center_coor())
+                    Mouse.click(result.match_result.center)
                     self.done()
                     return
                 case _:

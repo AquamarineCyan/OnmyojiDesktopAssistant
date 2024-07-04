@@ -12,7 +12,7 @@ from .assets import AssetOcr
 from .decorator import run_in_thread, time_count
 from .event import event_ocr_init
 from .log import logger
-from .point import RectanglePoint
+from .point import Rectangle
 from .screenshot import ScreenShot
 
 
@@ -242,7 +242,8 @@ class OcrData:
                 case 2:
                     self.x2: int = _BoxPoints[i]["X"]
                     self.y2: int = _BoxPoints[i]["Y"]
-        self.rect = RectanglePoint(self.x1, self.y1, self.x2, self.y2)
+        self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
+        self.center = self.rect.get_rela_center()
 
 
 def check_raw_result_once(text: str = None, score: float = 0.8) -> OcrData | None:
@@ -277,7 +278,7 @@ class RuleOcr:
             self.score = score
             self.method = method
 
-        self.match_result :OcrData= None
+        self.match_result: OcrData = None
 
     def get_raw_result(self, file: str = None) -> list[OcrData]:
         if file is None:
@@ -316,19 +317,19 @@ class RuleOcr:
                 continue
             if self.method == "PERFACT":
                 if item.text == self.keyword:
-                    logger.ui(f"{self.name} ocr match successfully.")
+                    logger.info(f"{self.name} ocr match successfully.")
                     self.match_result = item
                     return item
             elif self.method == "INCLUDE":
                 if self.keyword in item.text:
-                    logger.ui(f"{self.name} ocr match successfully.")
+                    logger.info(f"{self.name} ocr match successfully.")
                     self.match_result = item
                     return item
 
         return None
 
 
-def ocr_match_once(asset_list: list[AssetOcr]) -> AssetOcr | None:
+def ocr_match_once(asset_list: list[AssetOcr]) -> RuleOcr | None:
     """文字匹配
 
     参数:

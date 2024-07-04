@@ -63,19 +63,48 @@ class RelativePoint(Point):
             return AbsolutePoint(x, y)
 
 
-class RectanglePoint:
-    """矩形坐标"""
+class Rectangle:
+    """矩形"""
 
-    def __init__(self, x1: float, y1: float, x2: float, y2: float) -> None:
-        self.x1 = x1
-        self.x2 = x2
-        self.y1 = y1
-        self.y2 = y2
-        self.width = x2 - x1
-        self.height = y2 - y1
+    def __init__(
+        self,
+        x: int = 0,
+        y: int = 0,
+        width: int = None,
+        height: int = None,
+        x2: int = None,
+        y2: int = None,
+    ):
+        assert (
+            width is None or x2 is None
+        ), "Cannot specify both x2, y2 and width, height at the same time"
 
-    def get_rela_center_coor(self) -> "RelativePoint":
-        """返回矩形的相对中心坐标"""
-        x = self.x1 + self.width / 2
-        y = self.y1 + self.height / 2
-        return RelativePoint(x, y)
+        assert (width is not None and height is not None) or (
+            x2 is not None and y2 is not None
+        ), "width, height or x2, y2 must have one pair of data"
+
+        self.x1 = x
+        self.y1 = y
+
+        if width and height:
+            self.width = width
+            self.height = height
+            self.x2 = x + width
+            self.y2 = y + height
+        elif x2 and y2:
+            self.x2 = x2
+            self.y2 = y2
+            self.width = x2 - x
+            self.height = y2 - y
+
+    def get_box(self):
+        return (self.x1, self.y1, self.width, self.height)
+
+    def get_coordinates(self):
+        return (self.x1, self.y1, self.x2, self.y2)
+
+    def get_center(self):
+        return (self.x1 + self.width / 2, self.y1 + self.height / 2)
+
+    def get_rela_center(self) -> "RelativePoint":
+        return RelativePoint(self.x1 + self.width / 2, self.y1 + self.height / 2)
