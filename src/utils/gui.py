@@ -21,11 +21,12 @@ from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
-from .event import event_thread, event_ocr_init
+from .event import event_ocr_init, event_thread
 from .log import log_clean_up, logger
 from .myschedule import global_scheduler
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
+from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
 from .paddleocr import ocr
 from .update import get_update_info, update_record
@@ -104,7 +105,6 @@ class MainWindow(QMainWindow):
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
 
-    @run_in_thread
     def ui_init(self):
         """初始化GUI"""
         # 初始化控件
@@ -221,7 +221,7 @@ class MainWindow(QMainWindow):
             )
         log_clean_up()
         # 检查文字识别资源
-        if paddleocr.check_ocr_folder():
+        if check_ocr_folder():
             logger.info("文字识别资源检查通过")
         else:
             logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")

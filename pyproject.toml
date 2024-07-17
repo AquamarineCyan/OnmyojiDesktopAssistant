@@ -11,10 +11,12 @@ packages = [{include = "src"}]
 python = ">=3.10,<3.11"
 apscheduler = "^3.10.4"
 httpx = "^0.27.0"
-opencv-python = {extras = ["numpy"], version = "^4.9.0.80"}
+numpy = "1.26.4"
+opencv-python = {extras = ["numpy"], version = "^4.10.0.84"}
 pillow = "^10.3.0"
 pyautogui = "^0.9.54"
-pydantic = "^2.7.4"
+pydantic = "^2.8.2"
+pynput = "^1.7.7"
 pyside6 = "^6.7.2"
 pywin32 = "^306"
 pyyaml = "^6.0.1"
@@ -22,9 +24,9 @@ win11toast = "^0.35"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.8.0"
+pyinstaller = "^6.9.0"
 pytest = "^8.2.2"
-ruff = "^0.4.9"
+ruff = "^0.5.1"
 
 [tool.ruff]
 line-length = 88
