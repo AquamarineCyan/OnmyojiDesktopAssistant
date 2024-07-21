@@ -1,4 +1,5 @@
 import json
+import math
 import random
 import time
 from pathlib import Path
@@ -12,7 +13,7 @@ from .decorator import log_function_call
 from .event import event_thread, event_xuanshang
 from .log import logger
 from .paddleocr import OcrData
-from .point import AbsolutePoint, Point, RelativePoint
+from .point import AbsolutePoint, Point, Rectangle, RelativePoint
 from .window import window
 
 
@@ -78,6 +79,11 @@ def random_sleep(minimum: int | float = 1.0, maximum: int | float = None) -> Non
 
 
 sleep = random_sleep
+
+
+def distance_between_two_points(point1, point2):
+    """计算两点之间的距离"""
+    return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
 
 def image_file_format(file: Path | str) -> str:
@@ -209,7 +215,7 @@ def finish_random_left_right(
     is_multiple_drops_x: bool = False,
     is_multiple_drops_y: bool = False,
 ) -> RelativePoint:
-    """图像识别，返回图像的局部相对坐标
+    """结算界面点击
 
     参数:
         is_click (bool): 鼠标点击,默认是
@@ -240,23 +246,41 @@ def finish_random_left_right(
     # 御灵
     if is_multiple_drops_y:
         finish_y2 -= 200
-    # 获取系统当前时间戳
-    random.seed(time.time_ns())
-    if random.random() > 5 / 10:
-        _finish_x1 = finish_left_x1
-        _finish_x2 = finish_left_x2
+
+    rect_left = Rectangle(finish_left_x1, finish_y1, x2=finish_left_x2, y2=finish_y2)
+    rect_right = Rectangle(finish_right_x1, finish_y1, x2=finish_right_x2, y2=finish_y2)
+
+    # 计算鼠标到两个矩形中心的距离
+    position = Mouse.position()
+    distance_to_left = distance_between_two_points(
+        position.coor, rect_left.get_center()
+    )
+    distance_to_right = distance_between_two_points(
+        position.coor, rect_right.get_center()
+    )
+
+    # 判断距离
+    if distance_to_left < distance_to_right:
+        chosen_rect = rect_left
+        logger.info("鼠标更接近左侧")
+    elif distance_to_left > distance_to_right:
+        chosen_rect = rect_right
+        logger.info("鼠标更接近右侧")
     else:
-        _finish_x1 = finish_right_x1
-        _finish_x2 = finish_right_x2
-    point = random_point(_finish_x1, _finish_x2, finish_y1, finish_y2)
-    x, y = point.x, point.y
+        # 如果距离相等，随机选择一个矩形
+        chosen_rect = random.choice([rect_left, rect_right])
+        logger.info(f"鼠标距离两个矩形相等，随机选择矩形{chosen_rect}")
+
+    point: RelativePoint = random_point(
+        chosen_rect.x1, chosen_rect.x2, chosen_rect.y1, chosen_rect.y2
+    )
+    point = RelativePoint(point.x, point.y)
 
     if bool(event_thread):
         return RelativePoint(0, 0)
     if is_click:
-        # click(Coor(x + window.window_left, y + window.window_top))
-        Mouse.click(RelativePoint(x, y))
-    return RelativePoint(x, y)
+        Mouse.click(point)
+    return point
 
 
 def click(

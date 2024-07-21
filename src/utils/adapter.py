@@ -30,6 +30,10 @@ class Mouse:
     """鼠标事件"""
 
     @classmethod
+    def position(cls) -> RelativePoint:
+        return AbsolutePoint(*pyautogui.position()).abs_to_rela()
+
+    @classmethod
     def move(
         cls,
         point: AbsolutePoint | RelativePoint | None = None,
