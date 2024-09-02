@@ -289,7 +289,7 @@ def click(
     sleeptime: float = 0,
 ) -> None:
     if isinstance(coor, OcrData):
-        coor = coor.rect.get_rela_center_coor()
+        coor = coor.center
 
     if coor is None:
         Mouse.click()
@@ -297,7 +297,7 @@ def click(
     elif isinstance(coor, RelativeCoor):
         _x, _y = coor.rela_to_abs().coor
     elif isinstance(coor, RelativePoint):
-        Mouse.click(coor)  #使用Point
+        Mouse.click(coor)  # FIXME 使用Point
         return
     else:
         _x, _y = coor.coor

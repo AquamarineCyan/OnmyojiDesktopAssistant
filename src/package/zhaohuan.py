@@ -43,7 +43,7 @@ class ZhaoHuan(Package):
             if bool(event_thread):
                 return
             if result := ocr.match():
-                point = result.rect.get_rela_center_coor()
+                point = result.center
                 point.y -= 50
                 Mouse.click(point)
                 return

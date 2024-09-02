@@ -277,8 +277,8 @@ window = GameWindow()
 @log_function_call
 def is_rect_within_range(rect, range_width, range_height):
     x1, y1, x2, y2 = rect
-    offset = 5
+    offset = 10
     return (
         range_width - offset <= (x2 - x1) < range_width + offset
-        and range_height <= (y2 - y1) < range_height + offset
+        and range_height - offset  <= (y2 - y1) < range_height + offset
     )

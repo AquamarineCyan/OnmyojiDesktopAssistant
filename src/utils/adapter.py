@@ -99,18 +99,22 @@ class Mouse:
         if wait:
             time.sleep(wait)
 
+        # FIXME:OcrData不能作为参数传入，保证该接口的只接受坐标
         if isinstance(point, OcrData):
-            point = point.rect.get_rela_center_coor()
+            point = point.center
 
         if point is None:
             _x, _y = pyautogui.position()
+            logger.info("click at current position")
         elif isinstance(point, RelativePoint):
             _x, _y = point.rela_to_abs().coor
+            logger.info(f"RelativePoint:({_x},{_y})")
         else:
             _x, _y = point.coor
+            logger.warning(f"AbsolutePoint:({_x},{_y})")
 
         # cls.move(x=_x, y=_y, duration=duration, tween=random.choice(list_tween))
-        logger.info(f"click at ({_x},{_y})")
+        # logger.info(f"click at ({_x},{_y})")
         # cls.send_mouse_event(0x6, _x, _y, 0)
         try:
             pyautogui.click(_x, _y, duration=duration, tween=cls.random_tween())

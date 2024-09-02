@@ -113,7 +113,7 @@ class LiuDaoZhiMen(Package):
                 if data is None:
                     continue
                 if data.text == "月之海":
-                    Mouse.click(data.rect.get_rela_center_coor())
+                    Mouse.click(data.center)
                     break
             sleep(2)
 
@@ -304,7 +304,7 @@ class LiuDaoZhiMen(Package):
                 if ocr_data.text == "柔风抱暖":
                     logger.scene("柔风抱暖")
                     # fight_buff_need = 3
-                    _coor = ocr_data.rect.get_rela_center_coor()
+                    _coor = ocr_data.center
                     _coor.y += 217
                     Mouse.click(_coor)
                 if ocr_data.text == "万相之赐":
@@ -324,7 +324,7 @@ class LiuDaoZhiMen(Package):
                     # click(ocr_data)
                     # break
                     if ocr_data.text == "当前装配":
-                        _coor = ocr_data.rect.get_rela_center_coor()
+                        _coor = ocr_data.center
                         _coor.x -= 80
                         Mouse.click(_coor)
                         break
@@ -352,7 +352,7 @@ class LiuDaoZhiMen(Package):
                                 ocr_data = OcrData(item)
                                 if ocr_data.text == "装备":
                                     logger.scene(
-                                        ocr_data.rect.get_rela_center_coor().coor
+                                        ocr_data.center.coor
                                     )
                                     click(ocr_data)
                                     break

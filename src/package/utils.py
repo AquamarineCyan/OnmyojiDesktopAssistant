@@ -251,7 +251,7 @@ class Package:
             elif isinstance(asset, AssetOcr):
                 ocr = RuleOcr(asset)
                 if result := ocr.match():
-                    Mouse.click(result.rect.get_rela_center_coor(), *args, **kwargs)
+                    Mouse.click(result.center, *args, **kwargs)
                     return True
 
     def check_scene(

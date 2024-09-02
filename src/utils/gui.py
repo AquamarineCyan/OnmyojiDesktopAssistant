@@ -28,7 +28,6 @@ from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
-from .paddleocr import ocr
 from .update import get_update_info, update_record
 from .upgrade import upgrade
 from .window import window
