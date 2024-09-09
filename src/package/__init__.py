@@ -1,6 +1,7 @@
 from .baiguiyexing import BaiGuiYeXing
 from .daoguantupo import DaoGuanTuPo
 from .douji import DouJi
+from .guibingyanwu import GuiBingYanWu
 from .huodong import HuoDong
 from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
@@ -21,6 +22,7 @@ __all__ = [
     "BaiGuiYeXing",
     "DaoGuanTuPo",
     "DouJi",
+    "GuiBingYanWu",
     "HuoDong",
     # "JieJieTuPo",
     "JieJieTuPoGeRen",
@@ -51,6 +53,7 @@ def get_package_resource_list():
         BaiGuiYeXing,
         DaoGuanTuPo,
         HuoDong,
+        GuiBingYanWu,
         JieJieTuPo,
         JueXing,
         QiLing,
