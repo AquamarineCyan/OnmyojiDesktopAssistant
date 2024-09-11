@@ -65,6 +65,7 @@ class HuoDong(Package):
         _flag_title_msg: bool = True
         _flag_result_click: bool = False  # 部分活动会有“获得奖励”弹窗
         self.log_current_asset_list()
+        _flag_done: bool = False
 
         while self.n < self.max:
             if bool(event_thread):
@@ -82,6 +83,7 @@ class HuoDong(Package):
                 case "title":
                     logger.scene(self.activity_name)
                     _flag_title_msg = False
+                    _flag_done = False
                     self.start()
                     _flag_result_click = False
                     sleep()
@@ -104,7 +106,9 @@ class HuoDong(Package):
                     logger.ui("胜利")
                     if _flag_result_click:
                         Mouse.click()
-                        self.done()
+                        if not _flag_done:
+                            self.done()
+                            _flag_done = True
                         continue
                     sleep()
                 case "finish":
