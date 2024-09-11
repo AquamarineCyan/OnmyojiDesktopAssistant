@@ -4,6 +4,7 @@ import httpx
 
 from .application import Connect, USER_DATA_DIR_PATH, VERSION
 from .mysignal import global_ms as ms
+from .log import logger
 
 __all__ = ["update_record", "get_update_info"]
 
@@ -21,21 +22,24 @@ def json_write(file_path: str, data: dict):
 
 
 def save_update_info(_file):
-    response = httpx.get(Connect.releases_api, headers=Connect.headers)
-    if response.status_code != 200:
-        return
-    _api_data = json.loads(response.text)
+    try:
+        response = httpx.get(Connect.releases_api, headers=Connect.headers)
+        if response.status_code != 200:
+            return
+        _api_data = json.loads(response.text)
 
-    _list = []
-    for i in range(5):
-        _version = _api_data[i]["tag_name"][1:]
-        _body = _api_data[i]["body"]
-        _dict = {}
-        _dict.setdefault("version", _version)
-        _dict.setdefault("body", _body)
-        _list.append(_dict)
+        _list = []
+        for i in range(5):
+            _version = _api_data[i]["tag_name"][1:]
+            _body = _api_data[i]["body"]
+            _dict = {}
+            _dict.setdefault("version", _version)
+            _dict.setdefault("body", _body)
+            _list.append(_dict)
 
-    json_write(_file, _list)
+        json_write(_file, _list)
+    except Exception as e:
+        logger.ui_error(f"获取更新信息失败: {e}")
 
 
 def get_update_info():
