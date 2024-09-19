@@ -83,6 +83,9 @@
     </property>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="tab_home">
        <attribute name="title">
         <string>首页</string>
@@ -954,11 +957,11 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>306</width>
-             <height>259</height>
+             <width>542</width>
+             <height>423</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1,1,0">
+           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1">
             <item>
              <widget class="QLabel" name="label_tip_setting_restart">
               <property name="text">
@@ -1268,22 +1271,49 @@
              </widget>
             </item>
             <item>
-             <spacer name="verticalSpacer_setting">
-              <property name="orientation">
-               <enum>Qt::Orientation::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="1,1,1,1,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="0,0,1,0,0,1,1,1,1">
               <item>
-               <spacer name="horizontalSpacer_restart_update_record_left">
+               <spacer name="horizontalSpacer_other_1">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_homepage">
+                <property name="text">
+                 <string>项目主页</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_other_2">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_helpdoc">
+                <property name="text">
+                 <string>使用文档</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_other_3">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -1303,7 +1333,7 @@
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_restart_update_record_middle">
+               <spacer name="horizontalSpacer_other_4">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -1323,7 +1353,7 @@
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_restart_update_record_right">
+               <spacer name="horizontalSpacer_other_5">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -1336,22 +1366,6 @@
                </spacer>
               </item>
              </layout>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_GitHub_address">
-              <property name="focusPolicy">
-               <enum>Qt::FocusPolicy::NoFocus</enum>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::LayoutDirection::LeftToRight</enum>
-              </property>
-              <property name="text">
-               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;https://github.com/AquamarineCyan/Onmyoji_Python&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
             </item>
            </layout>
           </widget>
@@ -1367,12 +1381,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_jiejietupo_current_level"/>
   <buttongroup name="buttonGroup_jiejietupo_target_level"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
  </buttongroups>
 </ui>

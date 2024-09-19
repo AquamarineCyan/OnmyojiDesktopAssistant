@@ -381,7 +381,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 306, 259))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 542, 423))
         self.verticalLayout_setting = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_setting.setObjectName(u"verticalLayout_setting")
         self.label_tip_setting_restart = QLabel(self.scrollAreaWidgetContents)
@@ -547,53 +547,58 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
 
-        self.verticalSpacer_setting = QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-
-        self.verticalLayout_setting.addItem(self.verticalSpacer_setting)
-
         self.horizontalLayout_restart_update_record = QHBoxLayout()
         self.horizontalLayout_restart_update_record.setObjectName(u"horizontalLayout_restart_update_record")
-        self.horizontalSpacer_restart_update_record_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_other_1 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_left)
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_1)
+
+        self.pushButton_homepage = QPushButton(self.scrollAreaWidgetContents)
+        self.pushButton_homepage.setObjectName(u"pushButton_homepage")
+
+        self.horizontalLayout_restart_update_record.addWidget(self.pushButton_homepage)
+
+        self.horizontalSpacer_other_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_2)
+
+        self.pushButton_helpdoc = QPushButton(self.scrollAreaWidgetContents)
+        self.pushButton_helpdoc.setObjectName(u"pushButton_helpdoc")
+
+        self.horizontalLayout_restart_update_record.addWidget(self.pushButton_helpdoc)
+
+        self.horizontalSpacer_other_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_3)
 
         self.button_restart = QPushButton(self.scrollAreaWidgetContents)
         self.button_restart.setObjectName(u"button_restart")
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_restart)
 
-        self.horizontalSpacer_restart_update_record_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_other_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_middle)
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_4)
 
         self.button_update_record = QPushButton(self.scrollAreaWidgetContents)
         self.button_update_record.setObjectName(u"button_update_record")
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_update_record)
 
-        self.horizontalSpacer_restart_update_record_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_other_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_restart_update_record_right)
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_5)
 
-        self.horizontalLayout_restart_update_record.setStretch(0, 1)
-        self.horizontalLayout_restart_update_record.setStretch(1, 1)
         self.horizontalLayout_restart_update_record.setStretch(2, 1)
-        self.horizontalLayout_restart_update_record.setStretch(3, 1)
-        self.horizontalLayout_restart_update_record.setStretch(4, 1)
+        self.horizontalLayout_restart_update_record.setStretch(5, 1)
+        self.horizontalLayout_restart_update_record.setStretch(6, 1)
+        self.horizontalLayout_restart_update_record.setStretch(7, 1)
+        self.horizontalLayout_restart_update_record.setStretch(8, 1)
 
         self.verticalLayout_setting.addLayout(self.horizontalLayout_restart_update_record)
 
-        self.label_GitHub_address = QLabel(self.scrollAreaWidgetContents)
-        self.label_GitHub_address.setObjectName(u"label_GitHub_address")
-        self.label_GitHub_address.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.label_GitHub_address.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.label_GitHub_address.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.verticalLayout_setting.addWidget(self.label_GitHub_address)
-
         self.verticalLayout_setting.setStretch(1, 4)
         self.verticalLayout_setting.setStretch(2, 1)
-        self.verticalLayout_setting.setStretch(3, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.gridLayout_6.addWidget(self.scrollArea, 0, 0, 1, 1)
@@ -605,6 +610,9 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+
+        self.tabWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -658,9 +666,10 @@ class Ui_MainWindow(object):
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
         self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
+        self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
+        self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
         self.button_update_record.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u8bb0\u5f55", None))
-        self.label_GitHub_address.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" text-decoration: underline;\">https://github.com/AquamarineCyan/Onmyoji_Python</span></p></body></html>", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_setting), QCoreApplication.translate("MainWindow", u"\u8bbe\u7f6e", None))
     # retranslateUi
 

@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
         logger.info(f"_status{_status}")
         _flag_check = _status != -1
         self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
-        self.ui.label_GitHub_address.setToolTip("通过浏览器打开")
+        self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
         # 自定义信号
         # 弹窗更新
@@ -158,8 +158,11 @@ class MainWindow(QMainWindow):
         self.ui.button_restart.clicked.connect(self.app_restart_func)
         # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
-        # GitHub地址悬停事件
-        self.ui.label_GitHub_address.mousePressEvent = self.open_GitHub_address
+        # 项目主页按钮
+        self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
+        # 帮助文档按钮
+        self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
+
         self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(
             self.buttonGroup_yuhun_mode_change
         )
@@ -663,11 +666,17 @@ class MainWindow(QMainWindow):
     def app_restart_func(self):
         Restart().app_restart()
 
-    def open_GitHub_address(self, *args) -> None:
+    def open_homepage(self, *args) -> None:
         import webbrowser
 
-        logger.info("open GitHub address.")
+        logger.info("open homepage address.")
         webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
+
+    def open_helpdoc(self, *args) -> None:
+        import webbrowser
+
+        logger.info("open helpdoc address.")
+        webbrowser.open("https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY")
 
     def exit_func(self):
         sys.exit()
