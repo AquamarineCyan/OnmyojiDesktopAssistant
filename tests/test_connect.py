@@ -12,7 +12,7 @@ def test_api_url():
     assert r.status_code == 200
 
 
-def test_ghproxy_url():
-    ghproxy_url = "https://mirror.ghproxy.com/"
-    r = httpx.get(ghproxy_url, headers=headers)
+def test_mirror_url():
+    mirror_station = "https://ghp.ci/"
+    r = httpx.get(mirror_station, headers=headers)
     assert r.status_code == 200
