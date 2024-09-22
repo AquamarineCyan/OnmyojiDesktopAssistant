@@ -86,10 +86,10 @@ class Upgrade(Connect):
 
     def get_ghproxy_url(self) -> str:
         if "github.com" in self.browser_download_url:
-            return f"https://mirror.ghproxy.com/{self.browser_download_url}"
+            return f"{self.mirror_station}{self.browser_download_url}"
         if "gitee.com" in self.browser_download_url:
             _github_url = self.browser_download_url.replace("gitee.com", "github.com")
-            return f"https://mirror.ghproxy.com/{_github_url}"
+            return f"{self.mirror_station}{_github_url}"
 
     def _check_download_zip(self):
         logger.info(f"browser_download_url:{self.browser_download_url}")
