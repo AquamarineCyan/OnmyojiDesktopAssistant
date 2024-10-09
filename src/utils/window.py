@@ -242,7 +242,7 @@ class GameWindow:
         返回:
             bool: 检测结果
         """
-        logger.info(f"SCREEN_SIZE: {SCREEN_SIZE}")
+        logger.ui(f"屏幕分辨率：{SCREEN_SIZE}")
         self.get_game_window_handle()
         _rect = self.handle_rect
         if SCREEN_SIZE == WindowResolution1920.screen_size:
