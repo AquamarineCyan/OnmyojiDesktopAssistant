@@ -42,6 +42,8 @@ class MySignals(QObject):
         """运行状态更新"""
         ui_text_completion_times_update = Signal(str)
         """完成次数更新"""
+        key_pressed = Signal(str)
+        """按键按下"""
         sys_exit = Signal()
         """退出程序"""
 

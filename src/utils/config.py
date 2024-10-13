@@ -14,6 +14,22 @@ _fight_theme_list = ["自动", "怀旧", "简约"]
 """战斗主题"""
 _window_style_list = ["Windows", "Fusion"]
 """界面风格"""
+_shortcut_start_stop_list = [
+    "无",
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+]
+"""快捷键-开始/停止"""
 
 
 class DefaultConfig(BaseModel):
@@ -25,6 +41,7 @@ class DefaultConfig(BaseModel):
     fight_theme: list = _fight_theme_list
     window_style: list = _window_style_list
     remember_last_choice: int = -1
+    shortcut_start_stop: list = _shortcut_start_stop_list
 
 
 class UserConfig(BaseModel):
@@ -42,6 +59,8 @@ class UserConfig(BaseModel):
     """界面风格"""
     remember_last_choice: int = -1
     """记忆上次所选功能 -1:关闭 0:开启 1-12:各项功能"""
+    shortcut_start_stop: str = _shortcut_start_stop_list[0]
+    """快捷键-开始/停止"""
 
 
 class Config:

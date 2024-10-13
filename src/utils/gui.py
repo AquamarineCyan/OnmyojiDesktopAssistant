@@ -4,6 +4,7 @@ from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 
+from PySide6.QtCore import QThread
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import (
     QComboBox,
@@ -13,6 +14,7 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget,
 )
+from pynput import keyboard
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
@@ -72,6 +74,34 @@ class StackedWidgetIndex(Enum):
     QILING = 4
 
 
+class KeyListenerThread(QThread):
+    """监听键盘线程"""
+
+    def run(self):
+        def on_key_press(key):
+            try:
+                if key in [
+                    keyboard.Key.f1,
+                    keyboard.Key.f2,
+                    keyboard.Key.f3,
+                    keyboard.Key.f4,
+                    keyboard.Key.f5,
+                    keyboard.Key.f6,
+                    keyboard.Key.f7,
+                    keyboard.Key.f8,
+                    keyboard.Key.f9,
+                    keyboard.Key.f10,
+                    keyboard.Key.f11,
+                    keyboard.Key.f12,
+                ]:
+                    ms.main.key_pressed.emit(key.name)
+            except AttributeError:
+                ms.main.key_pressed.emit(f"Key pressed: {key}")
+
+        with keyboard.Listener(on_press=on_key_press) as listener:
+            listener.join()
+
+
 class MainWindow(QMainWindow):
     """主界面"""
 
@@ -120,6 +150,7 @@ class MainWindow(QMainWindow):
             self.ui.setting_update_download_comboBox: "update_download",
             self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
             self.ui.setting_window_style_comboBox: "window_style",
+            self.ui.setting_shortcut_start_stop_comboBox: "shortcut_start_stop",
         }
         key: QComboBox
         for key, value in _setting_QComboBox_dict.items():
@@ -187,13 +218,34 @@ class MainWindow(QMainWindow):
         self.ui.setting_window_style_comboBox.currentIndexChanged.connect(
             self.setting_window_style_comboBox_func
         )
+        # 快捷键-开始/停止
+        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(
+            self.setting_shortcut_start_stop_comboBox_func
+        )
         # 记忆上次所选功能
         self.ui.setting_remember_last_choice_button.clicked.connect(
             self.setting_remember_last_choice_func
         )
 
+        # 监听键盘输入
+        self.key_listener = KeyListenerThread()
+        ms.main.key_pressed.connect(self.check_shortcut)
+        self.key_listener.start()
+
         # 程序开启运行
         self.application_init()
+
+    def check_shortcut(self, key):
+        try:
+            logger.info(f"Key pressed: {key}")
+            if key.lower() == config.config_user.shortcut_start_stop.lower():
+                logger.info(
+                    f"Shortcut key pressed: {config.config_user.shortcut_start_stop}"
+                )
+                self.app_running()
+        except AttributeError:
+            # 特殊键处理
+            logger.warning(f"Key pressed: {key}")
 
     def application_init_ready(self) -> None:
         """程序初始化成功"""
@@ -394,6 +446,12 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：界面风格已更改为 {text}")
         config.config_user_changed("window_style", text)
 
+    def setting_shortcut_start_stop_comboBox_func(self) -> None:
+        """设置-快捷键-开始/停止-更改"""
+        text = self.ui.setting_shortcut_start_stop_comboBox.currentText()
+        logger.info(f"设置项：快捷键-开始/停止已更改为 {text}")
+        config.config_user_changed("shortcut_start_stop", text)
+
     def setting_remember_last_choice_func(self) -> None:
         """设置-记忆上次所选功能-更改"""
         flag = self.ui.setting_remember_last_choice_button.isChecked()
@@ -516,6 +574,11 @@ class MainWindow(QMainWindow):
                 logger.ui(GuiBingYanWu.description)
 
     def _app_start(self) -> None:
+        # 没有选功能前禁止通过快捷键启动程序
+        if self.ui.combo_choice.currentIndex() == -1:
+            logger.ui_error("请选择功能")
+            return
+
         n = self.ui.spin_times.value()
         flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
         self.ui.text_completion_times.clear()

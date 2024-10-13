@@ -526,6 +526,39 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_window_style)
 
+        self.horizontalLayout_setting_shortcut_start_stop = QHBoxLayout()
+        self.horizontalLayout_setting_shortcut_start_stop.setObjectName(u"horizontalLayout_setting_shortcut_start_stop")
+        self.horizontalSpacer_setting_shortcut_start_stop_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_shortcut_start_stop.addItem(self.horizontalSpacer_setting_shortcut_start_stop_left)
+
+        self.setting_shortcut_start_stop_label = QLabel(self.groupBox_config)
+        self.setting_shortcut_start_stop_label.setObjectName(u"setting_shortcut_start_stop_label")
+        self.setting_shortcut_start_stop_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.horizontalLayout_setting_shortcut_start_stop.addWidget(self.setting_shortcut_start_stop_label)
+
+        self.horizontalSpacer_setting_shortcut_start_stop_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_shortcut_start_stop.addItem(self.horizontalSpacer_setting_shortcut_start_stop_middle)
+
+        self.setting_shortcut_start_stop_comboBox = QComboBox(self.groupBox_config)
+        self.setting_shortcut_start_stop_comboBox.setObjectName(u"setting_shortcut_start_stop_comboBox")
+        self.setting_shortcut_start_stop_comboBox.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_setting_shortcut_start_stop.addWidget(self.setting_shortcut_start_stop_comboBox)
+
+        self.horizontalSpacer_setting_shortcut_start_stop_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_shortcut_start_stop.addItem(self.horizontalSpacer_setting_shortcut_start_stop_right)
+
+        self.horizontalLayout_setting_shortcut_start_stop.setStretch(0, 4)
+        self.horizontalLayout_setting_shortcut_start_stop.setStretch(1, 2)
+        self.horizontalLayout_setting_shortcut_start_stop.setStretch(3, 2)
+        self.horizontalLayout_setting_shortcut_start_stop.setStretch(4, 4)
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_shortcut_start_stop)
+
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -665,6 +698,7 @@ class Ui_MainWindow(object):
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
         self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
+        self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb/\u505c\u6b62\u70ed\u952e", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
         self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
         self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))
