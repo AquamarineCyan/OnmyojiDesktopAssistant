@@ -4,6 +4,7 @@ from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 
+from pynput import keyboard
 from PySide6.QtCore import QThread
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import (
@@ -14,7 +15,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QWidget,
 )
-from pynput import keyboard
 
 from ..package import *
 from ..ui.mainui import Ui_MainWindow
@@ -154,9 +154,9 @@ class MainWindow(QMainWindow):
         }
         key: QComboBox
         for key, value in _setting_QComboBox_dict.items():
-            key.addItems(config.config_default.model_dump()[value])
-            key.setCurrentText(config.config_user.model_dump().get(value))
-        _status = config.config_user.model_dump().get("remember_last_choice")
+            key.addItems(config.default.model_dump()[value])
+            key.setCurrentText(config.user.model_dump().get(value))
+        _status = config.user.model_dump().get("remember_last_choice")
         logger.info(f"_status{_status}")
         _flag_check = _status != -1
         self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
@@ -238,10 +238,8 @@ class MainWindow(QMainWindow):
     def check_shortcut(self, key):
         try:
             logger.info(f"Key pressed: {key}")
-            if key.lower() == config.config_user.shortcut_start_stop.lower():
-                logger.info(
-                    f"Shortcut key pressed: {config.config_user.shortcut_start_stop}"
-                )
+            if key.lower() == config.user.shortcut_start_stop.lower():
+                logger.info(f"Shortcut key pressed: {config.user.shortcut_start_stop}")
                 self.app_running()
         except AttributeError:
             # 特殊键处理
@@ -260,7 +258,7 @@ class MainWindow(QMainWindow):
         logger.info(f"application path: {APP_PATH}")
         logger.info(f"resource path: {RESOURCE_DIR_PATH}")
         logger.info(f"[VERSION] {VERSION}")
-        logger.info(f"config_user: {config.config_user}")
+        logger.info(f"config_user: {config.user}")
         logger.ui(
             "未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
 使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止"
@@ -271,17 +269,14 @@ class MainWindow(QMainWindow):
             logger.ui_error("初始化失败")
 
         logger.ui("主要战斗场景UI为「怀旧主题」与「简约主题」，需要在游戏内图鉴中设置")
-        if config.config_user.remember_last_choice > 0:
-            self.ui.combo_choice.setCurrentIndex(
-                config.config_user.remember_last_choice - 1
-            )
+        if config.user.remember_last_choice > 0:
+            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
         log_clean_up()
         # 检查文字识别资源
         if check_ocr_folder():
             logger.info("文字识别资源检查通过")
         else:
-            logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")
-            config.config_user_changed("update_download", "ghproxy")
+            config.update("update_download", "ghproxy")
         Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
@@ -421,36 +416,38 @@ class MainWindow(QMainWindow):
         logger.info("资源完整")
         return True
 
+    """设置项变更回调函数"""
+
     def setting_update_comboBox_func(self) -> None:
         """设置-更新模式-更改"""
         text = self.ui.setting_update_comboBox.currentText()
         logger.info(f"设置项：更新模式已更改为 {text}")
-        config.config_user_changed("update", text)
+        config.update("update", text)
 
     def setting_update_download_comboBox_func(self) -> None:
         """设置-下载线路-更改"""
         text = self.ui.setting_update_download_comboBox.currentText()
         logger.info(f"设置项：下载线路已更改为 {text}")
-        config.config_user_changed("update_download", text)
+        config.update("update_download", text)
 
     def setting_xuanshangfengyin_comboBox_func(self) -> None:
         """设置-悬赏封印-更改"""
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
         logger.info(f"设置项：悬赏封印已更改为 {text}")
-        config.config_user_changed("xuanshangfengyin", text)
+        config.update("xuanshangfengyin", text)
         task_xuanshangfengyin.task_start()
 
     def setting_window_style_comboBox_func(self) -> None:
         """设置-界面风格-更改"""
         text = self.ui.setting_window_style_comboBox.currentText()
         logger.info(f"设置项：界面风格已更改为 {text}")
-        config.config_user_changed("window_style", text)
+        config.update("window_style", text)
 
     def setting_shortcut_start_stop_comboBox_func(self) -> None:
         """设置-快捷键-开始/停止-更改"""
         text = self.ui.setting_shortcut_start_stop_comboBox.currentText()
         logger.info(f"设置项：快捷键-开始/停止已更改为 {text}")
-        config.config_user_changed("shortcut_start_stop", text)
+        config.update("shortcut_start_stop", text)
 
     def setting_remember_last_choice_func(self) -> None:
         """设置-记忆上次所选功能-更改"""
@@ -462,7 +459,7 @@ class MainWindow(QMainWindow):
             _text = "关闭"
             _status = -1
         logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
-        config.config_user_changed("remember_last_choice", _status)
+        config.update("remember_last_choice", _status)
 
     def check_game_handle(self):
         return window.check_game_handle()
@@ -472,10 +469,8 @@ class MainWindow(QMainWindow):
         self.game_function_choice = GameFunction(
             self.ui.combo_choice.currentIndex() + 1
         )
-        if config.config_user.remember_last_choice != -1:
-            config.config_user_changed(
-                "remember_last_choice", self.game_function_choice.value
-            )
+        if config.user.remember_last_choice != -1:
+            config.update("remember_last_choice", self.game_function_choice.value)
         self.ui.button_start.setEnabled(True)
         self.ui.spin_times.setEnabled(True)
         self.ui_spin_times_set_value_func(1, 1, 999)

@@ -69,8 +69,8 @@ class Config:
     config_path = USER_DATA_DIR_PATH / "config.yaml"
 
     def __init__(self):
-        self.config_user: UserConfig = UserConfig()
-        self.config_default: DefaultConfig = DefaultConfig()
+        self.user: UserConfig = UserConfig()
+        self.default: DefaultConfig = DefaultConfig()
 
     def config_yaml_init(self) -> None:
         """初始化"""
@@ -81,19 +81,19 @@ class Config:
 
         if self.config_path.is_file():
             logger.info("Find config file.")
-            data = self._read_config_yaml()
-            self.config_user = UserConfig(**data)
+            data = self._read()
+            self.user = UserConfig(**data)
             self._check_outdated_config_data(data)
         else:
             logger.ui_warn("Cannot find config file.")
-            self._save_config_yaml(self.config_user)
+            self._save(self.user)
 
-    def _read_config_yaml(self) -> dict:
+    def _read(self) -> dict:
         """读取配置文件"""
         with open(self.config_path, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
-    def _save_config_yaml(self, data) -> bool:
+    def _save(self, data) -> bool:
         """保存配置文件"""
         if isinstance(data, UserConfig):
             data = data.model_dump()
@@ -105,19 +105,19 @@ class Config:
             return False
         return True
 
-    def config_user_changed(self, key: str, value: str) -> None:
-        """设置项更改
+    def update(self, key: str, value: str) -> None:
+        """设置项更新
 
         参数:
             key (str): 设置项
             value (str): 属性
         """
         logger.info(f"Config setting [{key}] change to [{value}].")
-        config_dict = self.config_user.model_dump()
+        config_dict = self.user.model_dump()
         config_dict[key] = value
         logger.info(config_dict)
-        self.config_user = UserConfig.model_validate(config_dict)
-        self._save_config_yaml(self.config_user.model_dump())
+        self.user = UserConfig.model_validate(config_dict)
+        self._save(self.user.model_dump())
 
     def _check_outdated_config_data(self, data: dict) -> None:
         # data = self.config_user.model_dump()
@@ -141,8 +141,8 @@ class Config:
             data.setdefault("xuanshangfengyin", value)
             _flag = True
         if _flag:
-            self.config_user = UserConfig.model_validate(data)
-            self._save_config_yaml(self.config_user)
+            self.user = UserConfig.model_validate(data)
+            self._save(self.user)
 
 
 config = Config()

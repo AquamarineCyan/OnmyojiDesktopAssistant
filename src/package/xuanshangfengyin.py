@@ -42,7 +42,7 @@ class XuanShangFengYin(Package):
             )
 
     def scheduler_check(self):
-        if config.config_user.xuanshangfengyin == "关闭":
+        if config.user.xuanshangfengyin == "关闭":
             return
 
         image = RuleImage(self.IMAGE_TITLE)
@@ -60,7 +60,7 @@ class XuanShangFengYin(Package):
         logger.ui_warn("已暂停后台线程，等待处理")
         toast("悬赏封印", "检测到悬赏封印")
         self._flag_msg = True
-        match config.config_user.xuanshangfengyin:
+        match config.user.xuanshangfengyin:
             case "接受":
                 _msg = "接受协作"
                 _asset = self.IMAGE_ACCEPT
@@ -79,7 +79,7 @@ class XuanShangFengYin(Package):
 
     @run_in_thread
     def task_start(self):
-        if config.config_user.xuanshangfengyin == "关闭":
+        if config.user.xuanshangfengyin == "关闭":
             if global_scheduler.get_job(self.resource_path):
                 logger.ui("检测到悬赏封印已关闭，停止定时任务")
                 global_scheduler.remove_job(self.resource_path)

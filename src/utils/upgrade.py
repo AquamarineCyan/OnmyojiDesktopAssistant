@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# upgrade.py
-"""更新升级"""
-
 import json
 import os
 import time
@@ -47,7 +42,7 @@ class Upgrade(Connect):
         _local_api_default_list = [self.github_api, self.gitee_api]
         # 使用用户配置的优先级
         # TODO
-        if config.config_user.update_download == "gitee":
+        if config.user.update_download == "gitee":
             _local_api_user_list = list_change_first(_local_api_default_list, _local_api_default_list[1])
         else:
             # 默认顺序
@@ -100,7 +95,7 @@ class Upgrade(Connect):
         else:
             logger.ui("未存在新版本更新包，即将开始下载")
             # gitee ghproxy github
-            if config.config_user.update_download == "gitee":
+            if config.user.update_download == "gitee":
                 _github_url = self.browser_download_url.replace("gitee.com", "github.com")
                 _download_url_default_list = [self.browser_download_url, self.get_ghproxy_url(), _github_url]
             else:
@@ -108,7 +103,7 @@ class Upgrade(Connect):
                 _download_url_default_list = [_gitee_url, self.get_ghproxy_url(), self.browser_download_url,]
 
             # 使用用户配置的优先级
-            match config.config_user.update_download:
+            match config.user.update_download:
                 case "gitee":
                     _download_url_user_list = list_change_first(
                         _download_url_default_list, _download_url_default_list[0])
@@ -173,7 +168,7 @@ class Upgrade(Connect):
     @run_in_thread
     def check_latest(self) -> None:
         """检查更新"""
-        if config.config_user.update == "关闭":
+        if config.user.update == "关闭":
             logger.info("跳过更新")
             return
 
