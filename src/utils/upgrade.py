@@ -185,22 +185,45 @@ class Upgrade(Connect):
             case _:
                 logger.ui("UPDATE ERROR", "warn")
 
-    def _unzip_func(self) -> None:
+    @log_function_call
+    def _unzip_func(self) -> bool:
         # 解压路径
         self.zip_files_path: Path = APP_PATH / "zip_files"
-        logger.ui("开始解压...")
-        with zipfile.ZipFile(self.zip_path, "r") as f_zip:
-            f_zip.extractall(self.zip_files_path)
-            # 保留提取文件修改日期
-            for info in f_zip.infolist():
-                info.filename = info.filename.encode("cp437").decode("gbk")  # 解决中文文件名乱码问题
-                f_zip.extract(info, self.zip_files_path)
-                timestamp = time.mktime(info.date_time + (0, 0, -1))
-                os.utime(os.path.join(self.zip_files_path.__str__(), info.filename), (timestamp, timestamp))
+        logger.info(f"解压路径: {self.zip_files_path}")
+        logger.info(f"更新包路径: {self.zip_path}")
+        if not zipfile.is_zipfile(self.zip_path):
+            logger.ui_warn("更新包异常")
+            return False
 
-        logger.ui("解压结束")
-        Path(self.zip_path).unlink()
-        logger.ui("删除更新包")
+        try:
+            _result = False
+            logger.ui("开始解压...")
+            with zipfile.ZipFile(self.zip_path, "r") as f_zip:
+                f_zip.extractall(self.zip_files_path)
+                # 保留提取文件修改日期
+                for info in f_zip.infolist():
+                    info.filename = info.filename.encode("cp437").decode(
+                        "gbk"
+                    )  # 解决中文文件名乱码问题
+                    f_zip.extract(info, self.zip_files_path)
+                    timestamp = time.mktime(info.date_time + (0, 0, -1))
+                    os.utime(
+                        os.path.join(self.zip_files_path.__str__(), info.filename),
+                        (timestamp, timestamp),
+                    )
+
+            logger.ui("解压结束")
+            Path(self.zip_path).unlink()
+            logger.ui("删除更新包")
+            _result = True
+
+        except zipfile.BadZipFile:
+            logger.ui_error("文件异常，请检查文件是否损坏")
+
+        except Exception as e:
+            logger.ui_error(f"解压失败：{e}")
+
+        return _result
 
     def _move_files_recursive(self, source_folder: Path, target_folder: Path) -> None:
         """递归移动文件"""
@@ -213,10 +236,12 @@ class Upgrade(Connect):
                 target_path.mkdir(exist_ok=True)
                 self._move_files_recursive(item_path, target_path)
 
+    @log_function_call
     @run_in_thread
     def restart(self) -> None:
         """解压更新包并重启应用程序"""
-        self._unzip_func()
+        if not self._unzip_func():
+            return
         # self.move_n: int = 0
         # self._move_files_recursive(self.zip_files_path, APP_PATH)
         # logger.info(f"finish moving {self.move_n} files.")
