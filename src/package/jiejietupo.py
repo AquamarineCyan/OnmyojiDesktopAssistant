@@ -1,16 +1,10 @@
 from enum import Enum
 
 from ..utils.adapter import KeyBoard, Mouse
-from ..utils.application import RESOURCE_DIR_PATH
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    click,
-    finish_random_left_right,
-    random_point,
-    sleep,
-)
+from ..utils.function import finish_random_left_right, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.point import RelativePoint
@@ -489,7 +483,11 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             region = (x, y - 40, 185 + 40, 90)
             if not RuleImage(self.IMAGE_FAIL, region=region).match():
                 logger.ui(f"{i} 可进攻")
-                self.fighting_tupo(x, y + 35)
+                _y = y + 35
+                if i == 7 or i == 8:  # 最后一排坐标上移
+                    _y -= 20
+                    logger.ui(f"{i} 坐标修正")
+                self.fighting_tupo(x, _y)
                 # 延迟等待，判断当前寮突是否有效
                 sleep(3)
                 if RuleImage(self.IMAGE_JINGONG).match():
