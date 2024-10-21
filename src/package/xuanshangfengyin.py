@@ -46,8 +46,8 @@ class XuanShangFengYin(Package):
             return
 
         image = RuleImage(self.IMAGE_TITLE)
-        _screenshot = ScreenShot()
-        if not image.match(_screenshot):
+        _screenshot = ScreenShot()  # FIXME (0,0,0,0)
+        if not image.match(_screenshot, normal=False):
             event_xuanshang.set()
             if self._flag_msg:
                 self._flag_msg = False

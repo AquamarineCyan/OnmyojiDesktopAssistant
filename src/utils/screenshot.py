@@ -41,7 +41,7 @@ class ScreenShot:
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot cost {self.time_cost} ms")
+            logger.info(f"screenshot cost {self.time_cost} ms, {_rect}")
         if debug:
             image.show()
         self._image = image

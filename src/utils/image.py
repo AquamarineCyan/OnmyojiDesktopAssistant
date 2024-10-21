@@ -104,8 +104,10 @@ class RuleImage:
         image: ScreenShot | Image | str | None = None,
         score: float = None,
         debug: bool = False,
+        normal: bool = True,
     ) -> bool:
-        event_xuanshang.wait()
+        if normal:
+            event_xuanshang.wait()
         if image is None:
             image = convert_image_rgb_to_bgr(ScreenShot(self.region).get_image())
         elif isinstance(image, ScreenShot):
@@ -168,7 +170,7 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
     返回:
         RuleImage | None: 识别结果
     """
-    _screenshot = ScreenShot()
+    _screenshot = ScreenShot(_log=True)
     for item in image_list:
         image = RuleImage(item)
         if image.match(_screenshot):
