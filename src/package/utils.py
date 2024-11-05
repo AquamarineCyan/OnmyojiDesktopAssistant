@@ -3,19 +3,11 @@ from pathlib import Path
 from typing import Literal
 
 from ..utils.adapter import Mouse
-from ..utils.application import (
-    RESOURCE_GLOBAL_PATH,
-    SCREENSHOT_DIR_PATH,
-)
+from ..utils.application import RESOURCE_GLOBAL_PATH, SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_scene_multiple_once,
-    finish_random_left_right,
-    get_asset_data,
-    sleep,
-)
+from ..utils.function import finish_random_left_right, get_asset_data, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
 from ..utils.mysignal import global_ms as ms
@@ -160,9 +152,6 @@ class Package:
 
     def load_asset(self):
         pass
-
-    def check_scene_multiple_once(self, *args, **kwargs):
-        return check_scene_multiple_once(self.current_resource_list, *args, **kwargs)
 
     def title_error_msg(self):
         logger.ui("请检查游戏场景", "warn")

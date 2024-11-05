@@ -1,7 +1,7 @@
 from ..utils.adapter import Mouse
 from ..utils.assets import AssetOcr
 from ..utils.event import event_thread
-from ..utils.function import click, finish_random_left_right, sleep
+from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, check_raw_result_once, ocr, ocr_match_once
 from .utils import Package, get_asset
@@ -39,30 +39,30 @@ class DouJi(Package):
                 if ocr_data.score >= 0.8:
                     match ocr_data.text:
                         case "斗技" | "斗技赛":
-                            _coor = ocr_data.rect.get_rela_center_coor()
+                            _coor = ocr_data.rect.get_rela_center()
                             logger.ui(f"{ocr_data.text} {_coor.coor}")
                         case "战":
                             if _flag:
                                 continue
-                            _coor = ocr_data.rect.get_rela_center_coor()
+                            _coor = ocr_data.rect.get_rela_center()
                             logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            click(_coor)
+                            Mouse.click(_coor)
                             _flag = True
                             break
                         case "上阵":
-                            _coor = ocr_data.rect.get_rela_center_coor()
+                            _coor = ocr_data.rect.get_rela_center()
                             logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            click(_coor)
+                            Mouse.click(_coor)
                             break
                         case "手动":
-                            _coor = ocr_data.rect.get_rela_center_coor()
+                            _coor = ocr_data.rect.get_rela_center()
                             logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            click(_coor)
+                            Mouse.click(_coor)
                             break
                         case "点击屏幕继续" | "胜利" | "失败":
-                            _coor = ocr_data.rect.get_rela_center_coor()
+                            _coor = ocr_data.rect.get_rela_center()
                             logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            click(_coor)
+                            Mouse.click(_coor)
                             self.done()
                             return
 
@@ -74,13 +74,13 @@ class DouJi(Package):
             if _ocr_data:
                 break
             sleep()
-        _coor = _ocr_data.rect.get_rela_center_coor()
+        _coor = _ocr_data.rect.get_rela_center()
         logger.ui(f"斗技 {_coor.coor}")
 
         _ocr_data = check_raw_result_once("战")
-        _coor = _ocr_data.rect.get_rela_center_coor()
+        _coor = _ocr_data.rect.get_rela_center()
         logger.ui(f"战 {_coor.coor}")
-        click(_coor)
+        Mouse.click(_coor)
 
         sleep(3)
 
@@ -89,9 +89,9 @@ class DouJi(Package):
             _ocr_data = check_raw_result_once("自动")
             if _ocr_data:
                 break
-        _coor = _ocr_data.rect.get_rela_center_coor()
+        _coor = _ocr_data.rect.get_rela_center()
         logger.ui(f"自动 {_coor.coor}")
-        click(_coor)
+        Mouse.click(_coor)
 
         sleep(3)
 
@@ -100,9 +100,9 @@ class DouJi(Package):
             _ocr_data = check_raw_result_once("手动")
             if _ocr_data:
                 break
-        _coor = _ocr_data.rect.get_rela_center_coor()
+        _coor = _ocr_data.rect.get_rela_center()
         logger.ui(f"手动 {_coor.coor}")
-        click(_coor)
+        Mouse.click(_coor)
 
         sleep(3)
 
@@ -122,9 +122,9 @@ class DouJi(Package):
                 break
 
         sleep()
-        _coor = _ocr_data.rect.get_rela_center_coor()
+        _coor = _ocr_data.rect.get_rela_center()
         logger.ui(f"点击屏幕继续 {_coor.coor}")
-        click(_coor)
+        Mouse.click(_coor)
         self.done()
 
     def fight_once_new(self):
@@ -197,7 +197,7 @@ class DouJi(Package):
             sleep(2, 4)
             _ocr_data = check_raw_result_once("段位上升")
             if _ocr_data:
-                _coor = _ocr_data.rect.get_rela_center_coor()
+                _coor = _ocr_data.rect.get_rela_center()
                 logger.ui(f"段位上升 {_coor.coor}")
                 _coor.y += 200
                 Mouse.click(_coor)

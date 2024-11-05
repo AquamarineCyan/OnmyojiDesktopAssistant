@@ -2,12 +2,7 @@ from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import (
-    check_scene_multiple_once,
-    click,
-    finish_random_left_right,
-    sleep,
-)
+from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
 from .utils import Package, get_asset
@@ -226,72 +221,6 @@ class YuHunSingle(YuHun):
         """
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
-    @log_function_call
-    def finish_fast(self):  # FIXME
-        """结束"""
-        self.check_result()
-        sleep(0.4, 0.8)
-        # 结算
-        finish_random_left_right(is_multiple_drops_x=True)
-        _flag_screenshot = True
-        Mouse.click(wait=0.5)
-        while True:
-            if event_thread.is_set():
-                return
-
-            # 检测到任一图像
-            scene, coor = check_scene_multiple_once(
-                [
-                    f"{self.global_resource_path}/finish",
-                    f"{self.resource_path}/finish_2000",
-                    f"{self.global_resource_path}/tanchigui",
-                ]
-            )
-            if coor.is_effective:
-                if _flag_screenshot and self.flag_drop_statistics:
-                    self.screenshot()
-                    _flag_screenshot = False
-                click()
-                sleep(0.6, 1)
-            # 所有图像都未检测到，退出循环
-            elif coor.is_zero:
-                logger.ui("结束")
-                return
-
-    def finish_slow(self):
-        """
-        结束 等待自动掉落
-        """
-        self.check_finish()
-        sleep(0.4, 0.8)
-        # 结算
-        point = finish_random_left_right(False, is_multiple_drops_x=True)
-        _flag_screenshot = True
-        Mouse.move(point)
-        # pyautogui.doubleClick()
-        while True:
-            if event_thread.is_set():
-                return
-
-            # 检测到任一图像
-            scene, coor = check_scene_multiple_once(
-                [
-                    f"{self.global_resource_path}/finish",
-                    f"{self.resource_path}/finish_2000",
-                    f"{self.global_resource_path}/tanchigui",
-                ]
-            )
-            if coor.is_effective:
-                if _flag_screenshot and self.flag_drop_statistics:
-                    self.screenshot()
-                    _flag_screenshot = False
-                click()
-                sleep(1.5)
-            # 所有图像都未检测到，退出循环
-            elif coor.is_zero:
-                logger.ui("结束")
-                return
-
     def run(self):
         msg_title: bool = True
         msg_fighting: bool = True
@@ -329,8 +258,6 @@ class YuHunSingle(YuHun):
                     if msg_fighting:
                         logger.ui("对局进行中")
                         msg_fighting = False
-                    # self.finish_slow()
-                    # self.done()
                     msg_title = False
                 case "fail":
                     logger.ui_warn("失败，需要手动处理")

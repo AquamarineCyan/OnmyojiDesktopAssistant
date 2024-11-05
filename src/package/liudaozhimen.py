@@ -1,9 +1,9 @@
+from ..utils.point import RelativePoint
 from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
-from ..utils.coordinate import RelativeCoor
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import click, finish_random_left_right, sleep
+from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, ocr
 from .utils import Package, get_asset
@@ -75,7 +75,7 @@ class LiuDaoZhiMen(Package):
         for item in result:
             ocr_data = OcrData(item)
             if ocr_data.score > 0.8 and ocr_data.text == text:
-                # click(RelativeCoor(ocr_data.x1, ocr_data.y1).rela_to_abs())
+                # click(RelativePoint(ocr_data.x1, ocr_data.y1).rela_to_abs())
                 return ocr_data
         return None
 
@@ -87,7 +87,7 @@ class LiuDaoZhiMen(Package):
             for item in result:
                 ocr_data = OcrData(item)
                 if ocr_data.score > 0.8 and ocr_data.text == text:
-                    # click(RelativeCoor(ocr_data.x1, ocr_data.y1).rela_to_abs())
+                    # click(RelativePoint(ocr_data.x1, ocr_data.y1).rela_to_abs())
                     return ocr_data
 
     def check_result_mult(self, list):
@@ -150,7 +150,7 @@ class LiuDaoZhiMen(Package):
                 initial_buff_counts += 1
                 if initial_buff_counts == initial_buff_need:
                     logger.scene(f"选择初始BUFF{initial_buff_counts}")
-                    click(ocr_data)
+                    Mouse.click(ocr_data.center)
                     return
         logger.ui_error("选择初始BUFF出错")
 
@@ -172,7 +172,7 @@ class LiuDaoZhiMen(Package):
             if "点击空白处关闭" in ocr_data.text:
                 # 识别结果为"+点击空白处关闭+"
                 logger.scene("点击空白处关闭")
-                click(ocr_data)
+                Mouse.click(ocr_data.center)
                 break
 
             elif "回合后迎战月读" in ocr_data.text:
@@ -182,15 +182,15 @@ class LiuDaoZhiMen(Package):
                 if self.map_node_numbers > 3:
                     self.map_node_numbers = 1
                 if self.map_node_numbers == 1:
-                    _coor = RelativeCoor(585, 420)
+                    _coor = RelativePoint(585, 420)
                 if self.map_node_numbers == 2:
                     # 2个关卡的右侧
-                    _coor = RelativeCoor(820, 430)
+                    _coor = RelativePoint(820, 430)
                 if self.map_node_numbers == 3:
                     # 3个关卡的中间
-                    _coor = RelativeCoor(635, 360)
+                    _coor = RelativePoint(635, 360)
                 logger.ui(f"点击地图坐标{_coor.coor}")
-                click(_coor)
+                Mouse.click(_coor)
 
                 logger.ui(f"检查是否生效，第{self.map_node_numbers}次")
                 sleep()
@@ -218,24 +218,24 @@ class LiuDaoZhiMen(Package):
                         "幸运宝画",
                     ]:
                         logger.scene("幸运宝匣")
-                        click(ocr_data)
+                        Mouse.click(ocr_data.center)
                         sleep(2)
                         self.check_click(self.IMAGE_OPEN, timeout=3)
                         flag_has_buff = True
                         break
                 if not flag_has_buff:
-                    click(RelativeCoor(560, 315))
+                    Mouse.click(RelativePoint(560, 315))
                     self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text in ["战之屿", "噻战之屿", "鹰战之屿", "鑫战之屿"]:
                 logger.scene("鏖战之屿")
-                _coor = RelativeCoor(650, 300)  # 右侧怪 - 技能BUFF
-                click(_coor)
+                _coor = RelativePoint(650, 300)  # 右侧怪 - 技能BUFF
+                Mouse.click(_coor)
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "星之屿":
                 logger.scene("星之屿")
-                click(RelativeCoor(380, 300))  # 左侧怪
+                Mouse.click(RelativePoint(380, 300))  # 左侧怪
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "神秘之屿":
@@ -245,7 +245,7 @@ class LiuDaoZhiMen(Package):
                     if ocr_data.text == "背包仿造":
                         logger.scene("背包仿造")
                         #  遍历所有buff
-                        click(RelativeCoor(760, 240))
+                        Mouse.click(RelativePoint(760, 240))
                         flag_max_buff = True
                         new_result = ocr.get_raw_result()
                         for item in new_result:
@@ -257,7 +257,7 @@ class LiuDaoZhiMen(Package):
                                 self.check_click(self.IMAGE_IMITATION, timeout=3)
                                 KeyBoard.enter(1)
                                 sleep()
-                                click()
+                                Mouse.click()
                                 flag_max_buff = False
                                 break
                         if flag_max_buff:
@@ -277,7 +277,7 @@ class LiuDaoZhiMen(Package):
                     for item in result:
                         ocr_data = OcrData(item)
                         if ocr_data.text == "离开":
-                            click(ocr_data)
+                            Mouse.click(ocr_data.center)
                             break
                     logger.ui("刷新商店次数用完")
                     self.shop_refresh_counts = 0
@@ -287,7 +287,7 @@ class LiuDaoZhiMen(Package):
                     ocr_data = OcrData(item)
                     if ocr_data.text == "柔风抱暖":
                         logger.scene("BUFF选取柔风抱暖")
-                        click(ocr_data)
+                        Mouse.click(ocr_data.center)
                         KeyBoard.enter(1)
                         break
                 sleep()
@@ -314,7 +314,7 @@ class LiuDaoZhiMen(Package):
                 logger.scene("选择BUFF")
                 fight_buff_counts += 1  # TODO
                 if fight_buff_counts == fight_buff_need:
-                    click(ocr_data)
+                    Mouse.click(ocr_data.center)
 
             # BOSS战
             elif ocr_data.text == "奖励预览":
@@ -341,8 +341,8 @@ class LiuDaoZhiMen(Package):
                     KeyBoard.enter(1)
                 # 检查每个BUFF
                 for _ in range(1):
-                    click(RelativeCoor(760, 150))  # [1,1]
-                    # click(RelativeCoor(760, 240))  # [2,1]
+                    Mouse.click(RelativePoint(760, 150))  # [1,1]
+                    # Mouse.click(RelativePoint(760, 240))  # [2,1]
                     sleep()
                     new_result = ocr.get_raw_result()
                     for item in new_result:
@@ -354,7 +354,7 @@ class LiuDaoZhiMen(Package):
                                     logger.scene(
                                         ocr_data.center.coor
                                     )
-                                    click(ocr_data)
+                                    Mouse.click(ocr_data.center)
                                     break
                             break
                 sleep()
@@ -370,7 +370,7 @@ class LiuDaoZhiMen(Package):
                 for item in result:
                     ocr_data = OcrData(item)
                     if ocr_data.text == "放弃前行":
-                        click(ocr_data)
+                        Mouse.click(ocr_data.center)
                         KeyBoard.enter(1)
             # 结算
             elif "击败普通妖怪" in ocr_data.text:
@@ -386,11 +386,11 @@ class LiuDaoZhiMen(Package):
                             ocr_data = OcrData(item)
                             if ocr_data.text == "使用":
                                 logger.ui("使用万相赐福")
-                                click(ocr_data)
+                                Mouse.click(ocr_data.center)
                                 break
-                            if ocr_data.text == "取消":
+                            if ocr_data.text == "取消": # FIXME “取消”按钮在列表中位于“使用”按钮之前
                                 logger.ui("没有万相赐福，取消购买")
-                                click(ocr_data)
+                                Mouse.click(ocr_data.center)
                                 break
                         break
                 sleep()
