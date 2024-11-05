@@ -71,6 +71,7 @@ class Config:
     def __init__(self):
         self.user: UserConfig = UserConfig()
         self.default: DefaultConfig = DefaultConfig()
+        self.data_error: int = 0
 
     def config_yaml_init(self) -> None:
         """初始化"""
@@ -81,20 +82,21 @@ class Config:
 
         if self.config_path.is_file():
             logger.info("Find config file.")
-            data = self._read()
+            data = self._check_outdated(self._read())
             self.user = UserConfig(**data)
-            self._check_outdated_config_data(data)
+            if self.data_error:
+                logger.warning("Data error, reset config.")
+                self._save(self.user)
         else:
             logger.ui_warn("Cannot find config file.")
             self._save(self.user)
+            logger.ui("create file config.yaml success.")
 
     def _read(self) -> dict:
-        """读取配置文件"""
         with open(self.config_path, encoding="utf-8") as f:
             return yaml.safe_load(f)
 
     def _save(self, data) -> bool:
-        """保存配置文件"""
         if isinstance(data, UserConfig):
             data = data.model_dump()
         if isinstance(data, dict):
@@ -119,30 +121,16 @@ class Config:
         self.user = UserConfig.model_validate(config_dict)
         self._save(self.user.model_dump())
 
-    def _check_outdated_config_data(self, data: dict) -> None:
-        # data = self.config_user.model_dump()
-        _flag = False
-        key = "更新模式"
-        if key in data:
-            value = data.get(key)
-            data.pop(key)
-            data.setdefault("update", value)
-            _flag = True
-        key = "下载线路"
-        if key in data:
-            value = data.get(key)
-            data.pop(key)
-            data.setdefault("update_download", value)
-            _flag = True
-        key = "悬赏封印"
-        if key in data:
-            value = data.get(key)
-            data.pop(key)
-            data.setdefault("xuanshangfengyin", value)
-            _flag = True
-        if _flag:
-            self.user = UserConfig.model_validate(data)
-            self._save(self.user)
+    def _check_outdated(self, data: dict) -> dict:
+        """仅检查不符合配置项的部分，不存在的设置项可以通过UserConfig的model_dump()方法获取默认值"""
+        for key, value in self.default.model_dump().items():
+            if not isinstance(value, list):
+                continue
+            if key in data.keys():
+                if data.get(key) not in value:
+                    data[key] = value[0]
+                    self.data_error += 1
+        return data
 
 
 config = Config()
