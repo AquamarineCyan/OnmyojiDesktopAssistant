@@ -20,7 +20,6 @@ class YuLing(Package):
          暗黑豹-周四六
          暗孔雀-周五六日
          绘卷期间请减少使用"""
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

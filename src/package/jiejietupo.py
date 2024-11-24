@@ -45,7 +45,6 @@ class JieJieTuPo(Package):
         "xunzhang_5",  # 勋章数5
         "yinyangliao",  # 阴阳寮突破
     ]
-    ASSET = True
 
     @log_function_call
     def __init__(self, n) -> None:

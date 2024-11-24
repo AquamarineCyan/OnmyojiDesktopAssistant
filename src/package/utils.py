@@ -134,17 +134,17 @@ class Package:
         """当前使用的资源列表"""
         self.current_scene: str = None
         """当前场景"""
-        if self.ASSET:
-            self.global_image = GlobalResource()
-            """通用资源"""
-            self.load_asset_list()
-            try:
-                self.load_asset()
-            except Exception as e:
-                logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
-                logger.ui_error(
-                    f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
-                )
+
+        self.global_image = GlobalResource()
+        """通用资源"""
+        self.load_asset_list()
+        try:
+            self.load_asset()
+        except Exception as e:
+            logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
+            logger.ui_error(
+                f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
+            )
 
     def load_asset_list(self):
         self.asset_image_list = load_asset(self.resource_path, "image")

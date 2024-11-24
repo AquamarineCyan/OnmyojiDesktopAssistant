@@ -20,7 +20,6 @@ class ZhaoHuan(Package):
         "zaicizhaohuan",  # 再次召唤
     ]
     description = "普通召唤，请选择十连次数，请选择合适的召唤屋"
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

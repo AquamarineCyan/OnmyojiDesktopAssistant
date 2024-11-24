@@ -33,7 +33,6 @@ class YuHun(Package):
                     司机请在组队界面等待\
                     新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”"
     fast_time = 13 - 2
-    ASSET = True
 
     @log_function_call
     def __init__(self, n) -> None:

@@ -19,7 +19,6 @@ class HuoDong(Package):
         "start",
     ]
     activity_name: str
-    ASSET = True
     # 两种结算方式
     STATE_NORMAL = 1  # 「达摩蛋」弹出
     STATE_RESULT = 2  # 「获得奖励」弹窗

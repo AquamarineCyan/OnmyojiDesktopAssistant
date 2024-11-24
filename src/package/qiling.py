@@ -23,7 +23,6 @@ class QiLing(Package):
         "queding",
     ]
     description = "次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，地图最多支持刷出5只契灵，请提前在游戏内配置“结契设置”"
-    ASSET = True
 
     @log_function_call
     def __init__(

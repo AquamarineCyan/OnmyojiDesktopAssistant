@@ -23,7 +23,6 @@ class YongShengZhiHai(Package):
     ]
     description = "默认打手30次"
     fast_time = 13 - 2
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

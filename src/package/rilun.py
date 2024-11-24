@@ -16,7 +16,6 @@ class RiLun(Package):
     resource_list: list = [
         "fighting",  # 对局进行中
     ]
-    ASSET = True
     STATE_READY = 1
     STATE_RUNNING = 2
 

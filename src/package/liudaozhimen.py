@@ -27,7 +27,6 @@ class LiuDaoZhiMen(Package):
     description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     STATE_START = 1
     STATE_RUNNING = 2
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

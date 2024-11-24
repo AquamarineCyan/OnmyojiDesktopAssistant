@@ -11,7 +11,6 @@ class DouJi(Package):
     scene_name = "斗技"
     resource_path = "douji"
     description = "支持五段至名士之间的固定翻牌上阵"
-    ASSET = True
 
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)

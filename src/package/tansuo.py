@@ -33,7 +33,6 @@ class TanSuo(Package):
         # "zidonglunhuan",
     ]
     description = "提前准备好自动轮换和加成，仅单人探索"
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

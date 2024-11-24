@@ -27,7 +27,6 @@ class DaoGuanTuPo(Package):
         "zhanbao",  # 战报
     ]
     description = "目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景"
-    ASSET = True
     STATE_IDLE = 1  # 准备界面
     STATE_FIGHTING = 2  # 进行中
 

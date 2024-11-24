@@ -19,7 +19,6 @@ class YeYuanHuo(Package):
     ]
     description = "默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材"
     fast_time = 13
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

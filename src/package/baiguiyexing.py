@@ -23,7 +23,6 @@ class BaiGuiYeXing(Package):
         "baiguiqiyueshu",  # 百鬼契约书
     ]
     description = "仅适用于清票，无法指定鬼王"
-    ASSET = True
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

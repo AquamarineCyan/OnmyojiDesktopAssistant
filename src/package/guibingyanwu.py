@@ -14,8 +14,6 @@ class GuiBingYanWu(Package):
     resource_path = "guibingyanwu"
     description = "适配活动「鬼兵演武」，支持无御魂结算，不支持获得新技能时结算。"
 
-    ASSET = True
-
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
