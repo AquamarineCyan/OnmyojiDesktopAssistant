@@ -28,7 +28,9 @@ class DaoGuanTuPo(Package):
     ]
     description = "目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景"
     STATE_IDLE = 1  # 准备界面
-    STATE_FIGHTING = 2  # 进行中
+    STATE_WAIT_AUTO_ENTER = 2  # 等待主动进入
+    STATE_WAIT_START = 3  # 等待开始
+    STATE_FIGHTING = 4  # 进行中
 
     @log_function_call
     def __init__(self, flag_guanzhan: bool = False) -> None:
@@ -63,8 +65,6 @@ class DaoGuanTuPo(Package):
     @log_function_call
     def check_title(self) -> None:
         msg_title = True
-        self.flag_fighting = False  # 进行中
-        msg_daojishi = True  # 倒计时
         while True:
             if bool(event_thread):
                 return
@@ -72,11 +72,12 @@ class DaoGuanTuPo(Package):
             if RuleImage(self.IMAGE_TITLE).match():
                 logger.scene(self.scene_name)
                 if RuleImage(self.IMAGE_DAOJISHI).match():
-                    if msg_daojishi:
-                        logger.ui("等待倒计时自动进入")
-                        msg_daojishi = False
+                    logger.ui("等待倒计时自动进入")
+                    self.state = self.STATE_WAIT_AUTO_ENTER
+                    return
                 elif RuleImage(self.IMAGE_SHENYUTUPO).match():
                     logger.ui("可进攻")
+                    self.state = self.STATE_WAIT_START
                     return
             elif RuleImage(self.IMAGE_BUTTON_ZHUWEI).match():
                 logger.ui("道馆突破进行中")
@@ -145,12 +146,11 @@ class DaoGuanTuPo(Package):
         self.check_title()
         logger.num(0)
         sleep(2, 4)
-        if self.state != self.STATE_FIGHTING:
-            self.check_click(self.IMAGE_TIAOZHAN)
+        if self.state == self.STATE_WAIT_START:
+            self.check_click(self.IMAGE_TIAOZHAN, timeout=5)
         sleep(2, 4)
-        # TODO 调整预设队伍
-        # 开始
 
+        # 开始
         self.current_asset_list = [
             self.global_image.IMAGE_READY_OLD,
             self.global_image.IMAGE_READY_NEW,
@@ -174,6 +174,7 @@ class DaoGuanTuPo(Package):
                     Mouse.click(result.random_point())
                     self.n += 1
                     logger.num(str(self.n))
+                    sleep(2)
                 case "finish":
                     finish_random_left_right()
                     break
