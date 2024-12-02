@@ -226,7 +226,7 @@ class Package:
             if bool(event_thread):
                 return False
             if timeout and (time.time() - _start > timeout):
-                logger.error("check_image_click timeout")
+                logger.error("check_click timeout")
                 return False
 
             if isinstance(asset, AssetImage):
@@ -315,31 +315,37 @@ class Package:
                 return None
             _screenshot = ScreenShot()
             if RuleImage(self.global_image.IMAGE_VICTORY).match(_screenshot):
-                logger.ui("胜利")
+                logger.ui("战斗胜利")
                 return True
             if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
-                logger.ui("结束")
+                logger.ui("战斗结束")
                 return True
             if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
-                logger.ui_warn("失败")
+                logger.ui_warn("战斗失败")
                 return False
 
     @log_function_call
-    def check_finish(self) -> bool:
+    def check_finish(self,timeout: int = None) -> bool:
         """结束/掉落判断
 
         返回:
             bool: Success or Fail
         """
+        if timeout:
+            _start = time.time()
         while True:
             if bool(event_thread):
                 return None
+            if timeout and (time.time() - _start > timeout):
+                logger.error("check_finish timeout")
+                return False
+            
             _screenshot = ScreenShot()
             if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
-                logger.ui("结束")
+                logger.ui("战斗结束")
                 return True
             if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
-                logger.ui_warn("失败")
+                logger.ui_warn("战斗失败")
                 return False
 
     def ensure_finish(self):

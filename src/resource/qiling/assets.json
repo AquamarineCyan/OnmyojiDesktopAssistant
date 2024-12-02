@@ -30,6 +30,18 @@
             "file": "title.png",
             "region": [0, 0, 1154, 687],
             "score": "0.8"
+        },
+        {
+            "name": "zhenmushou",
+            "file": "zhenmushou.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
+            "name": "zhenmushou_mingqishi",
+            "file": "zhenmushou_mingqishi.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
         }
     ]
 }
