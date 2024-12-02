@@ -1,3 +1,4 @@
+import contextlib
 from enum import Enum
 
 from ..utils.adapter import KeyBoard, Mouse
@@ -7,6 +8,7 @@ from ..utils.event import event_thread
 from ..utils.function import finish_random_left_right, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
+from ..utils.paddleocr import RuleOcr
 from ..utils.point import RelativePoint
 from .utils import Package, get_asset
 
@@ -17,6 +19,10 @@ class LineupState(Enum):
     NONE = 0
     LOCK = 1
     UNLOCK = 2
+
+
+class LiaoTuPoFullException(Exception):
+    """寮突破已满"""
 
 
 class JieJieTuPo(Package):
@@ -483,7 +489,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             if not RuleImage(self.IMAGE_FAIL, region=region).match():
                 logger.ui(f"{i} 可进攻")
                 _y = y + 35
-                if i == 7 or i == 8:  # 最后一排坐标上移
+                if i in [7, 8]:  # 最后一排坐标上移
                     _y -= 20
                     logger.ui(f"{i} 坐标修正")
                 self.fighting_tupo(x, _y)
@@ -519,14 +525,36 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         # TODO 操作滚轮需要鼠标在当前区域，目前来说调用该方法时，鼠标在当前区域
         Mouse.scroll(-rows * 240)  # 2*pis(pis=2*120)
 
+    @log_function_call
+    def get_current_process(self):
+        result = RuleOcr().get_raw_result()
+        for item in result:
+            logger.info(item.text)
+            if "%" not in item.text:
+                continue
+
+            with contextlib.suppress(Exception):
+                self.process = float(item.text.split("%")[0])
+                logger.ui(f"当前进度：{self.process}%")
+
+            if self.process > 90:
+                logger.ui_warn("寮突破已满")
+                raise LiaoTuPoFullException("寮突破已满")
+            
+            return
+
     def run(self):
-        self.check_title()
-        while self.n < self.max:
-            if bool(event_thread):
-                break
-            sleep(0.4, 0.8)
-            if flag := self.fighting():
-                self.done()
-            elif flag == -1:
-                break
-            sleep()
+        try:
+            self.check_title()
+            while self.n < self.max:
+                if bool(event_thread):
+                    break
+                sleep()
+                self.get_current_process()
+                if flag := self.fighting():
+                    self.done()
+                elif flag == -1:
+                    break
+                sleep()
+        except Exception as e:
+            logger.error(e)
