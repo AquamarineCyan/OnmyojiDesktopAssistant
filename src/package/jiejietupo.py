@@ -467,6 +467,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+        self.process: float = 0  # 突破进度
 
     def jibaicishu(self) -> bool:
         """剩余次数判断"""
@@ -534,13 +535,16 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 continue
 
             with contextlib.suppress(Exception):
-                self.process = float(item.text.split("%")[0])
+                _process = float(item.text.split("%")[0])
+                if _process > 100:  # 防止识别错误
+                    continue
+                self.process = _process
                 logger.ui(f"当前进度：{self.process}%")
 
             if self.process > 90:
                 logger.ui_warn("寮突破已满")
                 raise LiaoTuPoFullException("寮突破已满")
-            
+
             return
 
     def run(self):
