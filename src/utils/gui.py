@@ -160,6 +160,10 @@ class MainWindow(QMainWindow):
         logger.info(f"_status{_status}")
         _flag_check = _status != -1
         self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
+
+        _restart_msg = "重启生效"
+        self.ui.setting_update_comboBox.setToolTip(_restart_msg)
+        self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
         self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
         # 自定义信号
@@ -276,6 +280,9 @@ class MainWindow(QMainWindow):
         if check_ocr_folder():
             logger.info("文字识别资源检查通过")
         else:
+            logger.ui_warn(
+                "未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载"
+            )
             config.update("update_download", "ghproxy")
         Restart().move_screenshot()
         upgrade.check_latest()
@@ -622,7 +629,9 @@ class MainWindow(QMainWindow):
                     current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
                     target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
                 else:
-                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
+                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[
+                        0
+                    ]
                 JieJieTuPoGeRen(
                     n=n,
                     flag_refresh_rule=flag_refresh_need,

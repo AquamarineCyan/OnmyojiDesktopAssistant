@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "onmyoji-python"
-version = "1.8.9"
+version = "1.8.10"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
@@ -9,24 +9,24 @@ packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-apscheduler = "^3.10.4"
+apscheduler = "^3.11.0"
 httpx = "^0.27.2"
 numpy = "^2.1.3"
 opencv-python = {extras = ["numpy"], version = "^4.10.0.84"}
 pillow = "^11.0.0"
 pyautogui = "^0.9.54"
-pydantic = "^2.9.2"
+pydantic = "^2.10.2"
 pynput = "^1.7.7"
-pyside6 = "^6.8.0.2"
+pyside6 = "^6.8.1"
 pywin32 = "^308"
 pyyaml = "^6.0.2"
 win11toast = "^0.35"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.11.0"
-pytest = "^8.3.3"
-ruff = "^0.7.2"
+pyinstaller = "^6.11.1"
+pytest = "^8.3.4"
+ruff = "^0.8.1"
 
 [tool.ruff]
 line-length = 88
