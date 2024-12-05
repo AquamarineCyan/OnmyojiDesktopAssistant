@@ -42,6 +42,26 @@ class Upgrade(Connect):
         self.zip_path: str = None
         """更新包路径"""
 
+    def compare_versions(self, new_version, current_version):
+        # 将版本号分割成部分并转换为整数
+        v1_parts = list(map(int, new_version.split(".")))
+        v2_parts = list(map(int, current_version.split(".")))
+
+        # 比较每个部分
+        for v1, v2 in zip(v1_parts, v2_parts):
+            if v1 < v2:
+                return -1
+            elif v1 > v2:
+                return 1
+
+        # 如果部分相同，比较长度
+        if len(v1_parts) < len(v2_parts):
+            return -1  #
+        elif len(v1_parts) > len(v2_parts):
+            return 1
+
+        return 0  # 两个版本号相等
+
     def get_browser_download_url(self) -> StatusCode:
         """获取更新包地址
 
@@ -67,7 +87,7 @@ class Upgrade(Connect):
 
         self.new_version = response_dict["tag_name"][1:]
         logger.info(f"new_version:{self.new_version}")
-        if self.new_version <= VERSION:
+        if self.compare_versions(self.new_version, VERSION) < 0:
             return StatusCode.LATEST
 
         _info: str = response_dict["body"]
