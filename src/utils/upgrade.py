@@ -87,7 +87,7 @@ class Upgrade(Connect):
 
         self.new_version = response_dict["tag_name"][1:]
         logger.info(f"new_version:{self.new_version}")
-        if self.compare_versions(self.new_version, VERSION) < 0:
+        if self.compare_versions(self.new_version, VERSION) <= 0:
             return StatusCode.LATEST
 
         _info: str = response_dict["body"]
