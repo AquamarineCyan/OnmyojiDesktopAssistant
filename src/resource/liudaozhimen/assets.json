@@ -20,8 +20,8 @@
             "score": "0.8"
         },
         {
-            "name": "fight_ready_resetting",
-            "file": "fight_ready_resetting.png",
+            "name": "fight_ready_reset",
+            "file": "fight_ready_reset.png",
             "region": [0, 0, 1154, 687],
             "score": "0.8"
         },
