@@ -46,6 +46,10 @@ def get_asset(dict_, name):
             return item
 
 
+def get_image_asset(asset_image_list, name)-> AssetImage:
+    return AssetImage(**get_asset(asset_image_list, name))
+
+
 class GlobalResource:
     """通用资源"""
 
@@ -152,6 +156,9 @@ class Package:
 
     def load_asset(self):
         pass
+
+    def get_image_asset(self, name: str) -> AssetImage:
+        return get_image_asset(self.asset_image_list, name)
 
     def title_error_msg(self):
         logger.ui("请检查游戏场景", "warn")
@@ -325,7 +332,7 @@ class Package:
                 return False
 
     @log_function_call
-    def check_finish(self,timeout: int = None) -> bool:
+    def check_finish(self, timeout: int = None) -> bool:
         """结束/掉落判断
 
         返回:
@@ -339,7 +346,7 @@ class Package:
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_finish timeout")
                 return False
-            
+
             _screenshot = ScreenShot()
             if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
                 logger.ui("战斗结束")

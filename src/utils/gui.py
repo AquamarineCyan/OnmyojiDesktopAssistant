@@ -59,7 +59,7 @@ class GameFunction(Enum):
     TANSUO = 12  # 单人探索
     QILING = 13  # 契灵
     JUEXING = 14  # 觉醒副本
-    LIUDAOZHIMEN = 15  # 六道之门
+    LIUDAOZHIMEN = 15  # 六道之门速刷
     DOUJI = 16  # 斗技自动上阵
     GUIBINGYANWU = 17  # 鬼兵演武
 
@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         "13.契灵",
         "14.觉醒副本",
         # 下方需要ocr，目前做可选项
-        # "15.六道之门",
+        # "15.六道之门速刷",
         # "16.斗技自动上阵",
         # "17.鬼兵演武",
     ]
@@ -297,7 +297,7 @@ class MainWindow(QMainWindow):
         # 文字识别
         ocr.init()
         if event_ocr_init.is_set():
-            self.ui.combo_choice.addItem("15.六道之门")
+            self.ui.combo_choice.addItem("15.六道之门速刷")
             self.ui.combo_choice.addItem("16.斗技自动上阵")
             self.ui.combo_choice.addItem("17.鬼兵演武")
         logger.info(global_scheduler.get_jobs())

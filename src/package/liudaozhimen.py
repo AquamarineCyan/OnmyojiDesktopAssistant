@@ -1,12 +1,11 @@
-from ..utils.point import RelativePoint
 from ..utils.adapter import KeyBoard, Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, ocr
-from .utils import Package, get_asset
+from ..utils.point import RelativePoint
+from .utils import Package
 
 
 class LiuDaoZhiMen(Package):
@@ -14,17 +13,18 @@ class LiuDaoZhiMen(Package):
 
     scene_name = "六道之门速刷"
     resource_path = "liudaozhimen"
+    description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     resource_list: list = [
         "determine",  # 确定
         "fight",  # 挑战
         "fight_ready_quit",  # 退出
         "fight_ready_refresh",  # 技能装备-刷新
+        "fight_ready_resetting",  # 技能装备-重置
         "imitation",  # 仿造
         "open",  # 开启宝箱
         "shop_refresh",  # 商店刷新
         "start",  # 开启挑战
     ]
-    description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     STATE_START = 1
     STATE_RUNNING = 2
 
@@ -34,27 +34,15 @@ class LiuDaoZhiMen(Package):
         self.state = self.STATE_START
 
     def load_asset(self):
-        self.IMAGE_DETERMINE = AssetImage(
-            **get_asset(self.asset_image_list, "determine")
-        )
-        self.IMAGE_FIGHT_READY_QUIT = AssetImage(
-            **get_asset(self.asset_image_list, "fight_ready_quit")
-        )
-        self.IMAGE_FIGHT_READY_REFRESH = AssetImage(
-            **get_asset(self.asset_image_list, "fight_ready_refresh")
-        )
-        self.IMAGE_FIGHT_READY_RESETTING = AssetImage(
-            **get_asset(self.asset_image_list, "fight_ready_resetting")
-        )
-        self.IMAGE_FIGHT = AssetImage(**get_asset(self.asset_image_list, "fight"))
-        self.IMAGE_IMITATION = AssetImage(
-            **get_asset(self.asset_image_list, "imitation")
-        )
-        self.IMAGE_OPEN = AssetImage(**get_asset(self.asset_image_list, "open"))
-        self.IMAGE_SHOP_REFRESH = AssetImage(
-            **get_asset(self.asset_image_list, "shop_refresh")
-        )
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
+        self.IMAGE_DETERMINE = self.get_image_asset("determine")
+        self.IMAGE_FIGHT_READY_QUIT = self.get_image_asset("fight_ready_quit")
+        self.IMAGE_FIGHT_READY_REFRESH = self.get_image_asset("fight_ready_refresh")
+        self.IMAGE_FIGHT_READY_RESET = self.get_image_asset("fight_ready_reset")
+        self.IMAGE_FIGHT = self.get_image_asset("fight")
+        self.IMAGE_IMITATION = self.get_image_asset("imitation")
+        self.IMAGE_OPEN = self.get_image_asset("open")
+        self.IMAGE_SHOP_REFRESH = self.get_image_asset("shop_refresh")
+        self.IMAGE_START = self.get_image_asset("start")
 
     def check_ocr_result(self, text: str | list = None) -> OcrData | None:
         result = ocr.get_raw_result()
@@ -158,7 +146,7 @@ class LiuDaoZhiMen(Package):
         fight_buff_counts = 0
         fight_buff_need = 0
 
-        flag_already_resetting = False
+        flag_already_reset = False
 
         result = ocr.get_raw_result()
         for item in result:
@@ -334,9 +322,9 @@ class LiuDaoZhiMen(Package):
                 break
             elif ocr_data.text == "技能装配":
                 logger.scene("技能装配")
-                if not flag_already_resetting:
-                    self.check_click(self.IMAGE_FIGHT_READY_RESETTING, timeout=3)
-                    flag_already_resetting = True
+                if not flag_already_reset:
+                    self.check_click(self.IMAGE_FIGHT_READY_RESET, timeout=3)
+                    flag_already_reset = True
                     KeyBoard.enter(1)
                 # 检查每个BUFF
                 for _ in range(1):
@@ -350,9 +338,7 @@ class LiuDaoZhiMen(Package):
                             for item in new_result:
                                 ocr_data = OcrData(item)
                                 if ocr_data.text == "装备":
-                                    logger.scene(
-                                        ocr_data.center.coor
-                                    )
+                                    logger.scene(ocr_data.center.coor)
                                     Mouse.click(ocr_data.center)
                                     break
                             break
@@ -377,6 +363,7 @@ class LiuDaoZhiMen(Package):
                 logger.ui("等待万相赐福")
                 sleep(2)
                 new_result = ocr.get_raw_result()
+                _ocr_data_cannel = None  # 记录取消按钮位置
                 for item in new_result:
                     ocr_data = OcrData(item)
                     if "万相赐福" in ocr_data.text:
@@ -386,14 +373,18 @@ class LiuDaoZhiMen(Package):
                             if ocr_data.text == "使用":
                                 logger.ui("使用万相赐福")
                                 Mouse.click(ocr_data.center)
+                                _ocr_data_cannel = None
                                 break
-                            if ocr_data.text == "取消": # FIXME “取消”按钮在列表中位于“使用”按钮之前
-                                logger.ui("没有万相赐福，取消购买")
-                                Mouse.click(ocr_data.center)
-                                break
+                            if ocr_data.text == "取消":
+                                _ocr_data_cannel = ocr_data
                         break
+                # 检测不到“万相赐福”则点击取消按钮
+                if _ocr_data_cannel is not None:
+                    logger.ui("没有万相赐福，取消购买")
+                    Mouse.click(_ocr_data_cannel.center)
                 sleep()
                 finish_random_left_right()
+                sleep()
                 Mouse.click()
                 self.done()
                 self.state = self.STATE_START
