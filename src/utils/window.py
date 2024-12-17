@@ -128,6 +128,13 @@ class GameWindow:
     handle_number: int = 0
     """单开/多开数量"""
 
+    client_rect: tuple[int, int, int, int] = (0, 0, 0, 0)
+    """窗口客户区坐标 (left, top, right, bottom)"""
+    client_width: int = 0
+    """窗口客户区宽度"""
+    client_height: int = 0
+    """窗口客户区高度"""
+
     current_window_resolution: WindowResolution = None
     """当前游戏窗口的分辨率"""
 
@@ -178,6 +185,12 @@ class GameWindow:
         self.window_width = rect[2] - rect[0] - 18
         self.window_height = rect[3] - rect[1] - 47
 
+    def update_client_rect(self):
+        """更新客户区矩形坐标"""
+        self.client_rect = win32gui.GetClientRect(self.handle)
+        self.client_width = self.client_rect[2] - self.client_rect[0]
+        self.client_height = self.client_rect[3] - self.client_rect[1]
+
     @log_function_call
     def get_game_window_handle(self) -> tuple[int, int, int, int]:
         """获取游戏窗口信息
@@ -189,9 +202,11 @@ class GameWindow:
         self.handle_number = _window_number
 
         if _window_number == 0:
-            logger.ui("未找到游戏窗口", "error")
+            logger.ui_error("未找到游戏窗口")
             return
+        
         _rect = self.get_top_window_handle()
+        self.update_client_rect()
 
         self.update_game_window_rect(_rect)
         self.window_info_display()

@@ -2,6 +2,9 @@ import random
 import time
 import pyautogui
 import pytweening
+import win32api
+import win32con
+
 
 from .event import event_thread, event_xuanshang
 from .log import logger
@@ -122,6 +125,21 @@ class Mouse:
             logger.error(f"click error at ({_x},{_y})")
             logger.ui_error("安全错误，可能是您点击了屏幕左上角，请重启后使用")
 
+    @classmethod
+    def click_backend(cls,
+        point: AbsolutePoint | RelativePoint | OcrData | None = None,
+        duration: float = 0.5,
+        wait: float = 0,):
+        hwnd = window.handle
+        x, y = point.coor
+
+        # 将 (x, y) 转换为 lParam
+        lParam = y << 16 | x  # 高位是 Y，低位是 X
+
+        # 模拟鼠标按下和释放
+        win32api.SendMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lParam)
+        win32api.SendMessage(hwnd, win32con.WM_LBUTTONUP, 0, lParam)
+    
     @classmethod
     def drag(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
         """拖动，使用前需要先移动鼠标至当前位置

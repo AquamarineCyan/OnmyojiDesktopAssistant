@@ -11,7 +11,7 @@ from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
-from .screenshot import ScreenShot
+from .screenshot import ScreenShot, ScreenShotBackend
 from .window import window
 
 
@@ -110,7 +110,7 @@ class RuleImage:
             event_xuanshang.wait()
         if image is None:
             image = convert_image_rgb_to_bgr(ScreenShot(self.region).get_image())
-        elif isinstance(image, ScreenShot):
+        elif isinstance(image, ScreenShot|ScreenShotBackend):
             image = convert_image_rgb_to_bgr(image.get_image())
         elif isinstance(image, Image):
             image = convert_image_rgb_to_bgr(image)
