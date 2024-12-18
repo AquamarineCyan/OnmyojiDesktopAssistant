@@ -16,6 +16,14 @@ from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
 
 
+class GUIStopException(Exception):
+    """GUI停止按钮"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_error("异常捕获：GUI停止按钮")
+
+
 def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
     assets_file, data = get_asset_data(resource_path)
     if data.get(f"{type}_data") is None:
@@ -46,7 +54,7 @@ def get_asset(dict_, name):
             return item
 
 
-def get_image_asset(asset_image_list, name)-> AssetImage:
+def get_image_asset(asset_image_list, name) -> AssetImage:
     return AssetImage(**get_asset(asset_image_list, name))
 
 
@@ -319,7 +327,7 @@ class Package:
         """
         while True:
             if bool(event_thread):
-                return None
+                raise GUIStopException
             _screenshot = ScreenShot()
             if RuleImage(self.global_image.IMAGE_VICTORY).match(_screenshot):
                 logger.ui("战斗胜利")
@@ -382,7 +390,12 @@ class Package:
         _start = time.perf_counter()
         if self.max:
             logger.num(f"0/{self.max}")
-        self.run()
+
+        try:
+            self.run()
+        except Exception as e:
+            logger.error(e)
+
         _end = time.perf_counter()
         _cost = _end - _start
         try:
