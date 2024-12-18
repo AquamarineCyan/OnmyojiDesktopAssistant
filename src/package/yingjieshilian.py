@@ -1,32 +1,39 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.function import finish_random_left_right, get_asset_data, sleep
+from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import Package, get_asset
+from .utils import Package
 
 
-class GuiBingYanWu(Package):
+class YingJieShiLian(Package):
+    scene_name = "英杰试炼"
+    resource_path = "yingjieshilian"
+
+
+class GuiBingYanWu(YingJieShiLian):
     scene_name = "鬼兵演武"
-    resource_path = "guibingyanwu"
-    description = "适配活动「鬼兵演武」，支持无御魂结算，不支持获得新技能时结算。"
+    resource_list: list = [
+        "exp_title",  # 标题
+        "exp_start",  # 开始
+    ]
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
-        _, data = get_asset_data(self.resource_path)
-        self.activity_name = data.get("activity_name")
         self._flag_timer_check_start: bool = False
         self.flag_soul_overflow: bool = False
         self.state = None
 
+    @staticmethod
+    def description() -> None:
+        logger.ui("支持无御魂结算，不支持获得新技能时结算")
+
     def load_asset(self) -> None:
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
-        # self.IMAGE_RESULT = AssetImage(**get_asset(self.asset_image_list, "result"))
+        self.IMAGE_TITLE = self.get_image_asset("exp_title")
+        self.IMAGE_START = self.get_image_asset("exp_start")
 
     def start(self) -> None:
         """开始"""
@@ -64,7 +71,7 @@ class GuiBingYanWu(Package):
                 break
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "title":
+                case "exp_title":
                     logger.scene(self.scene_name)
                     _flag_title_msg = False
                     self.start()

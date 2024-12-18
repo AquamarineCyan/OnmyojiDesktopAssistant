@@ -573,7 +573,7 @@ class MainWindow(QMainWindow):
             case GameFunction.DOUJI:
                 logger.ui(DouJi.description, "warn")
             case GameFunction.GUIBINGYANWU:
-                logger.ui(GuiBingYanWu.description)
+                GuiBingYanWu.description()
 
     def _app_start(self) -> None:
         # 没有选功能前禁止通过快捷键启动程序
