@@ -169,7 +169,7 @@ class Package:
         return get_image_asset(self.asset_image_list, name)
 
     def title_error_msg(self):
-        logger.ui("请检查游戏场景", "warn")
+        logger.ui_warn("请检查游戏场景")
 
     def scene_handle(self, scene: str = None) -> str:
         if scene is None:

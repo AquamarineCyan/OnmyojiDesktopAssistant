@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.7.2
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -290,6 +290,19 @@ class Ui_MainWindow(object):
         self.spin_qiling_jieqi_stone.setFont(font3)
         self.spin_qiling_jieqi_stone.setMaximum(30)
         self.stackedWidget.addWidget(self._4_qiling)
+        self._5_yuanlaiguang = QWidget()
+        self._5_yuanlaiguang.setObjectName(u"_5_yuanlaiguang")
+        self.button_yuanlaiguang_exp = QRadioButton(self._5_yuanlaiguang)
+        self.buttonGroup_yuanlaiguang = QButtonGroup(MainWindow)
+        self.buttonGroup_yuanlaiguang.setObjectName(u"buttonGroup_yuanlaiguang")
+        self.buttonGroup_yuanlaiguang.addButton(self.button_yuanlaiguang_exp)
+        self.button_yuanlaiguang_exp.setObjectName(u"button_yuanlaiguang_exp")
+        self.button_yuanlaiguang_exp.setGeometry(QRect(30, 30, 98, 19))
+        self.button_yuanlaiguang_skill = QRadioButton(self._5_yuanlaiguang)
+        self.buttonGroup_yuanlaiguang.addButton(self.button_yuanlaiguang_skill)
+        self.button_yuanlaiguang_skill.setObjectName(u"button_yuanlaiguang_skill")
+        self.button_yuanlaiguang_skill.setGeometry(QRect(30, 60, 98, 19))
+        self.stackedWidget.addWidget(self._5_yuanlaiguang)
 
         self.gridLayout_advanced.addWidget(self.stackedWidget, 0, 0, 1, 1)
 
@@ -686,6 +699,8 @@ class Ui_MainWindow(object):
         self.button_qiling_tancha.setText(QCoreApplication.translate("MainWindow", u"\u63a2\u67e5", None))
         self.button_qiling_jieqi.setText(QCoreApplication.translate("MainWindow", u"\u7ed3\u5951", None))
         self.label_qiling_jieqi_stone.setText(QCoreApplication.translate("MainWindow", u"\u9e23\u5951\u77f3", None))
+        self.button_yuanlaiguang_exp.setText(QCoreApplication.translate("MainWindow", u"\u9b3c\u5175\u6f14\u6b66", None))
+        self.button_yuanlaiguang_skill.setText(QCoreApplication.translate("MainWindow", u"\u5175\u85cf\u79d8\u5883", None))
         self.groupBox_basic.setTitle(QCoreApplication.translate("MainWindow", u"\u57fa\u672c\u529f\u80fd", None))
         self.label_function.setText(QCoreApplication.translate("MainWindow", u"\u529f\u80fd", None))
         self.combo_choice.setPlaceholderText(QCoreApplication.translate("MainWindow", u"\u8bf7\u9009\u62e9\u529f\u80fd", None))

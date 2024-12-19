@@ -805,6 +805,40 @@
                </property>
               </widget>
              </widget>
+             <widget class="QWidget" name="_5_yuanlaiguang">
+              <widget class="QRadioButton" name="button_yuanlaiguang_exp">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>30</y>
+                 <width>98</width>
+                 <height>19</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>鬼兵演武</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_yuanlaiguang</string>
+               </attribute>
+              </widget>
+              <widget class="QRadioButton" name="button_yuanlaiguang_skill">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>60</y>
+                 <width>98</width>
+                 <height>19</height>
+                </rect>
+               </property>
+               <property name="text">
+                <string>兵藏秘境</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_yuanlaiguang</string>
+               </attribute>
+              </widget>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -1446,10 +1480,11 @@
  <buttongroups>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_jiejietupo_current_level"/>
-  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
+  <buttongroup name="buttonGroup_jiejietupo_current_level"/>
+  <buttongroup name="buttonGroup_yuanlaiguang"/>
  </buttongroups>
 </ui>

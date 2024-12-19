@@ -61,7 +61,7 @@ class GameFunction(Enum):
     JUEXING = 14  # 觉醒副本
     LIUDAOZHIMEN = 15  # 六道之门速刷
     DOUJI = 16  # 斗技自动上阵
-    GUIBINGYANWU = 17  # 鬼兵演武
+    YUANLAIGUANG = 17  # 源赖光副本
 
 
 class StackedWidgetIndex(Enum):
@@ -72,6 +72,7 @@ class StackedWidgetIndex(Enum):
     JIEJIETUPO = 2
     DAOGUANTUPO = 3
     QILING = 4
+    YUANLAIGUANG = 5
 
 
 class KeyListenerThread(QThread):
@@ -123,7 +124,7 @@ class MainWindow(QMainWindow):
         # 下方需要ocr，目前做可选项
         # "15.六道之门速刷",
         # "16.斗技自动上阵",
-        # "17.鬼兵演武",
+        # "17.源赖光副本",
     ]
 
     def __init__(self):
@@ -138,106 +139,65 @@ class MainWindow(QMainWindow):
 
     def ui_init(self):
         """初始化GUI"""
-        # 初始化控件
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
         self.ui.combo_choice.setEnabled(False)
         self.ui.spin_times.setEnabled(False)
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
-        # 设置界面
-        _setting_QComboBox_dict: dict = {
+        self._init_settings()
+        self._init_signals()
+        self._init_events()
+        self.key_listener = KeyListenerThread()
+        ms.main.key_pressed.connect(self.check_shortcut)
+        self.key_listener.start()
+        self.application_init()
+
+    def _init_settings(self):
+        """初始化设置"""
+        _setting_QComboBox_dict = {
             self.ui.setting_update_comboBox: "update",
             self.ui.setting_update_download_comboBox: "update_download",
             self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
             self.ui.setting_window_style_comboBox: "window_style",
             self.ui.setting_shortcut_start_stop_comboBox: "shortcut_start_stop",
         }
-        key: QComboBox
         for key, value in _setting_QComboBox_dict.items():
             key.addItems(config.default.model_dump()[value])
             key.setCurrentText(config.user.model_dump().get(value))
         _status = config.user.model_dump().get("remember_last_choice")
-        logger.info(f"_status{_status}")
-        _flag_check = _status != -1
-        self.ui.setting_remember_last_choice_button.setChecked(_flag_check)
-
+        self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
         _restart_msg = "重启生效"
         self.ui.setting_update_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
         self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
-        # 自定义信号
-        # 弹窗更新
+    def _init_signals(self):
+        """初始化信号"""
         ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
-        # 更新文本
         ms.main.ui_text_info_update.connect(self.ui_text_info_update_func)
-        # 运行状态更新
         ms.main.is_fighting_update.connect(self.is_fighting)
-        # 完成次数更新
-        ms.main.ui_text_completion_times_update.connect(
-            self.ui_text_completion_times_update_func
-        )
-        # 退出程序
+        ms.main.ui_text_completion_times_update.connect(self.ui_text_completion_times_update_func)
         ms.main.sys_exit.connect(self.exit_func)
-        # 显示更新窗口
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
-        # 事件连接
-        # 游戏检测按钮
+    def _init_events(self):
+        """初始化事件"""
         self.ui.button_game_handle.clicked.connect(self.check_game_handle)
-        # 开始按钮
         self.ui.button_start.clicked.connect(self.app_running)
-        # 功能选择事件
         self.ui.combo_choice.currentIndexChanged.connect(self.game_function_description)
-        # 重启
         self.ui.button_restart.clicked.connect(self.app_restart_func)
-        # 更新记录事件
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
-        # 项目主页按钮
         self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
-        # 帮助文档按钮
         self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
-
-        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(
-            self.buttonGroup_yuhun_mode_change
-        )
-        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(
-            self.buttonGroup_jiejietupo_switch_change
-        )
-
-        # 设置项
-        # 更新模式
-        self.ui.setting_update_comboBox.currentIndexChanged.connect(
-            self.setting_update_comboBox_func
-        )
-        # 下载线路
-        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
-            self.setting_update_download_comboBox_func
-        )
-        # 悬赏封印
-        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
-            self.setting_xuanshangfengyin_comboBox_func
-        )
-        # 界面风格
-        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(
-            self.setting_window_style_comboBox_func
-        )
-        # 快捷键-开始/停止
-        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(
-            self.setting_shortcut_start_stop_comboBox_func
-        )
-        # 记忆上次所选功能
-        self.ui.setting_remember_last_choice_button.clicked.connect(
-            self.setting_remember_last_choice_func
-        )
-
-        # 监听键盘输入
-        self.key_listener = KeyListenerThread()
-        ms.main.key_pressed.connect(self.check_shortcut)
-        self.key_listener.start()
-
-        # 程序开启运行
-        self.application_init()
+        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
+        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
+        self.ui.buttonGroup_yuanlaiguang.buttonClicked.connect(self.buttonGroup_yuanlaiguang_change)
+        self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_func)
+        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(self.setting_update_download_comboBox_func)
+        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(self.setting_xuanshangfengyin_comboBox_func)
+        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(self.setting_window_style_comboBox_func)
+        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(self.setting_shortcut_start_stop_comboBox_func)
+        self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_func)
 
     def check_shortcut(self, key):
         try:
@@ -280,10 +240,8 @@ class MainWindow(QMainWindow):
         if check_ocr_folder():
             logger.info("文字识别资源检查通过")
         else:
-            logger.ui_warn(
-                "未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载"
-            )
-            config.update("update_download", "ghproxy")
+            logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")
+            config.update("update_download", "mirror")
         Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
@@ -299,7 +257,7 @@ class MainWindow(QMainWindow):
         if event_ocr_init.is_set():
             self.ui.combo_choice.addItem("15.六道之门速刷")
             self.ui.combo_choice.addItem("16.斗技自动上阵")
-            self.ui.combo_choice.addItem("17.鬼兵演武")
+            self.ui.combo_choice.addItem("17.源赖光副本")
         logger.info(global_scheduler.get_jobs())
         global_scheduler.start()
 
@@ -364,9 +322,7 @@ class MainWindow(QMainWindow):
         """
         self.ui.text_completion_times.setText(msg)
 
-    def ui_spin_times_set_value_func(
-        self, current: int = 1, min: int = 0, max: int = 99
-    ):
+    def ui_spin_times_set_value_func(self, current: int = 1, min: int = 0, max: int = 99):
         widget = self.ui.spin_times
         widget.setValue(current)
         widget.setMinimum(min)
@@ -402,24 +358,25 @@ class MainWindow(QMainWindow):
         logger.info("开始检查资源")
         if not Path(RESOURCE_DIR_PATH).exists():
             return False
+        
         _package_resource_list = get_package_resource_list()
         for P in _package_resource_list:
             # 检查子文件夹
             if not Path(RESOURCE_DIR_PATH / P.resource_path).exists():
-                logger.ui("资源文件夹不存在！", "error")
-                ms.main.qmessagbox_update.emit("ERROR", "资源文件夹不存在！")
+                _msg = "资源文件夹不存在！"
+                logger.ui_error(_msg)
+                ms.main.qmessagbox_update.emit("ERROR", _msg)
                 return False
-            else:
-                # 检查资源文件
-                for item in P.resource_list:
-                    if not Path(
-                        RESOURCE_DIR_PATH / P.resource_path / f"{item}.png"
-                    ).exists():
-                        logger.ui(f"未找到资源：{P.resource_path}/{item}.png", "error")
-                        ms.main.qmessagbox_update.emit(
-                            "ERROR", f"无{P.resource_path}/{item}.png资源文件"
-                        )
-                        return False
+            
+            # 检查资源文件
+            for item in P.resource_list:
+                file = Path(RESOURCE_DIR_PATH / P.resource_path / f"{item}.png")
+                if not file.exists():
+                    _msg = f"资源文件丢失：\n{file}"
+                    logger.ui_error(_msg)
+                    ms.main.qmessagbox_update.emit("ERROR", _msg)
+                    return False
+                
         logger.info("资源完整")
         return True
 
@@ -473,9 +430,7 @@ class MainWindow(QMainWindow):
 
     def game_function_description(self):
         """功能描述"""
-        self.game_function_choice = GameFunction(
-            self.ui.combo_choice.currentIndex() + 1
-        )
+        self.game_function_choice = GameFunction(self.ui.combo_choice.currentIndex() + 1)
         if config.user.remember_last_choice != -1:
             config.update("remember_last_choice", self.game_function_choice.value)
         self.ui.button_start.setEnabled(True)
@@ -494,6 +449,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setEnabled(True)
                 self.ui.button_passengers_3.setEnabled(True)
                 self.ui.button_passengers_2.setChecked(True)
+
             case GameFunction.YONGSHENGZHIHAI:
                 logger.ui(YongShengZhiHai.description)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
@@ -506,16 +462,17 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setChecked(True)
                 self.ui.button_passengers_2.setEnabled(False)
                 self.ui.button_passengers_3.setEnabled(False)
+            
             case GameFunction.YEYUANHUO:
                 logger.ui(YeYuanHuo.description)
+            
             case GameFunction.YULING:
                 logger.ui(YuLing.description)
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
+            
             case GameFunction.GERENTUPO:
                 logger.ui(JieJieTuPoGeRen.description)
-                self.ui.stackedWidget.setCurrentIndex(
-                    StackedWidgetIndex.JIEJIETUPO.value
-                )
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
                 self.ui.button_jiejietupo_switch_rule.setChecked(True)
                 self.ui.button_jiejietupo_current_level_60.setChecked(True)
                 self.ui.button_jiejietupo_target_level_60.setChecked(True)
@@ -525,6 +482,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_jiejietupo_refresh_rule_9.hide()
                 self.buttonGroup_jiejietupo_switch_change()
                 self.ui_spin_times_set_value_func(1, 1, 30)
+            
             case GameFunction.LIAOTUPO:
                 now = time.strftime("%H:%M:%S")
                 if now >= "21:00:00":
@@ -536,18 +494,21 @@ class MainWindow(QMainWindow):
                     logger.ui("默认6次，可在每日21时后无限挑战")
                     _current = 6
                 self.ui_spin_times_set_value_func(_current, 1, 200)
+            
             case GameFunction.DAOGUANTUPO:
                 logger.ui(DaoGuanTuPo.description)
-                self.ui.stackedWidget.setCurrentIndex(
-                    StackedWidgetIndex.DAOGUANTUPO.value
-                )
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
                 self.ui.spin_times.setEnabled(False)
+            
             case GameFunction.ZHAOHUAN:
                 logger.ui(ZhaoHuan.description)
+            
             case GameFunction.BAIGUIYEXING:
                 logger.ui(BaiGuiYeXing.description)
+            
             case GameFunction.HUODONG:
                 HuoDong().show_description()
+            
             case GameFunction.RILUN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(50)
@@ -558,22 +519,30 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setEnabled(True)
                 self.ui.button_passengers_3.setEnabled(True)
                 self.ui.button_passengers_2.setChecked(True)
+            
             case GameFunction.TANSUO:
                 logger.ui(TanSuo.description)
+            
             case GameFunction.QILING:
                 logger.ui(QiLing.description)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
+            
             case GameFunction.JUEXING:
                 logger.ui(JueXing.description)
+            
             case GameFunction.LIUDAOZHIMEN:
                 logger.ui(LiuDaoZhiMen.description, "warn")
+            
             case GameFunction.DOUJI:
                 logger.ui(DouJi.description, "warn")
-            case GameFunction.GUIBINGYANWU:
-                GuiBingYanWu.description()
+            
+            case GameFunction.YUANLAIGUANG:
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUANLAIGUANG.value)
+                self.ui.button_yuanlaiguang_skill.setChecked(True)
+                self.buttonGroup_yuanlaiguang_change()
 
     def _app_start(self) -> None:
         # 没有选功能前禁止通过快捷键启动程序
@@ -589,12 +558,8 @@ class MainWindow(QMainWindow):
         match self.game_function_choice:
             case GameFunction.YUHUN:
                 if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
-                    flag_driver = (
-                        self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                    )
-                    flag_passengers = int(
-                        self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
-                    )
+                    flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
+                    flag_passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
                     YuHunTeam(
                         n=n,
                         flag_driver=flag_driver,
@@ -602,65 +567,62 @@ class MainWindow(QMainWindow):
                         flag_drop_statistics=flag_drop_statistics,
                     ).task_start()
                 else:
-                    YuHunSingle(
-                        n=n, flag_drop_statistics=flag_drop_statistics
-                    ).task_start()
+                    YuHunSingle(n=n, flag_drop_statistics=flag_drop_statistics).task_start()
+
             case GameFunction.YONGSHENGZHIHAI:
                 if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
-                    flag_driver = (
-                        self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                    )
+                    flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
                     YongShengZhiHaiTeam(
                         n=n,
                         flag_driver=flag_driver,
                         flag_drop_statistics=flag_drop_statistics,
                     ).task_start()
+
             case GameFunction.YEYUANHUO:
                 YeYuanHuo(n=n).task_start()
+
             case GameFunction.YULING:
                 YuLing(n=n).task_start()
+
             case GameFunction.GERENTUPO:
                 flag_refresh_need = 0
                 current_level = target_level = 60
-                if (
-                    self.ui.buttonGroup_jiejietupo_switch.checkedButton().text()
-                    == "卡级"
-                ):
+                if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
                     current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
                     target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
                 else:
-                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[
-                        0
-                    ]
+                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
                 JieJieTuPoGeRen(
                     n=n,
                     flag_refresh_rule=flag_refresh_need,
                     flag_current_level=current_level,
                     flag_target_level=target_level,
                 ).task_start()
+
             case GameFunction.LIAOTUPO:
                 JieJieTuPoYinYangLiao(n=n).task_start()
+            
             case GameFunction.DAOGUANTUPO:
                 flag_guanzhan = self.ui.button_guanzhan.isChecked()
                 DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
+            
             case GameFunction.ZHAOHUAN:
                 ZhaoHuan(n=n).task_start()
+            
             case GameFunction.BAIGUIYEXING:
                 BaiGuiYeXing(n=n).task_start()
+            
             case GameFunction.HUODONG:
                 HuoDong(n=n).task_start()
+            
             case GameFunction.RILUN:
-                flag_driver = (
-                    self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                )
-                flag_passengers = int(
-                    self.ui.buttonGroup_yuhun_passengers.checkedButton().text()
-                )
-                RiLun(
-                    n=n, flag_driver=flag_driver, flag_passengers=flag_passengers
-                ).task_start()
+                flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
+                flag_passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
+                RiLun(n=n, flag_driver=flag_driver, flag_passengers=flag_passengers).task_start()
+            
             case GameFunction.TANSUO:
                 TanSuo(n=n).task_start()
+
             case GameFunction.QILING:
                 flag_tancha = self.ui.button_qiling_tancha.isChecked()
                 flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
@@ -673,14 +635,21 @@ class MainWindow(QMainWindow):
                     _stone_pokemon=stone_pokemon,
                     _stone_numbers=stone_numbers,
                 ).task_start()
+
             case GameFunction.JUEXING:
                 JueXing(n=n).task_start()
+            
             case GameFunction.LIUDAOZHIMEN:
                 LiuDaoZhiMen(n=n).task_start()
+            
             case GameFunction.DOUJI:
                 DouJi(n=n).task_start()
-            case GameFunction.GUIBINGYANWU:
-                GuiBingYanWu(n=n).task_start()
+            
+            case GameFunction.YUANLAIGUANG:
+                if self.ui.buttonGroup_yuanlaiguang.checkedButton().text() == "兵藏秘境":
+                    BingZangMiJing(n=n).task_start()
+                else:
+                    GuiBingYanWu(n=n).task_start()
 
     def _app_stop(self) -> None:
         event_thread.set()
@@ -730,6 +699,15 @@ class MainWindow(QMainWindow):
         for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
             widget.setEnabled(not flag)
 
+    def buttonGroup_yuanlaiguang_change(self):
+        flag = self.ui.buttonGroup_yuanlaiguang.checkedButton().text() == "兵藏秘境"
+        if flag:
+            self.ui_spin_times_set_value_func(50)
+            BingZangMiJing.description()
+        else:
+            self.ui_spin_times_set_value_func(1)
+            GuiBingYanWu.description()
+
     def app_restart_func(self):
         Restart().app_restart()
 
@@ -774,9 +752,7 @@ class UpdateRecordWindow(QWidget):
         self.setWindowIcon(get_global_icon())
         # 关联事件
         ms.update_record.text_update.connect(self.textBrowser_update_func)
-        ms.update_record.text_markdown_update.connect(
-            self.textBrowser_markdown_update_func
-        )
+        ms.update_record.text_markdown_update.connect(self.textBrowser_markdown_update_func)
         # 初始化
         update_record()
 
@@ -805,15 +781,9 @@ class UpgradeNewVersionWindow(QWidget):
         button_download = QPushButton("仅下载", self)
         button_cancel = QPushButton("忽略本次", self)
 
-        self.ui.buttonBox.addButton(
-            button_update, QDialogButtonBox.ButtonRole.AcceptRole
-        )
-        self.ui.buttonBox.addButton(
-            button_download, QDialogButtonBox.ButtonRole.AcceptRole
-        )
-        self.ui.buttonBox.addButton(
-            button_cancel, QDialogButtonBox.ButtonRole.RejectRole
-        )
+        self.ui.buttonBox.addButton(button_update, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.ui.buttonBox.addButton(button_download, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.ui.buttonBox.addButton(button_cancel, QDialogButtonBox.ButtonRole.RejectRole)
         self.ui.progressBar.hide()
 
         button_update.clicked.connect(self.button_update_clicked_func)
@@ -824,9 +794,7 @@ class UpgradeNewVersionWindow(QWidget):
         ms.upgrade_new_version.progressBar_update.connect(self.progressBar_update_func)
         ms.upgrade_new_version.close_ui.connect(self.close)
 
-        ms.upgrade_new_version.text_update.emit(
-            f"v{upgrade.new_version}\n{upgrade.new_version_info}"
-        )
+        ms.upgrade_new_version.text_update.emit(f"v{upgrade.new_version}\n{upgrade.new_version_info}")
 
     def textBrowser_update_func(self, msg: str) -> None:
         """输出内容至文本框
@@ -846,9 +814,7 @@ class UpgradeNewVersionWindow(QWidget):
         """
         cursor = self.ui.textBrowser.textCursor()
         cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
-        cursor.movePosition(
-            QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor
-        )
+        cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
         cursor.removeSelectedText()
         cursor.insertText(msg)
 

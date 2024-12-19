@@ -5,12 +5,31 @@ from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import Package
+from .utils import GUIStopException, Package
 
 
 class YingJieShiLian(Package):
-    scene_name = "英杰试炼"
+    main_name = "英杰试炼"
     resource_path = "yingjieshilian"
+
+    def __init__(self, n: int = 0) -> None:
+        super().__init__(n)
+        self.main_IMAGE_TITLE = self.get_image_asset("main_title")
+        self.main_IMAGE_GOTO_EXP = self.get_image_asset("main_goto_exp")
+        self.main_IMAGE_GOTO_SKILL = self.get_image_asset("main_goto_skill")
+
+    @log_function_call
+    def goto_scene(self):
+        """跳转对应场景"""
+        if not RuleImage(self.main_IMAGE_TITLE).match():
+            return
+
+        logger.scene(self.main_name)
+        if isinstance(self, GuiBingYanWu):
+            self.check_click(self.main_IMAGE_GOTO_EXP, timeout=3)
+
+        if isinstance(self, BingZangMiJing):
+            self.check_click(self.main_IMAGE_GOTO_SKILL, timeout=3)
 
 
 class GuiBingYanWu(YingJieShiLian):
@@ -134,5 +153,69 @@ class GuiBingYanWu(YingJieShiLian):
                     Mouse.click(result.center_point())
                 case _:
                     if _flag_title_msg:
-                        logger.ui_warn("请检查游戏场景")
+                        self.title_error_msg()
                         _flag_title_msg = False
+
+
+class BingZangMiJing(YingJieShiLian):
+    scene_name = "兵藏秘境"
+
+    def __init__(self, n=0):
+        super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("支持自动选择结算BUFF")
+
+    def load_asset(self):
+        self.IMAGE_TITLE = self.get_image_asset("skill_title")
+        self.IMAGE_START = self.get_image_asset("skill_start")
+        self.IMAGE_FIRST_REMAIN = self.get_image_asset("skill_first_remain")
+        self.IMAGE_CHOOSE_BUFF = self.get_image_asset("skill_choose_buff")
+        self.IMAGE_CHOOSE_BUFF_ENSURE = self.get_image_asset("skill_choose_buff_ensure")
+
+    def check_main_scene(self):
+        _msg: bool = False
+        while True:
+            if bool(event_thread):
+                raise GUIStopException
+
+            if result := RuleImage(self.IMAGE_TITLE).match():
+                logger.scene(self.scene_name)
+                break
+
+            sleep()
+            if not _msg:
+                self.title_error_msg()
+                _msg = True
+
+    def fight(self):
+        self.check_click(self.IMAGE_START, timeout=3)
+
+        # 跳过提醒
+        sleep()
+        if result := RuleImage(self.IMAGE_FIRST_REMAIN).match():
+            Mouse.click(result.center_point())  # 满技能提醒
+            sleep()
+            Mouse.click()  # 不可更换提醒
+
+        result = self.check_result()
+        finish_random_left_right()
+
+        if result:
+            if self.check_click(self.IMAGE_CHOOSE_BUFF, timeout=3):
+                # 随便哪个buff都可以
+                logger.info("选择buff")
+                self.check_click(self.IMAGE_CHOOSE_BUFF_ENSURE, timeout=3)
+            self.done()
+
+    def run(self):
+        self.goto_scene()
+        sleep(3)
+        self.check_main_scene()
+
+        while self.n < self.max:
+            if bool(event_thread):
+                raise GUIStopException
+            sleep(2)
+            self.fight()
