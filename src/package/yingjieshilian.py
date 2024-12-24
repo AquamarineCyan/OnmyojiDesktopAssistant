@@ -1,11 +1,12 @@
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import GUIStopException, Package
+from .utils import Package
 
 
 class YingJieShiLian(Package):
@@ -25,11 +26,11 @@ class YingJieShiLian(Package):
             return
 
         logger.scene(self.main_name)
-        if isinstance(self, GuiBingYanWu):
-            self.check_click(self.main_IMAGE_GOTO_EXP, timeout=3)
+        if isinstance(self, GuiBingYanWu) and self.check_click(self.main_IMAGE_GOTO_EXP, timeout=3):
+            logger.ui(f"正在进入[{self.scene_name}]")
 
-        if isinstance(self, BingZangMiJing):
-            self.check_click(self.main_IMAGE_GOTO_SKILL, timeout=3)
+        if isinstance(self, BingZangMiJing) and self.check_click(self.main_IMAGE_GOTO_SKILL, timeout=3):
+            logger.ui(f"正在进入[{self.scene_name}]")
 
 
 class GuiBingYanWu(YingJieShiLian):
@@ -76,6 +77,9 @@ class GuiBingYanWu(YingJieShiLian):
         _flag_title_msg: bool = True
         self.log_current_asset_list()
         _count: int = 0  # 结算计数器，防止没御魂
+
+        self.goto_scene()
+        sleep(3)
 
         while self.n < self.max:
             if bool(event_thread):
@@ -171,6 +175,7 @@ class BingZangMiJing(YingJieShiLian):
         self.IMAGE_TITLE = self.get_image_asset("skill_title")
         self.IMAGE_START = self.get_image_asset("skill_start")
         self.IMAGE_FIRST_REMAIN = self.get_image_asset("skill_first_remain")
+        self.IMAGE_CHOOSE_ATTR = self.get_image_asset("skill_choose_attribute")
         self.IMAGE_CHOOSE_BUFF = self.get_image_asset("skill_choose_buff")
         self.IMAGE_CHOOSE_BUFF_ENSURE = self.get_image_asset("skill_choose_buff_ensure")
 
@@ -180,7 +185,7 @@ class BingZangMiJing(YingJieShiLian):
             if bool(event_thread):
                 raise GUIStopException
 
-            if result := RuleImage(self.IMAGE_TITLE).match():
+            if RuleImage(self.IMAGE_TITLE).match():
                 logger.scene(self.scene_name)
                 break
 
@@ -194,10 +199,17 @@ class BingZangMiJing(YingJieShiLian):
 
         # 跳过提醒
         sleep()
-        if result := RuleImage(self.IMAGE_FIRST_REMAIN).match():
+        result = RuleImage(self.IMAGE_FIRST_REMAIN)
+        if result.match():
             Mouse.click(result.center_point())  # 满技能提醒
             sleep()
             Mouse.click()  # 不可更换提醒
+
+        sleep(5)
+        # 检测能否进入战斗
+        if RuleImage(self.IMAGE_START).match():
+            logger.info("次数不足，无法进入战斗")
+            raise TimesNotEnoughException
 
         result = self.check_result()
         finish_random_left_right()
@@ -205,7 +217,10 @@ class BingZangMiJing(YingJieShiLian):
         if result:
             if self.check_click(self.IMAGE_CHOOSE_BUFF, timeout=3):
                 # 随便哪个buff都可以
-                logger.info("选择buff")
+                logger.ui("选择buff")
+                self.check_click(self.IMAGE_CHOOSE_BUFF_ENSURE, timeout=3)
+            elif self.check_click(self.IMAGE_CHOOSE_ATTR, timeout=3):
+                logger.ui("选择属性")
                 self.check_click(self.IMAGE_CHOOSE_BUFF_ENSURE, timeout=3)
             self.done()
 
@@ -217,5 +232,5 @@ class BingZangMiJing(YingJieShiLian):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            sleep(2)
+            sleep(3)
             self.fight()

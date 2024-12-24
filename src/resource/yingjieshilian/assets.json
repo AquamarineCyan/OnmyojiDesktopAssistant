@@ -32,6 +32,12 @@
             "score": "0.8"
         },
         {
+            "name": "skill_choose_attribute",
+            "file": "skill_choose_attribute.png",
+            "region": [0, 0, 1154, 687],
+            "score": "0.8"
+        },
+        {
             "name": "skill_choose_buff",
             "file": "skill_choose_buff.png",
             "region": [0, 0, 1154, 687],
