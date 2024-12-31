@@ -1,8 +1,10 @@
 apscheduler
 httpx>=0.23.0
+numpy>=2.0.0
 opencv-python
 PyAutoGUI
 pydantic>=2.1.0
+pynput
 PySide6>=6.5.1
 pywin32
 PyYAML
