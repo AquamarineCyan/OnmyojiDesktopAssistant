@@ -113,9 +113,7 @@ class Upgrade(Connect):
         return f"{self.mirror_station}{self.browser_download_url}"
 
     def _check_local_file(self, file: str, size: int) -> bool:
-        if os.path.exists(file) and os.stat(file).st_size == size:
-            return True
-        return False
+        return bool(os.path.exists(file) and os.stat(file).st_size == size)
 
     def _check_download_zip(self):
         if self._check_local_file(self.file, self.file_size):
@@ -127,6 +125,15 @@ class Upgrade(Connect):
             self.browser_download_url,
             self.get_mirror_station_url(),
         ]
+
+        station_default_list = [
+            self.mirror_station,
+            "https://github.com",
+        ]
+        for url in station_default_list:
+            r = httpx.get(url, headers=self.headers)
+            delay_ms = round(r.elapsed.total_seconds() * 1000, 2)
+            logger.ui(f"站点：{url}\n延迟: {delay_ms} 毫秒")
 
         if config.user.update_download == _update_download_list[0]:  # mirror
             _download_url_user_list = list_change_first(_download_url_default_list, 1)
