@@ -1,5 +1,4 @@
 import sys
-import time
 from contextlib import suppress
 from enum import Enum
 from pathlib import Path
@@ -8,7 +7,6 @@ from pynput import keyboard
 from PySide6.QtCore import QThread
 from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import (
-    QComboBox,
     QDialogButtonBox,
     QMainWindow,
     QMessageBox,
@@ -484,16 +482,8 @@ class MainWindow(QMainWindow):
                 self.ui_spin_times_set_value_func(1, 1, 30)
             
             case GameFunction.LIAOTUPO:
-                now = time.strftime("%H:%M:%S")
-                if now >= "21:00:00":
-                    logger.ui("CD无限", "warn")
-                    logger.ui("请尽情挑战，桌面版单账号上限100次")
-                    _current = 100
-                else:
-                    logger.ui("CD 6次", "warn")
-                    logger.ui("默认6次，可在每日21时后无限挑战")
-                    _current = 6
-                self.ui_spin_times_set_value_func(_current, 1, 200)
+                times = JieJieTuPoYinYangLiao.description()
+                self.ui_spin_times_set_value_func(times, 1, 200)
             
             case GameFunction.DAOGUANTUPO:
                 logger.ui(DaoGuanTuPo.description)

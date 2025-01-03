@@ -1,5 +1,7 @@
 import contextlib
+import time
 from enum import Enum
+from typing import Literal
 
 from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
@@ -468,6 +470,16 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self.process: float = 0  # 突破进度
+
+    @staticmethod
+    def description() -> Literal[100, 6]:
+        now = time.strftime("%H:%M:%S")
+        if now >= "21:00:00" or now < "05:00:00":
+            logger.ui_warn("CD无限，桌面版单账号上限100次")
+            return 100
+        else:
+            logger.ui_warn("CD 6次，可在每日21时后无限挑战")
+            return 6
 
     def jibaicishu(self) -> bool:
         """剩余次数判断"""
