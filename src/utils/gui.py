@@ -438,7 +438,7 @@ class MainWindow(QMainWindow):
 
         match self.game_function_choice:
             case GameFunction.YUHUN:
-                logger.ui(YuHun.description)
+                YuHun.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui.button_mode_team.setEnabled(True)
                 self.ui.button_mode_single.setEnabled(True)
@@ -581,12 +581,13 @@ class MainWindow(QMainWindow):
                     current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
                     target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
                 else:
+                    # 3胜
                     flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
                 JieJieTuPoGeRen(
                     n=n,
-                    flag_refresh_rule=flag_refresh_need,
-                    flag_current_level=current_level,
-                    flag_target_level=target_level,
+                    flag_refresh_rule=int(flag_refresh_need),
+                    flag_current_level=int(current_level),
+                    flag_target_level=int(target_level),
                 ).task_start()
 
             case GameFunction.LIAOTUPO:

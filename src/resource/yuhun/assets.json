@@ -2,18 +2,6 @@
     "current_path": "yuhun",
     "image_data": [
         {
-            "name": "fighting_linshuanghanxue",
-            "file": "fighting_linshuanghanxue.png",
-            "region": [0, 0, 1154, 687],
-            "score": "0.8"
-        },
-        {
-            "name": "fighting_shenfa",
-            "file": "fighting_shenfa.png",
-            "region": [0, 0, 1154, 687],
-            "score": "0.8"    
-        },
-        {
             "name": "finish_2000",
             "file": "finish_2000.png",
             "region": [0, 0, 1154, 687],
@@ -22,12 +10,6 @@
         {
             "name": "finish_damage_2000",
             "file": "finish_damage_2000.png",
-            "region": [0, 0, 1154, 687],
-            "score": "0.8"
-        },
-        {
-            "name": "finish_damage_shenfa",
-            "file": "finish_damage_shenfa.png",
             "region": [0, 0, 1154, 687],
             "score": "0.8"
         },
@@ -54,6 +36,15 @@
             "file": "title_12.png",
             "region": [0, 0, 1154, 687],
             "score": "0.8"
+        }
+    ],
+    "ocr_data": [
+        {
+            "name": "auto_fight",
+            "keyword": "自动",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
         }
     ]
 }

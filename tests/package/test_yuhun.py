@@ -7,14 +7,9 @@ class YuHun(Package):
         "title_10",
         "title_11",
         "title_12",
-        "xiezhanduiwu",
-        "start_team",
-        "start_single",
-        "fighting_linshuanghanxue",
-        "fighting_shenfa",
+        "finish_2000",
         "finish_damage",
         "finish_damage_2000",
-        "finish_damage_shenfa",
     ]
 
 
