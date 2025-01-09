@@ -19,7 +19,7 @@ class LiuDaoZhiMen(Package):
         "fight",  # 挑战
         "fight_ready_quit",  # 退出
         "fight_ready_refresh",  # 技能装备-刷新
-        "fight_ready_resetting",  # 技能装备-重置
+        "fight_ready_reset",  # 技能装备-重置
         "imitation",  # 仿造
         "open",  # 开启宝箱
         "shop_refresh",  # 商店刷新
@@ -50,9 +50,7 @@ class LiuDaoZhiMen(Package):
             ocr_data = OcrData(item)
             if ocr_data.score < 0.8:
                 continue
-            if (isinstance(text, str) and ocr_data.text == text) or (
-                isinstance(text, list) and ocr_data.text in text
-            ):
+            if (isinstance(text, str) and ocr_data.text == text) or (isinstance(text, list) and ocr_data.text in text):
                 logger.scene(ocr_data.text)
             return ocr_data
         return None
@@ -65,17 +63,6 @@ class LiuDaoZhiMen(Package):
                 # click(RelativePoint(ocr_data.x1, ocr_data.y1).rela_to_abs())
                 return ocr_data
         return None
-
-    def check_result_while(self, text, timeout):
-        while True:
-            if event_thread.is_set():
-                break
-            result = ocr.get_raw_result()
-            for item in result:
-                ocr_data = OcrData(item)
-                if ocr_data.score > 0.8 and ocr_data.text == text:
-                    # click(RelativePoint(ocr_data.x1, ocr_data.y1).rela_to_abs())
-                    return ocr_data
 
     def check_result_mult(self, list):
         # TODO 概率返回"月""之海"，需要结合上下文判断
@@ -94,9 +81,7 @@ class LiuDaoZhiMen(Package):
             while True:
                 if event_thread.is_set():
                     return
-                data = self.check_result_mult(
-                    ["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"]
-                )
+                data = self.check_result_mult(["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"])
                 if data is None:
                     continue
                 if data.text == "月之海":
@@ -214,7 +199,7 @@ class LiuDaoZhiMen(Package):
                     Mouse.click(RelativePoint(560, 315))
                     self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
-            elif ocr_data.text in ["战之屿", "噻战之屿", "鹰战之屿", "鑫战之屿"]:
+            elif "战之屿" in ocr_data.text:
                 logger.scene("鏖战之屿")
                 _coor = RelativePoint(650, 300)  # 右侧怪 - 技能BUFF
                 Mouse.click(_coor)
