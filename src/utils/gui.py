@@ -240,7 +240,6 @@ class MainWindow(QMainWindow):
         else:
             logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")
             config.update("update_download", "mirror")
-        Restart().move_screenshot()
         upgrade.check_latest()
         get_update_info()
         global_scheduler.add_job(

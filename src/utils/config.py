@@ -75,11 +75,6 @@ class Config:
 
     def config_yaml_init(self) -> None:
         """初始化"""
-        # 移动旧版文件
-        if (APP_PATH / "config.yaml").is_file():
-            logger.info("Find old config file. Move it.")
-            (APP_PATH / "config.yaml").rename(self.config_path)
-
         if self.config_path.is_file():
             logger.info("Find config file.")
             data = self._check_outdated(self._read())
