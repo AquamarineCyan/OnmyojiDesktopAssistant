@@ -24,8 +24,5 @@ runs:
       run: poetry run pip install -U pyperclip
       shell: bash
 
-    - run: poetry lock --no-update
-      shell: bash
-
     - run: poetry install
       shell: bash
