@@ -52,7 +52,7 @@ class Connect:
         "https://ghfast.top/",
         "https://github.moeyy.xyz/",
         "https://ghps.cc/",
-        "https://gh.ddlc.top/",
+        "https://gh-proxy.com/",
         "https://ghproxy.net/",
     ]
     helpdoc = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"

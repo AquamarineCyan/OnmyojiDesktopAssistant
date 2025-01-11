@@ -17,7 +17,7 @@ def test_mirror_url():
         "https://ghfast.top/",
         "https://github.moeyy.xyz/",
         "https://ghps.cc/",
-        "https://gh.ddlc.top/",
+        "https://gh-proxy.com/",
         "https://ghproxy.net/",
     ]:
         r = httpx.get(url, headers=headers)
