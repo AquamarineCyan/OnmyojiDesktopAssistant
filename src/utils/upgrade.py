@@ -68,13 +68,13 @@ class Upgrade(Connect):
         返回:
             StatusCode: 状态码
         """
-        _api_url = self.github_api
+        _api_url = self.releases_latest_api
         logger.info(f"api_url: {_api_url}")
 
         try:
-            response = httpx.get(_api_url, headers=self.headers)
+            response = httpx.get(_api_url, headers=self.headers, follow_redirects=True)
             logger.info(f"api.status_code: {response.status_code}")
-            if response.status_code != 200:
+            if response.status_code == 404:
                 return StatusCode.CONNECT_ERROR
         except Exception as e:
             logger.ui_warn(f"获取更新信息失败: {e}")
@@ -121,28 +121,35 @@ class Upgrade(Connect):
             return True
 
         logger.ui("即将开始下载新版本更新包")
-        _download_url_default_list = [
-            self.browser_download_url,
-            self.get_mirror_station_url(),
-        ]
 
-        station_default_list = [
-            self.mirror_station,
-            "https://github.com",
-        ]
-        for url in station_default_list:
-            r = httpx.get(url, headers=self.headers)
-            delay_ms = round(r.elapsed.total_seconds() * 1000, 2)
-            logger.ui(f"站点：{url}\n延迟: {delay_ms} 毫秒")
+        # 检测各镜像站点延迟
+        delay_dict = {}
+        for url in self.mirror_station:
+            try:
+                r = httpx.get(url, headers=self.headers)
+                delay_ms = round(r.elapsed.total_seconds() * 1000, 2)
+                delay_dict[url] = delay_ms
+                logger.ui(f"站点：{url}\n延迟: {delay_ms} 毫秒")
+            except Exception as e:
+                logger.ui_warn(f"访问站点 {url} 失败: {e}")
+                delay_dict[url] = float("inf")
+        sorted_urls = sorted(delay_dict, key=delay_dict.get)
 
+        # 补全下载链接
+        sorted_download_urls = []
+        sorted_download_urls.extend(f"{url}{self.browser_download_url}" for url in sorted_urls)
+
+        download_url_list = []
         if config.user.update_download == _update_download_list[0]:  # mirror
-            _download_url_user_list = list_change_first(_download_url_default_list, 1)
+            download_url_list.extend(sorted_download_urls)
+            download_url_list.append(self.browser_download_url)
         else:
-            _download_url_user_list = _download_url_default_list
-        logger.info(f"_download_url_user_list:{_download_url_default_list}")
+            download_url_list.append(self.browser_download_url)
+            download_url_list.extend(sorted_download_urls)
+        logger.info(f"download_url_list:{download_url_list}")
 
         _result = False
-        for download_url in _download_url_user_list:
+        for download_url in download_url_list:
             logger.ui(f"下载链接:\n{download_url}")
             if self.download_upgrade_zip(download_url):
                 _result = True
