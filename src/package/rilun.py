@@ -92,10 +92,7 @@ class RiLun(Package):
                 case "xiezhanduiwu":
                     logger.ui("组队界面准备中")
                     if self.flag_driver:
-                        self.is_passengers_on_position(self.flag_passengers)
-                        self.check_click(
-                            self.global_image.IMAGE_START_TEAM, duration=0.25
-                        )
+                        self.wait_passengers_on_position(self.flag_passengers)
                     sleep()
                     msg_title = False
                 case "fighting":

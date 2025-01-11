@@ -81,7 +81,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
     @log_function_call
-    def is_passengers_on_position(self) -> bool:
+    def wait_passengers_on_position(self) -> bool:
         """队员就位"""
         logger.ui("等待队员")
         while True:
@@ -155,7 +155,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 case "title":
                     logger.ui("组队界面准备中")
                     if self.flag_driver:
-                        self.is_passengers_on_position()
+                        self.wait_passengers_on_position()
                         self.start()
                     sleep()
                     msg_title = False

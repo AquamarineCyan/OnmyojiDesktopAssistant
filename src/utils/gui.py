@@ -19,9 +19,10 @@ from ..ui.mainui import Ui_MainWindow
 from ..ui.update_record import Ui_Form as Ui_Update_Record
 from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
 from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION, Connect
-from .config import config, is_Chinese_Path
+from .config import config
 from .decorator import log_function_call, run_in_thread
-from .event import event_ocr_init, event_thread
+from .event import event_thread
+from .function import is_Chinese_Path
 from .log import log_clean_up, logger
 from .myschedule import global_scheduler
 from .mysignal import global_ms as ms
@@ -59,7 +60,7 @@ class GameFunction(Enum):
     JUEXING = 14  # 觉醒副本
     LIUDAOZHIMEN = 15  # 六道之门速刷
     DOUJI = 16  # 斗技自动上阵
-    YUANLAIGUANG = 17  # 源赖光副本
+    YINGJIESHILIAN = 17  # 英杰试炼
 
 
 class StackedWidgetIndex(Enum):
@@ -70,7 +71,7 @@ class StackedWidgetIndex(Enum):
     JIEJIETUPO = 2
     DAOGUANTUPO = 3
     QILING = 4
-    YUANLAIGUANG = 5
+    YINGJIESHILIAN = 5
 
 
 class KeyListenerThread(QThread):
@@ -119,28 +120,30 @@ class MainWindow(QMainWindow):
         "12.单人探索",
         "13.契灵",
         "14.觉醒副本",
-        # 下方需要ocr，目前做可选项
-        # "15.六道之门速刷",
-        # "16.斗技自动上阵",
-        # "17.源赖光副本",
+        "15.六道之门速刷",
+        "16.斗技自动上阵",
+        "17.英杰试炼",
     ]
 
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        # 初始化界面
         self.setWindowIcon(get_global_icon())  # 设置图标
         self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
+
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
+        self.software_init()
 
     def ui_init(self):
         """初始化GUI"""
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
         self.ui.combo_choice.setEnabled(False)
+        self.ui.button_game_handle.setEnabled(False)
         self.ui.spin_times.setEnabled(False)
+
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         self._init_settings()
         self._init_signals()
@@ -148,7 +151,6 @@ class MainWindow(QMainWindow):
         self.key_listener = KeyListenerThread()
         ms.main.key_pressed.connect(self.check_shortcut)
         self.key_listener.start()
-        self.application_init()
 
     def _init_settings(self):
         """初始化设置"""
@@ -162,6 +164,7 @@ class MainWindow(QMainWindow):
         for key, value in _setting_QComboBox_dict.items():
             key.addItems(config.default.model_dump()[value])
             key.setCurrentText(config.user.model_dump().get(value))
+
         _status = config.user.model_dump().get("remember_last_choice")
         self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
         _restart_msg = "重启生效"
@@ -191,10 +194,10 @@ class MainWindow(QMainWindow):
         self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
         self.ui.buttonGroup_yuanlaiguang.buttonClicked.connect(self.buttonGroup_yuanlaiguang_change)
         self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_func)
-        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(self.setting_update_download_comboBox_func)
-        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(self.setting_xuanshangfengyin_comboBox_func)
+        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(self.setting_update_download_comboBox_func)  # noqa
+        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(self.setting_xuanshangfengyin_comboBox_func)  # noqa
         self.ui.setting_window_style_comboBox.currentIndexChanged.connect(self.setting_window_style_comboBox_func)
-        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(self.setting_shortcut_start_stop_comboBox_func)
+        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(self.setting_shortcut_start_stop_comboBox_func)  # noqa
         self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_func)
 
     def check_shortcut(self, key):
@@ -207,15 +210,9 @@ class MainWindow(QMainWindow):
             # 特殊键处理
             logger.warning(f"Key pressed: {key}")
 
-    def application_init_ready(self) -> None:
-        """程序初始化成功"""
-        logger.ui("初始化成功")
-        self.ui.combo_choice.setEnabled(True)
-        self.ui.spin_times.setEnabled(True)
-
     @log_function_call
     @run_in_thread
-    def application_init(self) -> None:
+    def software_init(self) -> None:
         """程序初始化"""
         logger.info(f"application path: {APP_PATH}")
         logger.info(f"resource path: {RESOURCE_DIR_PATH}")
@@ -225,38 +222,22 @@ class MainWindow(QMainWindow):
             "未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
 使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止"
         )
-        if self.check_enviroment():
-            self.application_init_ready()
-        else:
-            logger.ui_error("初始化失败")
-
-        logger.ui("主要战斗场景UI为「怀旧主题」与「简约主题」，需要在游戏内图鉴中设置")
-        if config.user.remember_last_choice > 0:
-            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
+        logger.ui("程序初始化中，请稍候...")
         log_clean_up()
-        # 检查文字识别资源
-        if check_ocr_folder():
-            logger.info("文字识别资源检查通过")
-        else:
-            logger.ui_warn("未检测到文字识别资源，已切换更新方式，将在下次更新时自动下载")
-            config.update("update_download", "mirror")
+
+        # 优先在新线程中检查更新
         upgrade.check_latest()
         get_update_info()
-        global_scheduler.add_job(
-            window.scheduler_get_game_window_handle,
-            "interval",
-            seconds=1,
-            id="scheduler_get_game_window_handle",
-        )
-        task_xuanshangfengyin.task_start()
-        # 文字识别
-        ocr.init()
-        if event_ocr_init.is_set():
-            self.ui.combo_choice.addItem("15.六道之门速刷")
-            self.ui.combo_choice.addItem("16.斗技自动上阵")
-            self.ui.combo_choice.addItem("17.源赖光副本")
-        logger.info(global_scheduler.get_jobs())
-        global_scheduler.start()
+
+        if not self.software_selfcheck():
+            logger.ui_error("初始化失败")
+            return
+        logger.ui("初始化成功")
+
+        # 游戏窗口检测
+        self.ui.button_game_handle.setEnabled(True)
+        if self.check_game_handle():
+            self.application_init()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         if level == "ERROR":
@@ -274,7 +255,7 @@ class MainWindow(QMainWindow):
                 ):
                     logger.info("用户接受强制缩放")
                     if window.force_zoom():
-                        self.application_init_ready()
+                        self.application_init()
                 else:
                     logger.info("用户拒绝强制缩放")
             elif msg == "更新重启":
@@ -326,24 +307,65 @@ class MainWindow(QMainWindow):
         widget.setMaximum(max)
 
     @log_function_call
-    def check_enviroment(self) -> bool:
-        """环境检测
+    def software_selfcheck(self) -> bool:
+        """软件自检，打开软件时调用，只执行一次
 
         返回:
-            bool: 是否完成
+            bool: 是否正常
         """
         # 中文路径
         if is_Chinese_Path():
             ms.main.qmessagbox_update.emit("ERROR", "请在英文路径打开！")
             return False
+
         # 资源文件夹完整度
         if not self.is_resource_directory_complete():
             logger.ui_error("资源丢失")
             return False
-        # 游戏窗口检测
-        if not self.check_game_handle():
+
+        # 检查文字识别资源
+        if check_ocr_folder():
+            logger.info("文字识别资源检查通过")
+        else:
+            logger.ui_error("未检测到文字识别资源")
             return False
+
+        # 初始化文字识别
+        if ocr.init():
+            logger.info("文字识别资源初始化成功")
+        else:
+            logger.ui_error("文字识别资源初始化失败")
+            return False
+
         return True
+
+    def application_init(self) -> None:
+        # 自检正常，初始化各类事件
+
+        logger.ui("检测到游戏窗口")
+        self.ui.combo_choice.setEnabled(True)
+        self.ui.spin_times.setEnabled(True)
+
+        # 记忆上次所选功能
+        if config.user.remember_last_choice > 0:
+            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
+
+        # 检查任务是否已经存在
+        job_id = "scheduler_get_game_window_handle"
+        if all(job.id != job_id for job in global_scheduler.get_jobs()):
+            global_scheduler.add_job(
+                window.scheduler_get_game_window_handle,
+                "interval",
+                seconds=1,
+                id=job_id,
+            )
+        # 检查调度器是否已经启动
+        if not global_scheduler.running:
+            logger.info(global_scheduler.get_jobs())
+            global_scheduler.start()
+
+        # 悬赏封印任务
+        task_xuanshangfengyin.task_start()
 
     @log_function_call
     def is_resource_directory_complete(self) -> bool:
@@ -355,7 +377,7 @@ class MainWindow(QMainWindow):
         logger.info("开始检查资源")
         if not Path(RESOURCE_DIR_PATH).exists():
             return False
-        
+
         _package_resource_list = get_package_resource_list()
         for P in _package_resource_list:
             # 检查子文件夹
@@ -364,7 +386,7 @@ class MainWindow(QMainWindow):
                 logger.ui_error(_msg)
                 ms.main.qmessagbox_update.emit("ERROR", _msg)
                 return False
-            
+
             # 检查资源文件
             for item in P.resource_list:
                 file = Path(RESOURCE_DIR_PATH / P.resource_path / f"{item}.png")
@@ -373,7 +395,7 @@ class MainWindow(QMainWindow):
                     logger.ui_error(_msg)
                     ms.main.qmessagbox_update.emit("ERROR", _msg)
                     return False
-                
+
         logger.info("资源完整")
         return True
 
@@ -459,14 +481,14 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setChecked(True)
                 self.ui.button_passengers_2.setEnabled(False)
                 self.ui.button_passengers_3.setEnabled(False)
-            
+
             case GameFunction.YEYUANHUO:
                 logger.ui(YeYuanHuo.description)
-            
+
             case GameFunction.YULING:
                 logger.ui(YuLing.description)
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
-            
+
             case GameFunction.GERENTUPO:
                 logger.ui(JieJieTuPoGeRen.description)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
@@ -479,25 +501,25 @@ class MainWindow(QMainWindow):
                 self.ui.button_jiejietupo_refresh_rule_9.hide()
                 self.buttonGroup_jiejietupo_switch_change()
                 self.ui_spin_times_set_value_func(1, 1, 30)
-            
+
             case GameFunction.LIAOTUPO:
                 times = JieJieTuPoYinYangLiao.description()
                 self.ui_spin_times_set_value_func(times, 1, 200)
-            
+
             case GameFunction.DAOGUANTUPO:
                 logger.ui(DaoGuanTuPo.description)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
                 self.ui.spin_times.setEnabled(False)
-            
+
             case GameFunction.ZHAOHUAN:
                 logger.ui(ZhaoHuan.description)
-            
+
             case GameFunction.BAIGUIYEXING:
                 logger.ui(BaiGuiYeXing.description)
-            
+
             case GameFunction.HUODONG:
                 HuoDong().show_description()
-            
+
             case GameFunction.RILUN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(50)
@@ -508,28 +530,28 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setEnabled(True)
                 self.ui.button_passengers_3.setEnabled(True)
                 self.ui.button_passengers_2.setChecked(True)
-            
+
             case GameFunction.TANSUO:
                 logger.ui(TanSuo.description)
-            
+
             case GameFunction.QILING:
                 logger.ui(QiLing.description)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
-            
+
             case GameFunction.JUEXING:
                 logger.ui(JueXing.description)
-            
+
             case GameFunction.LIUDAOZHIMEN:
                 logger.ui(LiuDaoZhiMen.description, "warn")
-            
+
             case GameFunction.DOUJI:
                 logger.ui(DouJi.description, "warn")
-            
-            case GameFunction.YUANLAIGUANG:
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUANLAIGUANG.value)
+
+            case GameFunction.YINGJIESHILIAN:
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YINGJIESHILIAN.value)
                 self.ui.button_yuanlaiguang_skill.setChecked(True)
                 self.buttonGroup_yuanlaiguang_change()
 
@@ -591,25 +613,25 @@ class MainWindow(QMainWindow):
 
             case GameFunction.LIAOTUPO:
                 JieJieTuPoYinYangLiao(n=n).task_start()
-            
+
             case GameFunction.DAOGUANTUPO:
                 flag_guanzhan = self.ui.button_guanzhan.isChecked()
                 DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
-            
+
             case GameFunction.ZHAOHUAN:
                 ZhaoHuan(n=n).task_start()
-            
+
             case GameFunction.BAIGUIYEXING:
                 BaiGuiYeXing(n=n).task_start()
-            
+
             case GameFunction.HUODONG:
                 HuoDong(n=n).task_start()
-            
+
             case GameFunction.RILUN:
                 flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
                 flag_passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
                 RiLun(n=n, flag_driver=flag_driver, flag_passengers=flag_passengers).task_start()
-            
+
             case GameFunction.TANSUO:
                 TanSuo(n=n).task_start()
 
@@ -628,14 +650,14 @@ class MainWindow(QMainWindow):
 
             case GameFunction.JUEXING:
                 JueXing(n=n).task_start()
-            
+
             case GameFunction.LIUDAOZHIMEN:
                 LiuDaoZhiMen(n=n).task_start()
-            
+
             case GameFunction.DOUJI:
                 DouJi(n=n).task_start()
-            
-            case GameFunction.YUANLAIGUANG:
+
+            case GameFunction.YINGJIESHILIAN:
                 if self.ui.buttonGroup_yuanlaiguang.checkedButton().text() == "兵藏秘境":
                     BingZangMiJing(n=n).task_start()
                 else:

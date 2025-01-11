@@ -1,7 +1,7 @@
 import yaml
 from pydantic import BaseModel
 
-from .application import APP_PATH, USER_DATA_DIR_PATH
+from .application import USER_DATA_DIR_PATH
 from .log import logger
 
 _update_list = ["自动更新", "关闭"]
@@ -129,19 +129,3 @@ class Config:
 
 
 config = Config()
-
-
-def is_Chinese_Path() -> bool:
-    """是否中文路径
-
-    `opencv` 需要英文路径
-    """
-    from re import compile
-
-    zhPattern = compile("[\u4e00-\u9fa5]+")
-    match = zhPattern.search(str(APP_PATH))
-    if not match:
-        logger.info("English Path")
-        return False
-    logger.ui_error("Chinese Path")
-    return True

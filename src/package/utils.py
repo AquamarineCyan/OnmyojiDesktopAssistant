@@ -7,6 +7,7 @@ from ..utils.application import RESOURCE_GLOBAL_PATH, SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, get_asset_data, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
@@ -14,14 +15,6 @@ from ..utils.mysignal import global_ms as ms
 from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
-
-
-class GUIStopException(Exception):
-    """GUI停止按钮"""
-
-    def __init__(self, *args):
-        super().__init__(*args)
-        logger.ui_error("异常捕获：GUI停止按钮")
 
 
 def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
@@ -132,7 +125,6 @@ class Package:
     """最快通关速度，用于中途等待"""
     global_resource_path: Path = RESOURCE_GLOBAL_PATH
     """通用资源路径"""
-    ASSET: bool = False
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -239,7 +231,7 @@ class Package:
             _start = time.time()
         while True:
             if bool(event_thread):
-                return False
+                raise GUIStopException
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_click timeout")
                 return False
@@ -280,13 +272,17 @@ class Package:
                     return True
 
     @log_function_call
-    def is_passengers_on_position(self, passengers: int = 2):
-        """队员就位"""
-        logger.ui("等待队员")
+    def wait_passengers_on_position(self, passengers: int = 2):
+        """等待队员就位，需要在组队界面，
+        没有匹配到对应的背景说明该位置被玩家模型占用，
+        其中队员3的位置消失表示3个人都就位
+        """
+        logger.ui("等待队员就位")
         while True:
             if bool(event_thread):
-                return False
-            # 是否3人组队
+                raise GUIStopException
+
+            # 优先判断3人组队
             if passengers == 3:
                 if not RuleImage(self.global_image.IMAGE_PASSENGER_3).match():
                     logger.ui("队员3 就位")
@@ -350,7 +346,8 @@ class Package:
             _start = time.time()
         while True:
             if bool(event_thread):
-                return None
+                raise GUIStopException
+
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_finish timeout")
                 return False
