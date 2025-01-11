@@ -18,7 +18,7 @@ from ..package import *
 from ..ui.mainui import Ui_MainWindow
 from ..ui.update_record import Ui_Form as Ui_Update_Record
 from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
-from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION
+from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION, Connect
 from .config import config, is_Chinese_Path
 from .decorator import log_function_call, run_in_thread
 from .event import event_ocr_init, event_thread
@@ -705,13 +705,13 @@ class MainWindow(QMainWindow):
         import webbrowser
 
         logger.info("open homepage address.")
-        webbrowser.open("https://github.com/AquamarineCyan/Onmyoji_Python")
+        webbrowser.open(Connect.homepage)
 
     def open_helpdoc(self, *args) -> None:
         import webbrowser
 
         logger.info("open helpdoc address.")
-        webbrowser.open("https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY")
+        webbrowser.open(Connect.helpdoc)
 
     def exit_func(self):
         sys.exit()

@@ -1,10 +1,10 @@
 [tool.poetry]
-name = "onmyoji-python"
+name = "OnmyojiDesktopAssistant"
 version = "1.8.11"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
-repository = "https://github.com/AquamarineCyan/Onmyoji_Python"
+repository = "https://github.com/AquamarineCyan/OnmyojiDesktopAssistant"
 packages = [{include = "src"}]
 
 [tool.poetry.dependencies]

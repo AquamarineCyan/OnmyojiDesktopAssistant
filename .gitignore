@@ -1,14 +1,15 @@
 # file
 *.pyc
 *.xml
-Onmyoji_Python.exe
+*.exe
 
 # dir
 .vscode
 build
 data
 dist
+doc
 lib
 log
-test_code
 ocr
+releases
