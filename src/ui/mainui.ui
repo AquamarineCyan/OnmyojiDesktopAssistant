@@ -360,37 +360,6 @@
                 <string>组队人数</string>
                </property>
               </widget>
-              <widget class="QCheckBox" name="button_yuhun_drop_statistics">
-               <property name="geometry">
-                <rect>
-                 <x>20</x>
-                 <y>109</y>
-                 <width>100</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>100</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>掉落统计beta</string>
-               </property>
-              </widget>
               <widget class="QRadioButton" name="button_mode_single">
                <property name="geometry">
                 <rect>

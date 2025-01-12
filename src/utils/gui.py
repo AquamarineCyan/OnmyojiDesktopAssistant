@@ -562,7 +562,6 @@ class MainWindow(QMainWindow):
             return
 
         n = self.ui.spin_times.value()
-        flag_drop_statistics = self.ui.button_yuhun_drop_statistics.isChecked()
         self.ui.text_completion_times.clear()
         self.is_fighting(True)
 
@@ -575,19 +574,14 @@ class MainWindow(QMainWindow):
                         n=n,
                         flag_driver=flag_driver,
                         flag_passengers=flag_passengers,
-                        flag_drop_statistics=flag_drop_statistics,
                     ).task_start()
                 else:
-                    YuHunSingle(n=n, flag_drop_statistics=flag_drop_statistics).task_start()
+                    YuHunSingle(n=n,).task_start()
 
             case GameFunction.YONGSHENGZHIHAI:
                 if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
                     flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                    YongShengZhiHaiTeam(
-                        n=n,
-                        flag_driver=flag_driver,
-                        flag_drop_statistics=flag_drop_statistics,
-                    ).task_start()
+                    YongShengZhiHaiTeam(n=n,flag_driver=flag_driver,).task_start()
 
             case GameFunction.YEYUANHUO:
                 YeYuanHuo(n=n).task_start()
