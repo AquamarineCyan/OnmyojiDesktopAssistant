@@ -33,9 +33,7 @@ class HuoDong(Package):
         self.state = None
 
     def show_description(self) -> None:
-        logger.ui(
-            f"""适配活动「{self.activity_name}」，可自行替换 /data/myresource/huodong 下的素材"""
-        )
+        logger.ui(f"""适配活动「{self.activity_name}」，可自行替换 /data/myresource/huodong 下的素材""")
 
     def load_asset(self) -> None:
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))

@@ -17,12 +17,15 @@ class YeYuanHuo(Package):
         "title",  # 标题
         "start",  # 挑战
     ]
-    description = "默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材"
     fast_time = 13
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材")
 
     def load_asset(self):
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))

@@ -10,10 +10,12 @@ from .utils import Package, get_asset
 class DouJi(Package):
     scene_name = "斗技"
     resource_path = "douji"
-    description = "支持五段至名士之间的固定翻牌上阵"
 
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    def description() -> None:
+        logger.ui("支持五段至名士之间的固定翻牌上阵")
 
     def load_asset(self):
         self.OCR_TITLE = AssetOcr(**get_asset(self.asset_ocr_list, "title"))

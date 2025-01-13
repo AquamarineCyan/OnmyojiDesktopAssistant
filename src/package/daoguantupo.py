@@ -26,7 +26,6 @@ class DaoGuanTuPo(Package):
         "title",  # 标题
         "zhanbao",  # 战报
     ]
-    description = "目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景"
     STATE_IDLE = 1  # 准备界面
     STATE_WAIT_AUTO_ENTER = 2  # 等待主动进入
     STATE_WAIT_START = 3  # 等待开始
@@ -38,6 +37,10 @@ class DaoGuanTuPo(Package):
         self.flag_guanzhan = flag_guanzhan  # 是否观战
         self.flag_fighting = False  # 是否进行中
         self.state = self.STATE_IDLE
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景")
 
     def load_asset(self):
         self.IMAGE_BUTTON_ZHUWEI = AssetImage(

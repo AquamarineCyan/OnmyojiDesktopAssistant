@@ -19,7 +19,6 @@ class ZhaoHuan(Package):
         "title",  # 标题
         "zaicizhaohuan",  # 再次召唤
     ]
-    description = "普通召唤，请选择十连次数，请选择合适的召唤屋"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -35,6 +34,10 @@ class ZhaoHuan(Package):
                 f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
             )
             return
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("普通召唤，请选择十连次数，请选择合适的召唤屋")
 
     def check_first_times(self):
         ocr = RuleOcr(self.OCR_ZHAOHUAN)

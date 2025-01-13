@@ -22,11 +22,14 @@ class BaiGuiYeXing(Package):
         "kaishi",  # 开始
         "baiguiqiyueshu",  # 百鬼契约书
     ]
-    description = "仅适用于清票，无法指定鬼王"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("仅适用于清票，无法指定鬼王")
 
     def load_asset(self):
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))

@@ -32,11 +32,15 @@ class TanSuo(Package):
         "treasure_box",
         # "zidonglunhuan",
     ]
-    description = "提前准备好自动轮换和加成，仅单人探索"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("提前准备好自动轮换和加成，仅单人探索")
+
     def load_asset(self):
         self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "tansuo"))
         self.IMAGE_CHUZHANXIAOHAO = AssetImage(

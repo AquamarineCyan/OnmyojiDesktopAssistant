@@ -16,11 +16,14 @@ class JueXing(Package):
     resource_list = [
         "title",  # 标题
     ]
-    description = "单人觉醒副本"
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+    
+    @staticmethod
+    def description() -> None:
+        logger.ui("单人觉醒副本")
 
     @log_function_call
     def start(self):

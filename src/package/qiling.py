@@ -23,7 +23,6 @@ class QiLing(Package):
 
     scene_name = "契灵"
     resource_path = "qiling"
-    description = "次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，请提前在游戏内配置“结契设置”"
     resource_list: list = [
         "mingqizhaohuan",
         "queding",
@@ -61,6 +60,9 @@ class QiLing(Package):
         self._stone_numbers = _stone_numbers  # 使用鸣契石数量
         self._flag_finish: bool = False
         self._stone_count: int = 0  # 已使用鸣契石数量
+
+    def description() -> None:
+        logger.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，请提前在游戏内配置“结契设置”")
 
     def load_asset(self):
         if self.asset_image_list is None:

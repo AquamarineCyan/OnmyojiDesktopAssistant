@@ -470,7 +470,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setChecked(True)
 
             case GameFunction.YONGSHENGZHIHAI:
-                logger.ui(YongShengZhiHai.description)
+                YongShengZhiHai.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(30)
                 self.ui.button_mode_team.setChecked(True)
@@ -483,14 +483,14 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_3.setEnabled(False)
 
             case GameFunction.YEYUANHUO:
-                logger.ui(YeYuanHuo.description)
+                YeYuanHuo.description()
 
             case GameFunction.YULING:
-                logger.ui(YuLing.description)
+                YuLing.description()
                 self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
 
             case GameFunction.GERENTUPO:
-                logger.ui(JieJieTuPoGeRen.description)
+                JieJieTuPoGeRen.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
                 self.ui.button_jiejietupo_switch_rule.setChecked(True)
                 self.ui.button_jiejietupo_current_level_60.setChecked(True)
@@ -507,20 +507,21 @@ class MainWindow(QMainWindow):
                 self.ui_spin_times_set_value_func(times, 1, 200)
 
             case GameFunction.DAOGUANTUPO:
-                logger.ui(DaoGuanTuPo.description)
+                DaoGuanTuPo.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
                 self.ui.spin_times.setEnabled(False)
 
             case GameFunction.ZHAOHUAN:
-                logger.ui(ZhaoHuan.description)
+                ZhaoHuan.description()
 
             case GameFunction.BAIGUIYEXING:
-                logger.ui(BaiGuiYeXing.description)
+                BaiGuiYeXing.description()
 
             case GameFunction.HUODONG:
                 HuoDong().show_description()
 
             case GameFunction.RILUN:
+                RiLun.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(50)
                 self.ui.button_mode_team.setEnabled(True)
@@ -532,23 +533,23 @@ class MainWindow(QMainWindow):
                 self.ui.button_passengers_2.setChecked(True)
 
             case GameFunction.TANSUO:
-                logger.ui(TanSuo.description)
+                TanSuo.description()
 
             case GameFunction.QILING:
-                logger.ui(QiLing.description)
+                QiLing.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
 
             case GameFunction.JUEXING:
-                logger.ui(JueXing.description)
+                JueXing.description()
 
             case GameFunction.LIUDAOZHIMEN:
-                logger.ui(LiuDaoZhiMen.description, "warn")
+                LiuDaoZhiMen.description()
 
             case GameFunction.DOUJI:
-                logger.ui(DouJi.description, "warn")
+                DouJi.description()
 
             case GameFunction.YINGJIESHILIAN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YINGJIESHILIAN.value)
@@ -684,7 +685,6 @@ class MainWindow(QMainWindow):
             self.ui.button_driver_True,
             self.ui.button_passengers_2,
             self.ui.button_passengers_3,
-            self.ui.button_yuhun_drop_statistics,
         ]:
             item.setEnabled(not flag)
         return

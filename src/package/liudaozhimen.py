@@ -13,7 +13,6 @@ class LiuDaoZhiMen(Package):
 
     scene_name = "六道之门速刷"
     resource_path = "liudaozhimen"
-    description = "六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”"
     resource_list: list = [
         "determine",  # 确定
         "fight",  # 挑战
@@ -32,6 +31,10 @@ class LiuDaoZhiMen(Package):
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self.state = self.STATE_START
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("六道之门速刷，目前仅适配：椒图，4柔风，不打星之子的阵容，需要手动勾选“不再提醒”")
 
     def load_asset(self):
         self.IMAGE_DETERMINE = self.get_image_asset("determine")

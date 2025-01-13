@@ -29,6 +29,10 @@ class RiLun(Package):
         self.flag_driver_start: bool = False  # 司机待机
         self.flag_fighting: bool = False  # 是否进行中对局（默认否）
 
+    @staticmethod
+    def description() -> None:
+        logger.ui("日轮副本")
+
     def load_asset(self):
         self.IMAGE_FIGHTING = AssetImage(**get_asset(self.asset_image_list, "fighting"))
 

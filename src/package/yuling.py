@@ -15,15 +15,14 @@ class YuLing(Package):
         "title",  # 限时活动特征图像
         "start",  # 挑战
     ]
-    description = """暗神龙-周二六日
-         暗白藏主-周三六日
-         暗黑豹-周四六
-         暗孔雀-周五六日
-         绘卷期间请减少使用"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("""绘卷期间请减少使用""")
 
     def load_asset(self):
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))

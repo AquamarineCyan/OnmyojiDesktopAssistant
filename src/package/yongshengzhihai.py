@@ -21,12 +21,15 @@ class YongShengZhiHai(Package):
         "fighting",  # 进行中
         # "accept_invitation",  # 接受邀请
     ]
-    description = "默认打手30次"
     fast_time = 13 - 2
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+
+    @staticmethod
+    def description() -> None:
+        logger.ui("默认打手30次")
 
     def load_asset(self):
         self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))

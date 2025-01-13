@@ -119,8 +119,6 @@ class Package:
     """路径"""
     resource_list: list = []
     """资源列表"""
-    description: str = None
-    """功能描述"""
     fast_time: int = 0
     """最快通关速度，用于中途等待"""
     global_resource_path: Path = RESOURCE_GLOBAL_PATH
@@ -149,6 +147,11 @@ class Package:
             logger.ui_error(
                 f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
             )
+
+    @staticmethod
+    def description() -> None:
+        """功能描述，支持重写"""
+        pass
 
     def load_asset_list(self):
         self.asset_image_list = load_asset(self.resource_path, "image")

@@ -156,7 +156,6 @@ class JieJieTuPoGeRen(JieJieTuPo):
     """
 
     scene_name = "个人突破"
-    description = "默认3胜刷新，保级第一轮将会刷新，请注意当前的胜利次数"
     tupo_geren_x = {
         1: 215,
         2: 515,
@@ -176,9 +175,13 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.list_xunzhang: list = None  # 勋章列表
         self.tupo_victory: int = None  # 攻破次数
         self.time_refresh: int = 0  # 记录刷新时间
-        self.flag_refresh_rule: int = int(flag_refresh_rule)
-        self.flag_current_level: int = int(flag_current_level)
-        self.flag_target_level: int = int(flag_target_level)
+        self.flag_refresh_rule: int = flag_refresh_rule
+        self.flag_current_level: int = flag_current_level
+        self.flag_target_level: int = flag_target_level
+
+    @staticmethod
+    def description():
+        logger.ui("默认3胜刷新，保级第一轮将会刷新，请注意当前的胜利次数")
 
     def load_asset(self):
         super().load_asset()
