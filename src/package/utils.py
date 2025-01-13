@@ -376,7 +376,11 @@ class Package:
             sleep(0.4, 0.8)
 
     def run(self):
-        """任务内容"""
+        """任务内容，支持重写"""
+        pass
+
+    def finish_info(self):
+        """任务结束信息，支持重写"""
         pass
 
     @run_in_thread
@@ -402,6 +406,8 @@ class Package:
                 logger.ui(f"耗时{int(_cost)}秒")
         except Exception:
             logger.error("耗时统计计算失败")
+        self.finish_info()
+
         # 启用按钮
         ms.main.is_fighting_update.emit(False)
         logger.ui(f"已完成 {self.scene_name} {self.n}次")

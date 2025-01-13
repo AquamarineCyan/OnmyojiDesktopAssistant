@@ -100,7 +100,9 @@ class BaiGuiYeXing(Package):
                 sleep()
                 self.screenshot()
                 Mouse.click(point)
-                break
+
+    def finish_info(self):
+        logger.ui(f"截图保存在{SCREENSHOT_DIR_PATH / self.resource_path}")
 
     def run(self):
         self.check_title()
