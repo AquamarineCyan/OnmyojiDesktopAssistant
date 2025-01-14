@@ -9,8 +9,9 @@ class WorkThread(Thread):
     用法:
     ```python
     from ..utils.event import event_thread
+    from ..utils.exception import GUIStopException
     if bool(event_thread):
-        return
+        raise GUIStopException
     ```
     """
 

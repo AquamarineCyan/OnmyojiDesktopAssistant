@@ -83,7 +83,8 @@ class GuiBingYanWu(YingJieShiLian):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue
@@ -133,7 +134,8 @@ class GuiBingYanWu(YingJieShiLian):
                     # 尚未测试出
                     while True:
                         if bool(event_thread):
-                            return
+                            raise GUIStopException
+                        
                         # 先判断御魂上限提醒
                         result = RuleImage(self.global_image.IMAGE_SOUL_OVERFLOW)
                         if result.match():
@@ -232,5 +234,6 @@ class BingZangMiJing(YingJieShiLian):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
+            
             sleep(3)
             self.fight()

@@ -2,6 +2,7 @@ from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -85,7 +86,8 @@ class TanSuo(Package):
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             if image := check_image_once(self.current_asset_list):
                 logger.info(f"current image name: {image.name}")
                 return
@@ -100,7 +102,8 @@ class TanSuo(Package):
         sleep(2)
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             # 如果匹配到小怪的按钮，返回上一级
             if not flag_done and RuleImage(self.IMAGE_FIGHT_LITTLE_MONSTER).match():
                 logger.ui_warn("未进入战斗，重新匹配")
@@ -133,7 +136,8 @@ class TanSuo(Package):
         """
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             # 等待加载完毕
             sleep(1.5, 2)
 
@@ -168,7 +172,8 @@ class TanSuo(Package):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue

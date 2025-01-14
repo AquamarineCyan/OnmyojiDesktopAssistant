@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import sleep
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
@@ -43,7 +44,8 @@ class ZhaoHuan(Package):
         ocr = RuleOcr(self.OCR_ZHAOHUAN)
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             if result := ocr.match():
                 point = result.center
                 point.y -= 50
@@ -58,7 +60,8 @@ class ZhaoHuan(Package):
         sleep(4, 6)
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             if self.max == 1:
                 break
             self.check_click(self.OCR_AGAIN)

@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -11,11 +12,19 @@ from .utils import Package, get_asset
 
 
 class LuopanEmptyException(Exception):
-    pass
+    """指定罗盘不足"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_error("异常捕获：指定罗盘不足")
 
 
 class PokemonOverflowException(Exception):
-    pass
+    """契灵数量上限"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_error("异常捕获：契灵数量上限")
 
 
 class QiLing(Package):
@@ -84,7 +93,8 @@ class QiLing(Package):
         _flag_first: bool = False
         while True:
             if bool(event_thread):
-                return False
+                raise GUIStopException
+            
             if self._flag_finish:
                 return
             if self.check_finish():
@@ -198,13 +208,14 @@ class QiLing(Package):
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             if not self.check_pokemon_remain(False):
                 break
 
         while self._stone_count < self._stone_numbers:
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             self.choose_stoen()
             sleep(4, 7)

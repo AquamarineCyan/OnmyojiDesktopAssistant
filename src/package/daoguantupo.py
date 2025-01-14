@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -70,7 +71,7 @@ class DaoGuanTuPo(Package):
         msg_title = True
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             if RuleImage(self.IMAGE_TITLE).match():
                 logger.scene(self.scene_name)
@@ -96,7 +97,8 @@ class DaoGuanTuPo(Package):
         # 战报按钮
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             if RuleImage(self.IMAGE_TITLE).match():
                 self.check_click(self.IMAGE_ZHANBAO, timeout=5)
                 self.check_click(self.IMAGE_QIANWANG, timeout=5)
@@ -113,7 +115,8 @@ class DaoGuanTuPo(Package):
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue
@@ -164,7 +167,7 @@ class DaoGuanTuPo(Package):
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             result = check_image_once(self.current_asset_list)
             if result is None:

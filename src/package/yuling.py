@@ -1,6 +1,7 @@
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from .utils import Package, get_asset
@@ -32,7 +33,8 @@ class YuLing(Package):
         self.check_title()
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             sleep()
             # 开始
             self.check_click(self.IMAGE_START)

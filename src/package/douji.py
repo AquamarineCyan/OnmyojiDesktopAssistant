@@ -1,6 +1,7 @@
 from ..utils.adapter import Mouse
 from ..utils.assets import AssetOcr
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, check_raw_result_once, ocr, ocr_match_once
@@ -143,8 +144,8 @@ class DouJi(Package):
 
         while True:
             if bool(event_thread):
-                return
-            sleep()
+                raise GUIStopException
+
             result = ocr_match_once(self.current_asset_list)
             if result is None:
                 continue
@@ -193,7 +194,8 @@ class DouJi(Package):
     def run(self):
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             self.fight_once_new()
             sleep(2, 4)
             _ocr_data = check_raw_result_once("段位上升")

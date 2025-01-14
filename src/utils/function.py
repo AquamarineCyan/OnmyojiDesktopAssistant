@@ -8,6 +8,7 @@ from .adapter import Mouse
 from .application import APP_PATH, RESOURCE_DIR_PATH, USER_DATA_DIR_PATH
 from .decorator import log_function_call
 from .event import event_thread
+from .exception import GUIStopException
 from .log import logger
 from .point import Point, Rectangle, RelativePoint
 
@@ -165,7 +166,8 @@ def finish_random_left_right(
     point = RelativePoint(point.x, point.y)
 
     if bool(event_thread):
-        return RelativePoint(0, 0)
+        raise GUIStopException
+    
     if is_click:
         Mouse.click(point)
     return point

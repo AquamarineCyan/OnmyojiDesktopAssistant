@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -89,7 +90,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         logger.ui("等待队员")
         while True:
             if bool(event_thread):
-                return False
+                raise GUIStopException
+            
             if not RuleImage(self.IMAGE_PASSENGER).match():
                 logger.ui("队员就位")
                 return True
@@ -113,8 +115,9 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         finish_random_left_right(is_multiple_drops_x=True)
         Mouse.click(wait=0.5)
         while True:
-            if event_thread.is_set():
-                return
+            if bool(event_thread):
+                raise GUIStopException
+            
             # 检测到任一图像
             result = check_image_once(
                 [
@@ -149,7 +152,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue

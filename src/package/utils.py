@@ -201,7 +201,7 @@ class Package:
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             if isinstance(asset, AssetOcr):
                 if RuleOcr(asset).match():
@@ -235,6 +235,7 @@ class Package:
         while True:
             if bool(event_thread):
                 raise GUIStopException
+            
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_click timeout")
                 return False
@@ -262,7 +263,8 @@ class Package:
             _start = time.time()
         while True:
             if bool(event_thread):
-                return False
+                raise GUIStopException
+            
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_scene timeout")
                 return False
@@ -327,6 +329,7 @@ class Package:
         while True:
             if bool(event_thread):
                 raise GUIStopException
+            
             _screenshot = ScreenShot()
             if RuleImage(self.global_image.IMAGE_VICTORY).match(_screenshot):
                 logger.ui("战斗胜利")
@@ -363,6 +366,7 @@ class Package:
                 logger.ui_warn("战斗失败")
                 return False
 
+    @log_function_call
     def ensure_finish(self):
         """确保结束"""
         logger.ui("结束")
@@ -370,7 +374,8 @@ class Package:
         finish_random_left_right()
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             # 未重复检测到，表示成功点击
             if not RuleImage(self.global_image.IMAGE_FINISH).match():
                 self.done()

@@ -7,6 +7,7 @@ from ..utils.adapter import KeyBoard, Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
@@ -107,7 +108,8 @@ class JieJieTuPo(Package):
         _msg_title = True
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             if RuleImage(self.IMAGE_TITLE).match():
                 logger.scene(JieJieTuPo.scene_name)
                 if isinstance(self, JieJieTuPoGeRen):
@@ -204,7 +206,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         alist = [0]  # 第一个数固定为0，方便后续9个计数
         for i in range(1, 10):
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             x = self.tupo_geren_x[(i + 2) % 3 + 1]
             y = self.tupo_geren_y[(i + 2) // 3]
@@ -321,7 +323,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
         sleep(2)
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             if not RuleImage(self.global_image.IMAGE_FIGHTING_BACK_DEFAULT).match():
                 continue
             sleep(0.4, 0.8)
@@ -353,7 +356,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             # 第一次刷新 或 冷却时间已过
             timenow = time.perf_counter()
             if self.time_refresh == 0 or self.time_refresh + 5 * 60 < timenow:
@@ -400,7 +404,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
 
             self.check_scene(self.IMAGE_FANGSHOUJILU)
             # 只需要刷新
@@ -438,7 +442,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     # 只有成功才会退出
                     while True:
                         if bool(event_thread):
-                            return
+                            raise GUIStopException
+
                         # TODO 失败超过一定次数视为打不过
                         if self.check_finish():
                             self.done()
@@ -494,7 +499,8 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         i = 1  # 1-8
         while True:
             if bool(event_thread):
-                return 0
+                raise GUIStopException
+
             # 当前页结界全部失效
             if i > 8:
                 self.page_down(4)

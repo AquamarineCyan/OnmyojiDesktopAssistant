@@ -7,6 +7,7 @@ import win32con
 
 
 from .event import event_thread, event_xuanshang
+from .exception import GUIStopException
 from .log import logger
 from .paddleocr import OcrData
 from .point import AbsolutePoint, RelativePoint
@@ -97,7 +98,8 @@ class Mouse:
             wait (float): 前置等待时间
         """
         if bool(event_thread):
-            return
+            raise GUIStopException
+        
         # 延迟
         if wait:
             time.sleep(wait)

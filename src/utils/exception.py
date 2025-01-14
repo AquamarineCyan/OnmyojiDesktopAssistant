@@ -15,3 +15,11 @@ class TimesNotEnoughException(Exception):
     def __init__(self, *args):
         super().__init__(*args)
         logger.ui_error("异常捕获：次数不足")
+
+
+class TimeoutException(Exception):
+    """超时"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_error("异常捕获：超时")

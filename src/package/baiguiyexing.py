@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import random_num, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
@@ -56,7 +57,8 @@ class BaiGuiYeXing(Package):
         _y2 = 550
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             m = random_num(1, 4)
             if m < 2:
                 x1 = _x1_left
@@ -82,7 +84,8 @@ class BaiGuiYeXing(Package):
         sleep()
         for _ in range(250, 0, -5):
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             sleep(0.2, 1)
             point: RelativePoint = random_point(
                 60,
@@ -96,7 +99,8 @@ class BaiGuiYeXing(Package):
         """结束"""
         while True:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             result = RuleImage(self.IMAGE_FINISH)
             if result.match():
                 point = result.random_point()
@@ -111,7 +115,8 @@ class BaiGuiYeXing(Package):
         self.check_title()
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             sleep()
             self.start()
             sleep(2)

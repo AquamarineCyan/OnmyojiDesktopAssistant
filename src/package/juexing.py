@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
@@ -46,7 +47,8 @@ class JueXing(Package):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+            
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue

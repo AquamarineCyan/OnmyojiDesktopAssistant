@@ -1,6 +1,7 @@
 from ..utils.adapter import KeyBoard, Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
+from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, ocr
@@ -82,8 +83,9 @@ class LiuDaoZhiMen(Package):
         # 如果在六道之门主界面
         if self.check_result_once("六道之门"):
             while True:
-                if event_thread.is_set():
-                    return
+                if bool(event_thread):
+                    raise GUIStopException
+
                 data = self.check_result_mult(["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"])
                 if data is None:
                     continue
@@ -383,7 +385,8 @@ class LiuDaoZhiMen(Package):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
+                raise GUIStopException
+
             if self.state == self.STATE_START:
                 self.check_title()
                 # self.check_title_jiaotu() #TODO
