@@ -5,7 +5,7 @@ from pathlib import Path
 
 from pynput import keyboard
 from PySide6.QtCore import QThread
-from PySide6.QtGui import QIcon, QPixmap, QTextCursor
+from PySide6.QtGui import QIcon, QTextCursor
 from PySide6.QtWidgets import (
     QDialogButtonBox,
     QMainWindow,
@@ -14,7 +14,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..package import *
+from ..package import *  # noqa: F403
+from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui import Ui_MainWindow
 from ..ui.update_record import Ui_Form as Ui_Update_Record
 from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
@@ -32,13 +33,6 @@ from .restart import Restart
 from .update import get_update_info, update_record
 from .upgrade import upgrade
 from .window import window
-
-
-def get_global_icon():
-    """窗口图标"""
-    global_icon = QIcon()
-    global_icon.addPixmap(QPixmap("buzhihuo.ico"))
-    return global_icon
 
 
 class GameFunction(Enum):
@@ -129,7 +123,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowIcon(get_global_icon())  # 设置图标
+        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
         self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
@@ -755,7 +749,7 @@ class UpdateRecordWindow(QWidget):
         super().__init__()
         self.ui = Ui_Update_Record()
         self.ui.setupUi(self)
-        self.setWindowIcon(get_global_icon())
+        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
         # 关联事件
         ms.update_record.text_update.connect(self.textBrowser_update_func)
         ms.update_record.text_markdown_update.connect(self.textBrowser_markdown_update_func)
@@ -781,7 +775,7 @@ class UpgradeNewVersionWindow(QWidget):
         super().__init__()
         self.ui = Ui_Upgrade_New_Version()
         self.ui.setupUi(self)
-        self.setWindowIcon(get_global_icon())
+        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
 
         button_update = QPushButton("下载更新", self)
         button_download = QPushButton("仅下载", self)

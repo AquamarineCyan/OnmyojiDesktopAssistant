@@ -32,7 +32,7 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     uac_admin=True,
-    icon=['buzhihuo.ico'],
+    icon=['src/ui/buzhihuo.jpg'],
     contents_directory='lib',
 )
 coll = COLLECT(
