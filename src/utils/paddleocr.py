@@ -187,7 +187,7 @@ class CharacterRecognition:
         result = self.paddleocr.Detect(img)
         t3 = datetime.now(timezone.utc)
 
-        logger.info(f"ocr cost: {t3-t2}")
+        logger.info(f"ocr cost: {t3 - t2}")
         self.result = json.loads(result)
         for item in self.result:
             logger.info(f"ocr result: {item}")
@@ -209,7 +209,7 @@ class CharacterRecognition:
             if (item["Score"] > 0.9) and (item["Text"] == "阴阳师-网易游戏"):
                 logger.ui("ocr self check successfully.")
                 return
-        logger.warn("ocr self check failed.")
+        logger.warning("ocr self check failed.")
 
     def free_dll(self):
         if not self.flag_init:
@@ -245,6 +245,9 @@ class OcrData:
         self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
         self.center = self.rect.get_rela_center()
 
+    def __str__(self) -> str:
+        return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
+
 
 def check_raw_result_once(text: str = None, score: float = 0.8) -> OcrData | None:
     result = ocr.get_raw_result()
@@ -256,12 +259,31 @@ def check_raw_result_once(text: str = None, score: float = 0.8) -> OcrData | Non
 
 
 class RuleOcr:
+    """文字识别
+
+    用法1：
+    ```python
+    ruleocr = RuleOcr(asset)
+    if result := ruleocr.match():
+        Mouse.click(result.center, *args, **kwargs)
+    ```
+
+    用法2：
+    ```python
+    RuleOcr.get_raw_result()
+    for item in result:
+        if target_text in item.text:
+            pass
+
+    ```
+    """
+
     def __init__(
         self,
         assetocr: AssetOcr = None,
         name: str = None,
         keyword: str = None,
-        region: tuple = None,
+        region: tuple = None,  # 暂未用上
         score: float = 0.8,
         method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
     ) -> None:
@@ -289,8 +311,13 @@ class RuleOcr:
         result = json.loads(result)
         list_ = []
         for item in result:
-            logger.info(f"ocr result: {item}")
+            # 过滤无效数据
+            if item["Score"] == 0.0:  
+                continue
+            if item["Text"] == "":
+                continue
             ocr_data = OcrData(item)
+            logger.info(f"ocr result: {ocr_data}")
             list_.append(ocr_data)
         return list_
 
