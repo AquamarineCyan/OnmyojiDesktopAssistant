@@ -55,10 +55,6 @@ class GuiBingYanWu(YingJieShiLian):
         self.IMAGE_TITLE = self.get_image_asset("exp_title")
         self.IMAGE_START = self.get_image_asset("exp_start")
 
-    def start(self) -> None:
-        """开始"""
-        self.check_click(self.IMAGE_START)
-
     @log_function_call
     def timer_check_start(self):
         if RuleImage(self.IMAGE_TITLE).match():
@@ -69,10 +65,10 @@ class GuiBingYanWu(YingJieShiLian):
             self.IMAGE_TITLE,
             self.IMAGE_START,
             # self.IMAGE_RESULT,
-            self.global_image.IMAGE_FINISH,
-            self.global_image.IMAGE_FAIL,
-            self.global_image.IMAGE_VICTORY,
-            self.global_image.IMAGE_SOUL_OVERFLOW,
+            self.global_assets.IMAGE_FINISH,
+            self.global_assets.IMAGE_FAIL,
+            self.global_assets.IMAGE_VICTORY,
+            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
         _flag_title_msg: bool = True
         self.log_current_asset_list()
@@ -137,7 +133,7 @@ class GuiBingYanWu(YingJieShiLian):
                             raise GUIStopException
                         
                         # 先判断御魂上限提醒
-                        result = RuleImage(self.global_image.IMAGE_SOUL_OVERFLOW)
+                        result = RuleImage(self.global_assets.IMAGE_SOUL_OVERFLOW)
                         if result.match():
                             logger.ui_warn("御魂上限提醒")
                             self.flag_soul_overflow = True
@@ -145,7 +141,7 @@ class GuiBingYanWu(YingJieShiLian):
                             continue
 
                         # 未重复检测到，表示成功点击
-                        if not RuleImage(self.global_image.IMAGE_FINISH).match():
+                        if not RuleImage(self.global_assets.IMAGE_FINISH).match():
                             break
                         Mouse.click(_coor_point)
 

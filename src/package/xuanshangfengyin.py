@@ -1,4 +1,3 @@
-from ..utils.assets import AssetImage
 from ..utils.config import config
 from ..utils.decorator import run_in_thread
 from ..utils.event import event_xuanshang
@@ -7,7 +6,7 @@ from ..utils.log import logger
 from ..utils.myschedule import global_scheduler
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class XuanShangFengYin(Package):
@@ -25,21 +24,17 @@ class XuanShangFengYin(Package):
     STATE_START = 2
 
     def __init__(self) -> None:
+        super().__init__()
         self._flag_is_first: bool = True
         self._flag_msg: bool = False
         self.state = self.STATE_STOP
         event_xuanshang.set()
-        self.load_asset_list()
-        try:
-            self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-            self.IMAGE_ACCEPT = AssetImage(**get_asset(self.asset_image_list, "accept"))
-            self.IMAGE_IGNORE = AssetImage(**get_asset(self.asset_image_list, "ignore"))
-            self.IMAGE_REFUSE = AssetImage(**get_asset(self.asset_image_list, "refuse"))
-        except Exception as e:
-            logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
-            logger.ui_error(
-                f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
-            )
+
+    def load_asset(self):
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_ACCEPT = self.get_image_asset("accept")
+        self.IMAGE_IGNORE = self.get_image_asset("ignore")
+        self.IMAGE_REFUSE = self.get_image_asset("refuse")
 
     def scheduler_check(self):
         if config.user.xuanshangfengyin == "关闭":

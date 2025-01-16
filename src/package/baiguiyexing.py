@@ -1,5 +1,4 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -8,7 +7,7 @@ from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.point import RelativePoint
 from ..utils.window import window
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class BaiGuiYeXing(Package):
@@ -33,13 +32,11 @@ class BaiGuiYeXing(Package):
         logger.ui("仅适用于清票，无法指定鬼王")
 
     def load_asset(self):
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_JINRU = AssetImage(**get_asset(self.asset_image_list, "jinru"))
-        self.IMAGE_CHOOSE = AssetImage(**get_asset(self.asset_image_list, "choose"))
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "kaishi"))
-        self.IMAGE_FINISH = AssetImage(
-            **get_asset(self.asset_image_list, "baiguiqiyueshu")
-        )
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_JINRU = self.get_image_asset("jinru")
+        self.IMAGE_CHOOSE = self.get_image_asset("choose")
+        self.IMAGE_START = self.get_image_asset("kaishi")
+        self.IMAGE_FINISH = self.get_image_asset("baiguiqiyueshu")
 
     def start(self):
         """开始"""

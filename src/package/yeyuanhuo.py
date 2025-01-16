@@ -1,12 +1,11 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class YeYuanHuo(Package):
@@ -18,7 +17,6 @@ class YeYuanHuo(Package):
         "title",  # 标题
         "start",  # 挑战
     ]
-    fast_time = 13
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -29,15 +27,15 @@ class YeYuanHuo(Package):
         logger.ui("默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材")
 
     def load_asset(self):
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_START = self.get_image_asset("start")
 
     def run(self):
         self.current_asset_list = [
             self.IMAGE_TITLE,
             self.IMAGE_START,
-            self.global_image.IMAGE_FINISH,
-            self.global_image.IMAGE_VICTORY,
+            self.global_assets.IMAGE_FINISH,
+            self.global_assets.IMAGE_VICTORY,
         ]
         msg_title: bool = True
         self.log_current_asset_list()

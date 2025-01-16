@@ -1,5 +1,4 @@
 from ..utils.adapter import KeyBoard, Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -7,7 +6,7 @@ from ..utils.function import finish_random_left_right, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.point import RelativePoint
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class TanSuo(Package):
@@ -16,14 +15,10 @@ class TanSuo(Package):
     scene_name = "探索"
     resource_path = "tansuo"
     resource_list = [
-        # "boss_finish",
         "chuzhanxiaohao",
         "fighting",
         "fighting_boss",
         "kunnan_big",
-        # "kunnan_small",
-        # "putong_big",
-        # "putong_small",
         "quit",
         "quit_true",
         "tansuo",
@@ -31,7 +26,6 @@ class TanSuo(Package):
         "tansuo_28_0",
         "tansuo_28_title",
         "treasure_box",
-        # "zidonglunhuan",
     ]
 
     @log_function_call
@@ -43,35 +37,17 @@ class TanSuo(Package):
         logger.ui("提前准备好自动轮换和加成，仅单人探索")
 
     def load_asset(self):
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "tansuo"))
-        self.IMAGE_CHUZHANXIAOHAO = AssetImage(
-            **get_asset(self.asset_image_list, "chuzhanxiaohao")
-        )
-        self.IMAGE_FIGHT_BOSS = AssetImage(
-            **get_asset(self.asset_image_list, "fight_boss")
-        )
-        self.IMAGE_FIGHT_LITTLE_MONSTER = AssetImage(
-            **get_asset(self.asset_image_list, "fight_little_monster")
-        )
-        self.IMAGE_KUNNAN_BIG = AssetImage(
-            **get_asset(self.asset_image_list, "kunnan_big")
-        )
-        self.IMAGE_QUIT_TRUE = AssetImage(
-            **get_asset(self.asset_image_list, "quit_true")
-        )
-        self.IMAGE_TREASURE_BOX = AssetImage(
-            **get_asset(self.asset_image_list, "treasure_box")
-        )
-        self.IMAGE_QUIT = AssetImage(**get_asset(self.asset_image_list, "quit"))
-        self.IMAGE_TANSUO_28_0 = AssetImage(
-            **get_asset(self.asset_image_list, "tansuo_28_0")
-        )
-        self.IMAGE_TANSUO_28 = AssetImage(
-            **get_asset(self.asset_image_list, "tansuo_28")
-        )
-        self.IMAGE_TITLE_28 = AssetImage(
-            **get_asset(self.asset_image_list, "tansuo_28_title")
-        )
+        self.IMAGE_START = self.get_image_asset("tansuo")
+        self.IMAGE_CHUZHANXIAOHAO = self.get_image_asset("chuzhanxiaohao")
+        self.IMAGE_FIGHT_BOSS = self.get_image_asset("fight_boss")
+        self.IMAGE_FIGHT_LITTLE_MONSTER = self.get_image_asset("fight_little_monster")
+        self.IMAGE_KUNNAN_BIG = self.get_image_asset("kunnan_big")
+        self.IMAGE_QUIT_TRUE = self.get_image_asset("quit_true")
+        self.IMAGE_TREASURE_BOX = self.get_image_asset("treasure_box")
+        self.IMAGE_QUIT = self.get_image_asset("quit")
+        self.IMAGE_TANSUO_28_0 = self.get_image_asset("tansuo_28_0")
+        self.IMAGE_TANSUO_28 = self.get_image_asset("tansuo_28")
+        self.IMAGE_TITLE_28 = self.get_image_asset("tansuo_28_title")
 
     @log_function_call
     def check_title(self) -> None:
@@ -112,8 +88,8 @@ class TanSuo(Package):
             if check_image_once(
                 [
                     # self.global_image.IMAGE_VICTORY,
-                    self.global_image.IMAGE_FINISH,
-                    self.global_image.IMAGE_FAIL,
+                    self.global_assets.IMAGE_FINISH,
+                    self.global_assets.IMAGE_FAIL,
                 ]
             ):
                 flag_done = True

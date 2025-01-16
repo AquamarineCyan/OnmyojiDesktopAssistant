@@ -1,5 +1,4 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -8,7 +7,7 @@ from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
 from ..utils.paddleocr import RuleOcr
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class LuopanEmptyException(Exception):
@@ -41,15 +40,6 @@ class QiLing(Package):
         "zhenmushou",
         "zhenmushou_mingqishi",
     ]
-    image_keys = {
-        "mingqizhaohuan": "IMAGE_MINGQIZHAOHUAN",
-        "queding": "IMAGE_QUEDING",
-        "start_jieqi": "IMAGE_START_JIEQI",
-        "start_tancha": "IMAGE_START_TANCHA",
-        "title": "IMAGE_TITLE",
-        "zhenmushou": "IMAGE_ZHENMUSHOU",
-        "zhenmushou_mingqishi": "IMAGE_ZHENMUSHOU_MINGQISHI",
-    }
 
     map_pockmon_max: int = 5
 
@@ -67,21 +57,19 @@ class QiLing(Package):
         self._flag_jieqi = _flag_jieqi
         self._stone_pokemon = _stone_pokemon  # 指定鸣契石，目前仅支持镇墓兽
         self._stone_numbers = _stone_numbers  # 使用鸣契石数量
-        self._flag_finish: bool = False
         self._stone_count: int = 0  # 已使用鸣契石数量
 
     def description() -> None:
         logger.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，请提前在游戏内配置“结契设置”")
 
     def load_asset(self):
-        if self.asset_image_list is None:
-            logger.ui_error("发生错误，请先加载资源")
-            return
-        for key, sttr_name in self.image_keys.items():
-            setattr(
-                self, sttr_name, AssetImage(**get_asset(self.asset_image_list, key))
-            )
-        return
+        self.IMAGE_MINGQIZHAOHUAN = self.get_image_asset("mingqizhaohuan")
+        self.IMAGE_QUEDING = self.get_image_asset("queding")
+        self.IMAGE_START_JIEQI = self.get_image_asset("start_jieqi")
+        self.IMAGE_START_TANCHA = self.get_image_asset("start_tancha")
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_ZHENMUSHOU = self.get_image_asset("zhenmushou")
+        self.IMAGE_ZHENMUSHOU_MINGQISHI = self.get_image_asset("zhenmushou_mingqishi")
 
     def done(self):
         self._stone_count += 1
@@ -223,10 +211,7 @@ class QiLing(Package):
             continue
 
     def run(self):
-        try:
-            if self._flag_tancha:
-                self.run_tancha()
-            if self._flag_jieqi:
-                self.run_jieqi()
-        except Exception as e:
-            logger.error(e)
+        if self._flag_tancha:
+            self.run_tancha()
+        if self._flag_jieqi:
+            self.run_jieqi()

@@ -1,5 +1,4 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -7,7 +6,7 @@ from ..utils.function import finish_random_left_right, get_asset_data, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class HuoDong(Package):
@@ -37,13 +36,9 @@ class HuoDong(Package):
         logger.ui(f"""适配活动「{self.activity_name}」，可自行替换 /data/myresource/huodong 下的素材""")
 
     def load_asset(self) -> None:
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
-        self.IMAGE_RESULT = AssetImage(**get_asset(self.asset_image_list, "result"))
-
-    def start(self) -> None:
-        """开始"""
-        self.check_click(self.IMAGE_START)
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_START = self.get_image_asset("start")
+        self.IMAGE_RESULT = self.get_image_asset("result")
 
     @log_function_call
     def timer_check_start(self):
@@ -55,10 +50,10 @@ class HuoDong(Package):
             self.IMAGE_TITLE,
             self.IMAGE_START,
             self.IMAGE_RESULT,
-            self.global_image.IMAGE_FINISH,
-            self.global_image.IMAGE_FAIL,
-            self.global_image.IMAGE_VICTORY,
-            self.global_image.IMAGE_SOUL_OVERFLOW,
+            self.global_assets.IMAGE_FINISH,
+            self.global_assets.IMAGE_FAIL,
+            self.global_assets.IMAGE_VICTORY,
+            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
         _flag_title_msg: bool = True
         _flag_result_click: bool = False  # 部分活动会有“获得奖励”弹窗
@@ -125,7 +120,7 @@ class HuoDong(Package):
                             raise GUIStopException
 
                         # 先判断御魂上限提醒
-                        result = RuleImage(self.global_image.IMAGE_SOUL_OVERFLOW)
+                        result = RuleImage(self.global_assets.IMAGE_SOUL_OVERFLOW)
                         if result.match():
                             logger.ui_warn("御魂上限提醒")
                             self.flag_soul_overflow = True
@@ -133,7 +128,7 @@ class HuoDong(Package):
                             continue
 
                         # 未重复检测到，表示成功点击
-                        if not RuleImage(self.global_image.IMAGE_FINISH).match():
+                        if not RuleImage(self.global_assets.IMAGE_FINISH).match():
                             break
                         Mouse.click(_coor_point)
 

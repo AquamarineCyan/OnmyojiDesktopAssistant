@@ -1,11 +1,10 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetOcr
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
-from ..utils.function import finish_random_left_right, sleep
+from ..utils.function import sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, check_raw_result_once, ocr, ocr_match_once
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class DouJi(Package):
@@ -19,117 +18,16 @@ class DouJi(Package):
         logger.ui("支持五段至名士之间的固定翻牌上阵")
 
     def load_asset(self):
-        self.OCR_TITLE = AssetOcr(**get_asset(self.asset_ocr_list, "title"))
-        self.OCR_FIGHT = AssetOcr(**get_asset(self.asset_ocr_list, "fight"))
-        self.OCR_UPDATE_TEAM = AssetOcr(**get_asset(self.asset_ocr_list, "update_team"))
-        self.OCR_INTENTIONAL = AssetOcr(**get_asset(self.asset_ocr_list, "intentional"))
-        self.OCR_CONTINUE = AssetOcr(**get_asset(self.asset_ocr_list, "continue"))
-        self.OCR_VICTORY = AssetOcr(**get_asset(self.asset_ocr_list, "victory"))
-        self.OCR_FAIL = AssetOcr(**get_asset(self.asset_ocr_list, "fail"))
+        self.OCR_TITLE = self.get_ocr_asset("title")
+        self.OCR_FIGHT = self.get_ocr_asset("fight")
+        self.OCR_UPDATE_TEAM = self.get_ocr_asset("update_team")
+        self.OCR_INTENTIONAL = self.get_ocr_asset("intentional")
+        self.OCR_CONTINUE = self.get_ocr_asset("continue")
+        self.OCR_VICTORY = self.get_ocr_asset("victory")
+        self.OCR_FAIL = self.get_ocr_asset("fail")
+        self.OCR_LEVEL_UP = self.get_ocr_asset("level_up")
 
-    def fight_once(self):
-        _flag = False
-
-        while True:
-            if bool(event_thread):
-                return
-
-            sleep()
-            result = ocr.get_raw_result()
-            for item in result:
-                ocr_data = OcrData(item)
-                if ocr_data.score >= 0.8:
-                    match ocr_data.text:
-                        case "斗技" | "斗技赛":
-                            _coor = ocr_data.rect.get_rela_center()
-                            logger.ui(f"{ocr_data.text} {_coor.coor}")
-                        case "战":
-                            if _flag:
-                                continue
-                            _coor = ocr_data.rect.get_rela_center()
-                            logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            Mouse.click(_coor)
-                            _flag = True
-                            break
-                        case "上阵":
-                            _coor = ocr_data.rect.get_rela_center()
-                            logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            Mouse.click(_coor)
-                            break
-                        case "手动":
-                            _coor = ocr_data.rect.get_rela_center()
-                            logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            Mouse.click(_coor)
-                            break
-                        case "点击屏幕继续" | "胜利" | "失败":
-                            _coor = ocr_data.rect.get_rela_center()
-                            logger.ui(f"{ocr_data.text} {_coor.coor}")
-                            Mouse.click(_coor)
-                            self.done()
-                            return
-
-        while True:
-            _ocr_data = check_raw_result_once("斗技")
-            if _ocr_data:
-                break
-            _ocr_data = check_raw_result_once("斗技赛")
-            if _ocr_data:
-                break
-            sleep()
-        _coor = _ocr_data.rect.get_rela_center()
-        logger.ui(f"斗技 {_coor.coor}")
-
-        _ocr_data = check_raw_result_once("战")
-        _coor = _ocr_data.rect.get_rela_center()
-        logger.ui(f"战 {_coor.coor}")
-        Mouse.click(_coor)
-
-        sleep(3)
-
-        # choice
-        while True:
-            _ocr_data = check_raw_result_once("自动")
-            if _ocr_data:
-                break
-        _coor = _ocr_data.rect.get_rela_center()
-        logger.ui(f"自动 {_coor.coor}")
-        Mouse.click(_coor)
-
-        sleep(3)
-
-        # fighting
-        while True:
-            _ocr_data = check_raw_result_once("手动")
-            if _ocr_data:
-                break
-        _coor = _ocr_data.rect.get_rela_center()
-        logger.ui(f"手动 {_coor.coor}")
-        Mouse.click(_coor)
-
-        sleep(3)
-
-        # wait finish
-        while True:
-            _ocr_data = check_raw_result_once("自动")
-            if _ocr_data:
-                sleep()
-            else:
-                break
-
-        self.screenshot()
-        # finish_random_left_right()
-        while True:
-            _ocr_data = check_raw_result_once("点击屏幕继续")
-            if _ocr_data:
-                break
-
-        sleep()
-        _coor = _ocr_data.rect.get_rela_center()
-        logger.ui(f"点击屏幕继续 {_coor.coor}")
-        Mouse.click(_coor)
-        self.done()
-
-    def fight_once_new(self):
+    def fighting_once(self):
         _flag = False
         self.current_asset_list = [
             self.OCR_TITLE,

@@ -37,14 +37,5 @@
             "region": [0, 0, 1154, 687],
             "score": "0.8"
         }
-    ],
-    "ocr_data": [
-        {
-            "name": "auto_fight",
-            "keyword": "自动",
-            "region": [0, 0, 0, 0],
-            "score": "0.8",
-            "method": "PERFACT"
-        }
     ]
 }

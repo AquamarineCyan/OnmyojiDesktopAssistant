@@ -1,12 +1,11 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class DaoGuanTuPo(Package):
@@ -44,27 +43,21 @@ class DaoGuanTuPo(Package):
         logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景")
 
     def load_asset(self):
-        self.IMAGE_BUTTON_ZHUWEI = AssetImage(
-            **get_asset(self.asset_image_list, "button_zhuwei")
-        )
-        self.IMAGE_CHUZHAN = AssetImage(**get_asset(self.asset_image_list, "chuzhan"))
-        self.IMAGE_DAOJISHI = AssetImage(**get_asset(self.asset_image_list, "daojishi"))
-        self.IMAGE_GUANZHAN = AssetImage(**get_asset(self.asset_image_list, "guanzhan"))
-        # self.IMAGE_GUANZHUZHAN = AssetImage(
-        #     **get_asset(self.asset_image_list, "guanzhuzhan")
-        # )
-        # self.IMAGE_JIJIE = AssetImage(**get_asset(self.asset_image_list, "jijie"))
-        self.IMAGE_QIANWANG = AssetImage(**get_asset(self.asset_image_list, "qianwang"))
-        self.IMAGE_SHENYUTUPO = AssetImage(
-            **get_asset(self.asset_image_list, "shengyutuposhijian")
-        )
-        self.IMAGE_TIAOZHAN = AssetImage(**get_asset(self.asset_image_list, "tiaozhan"))
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_ZHANBAO = AssetImage(**get_asset(self.asset_image_list, "zhanbao"))
-        self.IMAGE_ZHUWEI = AssetImage(**get_asset(self.asset_image_list, "zhuwei"))
-        self.IMAGE_ZHUWEI_GRAY = AssetImage(
-            **get_asset(self.asset_image_list, "zhuwei_gray")
-        )
+        self.IMAGE_CHUZHAN = self.get_image_asset("chuzhan")
+        self.IMAGE_DAOJISHI = self.get_image_asset("daojishi")
+        self.IMAGE_GUANZHAN = self.get_image_asset("guanzhan")
+        # self.IMAGE_JIJIE = self.get_image_asset("jijie")  # no idea what it is
+        self.IMAGE_QIANWANG = self.get_image_asset("qianwang")
+        self.IMAGE_SHENYUTUPO = self.get_image_asset("shengyutuposhijian")
+        self.IMAGE_TIAOZHAN = self.get_image_asset("tiaozhan")
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_ZHANBAO = self.get_image_asset("zhanbao")
+        self.IMAGE_ZHUWEI = self.get_image_asset("zhuwei")
+        self.IMAGE_ZHUWEI_GRAY = self.get_image_asset("zhuwei_gray")
+
+        self.OCR_TITLE = self.get_ocr_asset("title")
+        self.OCR_DAOJISHI = self.get_ocr_asset("daojishi")
+        self.OCR_SHENYUTUPO = self.get_ocr_asset("shengyutuposhijian")
 
     @log_function_call
     def check_title(self) -> None:
@@ -108,8 +101,8 @@ class DaoGuanTuPo(Package):
         self.current_asset_list = [
             self.IMAGE_ZHUWEI,
             self.IMAGE_ZHUWEI_GRAY,
-            self.global_image.IMAGE_FINISH,
-            self.global_image.IMAGE_FAIL,
+            self.global_assets.IMAGE_FINISH,
+            self.global_assets.IMAGE_FAIL,
         ]
         _flag_zhuwei_disable = False  # 是否能够助威
 
@@ -158,11 +151,11 @@ class DaoGuanTuPo(Package):
 
         # 开始
         self.current_asset_list = [
-            self.global_image.IMAGE_READY_OLD,
-            self.global_image.IMAGE_READY_NEW,
-            self.global_image.IMAGE_VICTORY,
-            self.global_image.IMAGE_FAIL,
-            self.global_image.IMAGE_FINISH,
+            self.global_assets.IMAGE_READY_OLD,
+            self.global_assets.IMAGE_READY_NEW,
+            # self.global_image.IMAGE_VICTORY,
+            self.global_assets.IMAGE_FAIL,
+            self.global_assets.IMAGE_FINISH,
         ]
 
         while True:

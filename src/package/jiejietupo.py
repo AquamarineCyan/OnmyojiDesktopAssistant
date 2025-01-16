@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Literal
 
 from ..utils.adapter import KeyBoard, Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -13,7 +12,7 @@ from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
 from ..utils.point import RelativePoint
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class LineupState(Enum):
@@ -36,7 +35,6 @@ class JieJieTuPo(Package):
     resource_list: list = [
         "fail",  # 失败
         "fangshoujilu",  # 防守记录-个人突破
-        "fighting_fail",  # TODO 战斗失败
         "geren",  # 个人突破
         "jingong",  # 进攻
         "lock",  # 阵容锁定
@@ -45,7 +43,6 @@ class JieJieTuPo(Package):
         "title",  # 突破界面
         "tupojilu",  # 突破记录-阴阳寮突破
         "unlock",  # 阵容解锁
-        "victory",  # 攻破
         "xunzhang_0",  # 勋章数0
         "xunzhang_1",  # 勋章数1
         "xunzhang_2",  # 勋章数2
@@ -60,38 +57,21 @@ class JieJieTuPo(Package):
         super().__init__(n)
 
     def load_asset(self):
-        self.IMAGE_FAIL = AssetImage(**get_asset(self.asset_image_list, "fail"))
-        self.IMAGE_FANGSHOUJILU = AssetImage(
-            **get_asset(self.asset_image_list, "fangshoujilu")
-        )
-        self.IMAGE_GEREN = AssetImage(**get_asset(self.asset_image_list, "geren"))
-        self.IMAGE_JINGONG = AssetImage(**get_asset(self.asset_image_list, "jingong"))
-        self.IMAGE_LOCK = AssetImage(**get_asset(self.asset_image_list, "lock"))
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_TUPOJILU = AssetImage(**get_asset(self.asset_image_list, "tupojilu"))
-        self.IMAGE_UNLOCK = AssetImage(**get_asset(self.asset_image_list, "unlock"))
-        # self.IMAGE_VICTORY = AssetImage(**get_asset(self.asset_image_list, "victory"))
-        self.IMAGE_XUNZHANG_0 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_0")
-        )
-        self.IMAGE_XUNZHANG_1 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_1")
-        )
-        self.IMAGE_XUNZHANG_2 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_2")
-        )
-        self.IMAGE_XUNZHANG_3 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_3")
-        )
-        self.IMAGE_XUNZHANG_4 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_4")
-        )
-        self.IMAGE_XUNZHANG_5 = AssetImage(
-            **get_asset(self.asset_image_list, "xunzhang_5")
-        )
-        self.IMAGE_YINYANGLIAO = AssetImage(
-            **get_asset(self.asset_image_list, "yinyangliao")
-        )
+        self.IMAGE_FAIL = self.get_image_asset("fail")
+        self.IMAGE_FANGSHOUJILU = self.get_image_asset("fangshoujilu")
+        self.IMAGE_GEREN = self.get_image_asset("geren")
+        self.IMAGE_JINGONG = self.get_image_asset("jingong")
+        self.IMAGE_LOCK = self.get_image_asset("lock")
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_TUPOJILU = self.get_image_asset("tupojilu")
+        self.IMAGE_UNLOCK = self.get_image_asset("unlock")
+        self.IMAGE_XUNZHANG_0 = self.get_image_asset("xunzhang_0")
+        self.IMAGE_XUNZHANG_1 = self.get_image_asset("xunzhang_1")
+        self.IMAGE_XUNZHANG_2 = self.get_image_asset("xunzhang_2")
+        self.IMAGE_XUNZHANG_3 = self.get_image_asset("xunzhang_3")
+        self.IMAGE_XUNZHANG_4 = self.get_image_asset("xunzhang_4")
+        self.IMAGE_XUNZHANG_5 = self.get_image_asset("xunzhang_5")
+        self.IMAGE_YINYANGLIAO = self.get_image_asset("yinyangliao")
 
     def get_lineup_state(self) -> tuple[LineupState, RelativePoint | None]:
         result = RuleImage(self.IMAGE_LOCK)
@@ -187,13 +167,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
     def load_asset(self):
         super().load_asset()
-        self.IMAGE_REFRESH = AssetImage(**get_asset(self.asset_image_list, "shuaxin"))
-        self.IMAGE_REFRESH_TRUE = AssetImage(
-            **get_asset(self.asset_image_list, "queding")
-        )
-        self.IMAGE_FIGHT_AGAIN = AssetImage(
-            **get_asset(self.asset_image_list, "zaicitiaozhan")
-        )
+        self.IMAGE_REFRESH = self.get_image_asset("shuaxin")
+        self.IMAGE_REFRESH_TRUE = self.get_image_asset("queding")
+        self.IMAGE_FIGHT_AGAIN = self.get_image_asset("zaicitiaozhan")
 
     def list_num_xunzhang(self) -> list[int]:
         """
@@ -229,14 +205,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
             if RuleImage(self.IMAGE_XUNZHANG_0, region=region, score=0.9).match():
                 alist.append(0)
                 continue
-            alist.append(-1)
-        """
-        for i in range (5, -1, -1):
-            if i == 0:
-                print(i, "勋章", alist.count(i) - 1, "个")
-            else:
-                print(i, "勋章", alist.count(i), "个")
-        """
+            alist.append(-1)  # 未识别到勋章，说明已攻破
+
         list_xunzhang = "勋章数：["
         for i in range(1, 10):
             if i == 1:
@@ -327,7 +297,8 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
             if not RuleImage(self.global_image.IMAGE_FIGHTING_BACK_DEFAULT).match():
                 continue
-            sleep(0.4, 0.8)
+
+            sleep()
             self.fighting_proactive_failure_once()
             count += 1
             logger.ui(f"current count: {count}")
@@ -397,7 +368,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             logger.info("保级")
             lower_level_count = self.flag_current_level - self.flag_target_level
             if lower_level_count < 0:
-                logger.ui("当前等级低于目标等级", "error")
+                logger.ui_error("当前等级低于目标等级")
                 return
         self.check_title()
         logger.num(f"0/{self.max}")
@@ -458,7 +429,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
                     sleep(4)
                     if self.tupo_victory in [3, 6, 9]:
-                        self.check_click(self.global_image.IMAGE_FINISH)
+                        self.check_click(self.global_assets.IMAGE_FINISH)
 
 
 class JieJieTuPoYinYangLiao(JieJieTuPo):
@@ -488,10 +459,6 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         else:
             logger.ui_warn("CD 6次，可在每日21时后无限挑战")
             return 6
-
-    def jibaicishu(self) -> bool:
-        """剩余次数判断"""
-        # TODO RuleOcr
 
     @log_function_call
     def fighting(self) -> int:
@@ -569,17 +536,15 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             return
 
     def run(self):
-        try:
-            self.check_title()
-            while self.n < self.max:
-                if bool(event_thread):
-                    break
-                sleep()
-                self.get_current_process()
-                if flag := self.fighting():
-                    self.done()
-                elif flag == -1:
-                    break
-                sleep()
-        except Exception as e:
-            logger.error(e)
+        self.check_title()
+        while self.n < self.max:
+            if bool(event_thread):
+                raise GUIStopException
+
+            sleep()
+            self.get_current_process()
+            if flag := self.fight():
+                self.done()
+            elif flag == -1:
+                break
+            sleep()

@@ -1,10 +1,9 @@
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class YuLing(Package):
@@ -26,8 +25,8 @@ class YuLing(Package):
         logger.ui("""绘卷期间请减少使用""")
 
     def load_asset(self):
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_START = AssetImage(**get_asset(self.asset_image_list, "start"))
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_START = self.get_image_asset("start")
 
     def run(self) -> None:
         self.check_title()

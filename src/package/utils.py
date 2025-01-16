@@ -16,6 +16,7 @@ from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
 
+__all__ = ["Package", "GlobalResource"]
 
 def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
     assets_file, data = get_asset_data(resource_path)
@@ -51,6 +52,10 @@ def get_image_asset(asset_image_list, name) -> AssetImage:
     return AssetImage(**get_asset(asset_image_list, name))
 
 
+def get_ocr_asset(asset_ocr_list, name) -> AssetOcr:
+    return AssetOcr(**get_asset(asset_ocr_list, name))
+
+
 class GlobalResource:
     """通用资源"""
 
@@ -60,9 +65,6 @@ class GlobalResource:
         "fail",  # 失败
         "fighting",  # 战斗中
         "fighting_back_default",  # 战斗中返回
-        # "fighting_friend_default",  # 战斗中好友图标-怀旧/简约
-        # "fighting_friend_linshuanghanxue",  # 战斗中好友图标-凛霜寒雪
-        # "fighting_friend_chunlvhanqing",  # 战斗中好友图标-春缕含青
         "finish",  # 结束
         "passenger_2",  # 队员2
         "passenger_3",  # 队员3
@@ -75,41 +77,42 @@ class GlobalResource:
     ]
 
     def __init__(self):
-        self.image_data = load_asset(self.resource_path, "image")
-        if self.image_data == {}:
-            logger.ui_error(f"{self.resource_path}/assets.json文件解析失败")
-            return
+        self.load_asset_list()
         try:
             self.load_asset()
         except Exception as e:
-            logger.ui_error(f"{self.resource_path}/assets.json文件内容解析失败: {e}")
+            logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
+            logger.ui_error(f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件")
+
+    def load_asset_list(self):
+        self.asset_image_list = load_asset(self.resource_path, "image")
+        self.asset_ocr_list = load_asset(self.resource_path, "ocr")
+
+    def get_image_asset(self, name: str) -> AssetImage:
+        return get_image_asset(self.asset_image_list, name)
+
+    def get_ocr_asset(self, name: str) -> AssetOcr:
+        return get_ocr_asset(self.asset_ocr_list, name)
 
     def load_asset(self):
-        self.IMAGE_ACCEPT_INVITATION = AssetImage(
-            **get_asset(self.image_data, "accept_invitation")
-        )
-        self.IMAGE_FAIL = AssetImage(**get_asset(self.image_data, "fail"))
-        self.IMAGE_FIGHTING = AssetImage(**get_asset(self.image_data, "fighting"))
-        self.IMAGE_FIGHTING_BACK_DEFAULT = AssetImage(
-            **get_asset(self.image_data, "fighting_back_default")
-        )
-        self.IMAGE_FINISH = AssetImage(**get_asset(self.image_data, "finish"))
-        self.IMAGE_PASSENGER_2 = AssetImage(**get_asset(self.image_data, "passenger_2"))
-        self.IMAGE_PASSENGER_3 = AssetImage(**get_asset(self.image_data, "passenger_3"))
-        self.IMAGE_READY_NEW = AssetImage(**get_asset(self.image_data, "ready_new"))
-        self.IMAGE_READY_OLD = AssetImage(**get_asset(self.image_data, "ready_old"))
-        self.IMAGE_START_SINGLE = AssetImage(
-            **get_asset(self.image_data, "start_single")
-        )
-        self.IMAGE_START_TEAM = AssetImage(**get_asset(self.image_data, "start_team"))
-        self.IMAGE_SOUL_OVERFLOW = AssetImage(
-            **get_asset(self.image_data, "soul_overflow")
-        )
-        self.IMAGE_TANCHIGUI = AssetImage(**get_asset(self.image_data, "tanchigui"))
-        self.IMAGE_VICTORY = AssetImage(**get_asset(self.image_data, "victory"))
-        self.IMAGE_XIEZHANDUIWU = AssetImage(
-            **get_asset(self.image_data, "xiezhanduiwu")
-        )
+        self.IMAGE_ACCEPT_INVITATION = self.get_image_asset("accept_invitation")
+        self.IMAGE_FAIL = self.get_image_asset("fail")
+        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
+        self.IMAGE_FIGHTING_BACK_DEFAULT = self.get_image_asset("fighting_back_default")
+        self.IMAGE_FINISH = self.get_image_asset("finish")
+        self.IMAGE_PASSENGER_2 = self.get_image_asset("passenger_2")
+        self.IMAGE_PASSENGER_3 = self.get_image_asset("passenger_3")
+        self.IMAGE_READY_NEW = self.get_image_asset("ready_new")
+        self.IMAGE_READY_OLD = self.get_image_asset("ready_old")
+        self.IMAGE_START_SINGLE = self.get_image_asset("start_single")
+        self.IMAGE_START_TEAM = self.get_image_asset("start_team")
+        self.IMAGE_SOUL_OVERFLOW = self.get_image_asset("soul_overflow")
+        self.IMAGE_TANCHIGUI = self.get_image_asset("tanchigui")
+        self.IMAGE_VICTORY = self.get_image_asset("victory")
+        self.IMAGE_XIEZHANDUIWU = self.get_image_asset("xiezhanduiwu")
+
+        self.OCR_AUTO_FIGHT = self.get_ocr_asset("auto_fight")
+        self.OCR_CLICK_AND_CONTINUE = self.get_ocr_asset("click_and_continue")
 
 
 class Package:
@@ -119,10 +122,6 @@ class Package:
     """路径"""
     resource_list: list = []
     """资源列表"""
-    fast_time: int = 0
-    """最快通关速度，用于中途等待"""
-    global_resource_path: Path = RESOURCE_GLOBAL_PATH
-    """通用资源路径"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -137,16 +136,14 @@ class Package:
         self.current_scene: str = None
         """当前场景"""
 
-        self.global_image = GlobalResource()
+        self.global_assets = GlobalResource()
         """通用资源"""
         self.load_asset_list()
         try:
             self.load_asset()
         except Exception as e:
             logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
-            logger.ui_error(
-                f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件"
-            )
+            logger.ui_error(f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件")
 
     @staticmethod
     def description() -> None:
@@ -162,6 +159,9 @@ class Package:
 
     def get_image_asset(self, name: str) -> AssetImage:
         return get_image_asset(self.asset_image_list, name)
+
+    def get_ocr_asset(self, name: str) -> AssetOcr:
+        return get_ocr_asset(self.asset_ocr_list, name)
 
     def title_error_msg(self):
         logger.ui_warn("请检查游戏场景")
@@ -193,11 +193,11 @@ class Package:
         try:
             asset = self.OCR_TITLE
         except AttributeError:
-            logger.warn("no OCR_TITLE")
+            logger.warning("no OCR_TITLE")
         try:
             asset = self.IMAGE_TITLE
         except AttributeError:
-            logger.warn("no IMAGE_TITLE")
+            logger.warning("no IMAGE_TITLE")
 
         while True:
             if bool(event_thread):
@@ -235,7 +235,7 @@ class Package:
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_click timeout")
                 return False
@@ -264,7 +264,7 @@ class Package:
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             if timeout and (time.time() - _start > timeout):
                 logger.error("check_scene timeout")
                 return False
@@ -289,10 +289,10 @@ class Package:
 
             # 优先判断3人组队
             if passengers == 3:
-                if not RuleImage(self.global_image.IMAGE_PASSENGER_3).match():
+                if not RuleImage(self.global_assets.IMAGE_PASSENGER_3).match():
                     logger.ui("队员3 就位")
                     return True
-            elif not RuleImage(self.global_image.IMAGE_PASSENGER_2).match():
+            elif not RuleImage(self.global_assets.IMAGE_PASSENGER_2).match():
                 logger.ui("队员2 就位")
                 return True
 
@@ -329,15 +329,15 @@ class Package:
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             _screenshot = ScreenShot()
-            if RuleImage(self.global_image.IMAGE_VICTORY).match(_screenshot):
+            if RuleImage(self.global_assets.IMAGE_VICTORY).match(_screenshot):
                 logger.ui("战斗胜利")
                 return True
-            if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
+            if RuleImage(self.global_assets.IMAGE_FINISH).match(_screenshot):
                 logger.ui("战斗结束")
                 return True
-            if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
+            if RuleImage(self.global_assets.IMAGE_FAIL).match(_screenshot):
                 logger.ui_warn("战斗失败")
                 return False
 
@@ -359,10 +359,10 @@ class Package:
                 return False
 
             _screenshot = ScreenShot()
-            if RuleImage(self.global_image.IMAGE_FINISH).match(_screenshot):
+            if RuleImage(self.global_assets.IMAGE_FINISH).match(_screenshot):
                 logger.ui("战斗结束")
                 return True
-            if RuleImage(self.global_image.IMAGE_FAIL).match(_screenshot):
+            if RuleImage(self.global_assets.IMAGE_FAIL).match(_screenshot):
                 logger.ui_warn("战斗失败")
                 return False
 
@@ -377,7 +377,7 @@ class Package:
                 raise GUIStopException
 
             # 未重复检测到，表示成功点击
-            if not RuleImage(self.global_image.IMAGE_FINISH).match():
+            if not RuleImage(self.global_assets.IMAGE_FINISH).match():
                 self.done()
                 break
             Mouse.click()

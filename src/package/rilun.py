@@ -1,12 +1,11 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class RiLun(Package):
@@ -35,7 +34,7 @@ class RiLun(Package):
         logger.ui("日轮副本")
 
     def load_asset(self):
-        self.IMAGE_FIGHTING = AssetImage(**get_asset(self.asset_image_list, "fighting"))
+        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
 
     def check_title(self) -> bool:
         """场景"""
@@ -80,9 +79,9 @@ class RiLun(Package):
     def run(self) -> None:
         # self.check_title()
         self.current_asset_list = [
-            self.global_image.IMAGE_XIEZHANDUIWU,
-            self.IMAGE_FIGHTING,
-            self.global_image.IMAGE_ACCEPT_INVITATION,
+            self.global_assets.IMAGE_XIEZHANDUIWU,
+            self.global_assets.IMAGE_FIGHTING,
+            self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
         if self.flag_driver:
             self.current_asset_list.append(self.global_image.IMAGE_START_TEAM)

@@ -1,12 +1,11 @@
 from ..utils.adapter import Mouse
-from ..utils.assets import AssetImage
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from .utils import Package, get_asset
+from .utils import Package
 
 
 class YongShengZhiHai(Package):
@@ -22,7 +21,6 @@ class YongShengZhiHai(Package):
         "fighting",  # 进行中
         # "accept_invitation",  # 接受邀请
     ]
-    fast_time = 13 - 2
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -33,14 +31,10 @@ class YongShengZhiHai(Package):
         logger.ui("默认打手30次")
 
     def load_asset(self):
-        self.IMAGE_TITLE = AssetImage(**get_asset(self.asset_image_list, "title"))
-        self.IMAGE_PASSENGER = AssetImage(
-            **get_asset(self.asset_image_list, "passenger")
-        )
-        self.IMAGE_START_TEAM = AssetImage(
-            **get_asset(self.asset_image_list, "start_team")
-        )
-        self.IMAGE_FIGHTING = AssetImage(**get_asset(self.asset_image_list, "fighting"))
+        self.IMAGE_TITLE = self.get_image_asset("title")
+        self.IMAGE_PASSENGER = self.get_image_asset("passenger")
+        self.IMAGE_START_TEAM = self.get_image_asset("start_team")
+        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
 
     @log_function_call
     def start(self) -> None:
@@ -48,7 +42,7 @@ class YongShengZhiHai(Package):
         if isinstance(self, YongShengZhiHaiTeam):
             self.check_click(self.IMAGE_START_TEAM)
         else:
-            self.check_click(self.global_image.IMAGE_START_SINGLE)
+            self.check_click(self.global_assets.IMAGE_START_SINGLE)
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
@@ -121,8 +115,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
             # 检测到任一图像
             result = check_image_once(
                 [
-                    self.global_image.IMAGE_FINISH,
-                    self.global_image.IMAGE_TANCHIGUI,
+                    self.global_assets.IMAGE_FINISH,
+                    self.global_assets.IMAGE_TANCHIGUI,
                 ]
             )
             # 直到第一次识别到
@@ -145,10 +139,10 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         self.current_asset_list = [
             self.IMAGE_TITLE,
             self.IMAGE_FIGHTING,
-            self.global_image.IMAGE_ACCEPT_INVITATION,
+            self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
         if self.flag_driver:
-            self.current_asset_list.append(self.global_image.IMAGE_START_TEAM)
+            self.current_asset_list.append(self.global_assets.IMAGE_START_TEAM)
 
         while self.n < self.max:
             if bool(event_thread):

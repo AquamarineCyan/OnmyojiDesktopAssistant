@@ -47,16 +47,14 @@ class YuHun(Package):
         self.IMAGE_TITLE_11 = self.get_image_asset("title_11")
         self.IMAGE_TITLE_12 = self.get_image_asset("title_12")
 
-        self.OCR_AUTO_FIGHT = self.get_ocr_asset("auto_fight")
-
     @log_function_call
     def start(self) -> None:
         """挑战"""
         logger.ui("开始挑战")
         if isinstance(self, YuHunTeam):
-            self.check_click(self.global_image.IMAGE_START_TEAM, timeout=3)
+            self.check_click(self.global_assets.IMAGE_START_TEAM, timeout=3)
         elif isinstance(self, YuHunSingle):
-            self.check_click(self.global_image.IMAGE_START_SINGLE, timeout=3)
+            self.check_click(self.global_assets.IMAGE_START_SINGLE, timeout=3)
 
 
 class YuHunTeam(YuHun):
@@ -99,7 +97,9 @@ class YuHunTeam(YuHun):
         """等待结束
 
         掉落物大体分为2种情况：
+
         1.正常情况，达摩蛋能被识别
+
         2.掉落过多情况（指神罚一排紫蛇皮），达摩蛋被遮挡，此时贪吃鬼必定（可能）出现
         """
         _flag_screenshot = True
@@ -117,10 +117,10 @@ class YuHunTeam(YuHun):
             # 检测到任一图像
             result = check_image_once(
                 [
-                    self.global_image.IMAGE_FINISH,
+                    self.global_assets.IMAGE_FINISH,
                     self.IMAGE_FINISH_2000,
                     self.IMAGE_FINISH_DAMAGE_2000,
-                    self.global_image.IMAGE_TANCHIGUI,
+                    self.global_assets.IMAGE_TANCHIGUI,
                 ]
             )
 
@@ -147,22 +147,23 @@ class YuHunTeam(YuHun):
         msg_fighting: bool = True
 
         self.current_asset_list = [
-            self.global_image.IMAGE_XIEZHANDUIWU,
-            self.global_image.IMAGE_FIGHTING,
-            self.global_image.IMAGE_ACCEPT_INVITATION,
+            self.global_assets.IMAGE_XIEZHANDUIWU,
+            self.global_assets.IMAGE_FIGHTING,
+            self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
 
         if self.flag_driver:
-            self.current_asset_list.append(self.global_image.IMAGE_START_TEAM)
+            self.current_asset_list.append(self.global_assets.IMAGE_START_TEAM)
 
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
 
+            msg_fighting = True
             result = check_image_once(self.current_asset_list)
             if result is None:
                 # 判断是否在战斗中
-                result = RuleOcr(self.OCR_AUTO_FIGHT)
+                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
                 if result.match():
                     if msg_fighting:
                         logger.ui("自动战斗中")
@@ -180,7 +181,7 @@ class YuHunTeam(YuHun):
                 continue
 
             match result.name:
-                case self.global_image.IMAGE_XIEZHANDUIWU.name:
+                case self.global_assets.IMAGE_XIEZHANDUIWU.name:
                     logger.scene("组队界面准备中")
                     if self.flag_driver:
                         self.wait_passengers_on_position(self.flag_passengers)
@@ -189,7 +190,7 @@ class YuHunTeam(YuHun):
                     sleep()
                     msg_title = False
 
-                case self.global_image.IMAGE_ACCEPT_INVITATION.name:
+                case self.global_assets.IMAGE_ACCEPT_INVITATION.name:
                     logger.ui("接受邀请")
                     Mouse.click(result.center_point())
 
@@ -231,11 +232,11 @@ class YuHunSingle(YuHun):
             self.IMAGE_TITLE_11,
             self.IMAGE_TITLE_12,
             self.IMAGE_FINISH_2000,
-            self.global_image.IMAGE_START_SINGLE,
-            self.global_image.IMAGE_FAIL,
-            self.global_image.IMAGE_FINISH,
-            self.global_image.IMAGE_VICTORY,
-            self.global_image.IMAGE_SOUL_OVERFLOW,
+            self.global_assets.IMAGE_START_SINGLE,
+            self.global_assets.IMAGE_FAIL,
+            self.global_assets.IMAGE_FINISH,
+            self.global_assets.IMAGE_VICTORY,
+            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
 
         while self.n < self.max:
@@ -245,7 +246,7 @@ class YuHunSingle(YuHun):
             result = check_image_once(self.current_asset_list)
             if result is None:
                 # 判断是否在战斗中
-                result = RuleOcr(self.OCR_AUTO_FIGHT)
+                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
                 if result.match() and msg_fighting:
                     logger.ui("自动战斗中")
                     msg_fighting = False
@@ -269,20 +270,20 @@ class YuHunSingle(YuHun):
                     msg_title = False
                     sleep(2)
 
-                case self.global_image.IMAGE_START_SINGLE.name:  # 一般在上一级case中已经处理
+                case self.global_assets.IMAGE_START_SINGLE.name:  # 一般在上一级case中已经处理
                     logger.ui("开始挑战")
                     Mouse.click(result.center_point())
                     msg_title = False
 
-                case self.global_image.IMAGE_FAIL.name:
+                case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_warn("失败，需要手动处理")
                     break
 
-                case self.global_image.IMAGE_VICTORY.name:
+                case self.global_assets.IMAGE_VICTORY.name:
                     logger.ui("胜利")
                     sleep()  # 等待结算
 
-                case self.global_image.IMAGE_FINISH.name | self.IMAGE_FINISH_2000.name:
+                case self.global_assets.IMAGE_FINISH.name | self.IMAGE_FINISH_2000.name:
                     if result.name == self.IMAGE_FINISH_2000.name:
                         logger.ui("结束-鎏金圣域")
                     else:
@@ -290,7 +291,7 @@ class YuHunSingle(YuHun):
 
                     if flag_soul_overflow:
                         sleep(1)
-                    if self.check_click(self.global_image.IMAGE_SOUL_OVERFLOW, timeout=2, duration=0.75):
+                    if self.check_click(self.global_assets.IMAGE_SOUL_OVERFLOW, timeout=2, duration=0.75):
                         logger.ui_warn("御魂上限")
                         flag_soul_overflow = True
 
@@ -299,7 +300,7 @@ class YuHunSingle(YuHun):
                     msg_fighting = False
                     sleep(3)  # 等待过场图
 
-                case self.global_image.IMAGE_SOUL_OVERFLOW.name:  # 正常情况下会在结束界面点击，这是备用方案
+                case self.global_assets.IMAGE_SOUL_OVERFLOW.name:  # 正常情况下会在结束界面点击，这是备用方案
                     logger.ui_warn("御魂上限")
                     Mouse.click(result.center_point(), duration=0.75)
                     flag_soul_overflow = True
