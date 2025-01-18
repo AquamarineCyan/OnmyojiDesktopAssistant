@@ -1,11 +1,13 @@
 import random
 import time
+from typing import Literal
+
 import pyautogui
 import pytweening
 import win32api
 import win32con
 
-
+from .config import config
 from .event import event_thread, event_xuanshang
 from .exception import GUIStopException
 from .log import logger
@@ -14,6 +16,9 @@ from .point import AbsolutePoint, RelativePoint
 from .window import window
 
 __all__ = ["Mouse", "KeyBoard"]
+
+_back_click_x: int = 0
+_back_click_y: int = 0
 
 
 def linear(n):
@@ -37,10 +42,45 @@ class Mouse:
     def position(cls) -> RelativePoint:
         return AbsolutePoint(*pyautogui.position()).abs_to_rela()
 
+    @staticmethod
+    def random_tween():
+        """补间移动，模拟真人运动轨迹"""
+        list_tween = [
+            pytweening.easeInQuad,
+            pytweening.easeOutQuad,
+            pytweening.easeInOutQuad,
+        ]
+        random.seed(time.time_ns())
+        return random.choice(list_tween)
+
+    # 鼠标后台点击事件参考 https://learn.microsoft.com/zh-cn/windows/win32/inputdev/mouse-input-notifications
+
+    @staticmethod
+    def _win_move(hwnd, lParam):
+        # 没法发送原始输入(WM_INPUT)
+        # win32api.SendMessage(hwnd, win32con.WM_NCHITTEST, 0, lParam) # NC前缀表示鼠标在屏幕的坐标
+        # win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, win32con.HTCLIENT, lParam) #未生效，不影响使用
+        win32api.PostMessage(hwnd, win32con.WM_MOUSEMOVE, 0, lParam)
+
+    @staticmethod
+    def _win_left_click(hwnd, lParam):
+        # 没法发送原始输入(WM_INPUT)
+        # win32api.SendMessage(hwnd, win32con.WM_NCHITTEST, 0, lParam)
+        # win32api.SendMessage(hwnd, win32con.WM_SETCURSOR, win32con.HTCLIENT, lParam) #未生效，不影响使用
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lParam)
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lParam)
+        win32api.SendMessage(hwnd, win32con.WM_CAPTURECHANGED, 0, 0)
+        # win32api.SendMessage(hwnd, win32con.WM_NCHITTEST, 0, lParam)
+        win32api.PostMessage(hwnd, win32con.WM_MOUSEMOVE, 0, lParam)
+
+    @staticmethod
+    def _win_scroll(hwnd, wheel_delta, lParam):
+        win32api.PostMessage(hwnd, win32con.WM_MOUSEWHEEL, win32api.MAKELONG(0, wheel_delta), lParam)
+
     @classmethod
-    def move(
+    def _move_front(
         cls,
-        point: AbsolutePoint | RelativePoint | None = None,
+        dst_point: AbsolutePoint | RelativePoint | None = None,
         x: float = None,
         y: float = None,
         xOffset: float = None,
@@ -52,36 +92,150 @@ class Mouse:
             if xOffset and yOffset:
                 pyautogui.move(xOffset, yOffset, duration, tween)
             else:
-                if point is None:
+                if dst_point is None:
                     startx, starty = pyautogui.position()
                     x = int(x) if x else startx
                     y = int(y) if y else starty
-                elif isinstance(point, RelativePoint):
-                    x = int(window.window_left + point.x)
-                    y = int(window.window_top + point.y)
-                elif isinstance(point, AbsolutePoint):
-                    x = int(point.x)
-                    y = int(point.y)
+                elif isinstance(dst_point, RelativePoint):
+                    x = int(window.window_left + dst_point.x)
+                    y = int(window.window_top + dst_point.y)
+                elif isinstance(dst_point, AbsolutePoint):
+                    x = int(dst_point.x)
+                    y = int(dst_point.y)
                 else:
-                    raise TypeError(
-                        "The point argument must be an RelativePoint or a AbsolutePoint."
-                    )
+                    raise TypeError("The point argument must be an RelativePoint or a AbsolutePoint.")
                 pyautogui.moveTo(x, y, duration, tween)
 
         except pyautogui.FailSafeException:
             logger.error("鼠标移动失败，请检查是否点击了屏幕左上角，请重启后使用")
             return
 
-    @staticmethod
-    def random_tween():
-        """补间移动，模拟真人运动轨迹"""
-        list_tween = [
-            pytweening.easeInQuad,
-            pytweening.easeOutQuad,
-            pytweening.easeInOutQuad,
-        ]
-        random.seed(time.time_ns())
-        return random.choice(list_tween)
+    @classmethod
+    def _move_backend(
+        cls,
+        dst_point: AbsolutePoint | RelativePoint | None = None,
+        x: float = None,
+        y: float = None,
+        xOffset: float = None,
+        yOffset: float = None,
+    ):
+        global _back_click_x, _back_click_y
+
+        # if point is None:
+        #     x = _back_click_x
+        #     y = _back_click_y
+        # else:
+        #     x, y = point.coor
+
+        hwnd = window.handle
+        current_x = _back_click_x
+        current_y = _back_click_y
+        dst_x = dst_point.x if dst_point else x
+        dst_y = dst_point.y if dst_point else y
+
+        # 计算移动的步数
+        steps = max(abs(dst_x - current_x), abs(dst_y - current_y))
+        if steps == 0:
+            logger.info("steps == 0")
+            steps = 1
+
+        # 计算每一步的增量
+        x_step = (dst_x - current_x) / steps
+        y_step = (dst_y - current_y) / steps
+        logger.info(f"steps:{steps}, x_step:{x_step}, y_step:{y_step}")
+
+        for _ in range(steps):
+            current_x += x_step
+            current_y += y_step
+            lParam = win32api.MAKELONG(int(current_x), int(current_y))
+            cls._win_move(hwnd, lParam)
+
+        # 最后一步确保到达目标位置
+        lParam = win32api.MAKELONG(int(dst_x), int(dst_y))
+        cls._win_move(hwnd, lParam)
+
+        _back_click_x = current_x
+        _back_click_y = current_y
+        logger.info(f"update ({_back_click_x},{_back_click_y})")
+
+    @classmethod
+    def move(
+        cls,
+        point: AbsolutePoint | RelativePoint | None = None,
+        x: float = None,
+        y: float = None,
+        xOffset: float = None,
+        yOffset: float = None,
+        duration: float = 0,
+        tween=linear,
+    ):
+        if config.backend:
+            cls._move_backend(point, x, y, xOffset, yOffset)
+        else:
+            cls._move_front(point, x, y, xOffset, yOffset, duration, tween)
+
+    @classmethod
+    def _click_front(cls, point: AbsolutePoint | RelativePoint | None = None, duration: float = 0.5):
+        if point is None:
+            x, y = pyautogui.position()
+            logger.info("click at current position")
+        elif isinstance(point, RelativePoint):
+            x, y = point.rela_to_abs().coor
+            logger.info(f"RelativePoint:({x},{y})")
+        else:
+            x, y = point.coor
+            logger.warning(f"AbsolutePoint:({x},{y})")
+
+        # cls.move(x=_x, y=_y, duration=duration, tween=random.choice(list_tween))
+        # logger.info(f"click at ({x},{y})")
+        # cls.send_mouse_event(0x6, x, y, 0)
+        try:
+            pyautogui.click(x, y, duration=duration, tween=cls.random_tween())
+        except pyautogui.FailSafeException:
+            logger.error(f"click error at ({x},{y})")
+            logger.ui_error("安全错误，可能是您点击了屏幕左上角，请重启后使用")
+
+    @classmethod
+    def _click_backend(cls, point: AbsolutePoint | RelativePoint | None = None):
+        global _back_click_x, _back_click_y
+
+        if point is None:
+            dst_x = _back_click_x
+            dst_y = _back_click_y
+        else:
+            dst_x, dst_y = point.coor
+
+        hwnd = window.handle
+        current_x = _back_click_x
+        current_y = _back_click_y
+
+        # 计算移动的步数
+        steps = int(max(abs(dst_x - current_x), abs(dst_y - current_y)))
+        if steps == 0:
+            logger.info("steps == 0")
+            steps = 1
+
+        # 计算每一步的增量
+        x_step = (dst_x - current_x) / steps
+        y_step = (dst_y - current_y) / steps
+        logger.info(f"steps:{steps}, x_step:{x_step}, y_step:{y_step}")
+
+        for _ in range(steps):
+            current_x += x_step
+            current_y += y_step
+            lParam = win32api.MAKELONG(int(current_x), int(current_y))
+            cls._win_move(hwnd, lParam)
+
+        # 最后一步确保到达目标位置
+        lParam = win32api.MAKELONG(int(dst_x), int(dst_y))
+        cls._win_move(hwnd, lParam)
+
+        # 模拟鼠标按下和释放
+        cls._win_left_click(hwnd, lParam)
+
+        _back_click_x = current_x
+        _back_click_y = current_y
+        logger.info(f"update ({_back_click_x},{_back_click_y})")
 
     @classmethod
     def click(
@@ -99,49 +253,59 @@ class Mouse:
         """
         if bool(event_thread):
             raise GUIStopException
-        
+
         # 延迟
         if wait:
             time.sleep(wait)
 
-        # FIXME:OcrData不能作为参数传入，保证该接口的只接受坐标
         if isinstance(point, OcrData):
             point = point.center
 
-        if point is None:
-            _x, _y = pyautogui.position()
-            logger.info("click at current position")
-        elif isinstance(point, RelativePoint):
-            _x, _y = point.rela_to_abs().coor
-            logger.info(f"RelativePoint:({_x},{_y})")
+        if config.backend:
+            # logger.info(f"backend click {point.x},{point.y}")
+            cls._click_backend(point)
         else:
-            _x, _y = point.coor
-            logger.warning(f"AbsolutePoint:({_x},{_y})")
-
-        # cls.move(x=_x, y=_y, duration=duration, tween=random.choice(list_tween))
-        # logger.info(f"click at ({_x},{_y})")
-        # cls.send_mouse_event(0x6, _x, _y, 0)
-        try:
-            pyautogui.click(_x, _y, duration=duration, tween=cls.random_tween())
-        except pyautogui.FailSafeException:
-            logger.error(f"click error at ({_x},{_y})")
-            logger.ui_error("安全错误，可能是您点击了屏幕左上角，请重启后使用")
+            # logger.info(f"front click {point.x},{point.y}")
+            cls._click_front(point, duration)
 
     @classmethod
-    def click_backend(cls,
-        point: AbsolutePoint | RelativePoint | OcrData | None = None,
-        duration: float = 0.5,
-        wait: float = 0,):
+    def _drag_front(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+        pyautogui.dragRel(x_offset, y_offset, duration=duration, tween=cls.random_tween())
+
+    @classmethod
+    def _drag_backend(cls, x_offset: int = None, y_offset: int = None):
+        global _back_click_x, _back_click_y
+
         hwnd = window.handle
-        x, y = point.coor
+        current_x = _back_click_x
+        current_y = _back_click_y
 
-        # 将 (x, y) 转换为 lParam
-        lParam = y << 16 | x  # 高位是 Y，低位是 X
+        # 计算移动的步数
+        steps = max(abs(x_offset), abs(y_offset))
+        if steps == 0:
+            logger.info("steps == 0")
+            steps = 1
 
-        # 模拟鼠标按下和释放
-        win32api.SendMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lParam)
-        win32api.SendMessage(hwnd, win32con.WM_LBUTTONUP, 0, lParam)
-    
+        # 计算每一步的增量
+        x_step = x_offset / steps
+        y_step = y_offset / steps
+        logger.info(f"steps:{steps}, x_step:{x_step}, y_step:{y_step}")
+
+        lParam = win32api.MAKELONG(int(current_x), int(current_y))
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, lParam)
+
+        for _ in range(steps):
+            current_x += x_step
+            current_y += y_step
+            lParam = win32api.MAKELONG(int(current_x), int(current_y))
+            win32api.PostMessage(hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, lParam)
+
+        win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lParam)
+
+        _back_click_x = current_x
+        _back_click_y = current_y
+        logger.info(f"update ({_back_click_x},{_back_click_y})")
+
     @classmethod
     def drag(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
         """拖动，使用前需要先移动鼠标至当前位置
@@ -151,9 +315,22 @@ class Mouse:
             y_offset (int): 纵轴拖动量
             duration (float): 持续时间
         """
-        pyautogui.dragRel(
-            x_offset, y_offset, duration=duration, tween=cls.random_tween()
-        )
+        if config.backend:
+            cls._drag_backend(x_offset, y_offset)
+        else:
+            cls._drag_front(x_offset, y_offset, duration)
+
+    @classmethod
+    def _scroll_front(cls, distance: int):
+        pyautogui.scroll(distance)
+
+    @classmethod
+    def _scroll_backend(cls, distance: int):
+        hwnd = window.handle
+        current_x = _back_click_x
+        current_y = _back_click_y
+
+        cls._win_scroll(hwnd, distance, win32api.MAKELONG(int(current_x), int(current_y)))
 
     @classmethod
     def scroll(cls, distance: int) -> None:
@@ -166,7 +343,10 @@ class Mouse:
             scroll up/away from the user, negative values scroll down/toward the
             user.
         """
-        pyautogui.scroll(distance)
+        if config.backend:
+            cls._scroll_backend(distance)
+        else:
+            cls._scroll_front(distance)
         logger.info(f"scroll at ({distance})")
 
 
@@ -174,9 +354,14 @@ class KeyBoard:
     """键盘事件"""
 
     @staticmethod
-    def _keyboard_input(key: str):
-        """模拟键盘输入"""
+    def _keyboard_front(key: str):
         pyautogui.press(key)
+
+    @staticmethod
+    def _keyboard_backend(wParam: int = Literal[win32con.VK_ESCAPE, win32con.VK_RETURN]):
+        hwnd = window.handle
+        win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, wParam, 0)
+        win32api.PostMessage(hwnd, win32con.WM_KEYUP, wParam, 1)
 
     @classmethod
     def enter(cls, wait: float = 0):
@@ -184,7 +369,10 @@ class KeyBoard:
         if wait:
             time.sleep(wait)
         event_xuanshang.wait()
-        cls._keyboard_input("enter")
+        if config.backend:
+            cls._keyboard_backend(win32con.VK_RETURN)
+        else:
+            cls._keyboard_front("enter")
 
     @classmethod
     def esc(cls, wait: float = 0):
@@ -192,4 +380,7 @@ class KeyBoard:
         if wait:
             time.sleep(wait)
         event_xuanshang.wait()
-        cls._keyboard_input("esc")
+        if config.backend:
+            cls._keyboard_backend(win32con.VK_ESCAPE)
+        else:
+            cls._keyboard_front("esc")

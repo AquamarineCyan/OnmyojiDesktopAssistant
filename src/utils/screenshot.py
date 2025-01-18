@@ -5,6 +5,7 @@ import win32gui
 import win32ui
 from PIL import Image, ImageGrab
 
+from .config import config
 from .log import logger
 from .window import window
 
@@ -16,6 +17,7 @@ class ScreenShot:
         _log: bool = False,
         debug: bool = False,
     ) -> None:
+        self.hwnd = window.handle
         self._image = None
         _rect = (
             window.window_left,
@@ -28,11 +30,30 @@ class ScreenShot:
         else:
             self.rect = _rect
         # self.rect = window.handle_rect if rect is None else rect
-        self._image_mat = None
         self._log = _log
-        self._screenshot(debug)
+        self._debug = debug
+        self.rect_backend = None
 
-    def _screenshot(self, debug: bool = False) -> Image.Image:
+        # 最多重试10次
+        for i in range(10):
+            try:
+                if config.backend:
+                    if rect:
+                        self.rect_backend = rect
+                        if rect[1] > 0:  # top
+                            self.rect_backend = (rect[0], rect[1] - 39, rect[2], rect[3])
+                    self._screenshot_backend()
+                else:
+                    self._screenshot_front()
+                break
+
+            except Exception as e:
+                if self._log:
+                    logger.error(f"screenshot error: {e}")
+                logger.ui_error(f"截图失败，重试第{i + 1}次")
+                time.sleep(0.1)
+
+    def _screenshot_front(self) -> Image.Image:
         _rect = (
             self.rect[0],
             self.rect[1],
@@ -44,36 +65,21 @@ class ScreenShot:
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot cost {self.time_cost} ms, {_rect}")
-        if debug:
+            logger.info(f"screenshot front cost {self.time_cost} ms, {_rect}")
+        if self._debug:
             image.show()
         self._image = image
         return image
 
-    def save(self, file, *args, **kwargs) -> None:
-        self._image.save(file, *args, **kwargs)
-        logger.info(f"screenshot cost {self.time_cost} ms, at {file}")
-
-    def get_image(self) -> Image.Image:
-        return self._image
-
-
-class ScreenShotBackend:
-    def __init__(
-        self,
-        _log: bool = False,
-        debug: bool = False,
-    ) -> None:
-        self.hwnd = window.handle
-        self._image = None
-        self._image_mat = None
-        self._log = _log
-        self._screenshot(debug)
-
-    def _screenshot(self, debug: bool = False) -> Image.Image:
+    def _screenshot_backend(self) -> Image.Image:
+        """截图区域只有窗口客户区，不包括标题栏等"""
         client_rect = window.client_rect
-        width = client_rect[2] - client_rect[0]
-        height = client_rect[3] - client_rect[1]
+        if self.rect_backend:
+            width = self.rect_backend[2]
+            height = self.rect_backend[3] + 39
+        else:
+            width = client_rect[2] - client_rect[0]
+            height = client_rect[3] - client_rect[1]
         _start = time.perf_counter()
         # 返回句柄窗口的设备环境，覆盖整个窗口，包括非客户区，标题栏，菜单，边框
         hWndDC = win32gui.GetDC(self.hwnd)
@@ -88,7 +94,12 @@ class ScreenShotBackend:
         # 将截图保存到saveBitMap中
         saveDC.SelectObject(saveBitMap)
         # 保存bitmap到内存设备描述表
-        saveDC.BitBlt((0, 0), (width, height), mfcDC, (0, 0), win32con.SRCCOPY)
+        if self.rect_backend:
+            saveDC.BitBlt(
+                (0, 0), (width, height), mfcDC, (self.rect_backend[0], self.rect_backend[1]), win32con.SRCCOPY
+            )
+        else:
+            saveDC.BitBlt((0, 0), (width, height), mfcDC, (0, 0), win32con.SRCCOPY)
 
         ###获取位图信息
         bmpinfo = saveBitMap.GetInfo()
@@ -114,8 +125,8 @@ class ScreenShotBackend:
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot cost {self.time_cost} ms, {client_rect}")
-        if debug:
+            logger.info(f"screenshot backend cost {self.time_cost} ms, {client_rect}")
+        if self._debug:
             image.show()
         self._image = image
         return image

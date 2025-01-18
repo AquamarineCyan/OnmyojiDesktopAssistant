@@ -71,6 +71,7 @@ class Config:
     def __init__(self):
         self.user: UserConfig = UserConfig()
         self.default: DefaultConfig = DefaultConfig()
+        self.backend: bool = False  # 后台交互
         self.data_error: int = 0
 
     def config_yaml_init(self) -> None:

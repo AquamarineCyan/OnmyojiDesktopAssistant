@@ -11,7 +11,7 @@ from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
-from .screenshot import ScreenShot, ScreenShotBackend
+from .screenshot import ScreenShot
 from .window import window
 
 
@@ -37,7 +37,7 @@ class RuleImage:
     image = RuleImage(assetimage=AssetImage)
     result = image.match()
     if result:
-        point = image.center()
+        point = image.center_point()
     ```
     """
 
@@ -109,8 +109,8 @@ class RuleImage:
         if normal:
             event_xuanshang.wait()
         if image is None:
-            image = convert_image_rgb_to_bgr(ScreenShot(self.region).get_image())
-        elif isinstance(image, ScreenShot|ScreenShotBackend):
+            image = convert_image_rgb_to_bgr(ScreenShot(self.region, debug=debug).get_image())
+        elif isinstance(image, ScreenShot):
             image = convert_image_rgb_to_bgr(image.get_image())
         elif isinstance(image, Image):
             image = convert_image_rgb_to_bgr(image)
