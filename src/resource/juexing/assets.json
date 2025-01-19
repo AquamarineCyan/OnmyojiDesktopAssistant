@@ -4,7 +4,7 @@
         {
             "name": "title",
             "file": "title.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"    
         }
     ]

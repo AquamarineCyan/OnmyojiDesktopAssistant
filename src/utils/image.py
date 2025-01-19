@@ -77,8 +77,11 @@ class RuleImage:
 
         # 获得图像的绝对路径
         self.file = check_user_file_exists(_file)
+
+        # 空值或者(0,0,0,0)则匹配整个窗口
         if self.region is None or self.region == (0, 0, 0, 0):
             self.region = (0, 0, window.window_width, window.window_height)
+
         self._image = None
         self.match_result = None
 

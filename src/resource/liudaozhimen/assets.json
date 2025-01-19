@@ -4,55 +4,55 @@
         {
             "name": "determine",
             "file": "determine.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "fight_ready_quit",
             "file": "fight_ready_quit.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"    
         },
         {
             "name": "fight_ready_refresh",
             "file": "fight_ready_refresh.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "fight_ready_reset",
             "file": "fight_ready_reset.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "fight",
             "file": "fight.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "imitation",
             "file": "imitation.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "open",
             "file": "open.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "shop_refresh",
             "file": "shop_refresh.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
             "name": "start",
             "file": "start.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         }
     ]

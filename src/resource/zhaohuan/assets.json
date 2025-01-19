@@ -4,7 +4,7 @@
         {
             "name": "title",
             "file": "title.png",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8"
         }
     ],
@@ -26,14 +26,14 @@
         {
             "name": "queding",
             "keyword": "确定",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8",
             "method": "PERFACT"
         },
         {
             "name": "again",
             "keyword": "再次召唤",
-            "region": [0, 0, 1154, 687],
+            "region": [0, 0, 0, 0],
             "score": "0.8",
             "method": "PERFACT"
         }
