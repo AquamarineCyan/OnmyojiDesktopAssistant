@@ -30,13 +30,6 @@
             "method": "PERFACT"
         },
         {
-            "name": "continue",
-            "keyword": "点击屏幕继续",
-            "region": [0, 0, 0, 0],
-            "score": "0.8",
-            "method": "PERFACT"
-        },
-        {
             "name": "victory",
             "keyword": "胜利",
             "region": [0, 0, 0, 0],
@@ -46,6 +39,13 @@
         {
             "name": "fail",
             "keyword": "失败",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "level_up",
+            "keyword": "段位上升",
             "region": [0, 0, 0, 0],
             "score": "0.8",
             "method": "PERFACT"
