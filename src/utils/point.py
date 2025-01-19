@@ -75,13 +75,11 @@ class Rectangle:
         x2: int = None,
         y2: int = None,
     ):
-        assert (
-            width is None or x2 is None
-        ), "Cannot specify both x2, y2 and width, height at the same time"
+        assert width is None or x2 is None, "Cannot specify both x2, y2 and width, height at the same time"
 
-        assert (width is not None and height is not None) or (
-            x2 is not None and y2 is not None
-        ), "width, height or x2, y2 must have one pair of data"
+        assert (width is not None and height is not None) or (x2 is not None and y2 is not None), (
+            "width, height or x2, y2 must have one pair of data"
+        )
 
         self.x1 = x
         self.y1 = y
@@ -97,13 +95,13 @@ class Rectangle:
             self.width = x2 - x
             self.height = y2 - y
 
-    def get_box(self):
+    def get_box(self) -> tuple[int, int, int, int]:
         return (self.x1, self.y1, self.width, self.height)
 
-    def get_coordinates(self):
+    def get_coordinates(self) -> tuple[int, int, int, int]:
         return (self.x1, self.y1, self.x2, self.y2)
 
-    def get_center(self):
+    def get_center(self) -> tuple[float, float]:
         return (self.x1 + self.width / 2, self.y1 + self.height / 2)
 
     def get_rela_center(self) -> "RelativePoint":

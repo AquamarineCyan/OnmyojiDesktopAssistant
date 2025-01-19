@@ -10,7 +10,7 @@ from .decorator import log_function_call
 from .event import event_thread
 from .exception import GUIStopException
 from .log import logger
-from .point import Point, Rectangle, RelativePoint
+from .point import Rectangle, RelativePoint
 
 
 def is_Chinese_Path() -> bool:
@@ -58,7 +58,7 @@ def random_num(minimum: int | float, maximum: int | float) -> float:
     return round((random.random() * (maximum - minimum) + minimum), 2)
 
 
-def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
+def random_point(x1: int, x2: int, y1: int, y2: int) -> RelativePoint:
     """伪随机坐标，返回给定坐标区间的随机值
 
     参数:
@@ -73,7 +73,7 @@ def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
     x = random_normal(x1, x2)
     y = random_normal(y1, y2)
     logger.info(f"random_coor: {x},{y}")
-    return Point(x, y)
+    return RelativePoint(x, y)
 
 
 def random_sleep(minimum: int | float = 1.0, maximum: int | float = None) -> None:
@@ -141,12 +141,8 @@ def finish_random_left_right(
 
     # 计算鼠标到两个矩形中心的距离
     position = Mouse.position()
-    distance_to_left = distance_between_two_points(
-        position.coor, rect_left.get_center()
-    )
-    distance_to_right = distance_between_two_points(
-        position.coor, rect_right.get_center()
-    )
+    distance_to_left = distance_between_two_points(position.coor, rect_left.get_center())
+    distance_to_right = distance_between_two_points(position.coor, rect_right.get_center())
 
     # 判断距离
     if distance_to_left < distance_to_right:
@@ -160,14 +156,11 @@ def finish_random_left_right(
         chosen_rect = random.choice([rect_left, rect_right])
         logger.info(f"鼠标距离两个矩形相等，随机选择矩形{chosen_rect}")
 
-    point: RelativePoint = random_point(
-        chosen_rect.x1, chosen_rect.x2, chosen_rect.y1, chosen_rect.y2
-    )
-    point = RelativePoint(point.x, point.y)
+    point = random_point(chosen_rect.x1, chosen_rect.x2, chosen_rect.y1, chosen_rect.y2)
 
     if bool(event_thread):
         raise GUIStopException
-    
+
     if is_click:
         Mouse.click(point)
     return point
@@ -176,9 +169,7 @@ def finish_random_left_right(
 def check_user_file_exists(file: str) -> Path | None:
     """检查用户素材"""
     _full_path = RESOURCE_DIR_PATH / file
-    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
-        *_full_path.parts[-2:]
-    )
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
     if _full_path_user.exists():
         logger.info(f"使用用户素材{_full_path_user}")
         return _full_path_user
@@ -238,9 +229,7 @@ def merge_dict(base_dict, update_dict) -> dict:
 
 def get_asset_data(resource_path) -> tuple[Path | dict]:
     _full_path = RESOURCE_DIR_PATH / resource_path / "assets.json"
-    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(
-        *_full_path.parts[-2:]
-    )
+    _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
 
     data_default = open_asset_file(_full_path)
     assets_file = _full_path

@@ -27,7 +27,7 @@
         },
         {
             "name": "choose",
-            "file": "ya.png",
+            "file": "choose.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
         }

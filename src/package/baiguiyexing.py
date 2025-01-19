@@ -1,11 +1,11 @@
 from ..utils.adapter import Mouse
+from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import random_num, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.point import RelativePoint
 from ..utils.window import window
 from .utils import Package
 
@@ -18,7 +18,7 @@ class BaiGuiYeXing(Package):
     resource_list = [
         "title",  # 标题
         "jinru",  # 进入
-        "ya",  # 押选
+        "choose",  # 押选
         "kaishi",  # 开始
         "baiguiqiyueshu",  # 百鬼契约书
     ]
@@ -40,8 +40,9 @@ class BaiGuiYeXing(Package):
 
     def start(self):
         """开始"""
-        self.check_click(self.IMAGE_JINRU)
+        self.check_click(self.IMAGE_JINRU, timeout=3)
 
+    @log_function_call
     def choose(self):
         """鬼王选择"""
         _x1_left = 230
@@ -67,24 +68,26 @@ class BaiGuiYeXing(Package):
                 x1 = _x3_left
                 x2 = _x3_right
 
-            point: RelativePoint = random_point(x1, x2, _y1, _y2)
+            point = random_point(x1, x2, _y1, _y2)
             Mouse.click(point)
             sleep()
             if RuleImage(self.IMAGE_CHOOSE).match():
                 logger.ui("已选择鬼王")
                 break
 
-        self.check_click(self.IMAGE_START)
+        self.check_click(self.IMAGE_START, timeout=3)
 
+    @log_function_call
     def fighting(self):
         """砸豆子"""
-        sleep()
+        sleep(4)  # 等待进入
         for _ in range(250, 0, -5):
             if bool(event_thread):
                 raise GUIStopException
 
             sleep(0.2, 1)
-            point: RelativePoint = random_point(
+            # 屏幕中心区域
+            point = random_point(
                 60,
                 window.window_width - 120,
                 300,
@@ -92,6 +95,7 @@ class BaiGuiYeXing(Package):
             )
             Mouse.click(point, duration=0.25)
 
+    @log_function_call
     def finish(self):
         """结束"""
         while True:
@@ -100,31 +104,29 @@ class BaiGuiYeXing(Package):
 
             result = RuleImage(self.IMAGE_FINISH)
             if result.match():
+                logger.ui("结束")
                 point = result.random_point()
                 sleep()
-                self.screenshot()
+                if 1:  # TODO 可选
+                    self.screenshot()
+                    logger.ui("「百鬼契约书」已截图")
                 Mouse.click(point)
+                return
 
-    def finish_info(self):
-        logger.ui(f"截图保存在{SCREENSHOT_DIR_PATH / self.resource_path}")
+    def task_finish_info(self):
+        logger.ui(f"截图保存在\n{SCREENSHOT_DIR_PATH / self.resource_path}")
 
+    @log_function_call
     def run(self):
         self.check_title()
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
-            sleep()
+
             self.start()
             sleep(2)
             self.choose()
-            sleep(2, 4)
             self.fighting()
-            sleep(2, 4)
             self.finish()
             self.done()
             sleep(3)
-
-            # TODO 更新随机判断
-            if self.n in {12, 25, 39}:
-                sleep(10, 20)

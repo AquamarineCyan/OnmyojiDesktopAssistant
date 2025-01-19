@@ -387,7 +387,7 @@ class Package:
         """任务内容，支持重写"""
         pass
 
-    def finish_info(self):
+    def task_finish_info(self):
         """任务结束信息，支持重写"""
         pass
 
@@ -418,7 +418,7 @@ class Package:
         except Exception:
             logger.error("耗时统计计算失败")
 
-        self.finish_info()
+        self.task_finish_info()
         if xuanshangfengyin_count.get():
             logger.ui_warn(f"接到 {xuanshangfengyin_count.get()} 个悬赏封印")
             xuanshangfengyin_count.reset()

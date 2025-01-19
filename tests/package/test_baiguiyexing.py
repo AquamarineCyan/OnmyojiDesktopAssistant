@@ -6,7 +6,7 @@ class BaiGuiYeXing(Package):
     resource_list = [
         "title",
         "jinru",
-        "ya",
+        "choose",
         "kaishi",
         "baiguiqiyueshu",
     ]
