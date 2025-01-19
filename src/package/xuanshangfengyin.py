@@ -6,6 +6,7 @@ from ..utils.log import logger
 from ..utils.myschedule import global_scheduler
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
+from .global_parameter import xuanshangfengyin_count
 from .utils import Package
 
 
@@ -71,6 +72,8 @@ class XuanShangFengYin(Package):
         logger.ui(_msg)
         event_xuanshang.set()
         self.check_click(_asset, 5, "center")
+
+        xuanshangfengyin_count.add()
 
     @run_in_thread
     def task_start(self):

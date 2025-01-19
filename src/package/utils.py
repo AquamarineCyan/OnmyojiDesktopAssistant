@@ -1,9 +1,8 @@
 import time
-from pathlib import Path
 from typing import Literal
 
 from ..utils.adapter import Mouse
-from ..utils.application import RESOURCE_GLOBAL_PATH, SCREENSHOT_DIR_PATH
+from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
@@ -15,8 +14,10 @@ from ..utils.mysignal import global_ms as ms
 from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
+from .global_parameter import xuanshangfengyin_count
 
 __all__ = ["Package", "GlobalResource"]
+
 
 def load_asset(resource_path, type: str = Literal["image", "ocr"]) -> dict:
     assets_file, data = get_asset_data(resource_path)
@@ -303,14 +304,13 @@ class Package:
         self.check_click(self.IMAGE_START, *args, **kwargs)
 
     def screenshot(self) -> None:
+        """截图，保存在当前功能的名称截图目录"""
         screenshot_path = "cache" if self.resource_path is None else self.resource_path
         screenshot_path = SCREENSHOT_DIR_PATH / screenshot_path
         if not screenshot_path.exists():
             screenshot_path.mkdir(parents=True)
 
-        screenshot_file = (
-            screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
-        )
+        screenshot_file = screenshot_path / f"screenshot-{time.strftime('%Y%m%d%H%M%S')}.png"
         ScreenShot().save(str(screenshot_file))
         logger.info(f"screenshot: {screenshot_file}")
 
@@ -394,16 +394,19 @@ class Package:
     @run_in_thread
     def task_start(self):
         """任务开始"""
+
         # 禁用按钮
         ms.main.is_fighting_update.emit(True)
         _start = time.perf_counter()
         if self.max:
             logger.num(f"0/{self.max}")
 
+        xuanshangfengyin_count.reset()
+
         try:
             self.run()
         except Exception as e:
-            logger.error(e)
+            logger.ui_error(f"任务出错: {e}")
 
         _end = time.perf_counter()
         _cost = _end - _start
@@ -414,7 +417,11 @@ class Package:
                 logger.ui(f"耗时{int(_cost)}秒")
         except Exception:
             logger.error("耗时统计计算失败")
+
         self.finish_info()
+        if xuanshangfengyin_count.get():
+            logger.ui_warn(f"接到 {xuanshangfengyin_count.get()} 个悬赏封印")
+            xuanshangfengyin_count.reset()
 
         # 启用按钮
         ms.main.is_fighting_update.emit(False)
