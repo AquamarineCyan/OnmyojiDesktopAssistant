@@ -53,6 +53,6 @@ class Connect:
         "https://github.moeyy.xyz/",
         "https://ghps.cc/",
         "https://gh-proxy.com/",
-        "https://ghproxy.net/",
+        "https://gh.pylas.xyz/",
     ]
     helpdoc = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"

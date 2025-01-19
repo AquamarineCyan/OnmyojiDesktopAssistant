@@ -9,6 +9,7 @@ def test_api_url():
     api_url = "https://api.github.com/repos/AquamarineCyan/Onmyoji_Python/releases/latest"
     r = httpx.get(api_url, headers=headers)
     print(f"API URL request latency: {r.elapsed.total_seconds() * 1000:.2f} ms")
+    print(f"API URL status_code: {r.status_code}")
     assert r.status_code == 200
 
 
@@ -18,8 +19,9 @@ def test_mirror_url():
         "https://github.moeyy.xyz/",
         "https://ghps.cc/",
         "https://gh-proxy.com/",
-        "https://ghproxy.net/",
+        "https://gh.pylas.xyz/",
     ]:
         r = httpx.get(url, headers=headers)
         print(f"mirror station: {url} request latency: {r.elapsed.total_seconds() * 1000:.2f} ms")
+        print(f"mirror station: {url} status_code: {r.status_code}")
         assert r.status_code == 200
