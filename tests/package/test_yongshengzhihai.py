@@ -7,7 +7,6 @@ class YongShengZhiHai(Package):
         "title_team",
         "passenger",
         "start_team",
-        "fighting",
     ]
 
 

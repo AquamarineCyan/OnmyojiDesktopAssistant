@@ -5,6 +5,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
+from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
 
@@ -17,9 +18,6 @@ class YongShengZhiHai(Package):
         "title_team",  # 组队界面
         "passenger",  # 队员
         "start_team",  # 组队挑战
-        # "start_single",  # 单人挑战
-        "fighting",  # 进行中
-        # "accept_invitation",  # 接受邀请
     ]
 
     @log_function_call
@@ -34,15 +32,15 @@ class YongShengZhiHai(Package):
         self.IMAGE_TITLE = self.get_image_asset("title")
         self.IMAGE_PASSENGER = self.get_image_asset("passenger")
         self.IMAGE_START_TEAM = self.get_image_asset("start_team")
-        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
 
     @log_function_call
     def start(self) -> None:
         """挑战"""
+        logger.ui("开始挑战")
         if isinstance(self, YongShengZhiHaiTeam):
-            self.check_click(self.IMAGE_START_TEAM)
+            self.check_click(self.IMAGE_START_TEAM, timeout=3)
         else:
-            self.check_click(self.global_assets.IMAGE_START_SINGLE)
+            self.check_click(self.global_assets.IMAGE_START_SINGLE, timeout=3)
 
 
 class YongShengZhiHaiTeam(YongShengZhiHai):
@@ -51,10 +49,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
     scene_name = "组队永生之海副本"
     resource_list = [
         "title_team",  # 组队界面
-        # "passenger_2",  # 队员2
         "start_team",  # 组队挑战
-        "fighting",  # 进行中
-        "accept_invitation",  # 接受邀请
     ]
 
     @log_function_call
@@ -62,7 +57,7 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         self,
         n: int = 0,
         flag_driver: bool = False,
-        flag_drop_statistics: bool = False,  # TODO
+        flag_drop_statistics: bool = False,
     ) -> None:
         """
         组队永生之海副本
@@ -85,13 +80,13 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             if not RuleImage(self.IMAGE_PASSENGER).match():
                 logger.ui("队员就位")
                 return True
 
     @log_function_call
-    def finish(self):
+    def wait_finish(self):
         """
         结束
 
@@ -108,10 +103,11 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         # 结算
         finish_random_left_right(is_multiple_drops_x=True)
         Mouse.click(wait=0.5)
+
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             # 检测到任一图像
             result = check_image_once(
                 [
@@ -119,16 +115,20 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                     self.global_assets.IMAGE_TANCHIGUI,
                 ]
             )
+
             # 直到第一次识别到
             if _flag_first and result is None:
                 continue
+
             if result:
+                logger.info(f"current scene: {result.name}")
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
                 Mouse.click()
                 _flag_first = False
                 sleep(0.6, 1)
+
             # 所有图像都未检测到，退出循环
             else:
                 logger.ui("结束")
@@ -136,9 +136,10 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
 
     def run(self):
         msg_title: bool = True
+        msg_fighting: bool = True
+
         self.current_asset_list = [
             self.IMAGE_TITLE,
-            self.IMAGE_FIGHTING,
             self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
         if self.flag_driver:
@@ -147,29 +148,42 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
+            msg_fighting = True
             result = check_image_once(self.current_asset_list)
             if result is None:
+                # 判断是否在战斗中
+                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
+                if result.match():
+                    if msg_fighting:
+                        logger.ui("自动战斗中")
+                        msg_fighting = False
+
+                    self.wait_finish()
+                    self.done()
+                    msg_title = False
+                    sleep()
+
+                if msg_title:
+                    self.title_error_msg()
+                    msg_title = False
+
                 continue
 
             match result.name:
-                case "title":
+                case self.IMAGE_TITLE.name:
                     logger.ui("组队界面准备中")
                     if self.flag_driver:
                         self.wait_passengers_on_position()
+                        sleep(1.5)
                         self.start()
                     sleep()
                     msg_title = False
-                case "fighting":
-                    logger.ui("对局进行中")
-                    self.finish()
-                    self.done()
-                    sleep()
-                    msg_title = False
-                case "accept_invitation":
-                    # TODO 新设备第一次接受邀请会有弹窗，需手动勾选“不再提醒”
+
+                case self.global_assets.IMAGE_ACCEPT_INVITATION.name:
                     logger.ui("接受邀请")
                     Mouse.click(result.center_point())
+
                 case _:
                     if msg_title:
                         self.title_error_msg()
