@@ -16,11 +16,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox,
-    QGridLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QMainWindow, QPushButton, QRadioButton,
-    QScrollArea, QSizePolicy, QSpacerItem, QSpinBox,
-    QStackedWidget, QTabWidget, QTextBrowser, QVBoxLayout,
-    QWidget)
+    QFrame, QGridLayout, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QMainWindow, QPushButton,
+    QRadioButton, QScrollArea, QSizePolicy, QSpacerItem,
+    QSpinBox, QStackedWidget, QTabWidget, QTextBrowser,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -128,54 +128,55 @@ class Ui_MainWindow(object):
         self._1_yuhun.setObjectName(u"_1_yuhun")
         self.label_driver = QLabel(self._1_yuhun)
         self.label_driver.setObjectName(u"label_driver")
-        self.label_driver.setGeometry(QRect(20, 55, 48, 21))
-        self.label_driver.setFont(font1)
+        self.label_driver.setGeometry(QRect(10, 60, 50, 20))
+        self.label_driver.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.button_driver_False = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_driver = QButtonGroup(MainWindow)
         self.buttonGroup_yuhun_driver.setObjectName(u"buttonGroup_yuhun_driver")
         self.buttonGroup_yuhun_driver.addButton(self.button_driver_False)
         self.button_driver_False.setObjectName(u"button_driver_False")
-        self.button_driver_False.setGeometry(QRect(78, 55, 38, 20))
-        self.button_driver_False.setFont(font1)
-        self.button_driver_False.setMouseTracking(True)
+        self.button_driver_False.setGeometry(QRect(70, 60, 50, 20))
         self.button_driver_True = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_driver.addButton(self.button_driver_True)
         self.button_driver_True.setObjectName(u"button_driver_True")
-        self.button_driver_True.setGeometry(QRect(128, 55, 38, 20))
-        self.button_driver_True.setFont(font1)
+        self.button_driver_True.setGeometry(QRect(120, 60, 50, 20))
         self.button_passengers_3 = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_passengers = QButtonGroup(MainWindow)
         self.buttonGroup_yuhun_passengers.setObjectName(u"buttonGroup_yuhun_passengers")
         self.buttonGroup_yuhun_passengers.addButton(self.button_passengers_3)
         self.button_passengers_3.setObjectName(u"button_passengers_3")
-        self.button_passengers_3.setGeometry(QRect(128, 81, 33, 20))
-        self.button_passengers_3.setFont(font1)
+        self.button_passengers_3.setEnabled(False)
+        self.button_passengers_3.setGeometry(QRect(120, 90, 50, 20))
         self.button_passengers_2 = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_passengers.addButton(self.button_passengers_2)
         self.button_passengers_2.setObjectName(u"button_passengers_2")
-        self.button_passengers_2.setGeometry(QRect(79, 81, 33, 20))
-        self.button_passengers_2.setFont(font1)
+        self.button_passengers_2.setEnabled(False)
+        self.button_passengers_2.setGeometry(QRect(70, 90, 50, 20))
         self.label_passengers = QLabel(self._1_yuhun)
         self.label_passengers.setObjectName(u"label_passengers")
-        self.label_passengers.setGeometry(QRect(20, 81, 48, 21))
-        self.label_passengers.setFont(font1)
+        self.label_passengers.setGeometry(QRect(10, 90, 50, 20))
+        self.label_passengers.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.button_mode_single = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_mode = QButtonGroup(MainWindow)
         self.buttonGroup_yuhun_mode.setObjectName(u"buttonGroup_yuhun_mode")
         self.buttonGroup_yuhun_mode.addButton(self.button_mode_single)
         self.button_mode_single.setObjectName(u"button_mode_single")
-        self.button_mode_single.setGeometry(QRect(128, 28, 51, 20))
+        self.button_mode_single.setGeometry(QRect(120, 30, 50, 20))
         self.button_mode_single.setFont(font1)
         self.button_mode_team = QRadioButton(self._1_yuhun)
         self.buttonGroup_yuhun_mode.addButton(self.button_mode_team)
         self.button_mode_team.setObjectName(u"button_mode_team")
-        self.button_mode_team.setGeometry(QRect(78, 28, 51, 20))
+        self.button_mode_team.setGeometry(QRect(70, 30, 50, 20))
         self.button_mode_team.setFont(font1)
         self.button_mode_team.setMouseTracking(True)
         self.label_mode = QLabel(self._1_yuhun)
         self.label_mode.setObjectName(u"label_mode")
-        self.label_mode.setGeometry(QRect(20, 28, 48, 21))
-        self.label_mode.setFont(font1)
+        self.label_mode.setGeometry(QRect(10, 30, 50, 20))
+        font3 = QFont()
+        font3.setFamilies([u"\u5b8b\u4f53"])
+        font3.setPointSize(10)
+        self.label_mode.setFont(font3)
+        self.label_mode.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.stackedWidget.addWidget(self._1_yuhun)
         self._2_jiejietupo = QWidget()
         self._2_jiejietupo.setObjectName(u"_2_jiejietupo")
@@ -565,23 +566,23 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_shortcut_start_stop)
 
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout_setting_remember_last_choice = QHBoxLayout()
+        self.horizontalLayout_setting_remember_last_choice.setObjectName(u"horizontalLayout_setting_remember_last_choice")
         self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_left)
+        self.horizontalLayout_setting_remember_last_choice.addItem(self.horizontalSpacer_setting_remember_last_choice_left)
 
         self.setting_remember_last_choice_button = QCheckBox(self.groupBox_config)
         self.setting_remember_last_choice_button.setObjectName(u"setting_remember_last_choice_button")
 
-        self.horizontalLayout.addWidget(self.setting_remember_last_choice_button)
+        self.horizontalLayout_setting_remember_last_choice.addWidget(self.setting_remember_last_choice_button)
 
         self.horizontalSpacer_setting_remember_last_choice_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout.addItem(self.horizontalSpacer_setting_remember_last_choice_right)
+        self.horizontalLayout_setting_remember_last_choice.addItem(self.horizontalSpacer_setting_remember_last_choice_right)
 
 
-        self.vboxLayout.addLayout(self.horizontalLayout)
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_remember_last_choice)
 
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
@@ -651,6 +652,7 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
 
         self.tabWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -669,7 +671,6 @@ class Ui_MainWindow(object):
         self.button_passengers_3.setText(QCoreApplication.translate("MainWindow", u"3", None))
         self.button_passengers_2.setText(QCoreApplication.translate("MainWindow", u"2", None))
         self.label_passengers.setText(QCoreApplication.translate("MainWindow", u"\u7ec4\u961f\u4eba\u6570", None))
-        self.button_yuhun_drop_statistics.setText(QCoreApplication.translate("MainWindow", u"\u6389\u843d\u7edf\u8ba1beta", None))
         self.button_mode_single.setText(QCoreApplication.translate("MainWindow", u"\u5355\u4eba", None))
         self.button_mode_team.setText(QCoreApplication.translate("MainWindow", u"\u7ec4\u961f", None))
         self.label_mode.setText(QCoreApplication.translate("MainWindow", u"\u6a21\u5f0f", None))

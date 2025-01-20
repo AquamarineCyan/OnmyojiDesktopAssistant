@@ -229,44 +229,35 @@
           <layout class="QGridLayout" name="gridLayout_advanced">
            <item row="0" column="0">
             <widget class="QStackedWidget" name="stackedWidget">
+             <property name="currentIndex">
+              <number>0</number>
+             </property>
              <widget class="QWidget" name="_0_none"/>
              <widget class="QWidget" name="_1_yuhun">
               <widget class="QLabel" name="label_driver">
                <property name="geometry">
                 <rect>
-                 <x>20</x>
-                 <y>55</y>
-                 <width>48</width>
-                 <height>21</height>
+                 <x>10</x>
+                 <y>60</y>
+                 <width>50</width>
+                 <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text">
                 <string>是否司机</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
               <widget class="QRadioButton" name="button_driver_False">
                <property name="geometry">
                 <rect>
-                 <x>78</x>
-                 <y>55</y>
-                 <width>38</width>
+                 <x>70</x>
+                 <y>60</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
-               </property>
-               <property name="mouseTracking">
-                <bool>true</bool>
                </property>
                <property name="text">
                 <string>否</string>
@@ -278,17 +269,11 @@
               <widget class="QRadioButton" name="button_driver_True">
                <property name="geometry">
                 <rect>
-                 <x>128</x>
-                 <y>55</y>
-                 <width>38</width>
+                 <x>120</x>
+                 <y>60</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text">
                 <string>是</string>
@@ -298,19 +283,16 @@
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_passengers_3">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="geometry">
                 <rect>
-                 <x>128</x>
-                 <y>81</y>
-                 <width>33</width>
+                 <x>120</x>
+                 <y>90</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text">
                 <string>3</string>
@@ -320,19 +302,16 @@
                </attribute>
               </widget>
               <widget class="QRadioButton" name="button_passengers_2">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="geometry">
                 <rect>
-                 <x>79</x>
-                 <y>81</y>
-                 <width>33</width>
+                 <x>70</x>
+                 <y>90</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text">
                 <string>2</string>
@@ -344,28 +323,25 @@
               <widget class="QLabel" name="label_passengers">
                <property name="geometry">
                 <rect>
-                 <x>20</x>
-                 <y>81</y>
-                 <width>48</width>
-                 <height>21</height>
+                 <x>10</x>
+                 <y>90</y>
+                 <width>50</width>
+                 <height>20</height>
                 </rect>
-               </property>
-               <property name="font">
-                <font>
-                 <family>宋体</family>
-                 <pointsize>9</pointsize>
-                </font>
                </property>
                <property name="text">
                 <string>组队人数</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
               <widget class="QRadioButton" name="button_mode_single">
                <property name="geometry">
                 <rect>
-                 <x>128</x>
-                 <y>28</y>
-                 <width>51</width>
+                 <x>120</x>
+                 <y>30</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
                </property>
@@ -385,9 +361,9 @@
               <widget class="QRadioButton" name="button_mode_team">
                <property name="geometry">
                 <rect>
-                 <x>78</x>
-                 <y>28</y>
-                 <width>51</width>
+                 <x>70</x>
+                 <y>30</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
                </property>
@@ -410,20 +386,23 @@
               <widget class="QLabel" name="label_mode">
                <property name="geometry">
                 <rect>
-                 <x>20</x>
-                 <y>28</y>
-                 <width>48</width>
-                 <height>21</height>
+                 <x>10</x>
+                 <y>30</y>
+                 <width>50</width>
+                 <height>20</height>
                 </rect>
                </property>
                <property name="font">
                 <font>
                  <family>宋体</family>
-                 <pointsize>9</pointsize>
+                 <pointsize>10</pointsize>
                 </font>
                </property>
                <property name="text">
                 <string>模式</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignmentFlag::AlignCenter</set>
                </property>
               </widget>
              </widget>
@@ -1297,7 +1276,7 @@
                 </layout>
                </item>
                <item>
-                <layout class="QHBoxLayout" name="horizontalLayout">
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_remember_last_choice">
                  <item>
                   <spacer name="horizontalSpacer_setting_remember_last_choice_left">
                    <property name="orientation">

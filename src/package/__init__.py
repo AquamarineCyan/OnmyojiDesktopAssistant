@@ -6,7 +6,7 @@ from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
 from .liudaozhimen import LiuDaoZhiMen
 from .qiling import QiLing
-from .rilun import RiLun
+from .rilun import RiLun, RiLunSingle,RiLunTeam
 from .tansuo import TanSuo
 from .xuanshangfengyin import XuanShangFengYin, task_xuanshangfengyin
 from .yeyuanhuo import YeYuanHuo
@@ -32,6 +32,8 @@ __all__ = [
     "LiuDaoZhiMen",
     "QiLing",
     "RiLun",
+    "RiLunSingle",
+    "RiLunTeam",
     "TanSuo",
     # "XuanShangFengYin",
     "task_xuanshangfengyin",
@@ -66,5 +68,5 @@ def get_package_resource_list():
         YongShengZhiHai,
         YuHun,
         YuLing,
-        ZhaoHuan
+        ZhaoHuan,
     ]

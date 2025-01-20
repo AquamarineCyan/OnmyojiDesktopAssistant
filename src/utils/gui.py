@@ -48,7 +48,7 @@ class GameFunction(Enum):
     ZHAOHUAN = 8  # 普通召唤
     BAIGUIYEXING = 9  # 百鬼夜行
     HUODONG = 10  # 限时活动
-    RILUN = 11  # 组队日轮副本
+    RILUN = 11  # 日轮副本
     TANSUO = 12  # 单人探索
     QILING = 13  # 契灵
     JUEXING = 14  # 觉醒副本
@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
         "8.普通召唤",
         "9.百鬼夜行",
         "10.限时活动",
-        "11.组队日轮副本",
+        "11.日轮副本",
         "12.单人探索",
         "13.契灵",
         "14.觉醒副本",
@@ -185,6 +185,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
         self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
         self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
+        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.buttonGroup_yuhun_driver_change)
         self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
         self.ui.buttonGroup_yuanlaiguang.buttonClicked.connect(self.buttonGroup_yuanlaiguang_change)
         self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_func)
@@ -468,7 +469,7 @@ class MainWindow(QMainWindow):
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
                 self.ui_spin_times_set_value_func(30)
                 self.ui.button_mode_team.setChecked(True)
-                # TODO
+                # 只有组队，最多2人
                 self.ui.button_mode_team.setEnabled(False)
                 self.ui.button_mode_single.setEnabled(False)
                 self.ui.button_driver_False.setChecked(True)
@@ -562,21 +563,17 @@ class MainWindow(QMainWindow):
 
         match self.game_function_choice:
             case GameFunction.YUHUN:
-                if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
-                    flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                    flag_passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
-                    YuHunTeam(
-                        n=n,
-                        flag_driver=flag_driver,
-                        flag_passengers=flag_passengers,
-                    ).task_start()
+                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
+                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
+                    passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
+                    YuHunTeam(n=n, flag_driver=driver, flag_passengers=passengers).task_start()
                 else:
-                    YuHunSingle(n=n,).task_start()
+                    YuHunSingle(n=n).task_start()
 
             case GameFunction.YONGSHENGZHIHAI:
-                if self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队":
-                    flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                    YongShengZhiHaiTeam(n=n,flag_driver=flag_driver,).task_start()
+                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
+                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
+                    YongShengZhiHaiTeam(n=n, flag_driver=driver).task_start()
 
             case GameFunction.YEYUANHUO:
                 YeYuanHuo(n=n).task_start()
@@ -617,9 +614,12 @@ class MainWindow(QMainWindow):
                 HuoDong(n=n).task_start()
 
             case GameFunction.RILUN:
-                flag_driver = self.ui.buttonGroup_yuhun_driver.checkedButton().text() != "否"
-                flag_passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
-                RiLun(n=n, flag_driver=flag_driver, flag_passengers=flag_passengers).task_start()
+                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
+                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
+                    passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
+                    RiLunTeam(n=n, flag_driver=driver, flag_passengers=passengers).task_start()
+                else:
+                    RiLunSingle(n=n).task_start()
 
             case GameFunction.TANSUO:
                 TanSuo(n=n).task_start()
@@ -671,8 +671,10 @@ class MainWindow(QMainWindow):
             self.ui.button_start.setText("开始")
         item: QWidget
         for item in [
+            # 主界面
             self.ui.combo_choice,
             self.ui.spin_times,
+            # 御魂
             self.ui.button_mode_team,
             self.ui.button_mode_single,
             self.ui.button_driver_False,
@@ -684,9 +686,14 @@ class MainWindow(QMainWindow):
         return
 
     def buttonGroup_yuhun_mode_change(self):
-        flag = self.ui.buttonGroup_yuhun_mode.checkedButton().text() == "组队"
+        flag = self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team
         self.ui.button_driver_False.setEnabled(flag)
         self.ui.button_driver_True.setEnabled(flag)
+        self.ui.button_passengers_2.setEnabled(flag)
+        self.ui.button_passengers_3.setEnabled(flag)
+
+    def buttonGroup_yuhun_driver_change(self):
+        flag = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
         self.ui.button_passengers_2.setEnabled(flag)
         self.ui.button_passengers_3.setEnabled(flag)
 
