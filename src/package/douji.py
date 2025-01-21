@@ -1,3 +1,4 @@
+from src.utils.image import RuleImage
 from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -45,6 +46,12 @@ class DouJi(Package):
 
             result = ocr_match_once(self.current_asset_list)
             if result is None:
+                ruleimage = RuleImage(self.global_assets.IMAGE_FAIL)
+                if ruleimage.match():
+                    logger.ui_warn("失败")
+                    Mouse.click(ruleimage.center_point())
+                    self.done()
+                    return
                 continue
 
             logger.info(f"current result name: {result.name}")
@@ -71,6 +78,7 @@ class DouJi(Package):
                 case self.OCR_INTENTIONAL.name:
                     logger.ui("手动技能")
                     Mouse.click(result.match_result.center)
+                    sleep(4)
 
                 # 万一对面直接退了呢
                 case self.global_assets.OCR_CLICK_AND_CONTINUE.name:
@@ -97,6 +105,7 @@ class DouJi(Package):
                         msg_title = False
 
     def run(self):
+        weekly_rewards: int = 0
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
@@ -104,11 +113,13 @@ class DouJi(Package):
             self.fighting_once()
             sleep(4)
 
+            # 周奖励
+            if weekly_rewards < 3 and self.check_click(self.global_assets.IMAGE_FINISH, timeout=5):
+                logger.ui("周奖励")
+                weekly_rewards += 1
+
             _ocr = RuleOcr(self.OCR_LEVEL_UP)
             if result := _ocr.match():
                 logger.ui("段位上升")
                 point = RelativePoint(result.center.x, result.center.y + 200)
                 Mouse.click(point)
-
-            # 每周3胜/5胜奖励
-            self.check_click(self.global_assets.IMAGE_FINISH, timeout=5)
