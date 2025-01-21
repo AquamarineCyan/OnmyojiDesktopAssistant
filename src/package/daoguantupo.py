@@ -5,6 +5,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
+from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
 
@@ -14,21 +15,21 @@ class DaoGuanTuPo(Package):
     scene_name = "道馆突破"
     resource_path = "daoguantupo"
     resource_list = [
-        "button_zhuwei",  # TODO 助威开关
-        "chuzhan",  # 出战
+        "chuzhan",  # 出战-选队伍
         "daojishi",  # 倒计时
         "guanzhan",  # 观战
-        # "guanzhuzhan",  # TODO 移除馆主战
         "jijie",  # 集结
         "qianwang",  # 前往-助威
         "shengyutuposhijian",  # 剩余突破时间
         "tiaozhan",  # 挑战
         "title",  # 标题
         "zhanbao",  # 战报
+        "zhuwei",  # 助威
+        "zhuwei_gray",  # 助威-灰色
     ]
     STATE_IDLE = 1  # 准备界面
     STATE_WAIT_AUTO_ENTER = 2  # 等待主动进入
-    STATE_WAIT_START = 3  # 等待开始
+    STATE_WAIT_START = 3  # 手动开始
     STATE_FIGHTING = 4  # 进行中
 
     @log_function_call
@@ -57,7 +58,7 @@ class DaoGuanTuPo(Package):
 
         self.OCR_TITLE = self.get_ocr_asset("title")
         self.OCR_DAOJISHI = self.get_ocr_asset("daojishi")
-        self.OCR_SHENYUTUPO = self.get_ocr_asset("shengyutuposhijian")
+        self.OCR_REMAINTIME = self.get_ocr_asset("shengyutuposhijian")
 
     @log_function_call
     def check_title(self) -> None:
@@ -66,27 +67,35 @@ class DaoGuanTuPo(Package):
             if bool(event_thread):
                 raise GUIStopException
 
-            if RuleImage(self.IMAGE_TITLE).match():
-                logger.scene(self.scene_name)
-                if RuleImage(self.IMAGE_DAOJISHI).match():
-                    logger.ui("等待倒计时自动进入")
+            sleep()
+            result = RuleOcr().get_raw_result()
+            for item in result:
+                if self.OCR_TITLE.keyword  == item.text:
+                    logger.scene(self.scene_name)
+
+                if self.OCR_DAOJISHI.keyword in item.text:
                     self.state = self.STATE_WAIT_AUTO_ENTER
+                    logger.ui("等待倒计时自动进入")
                     return
-                elif RuleImage(self.IMAGE_SHENYUTUPO).match():
+
+                if self.OCR_REMAINTIME.keyword in item.text:
                     logger.ui("可进攻")
                     self.state = self.STATE_WAIT_START
                     return
-            elif RuleImage(self.IMAGE_BUTTON_ZHUWEI).match():
-                logger.ui("道馆突破进行中")
-                self.state = self.STATE_FIGHTING
-                return
-            elif msg_title:
+
+                if self.global_assets.OCR_AUTO_FIGHT.keyword in item.text:
+                    logger.ui("战斗中")
+                    return
+
+            if msg_title:
                 msg_title = False
                 self.title_error_msg()
 
     def guanzhan(self):
         """观战"""
         logger.ui_warn("观战中，暂无法自动退出，可手动退出")
+        # TODO 记录总时长
+
         # 战报按钮
         while True:
             if bool(event_thread):
@@ -116,38 +125,38 @@ class DaoGuanTuPo(Package):
 
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "zhuwei":
+                case self.IMAGE_ZHUWEI.name:
                     Mouse.click(result.random_point())
                     logger.ui("助威成功")
                     _flag_zhuwei_disable = True
-                case "zhuwei_gray":
+
+                case self.IMAGE_ZHUWEI_GRAY.name:
                     if _flag_zhuwei_disable:
                         logger.ui("无法助威")
                         _flag_zhuwei_disable = False
-                case "finish":
+
+                case self.global_assets.IMAGE_FINISH.name:
                     self.ensure_finish()
-                case "fail":
+
+                case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_warn("失败")
                     sleep(0.4, 0.8)
                     finish_random_left_right()
-                    while True:
-                        if bool(event_thread):
-                            return
-                        # 未重复检测到，表示成功点击
-                        if not RuleImage(self.global_image.IMAGE_FAIL).match():
-                            self.done()
-                            break
-                        Mouse.click()
-                        sleep(0.4, 0.8)
+
             sleep(4)
+
+    def done(self):
+        self.n += 1
+        logger.num(str(self.n))
 
     def run(self):
         self.check_title()
         logger.num(0)
-        sleep(2, 4)
+        sleep(2)
         if self.state == self.STATE_WAIT_START:
-            self.check_click(self.IMAGE_TIAOZHAN, timeout=5)
-        sleep(2, 4)
+            self.check_click(self.IMAGE_TIAOZHAN, timeout=3)
+
+        sleep(4)  # 等待过场动画
 
         # 开始
         self.current_asset_list = [
@@ -168,18 +177,24 @@ class DaoGuanTuPo(Package):
 
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "ready_old" | "ready_new":
+                case self.global_assets.IMAGE_READY_OLD.name | self.global_assets.IMAGE_READY_NEW.name:
                     logger.ui("准备")
-                    Mouse.click(result.random_point())
-                    self.n += 1
-                    logger.num(str(self.n))
-                    sleep(2)
-                case "finish":
+                    sleep()
+                    Mouse.click(result.center_point())
+                    self.done()
+                    sleep(5)  # 避免间隔过短影响绿标
+
+                case self.global_assets.IMAGE_FINISH.name:
+                    sleep()
                     finish_random_left_right()
                     break
-                case "fail":
-                    logger.ui_warn("失败，需要手动处理")
+
+                case self.global_assets.IMAGE_FAIL.name:
+                    sleep()
+                    finish_random_left_right()
+                    logger.ui_warn("失败")
                     break
 
         if self.flag_guanzhan:
+            sleep(2)
             self.guanzhan()

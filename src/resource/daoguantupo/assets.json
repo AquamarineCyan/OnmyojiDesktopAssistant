@@ -2,12 +2,6 @@
     "current_path": "daoguantupo",
     "image_data": [
         {
-            "name": "button_zhuwei",
-            "file": "button_zhuwei.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
             "name": "chuzhan",
             "file": "chuzhan.png",
             "region": [0, 0, 0, 0],
@@ -63,9 +57,32 @@
         },
         {
             "name": "zhuwei_gray",
-            "file": "test_zhuwei_gray.png",
+            "file": "zhuwei_gray.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
+        }
+    ],
+    "ocr_data": [
+        {
+            "name": "title",
+            "keyword": "道馆突破",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "daojishi",
+            "keyword": "后开战",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "shengyutuposhijian",
+            "keyword": "剩余突破时间",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
         }
     ]
 }
