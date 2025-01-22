@@ -17,6 +17,7 @@ class HuoDong(Package):
     resource_list: list = [
         "title",
         "start",
+        "result",
     ]
     activity_name: str
     # 两种结算方式
@@ -72,9 +73,10 @@ class HuoDong(Package):
                 self._flag_timer_check_start = False
                 logger.ui_error("进入挑战失败")
                 break
+
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "title":
+                case self.IMAGE_TITLE.name:
                     logger.scene(self.activity_name)
                     _flag_title_msg = False
                     _flag_done = False
@@ -83,18 +85,21 @@ class HuoDong(Package):
                     sleep()
                     _timer = WorkTimer(3, self.timer_check_start)
                     _timer.start()
-                case "result":
+
+                case self.IMAGE_RESULT.name:
                     self.state = self.STATE_RESULT
                     logger.ui("获得奖励")
                     finish_random_left_right(is_multiple_drops_y=True)
                     _flag_result_click = True
                     sleep(0.4, 0.8)
-                case "fail":
+
+                case self.global_assets.IMAGE_FAIL.name:
                     if _timer:
                         _timer.cancel()
                     logger.ui_error("失败")
                     break
-                case "victory":
+
+                case self.global_assets.IMAGE_VICTORY.name:
                     if _timer:
                         _timer.cancel()
                     logger.ui("胜利")
@@ -105,7 +110,8 @@ class HuoDong(Package):
                             _flag_done = True
                         continue
                     sleep()
-                case "finish":
+
+                case self.global_assets.IMAGE_FINISH.name:
                     if _timer:
                         _timer.cancel()
                     logger.ui("结束")
@@ -134,13 +140,15 @@ class HuoDong(Package):
 
                     self.done()
                     sleep()
-                case "soul_overflow":
+
+                case self.global_assets.IMAGE_SOUL_OVERFLOW.name:
                     if _timer:
                         _timer.cancel()
                     logger.ui_warn("御魂上限提醒")
                     self.flag_soul_overflow = True
                     Mouse.click(result.center_point())
+
                 case _:
                     if _flag_title_msg:
-                        logger.ui_warn("请检查游戏场景")
+                        self.title_error_msg()
                         _flag_title_msg = False
