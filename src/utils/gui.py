@@ -161,9 +161,12 @@ class MainWindow(QMainWindow):
 
         _status = config.user.model_dump().get("remember_last_choice")
         self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
+
         _restart_msg = "重启生效"
         self.ui.setting_update_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
+        self.ui.setting_window_style_comboBox.setToolTip(_restart_msg)
+
         self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
     def _init_signals(self):
@@ -187,7 +190,9 @@ class MainWindow(QMainWindow):
         self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
         self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.buttonGroup_yuhun_driver_change)
         self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
-        self.ui.buttonGroup_yuanlaiguang.buttonClicked.connect(self.buttonGroup_yuanlaiguang_change)
+        self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_change)
+        self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_change)
+        self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_change)
         self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_func)
         self.ui.setting_update_download_comboBox.currentIndexChanged.connect(self.setting_update_download_comboBox_func)  # noqa
         self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(self.setting_xuanshangfengyin_comboBox_func)  # noqa
@@ -532,8 +537,13 @@ class MainWindow(QMainWindow):
 
             case GameFunction.QILING:
                 QiLing.description()
+                self.ui.spin_times.setEnabled(False)
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
+                # 只是为了触发事件
+                self.ui.button_qiling_tancha.setChecked(True)
+                self.ui.button_qiling_tancha.setChecked(False)
                 self.ui.button_qiling_jieqi.setChecked(True)
+                self.ui.button_qiling_jieqi.setChecked(False)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
                 self.ui.spin_qiling_jieqi_stone.setValue(1)
 
@@ -548,8 +558,8 @@ class MainWindow(QMainWindow):
 
             case GameFunction.YINGJIESHILIAN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YINGJIESHILIAN.value)
-                self.ui.button_yuanlaiguang_skill.setChecked(True)
-                self.buttonGroup_yuanlaiguang_change()
+                self.ui.button_yingjieshilian_skill.setChecked(True)
+                self.buttonGroup_yingjieshilian_change()
 
     def _app_start(self) -> None:
         # 没有选功能前禁止通过快捷键启动程序
@@ -584,7 +594,7 @@ class MainWindow(QMainWindow):
             case GameFunction.GERENTUPO:
                 flag_refresh_need = 0
                 current_level = target_level = 60
-                if self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级":
+                if self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level:
                     current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
                     target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
                 else:
@@ -625,16 +635,17 @@ class MainWindow(QMainWindow):
                 TanSuo(n=n).task_start()
 
             case GameFunction.QILING:
-                flag_tancha = self.ui.button_qiling_tancha.isChecked()
-                flag_jieqi = self.ui.button_qiling_jieqi.isChecked()
+                _tancha = self.ui.button_qiling_tancha.isChecked()
+                tancha_times = self.ui.spin_qiling_tancha.value()
+                _jieqi = self.ui.button_qiling_jieqi.isChecked()
                 stone_pokemon = self.ui.combo_qiling_jieqi_stone.currentText()
                 stone_numbers = self.ui.spin_qiling_jieqi_stone.value()
                 QiLing(
-                    n=n,
-                    _flag_tancha=flag_tancha,
-                    _flag_jieqi=flag_jieqi,
-                    _stone_pokemon=stone_pokemon,
-                    _stone_numbers=stone_numbers,
+                    n=tancha_times,
+                    if_tancha=_tancha,
+                    if_jieqi=_jieqi,
+                    stone_pokemon=stone_pokemon,
+                    stone_numbers=stone_numbers,
                 ).task_start()
 
             case GameFunction.JUEXING:
@@ -647,7 +658,7 @@ class MainWindow(QMainWindow):
                 DouJi(n=n).task_start()
 
             case GameFunction.YINGJIESHILIAN:
-                if self.ui.buttonGroup_yuanlaiguang.checkedButton().text() == "兵藏秘境":
+                if self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill:
                     BingZangMiJing(n=n).task_start()
                 else:
                     GuiBingYanWu(n=n).task_start()
@@ -709,7 +720,7 @@ class MainWindow(QMainWindow):
         self.ui.button_passengers_3.setEnabled(flag)
 
     def buttonGroup_jiejietupo_switch_change(self):
-        flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton().text() == "卡级"
+        flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level
         for widget in self.ui.buttonGroup_jiejietupo_current_level.buttons():
             widget.setEnabled(flag)
         for widget in self.ui.buttonGroup_jiejietupo_target_level.buttons():
@@ -717,8 +728,24 @@ class MainWindow(QMainWindow):
         for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
             widget.setEnabled(not flag)
 
-    def buttonGroup_yuanlaiguang_change(self):
-        flag = self.ui.buttonGroup_yuanlaiguang.checkedButton().text() == "兵藏秘境"
+    def button_qiling_tancha_change(self):
+        if self.ui.button_qiling_tancha.isChecked():
+            self.ui.spin_qiling_tancha.show()
+        else:
+            self.ui.spin_qiling_tancha.hide()
+
+    def button_qiling_jieqi_change(self):
+        if self.ui.button_qiling_jieqi.isChecked():
+            self.ui.label_qiling_jieqi_stone.show()
+            self.ui.combo_qiling_jieqi_stone.show()
+            self.ui.spin_qiling_jieqi_stone.show()
+        else:
+            self.ui.label_qiling_jieqi_stone.hide()
+            self.ui.combo_qiling_jieqi_stone.hide()
+            self.ui.spin_qiling_jieqi_stone.hide()
+
+    def buttonGroup_yingjieshilian_change(self):
+        flag = self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill
         if flag:
             self.ui_spin_times_set_value_func(50)
             BingZangMiJing.description()

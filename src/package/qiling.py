@@ -3,9 +3,8 @@ from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, sleep
-from ..utils.image import RuleImage, check_image_once
+from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.mythread import WorkTimer
 from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
@@ -47,20 +46,20 @@ class QiLing(Package):
     def __init__(
         self,
         n: int = 0,
-        _flag_tancha: bool = True,
-        _flag_jieqi: bool = False,
-        _stone_pokemon: str = None,
-        _stone_numbers: int = 0,
+        if_tancha: bool = False,
+        if_jieqi: bool = True,
+        stone_pokemon: str = None,
+        stone_numbers: int = 0,
     ) -> None:
         super().__init__(n)
-        self._flag_tancha = _flag_tancha
-        self._flag_jieqi = _flag_jieqi
-        self._stone_pokemon = _stone_pokemon  # 指定鸣契石，目前仅支持镇墓兽
-        self._stone_numbers = _stone_numbers  # 使用鸣契石数量
-        self._stone_count: int = 0  # 已使用鸣契石数量
+        self.if_tancha = if_tancha
+        self.if_jieqi = if_jieqi
+        self.stone_pokemon = stone_pokemon  # 指定鸣契石，目前仅支持镇墓兽
+        self.stone_numbers = stone_numbers  # 使用鸣契石数量
+        self.stone_count: int = 0  # 已使用鸣契石数量
 
     def description() -> None:
-        logger.ui("次数为探查次数，选中“结契”按钮将在探查结束后自动挑战场上所有，请提前在游戏内配置“结契设置”")
+        logger.ui("选中“结契”按钮将自动挑战场上剩余契灵，请提前在游戏内配置“结契设置”")
 
     def load_asset(self):
         self.IMAGE_MINGQIZHAOHUAN = self.get_image_asset("mingqizhaohuan")
@@ -72,19 +71,17 @@ class QiLing(Package):
         self.IMAGE_ZHENMUSHOU_MINGQISHI = self.get_image_asset("zhenmushou_mingqishi")
 
     def done(self):
-        self._stone_count += 1
-        logger.ui(f"已使用鸣契石数量: {self._stone_count}")
-        logger.num(f"{self._stone_count}/{self._stone_numbers}")
+        self.stone_count += 1
+        logger.ui(f"已使用鸣契石数量: {self.stone_count}")
+        logger.num(f"{self.stone_count}/{self.stone_numbers}")
 
     @log_function_call
-    def fighting(self):
+    def fight_tancha(self):
         _flag_first: bool = False
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
-            if self._flag_finish:
-                return
+
             if self.check_finish():
                 _flag_first = True
                 sleep(0.5, 0.8)
@@ -124,11 +121,6 @@ class QiLing(Package):
             logger.ui(f"[镇墓兽]继续，第{_n}次")
 
     @log_function_call
-    def timer_start(self):
-        if RuleImage(self.IMAGE_START_TANCHA).match():
-            self._flag_finish = True
-
-    @log_function_call
     def check_pokemon_remain(self, _done: bool = True):
         image = RuleImage(self.IMAGE_ZHENMUSHOU)
         if not image.match():
@@ -140,12 +132,10 @@ class QiLing(Package):
         sleep(2)
         return self.fight_until_finish(_done)
 
-    def choose_stoen(self):
+    def choose_stone(self):
         """选择鸣契石"""
         logger.ui("选择鸣契石[镇墓兽]")
-        if not self.check_click(
-            self.IMAGE_MINGQIZHAOHUAN, timeout=5, point_type="center"
-        ):
+        if not self.check_click(self.IMAGE_MINGQIZHAOHUAN, timeout=5, point_type="center"):
             logger.ui_warn("超时，未检测到鸣契石")
         if not self.check_click(self.IMAGE_ZHENMUSHOU_MINGQISHI, timeout=5):
             logger.ui_warn("超时，未检测到镇墓兽")
@@ -158,6 +148,8 @@ class QiLing(Package):
 
     @log_function_call
     def run_tancha(self):
+        self.check_title()
+
         self.current_asset_list = [
             self.IMAGE_TITLE,
             self.IMAGE_START_TANCHA,
@@ -166,28 +158,30 @@ class QiLing(Package):
 
         while self.n < self.max:
             if bool(event_thread):
-                return
-            result = check_image_once(self.current_asset_list)
-            if result is None:
-                continue
+                raise GUIStopException
 
-            match result.name:
-                case "title":
-                    logger.scene("契灵之境")
-                case "start_tancha":
-                    WorkTimer(5, self.timer_start).start()
-                    Mouse.click(result.center_point())
-                    sleep()
-                    self.fighting()
-                    self.done()
-                    sleep(2, 4)
-            if self._flag_finish:
-                logger.ui("场上最多存在5只契灵，请及时清理")
-                break
+            self.check_click(self.IMAGE_START_TANCHA, timeout=3)
+            sleep(3)  # 等待动画
+            logger.ui("进入探查")
+            for i in range(3):
+                if not self.check_click(self.IMAGE_START_TANCHA, timeout=1):
+                    break
+                logger.ui_warn(f"尝试第{i + 1}次进入探查")
+                sleep(3)  # 等待动画
+            if i == 2:
+                logger.ui_error("进入失败，可能原因是场上最多存在5只契灵，请及时清理")
+                return
+
+            self.check_finish()
+            sleep()
+            finish_random_left_right()
+            super().done()
+            sleep(4)
 
     def run_jieqi(self):
         """结契"""
-        # TODO 需要先识别主场景
+        self.check_title()
+
         result = RuleOcr().get_raw_result()
         for item in result:
             logger.info(item.text)
@@ -201,17 +195,17 @@ class QiLing(Package):
             if not self.check_pokemon_remain(False):
                 break
 
-        while self._stone_count < self._stone_numbers:
+        while self.stone_count < self.stone_numbers:
             if bool(event_thread):
                 raise GUIStopException
 
-            self.choose_stoen()
+            self.choose_stone()
             sleep(4, 7)
             self.check_pokemon_remain()
             continue
 
     def run(self):
-        if self._flag_tancha:
+        if self.if_tancha:
             self.run_tancha()
-        if self._flag_jieqi:
+        if self.if_jieqi:
             self.run_jieqi()

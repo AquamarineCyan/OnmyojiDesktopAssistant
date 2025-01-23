@@ -686,20 +686,20 @@
                 <rect>
                  <x>10</x>
                  <y>20</y>
-                 <width>51</width>
+                 <width>70</width>
                  <height>20</height>
                 </rect>
                </property>
                <property name="text">
-                <string>探查</string>
+                <string>探查次数</string>
                </property>
               </widget>
               <widget class="QCheckBox" name="button_qiling_jieqi">
                <property name="geometry">
                 <rect>
                  <x>10</x>
-                 <y>50</y>
-                 <width>51</width>
+                 <y>80</y>
+                 <width>50</width>
                  <height>20</height>
                 </rect>
                </property>
@@ -710,9 +710,9 @@
               <widget class="QLabel" name="label_qiling_jieqi_stone">
                <property name="geometry">
                 <rect>
-                 <x>10</x>
-                 <y>90</y>
-                 <width>41</width>
+                 <x>5</x>
+                 <y>120</y>
+                 <width>40</width>
                  <height>20</height>
                 </rect>
                </property>
@@ -726,8 +726,8 @@
               <widget class="QComboBox" name="combo_qiling_jieqi_stone">
                <property name="geometry">
                 <rect>
-                 <x>55</x>
-                 <y>90</y>
+                 <x>50</x>
+                 <y>120</y>
                  <width>70</width>
                  <height>20</height>
                 </rect>
@@ -736,8 +736,8 @@
               <widget class="QSpinBox" name="spin_qiling_jieqi_stone">
                <property name="geometry">
                 <rect>
-                 <x>130</x>
-                 <y>90</y>
+                 <x>125</x>
+                 <y>120</y>
                  <width>88</width>
                  <height>20</height>
                 </rect>
@@ -752,9 +752,38 @@
                 <number>30</number>
                </property>
               </widget>
+              <widget class="Line" name="line_qiling">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>60</y>
+                 <width>170</width>
+                 <height>3</height>
+                </rect>
+               </property>
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+              </widget>
+              <widget class="QSpinBox" name="spin_qiling_tancha">
+               <property name="geometry">
+                <rect>
+                 <x>100</x>
+                 <y>20</y>
+                 <width>88</width>
+                 <height>20</height>
+                </rect>
+               </property>
+               <property name="font">
+                <font>
+                 <family>宋体</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+              </widget>
              </widget>
-             <widget class="QWidget" name="_5_yuanlaiguang">
-              <widget class="QRadioButton" name="button_yuanlaiguang_exp">
+             <widget class="QWidget" name="_5_yingjieshilian">
+              <widget class="QRadioButton" name="button_yingjieshilian_exp">
                <property name="geometry">
                 <rect>
                  <x>30</x>
@@ -767,10 +796,10 @@
                 <string>鬼兵演武</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_yuanlaiguang</string>
+                <string notr="true">buttonGroup_yingjieshilian</string>
                </attribute>
               </widget>
-              <widget class="QRadioButton" name="button_yuanlaiguang_skill">
+              <widget class="QRadioButton" name="button_yingjieshilian_skill">
                <property name="geometry">
                 <rect>
                  <x>30</x>
@@ -783,7 +812,7 @@
                 <string>兵藏秘境</string>
                </property>
                <attribute name="buttonGroup">
-                <string notr="true">buttonGroup_yuanlaiguang</string>
+                <string notr="true">buttonGroup_yingjieshilian</string>
                </attribute>
               </widget>
              </widget>
@@ -939,8 +968,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>542</width>
-             <height>423</height>
+             <width>368</width>
+             <height>299</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1">
@@ -1316,7 +1345,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="0,0,1,0,0,1,1,1,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="1,1,1,1,1,1,1,1,1">
               <item>
                <spacer name="horizontalSpacer_other_1">
                 <property name="orientation">
@@ -1426,13 +1455,13 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
   <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
   <buttongroup name="buttonGroup_jiejietupo_current_level"/>
-  <buttongroup name="buttonGroup_yuanlaiguang"/>
  </buttongroups>
 </ui>
