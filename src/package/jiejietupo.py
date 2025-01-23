@@ -109,16 +109,30 @@ class JieJieTuPo(Package):
                 _msg_title = False
                 self.title_error_msg()
 
-    def fighting_tupo(self, x0: int, y0: int) -> None:
-        """结界突破战斗
+    def fighting_into(self, x0: int, y0: int) -> None:
+        """点击进入战斗
 
         参数:
             x0 (int): 左侧横坐标
             y0 (int): 顶部纵坐标
         """
-        point = random_point(x0, x0 + 185, y0, y0 + 80)
-        Mouse.click(RelativePoint(point.x, point.y))
-        self.check_click(self.IMAGE_JINGONG)
+        # 优先使用中心坐标
+        _x = x0 + 185 // 2
+        _y = y0 + 80 // 2
+        Mouse.click(RelativePoint(_x, _y))
+        if self.check_click(self.IMAGE_JINGONG, timeout=3):
+            return
+
+        for k in range(3):
+            # 失败表示没有点到结界
+            logger.ui_warn(f"未点到结界，重试第{k + 1}次")
+            point = random_point(x0, x0 + 185, y0, y0 + 80)
+            Mouse.click(point)
+            if self.check_click(self.IMAGE_JINGONG, timeout=3):
+                return
+
+        # 三次都没有点到结界
+        raise Exception("未点到结界")
 
     def fighting_proactive_failure_once(self):
         """主动失败一次"""
@@ -221,50 +235,53 @@ class JieJieTuPoGeRen(JieJieTuPo):
         """战斗"""
         for i in range(5, -1, -1):  # 按勋章数排序
             if bool(event_thread):
-                return
-            if self.list_xunzhang.count(i):
-                k = 1
-                for _ in range(1, self.list_xunzhang.count(i) + 1):
-                    if bool(event_thread):
-                        return
-                    k = self.list_xunzhang.index(i, k)
-                    logger.ui(f"{k} 可进攻")
-                    x = self.tupo_geren_x[(k + 2) % 3 + 1]
-                    y = self.tupo_geren_y[(k + 2) // 3]
-                    if RuleImage(
-                        self.IMAGE_FAIL, region=(x, y - 40, 185 + 40, 90)
-                    ).match():
-                        logger.ui(f"{k} 已失败")
-                        k += 1
-                        continue
-                    self.fighting_tupo(x, y)
-                    # TODO 待优化，利用时间戳的间隔判断
-                    # random_sleep(4)
-                    # if self.judge_click("zhunbei.png",click=False):
-                    #     self.judge_click("zhunbei.png")
-                    if self.check_finish():
-                        flag_victory = True
-                        self.done()
-                    else:
-                        flag_victory = False
-                    sleep(0.4, 0.8)
-                    # 结束界面
-                    finish_random_left_right()
-                    sleep()
-                    # 3胜奖励
-                    if self.tupo_victory == 2 and flag_victory:
-                        sleep()
-                        while True:
-                            if bool(event_thread):
-                                return
-                            self.check_click(self.global_image.IMAGE_FINISH)
-                            sleep()
-                            if not RuleImage(self.global_image.IMAGE_FINISH).match():
-                                break
-                        logger.ui("成功攻破3次")
+                raise GUIStopException
+
+            if not self.list_xunzhang.count(i):
+                # 没有对应勋章数的结界，跳过
+                continue
+
+            k = 1
+            for _ in range(1, self.list_xunzhang.count(i) + 1):
+                if bool(event_thread):
+                    raise GUIStopException
+
+                k = self.list_xunzhang.index(i, k)
+                logger.ui(f"{k} 可进攻")
+                x = self.tupo_geren_x[(k + 2) % 3 + 1]
+                y = self.tupo_geren_y[(k + 2) // 3]
+                if RuleImage(self.IMAGE_FAIL, region=(x, y - 40, 185 + 40, 90)).match():
+                    logger.ui(f"{k} 已失败")
+                    k += 1
+                    continue
+
+                self.fighting_into(x, y)
+
+                if self.check_finish():
+                    flag_victory = True
+                    self.done()
+                else:
+                    flag_victory = False
+
+                sleep()
+                finish_random_left_right()
+
+                # 3胜奖励
+                if self.tupo_victory == 2 and flag_victory:
                     sleep(2)
-                    if flag_victory:
-                        return
+                    while True:
+                        if bool(event_thread):
+                            raise GUIStopException
+
+                        self.check_click(self.global_assets.IMAGE_FINISH, timeout=3)
+                        sleep()
+                        if not RuleImage(self.global_assets.IMAGE_FINISH).match():
+                            break
+                    logger.ui("成功攻破3次")
+
+                sleep(2)
+                if flag_victory:
+                    return
 
     def fighting_proactive_failure(self, count_max) -> None:
         """主动失败
@@ -278,6 +295,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         if state == LineupState.LOCK:
             Mouse.click(point)
         logger.ui("已解锁阵容")
+        sleep()
 
         # 获得每个结界的勋章数
         self.list_xunzhang = self.list_num_xunzhang()
@@ -286,29 +304,30 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 logger.ui(f"{i} 可进攻")
                 break
 
-        self.fighting_tupo(
-            self.tupo_geren_x[(i + 2) % 3 + 1], self.tupo_geren_y[(i + 2) // 3]
-        )
+        self.fighting_into(self.tupo_geren_x[(i + 2) % 3 + 1], self.tupo_geren_y[(i + 2) // 3])
 
         sleep(2)
         while True:
             if bool(event_thread):
                 raise GUIStopException
 
-            if not RuleImage(self.global_image.IMAGE_FIGHTING_BACK_DEFAULT).match():
+            if (not self.check_scene(self.global_assets.IMAGE_READY_NEW)) and (
+                not self.check_scene(self.global_assets.IMAGE_READY_OLD)
+            ):
                 continue
 
             sleep()
             self.fighting_proactive_failure_once()
             count += 1
-            logger.ui(f"current count: {count}")
+            logger.ui(f"失败次数: {count}")
+            sleep(2)
             if count >= count_max:
                 if self.check_scene(self.IMAGE_FIGHT_AGAIN):
                     finish_random_left_right()
                 break
 
-            self.check_click(self.IMAGE_FIGHT_AGAIN)
-            sleep(0.4, 0.8)
+            self.check_click(self.IMAGE_FIGHT_AGAIN, timeout=5)
+            sleep()
             KeyBoard.enter()
 
         sleep(2)
@@ -323,7 +342,6 @@ class JieJieTuPoGeRen(JieJieTuPo):
         flag_refresh = False  # 刷新提醒
         sleep(4, 8)  # 强制等待
         import math
-        import time
 
         while True:
             if bool(event_thread):
@@ -406,7 +424,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         continue
                     self.check_scene(self.IMAGE_FANGSHOUJILU)
                     logger.ui(f"{i} 可进攻")
-                    self.fighting_tupo(
+                    self.fighting_into(
                         self.tupo_geren_x[(i + 2) % 3 + 1],
                         self.tupo_geren_y[(i + 2) // 3],
                     )
@@ -462,7 +480,6 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
 
     @log_function_call
     def fighting(self) -> int:
-        """战斗"""
         i = 1  # 1-8
         while True:
             if bool(event_thread):
@@ -481,7 +498,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 if i in [7, 8]:  # 最后一排坐标上移
                     _y -= 20
                     logger.ui(f"{i} 坐标修正")
-                self.fighting_tupo(x, _y)
+                self.fighting_into(x, _y)
                 # 延迟等待，判断当前寮突是否有效
                 sleep(3)
                 if RuleImage(self.IMAGE_JINGONG).match():
@@ -543,7 +560,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
 
             sleep()
             self.get_current_process()
-            if flag := self.fight():
+            if flag := self.fighting():
                 self.done()
             elif flag == -1:
                 break

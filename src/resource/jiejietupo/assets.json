@@ -14,12 +14,6 @@
             "score": "0.8"
         },
         {
-            "name": "fighting_fail",
-            "file": "fighting_fail.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
             "name": "geren",
             "file": "geren.png",
             "region": [0, 0, 0, 0],
@@ -40,12 +34,6 @@
         {
             "name": "queding",
             "file": "queding.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
-            "name": "shifouzaicitiaozhan",
-            "file": "shifouzaicitiaozhan.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
         },

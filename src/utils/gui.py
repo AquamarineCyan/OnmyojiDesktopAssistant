@@ -681,6 +681,17 @@ class MainWindow(QMainWindow):
             self.ui.button_driver_True,
             self.ui.button_passengers_2,
             self.ui.button_passengers_3,
+            # 个人突破
+            self.ui.button_jiejietupo_switch_level,
+            self.ui.button_jiejietupo_current_level_57,
+            self.ui.button_jiejietupo_current_level_58,
+            self.ui.button_jiejietupo_current_level_59,
+            self.ui.button_jiejietupo_current_level_60,
+            self.ui.button_jiejietupo_target_level_57,
+            self.ui.button_jiejietupo_target_level_58,
+            self.ui.button_jiejietupo_target_level_59,
+            self.ui.button_jiejietupo_target_level_60,
+            self.ui.button_jiejietupo_switch_rule,
         ]:
             item.setEnabled(not flag)
         return
