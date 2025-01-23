@@ -6,7 +6,7 @@ from typing import Literal
 from ..utils.adapter import KeyBoard, Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.exception import GUIStopException
+from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
@@ -23,8 +23,12 @@ class LineupState(Enum):
     UNLOCK = 2
 
 
-class LiaoTuPoFullException(Exception):
+class LiaoTuPoFullException(CustomException):
     """寮突破已满"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_warn("异常捕获：寮突破已满")
 
 
 class JieJieTuPo(Package):
@@ -535,7 +539,6 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     def get_current_process(self):
         result = RuleOcr().get_raw_result()
         for item in result:
-            logger.info(item.text)
             if "%" not in item.text:
                 continue
 
@@ -547,8 +550,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 logger.ui(f"当前进度：{self.process}%")
 
             if self.process > 90:
-                logger.ui_warn("寮突破已满")
-                raise LiaoTuPoFullException("寮突破已满")
+                raise LiaoTuPoFullException
 
             return
 

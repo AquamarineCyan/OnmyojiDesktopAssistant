@@ -1,7 +1,11 @@
 from .log import logger
 
 
-class GUIStopException(Exception):
+class CustomException(Exception):
+    """自定义异常"""
+
+
+class GUIStopException(CustomException):
     """GUI停止按钮"""
 
     def __init__(self, *args):
@@ -9,7 +13,7 @@ class GUIStopException(Exception):
         logger.ui_error("异常捕获：GUI停止按钮")
 
 
-class TimesNotEnoughException(Exception):
+class TimesNotEnoughException(CustomException):
     """次数不足"""
 
     def __init__(self, *args):
@@ -17,7 +21,7 @@ class TimesNotEnoughException(Exception):
         logger.ui_error("异常捕获：次数不足")
 
 
-class TimeoutException(Exception):
+class TimeoutException(CustomException):
     """超时"""
 
     def __init__(self, *args):

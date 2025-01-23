@@ -6,7 +6,7 @@ from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
-from ..utils.exception import GUIStopException
+from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, get_asset_data, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
@@ -406,7 +406,11 @@ class Package:
         try:
             self.run()
         except Exception as e:
-            logger.ui_error(f"任务出错: {e}")
+            if not isinstance(e, CustomException):
+                import traceback
+
+                logger.ui_error(f"任务出错: {e}")
+                logger.error(traceback.format_exception(e))
 
         _end = time.perf_counter()
         _cost = _end - _start

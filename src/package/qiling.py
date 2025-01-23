@@ -1,7 +1,7 @@
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.exception import GUIStopException
+from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -10,7 +10,7 @@ from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
 
-class LuopanEmptyException(Exception):
+class LuopanEmptyException(CustomException):
     """指定罗盘不足"""
 
     def __init__(self, *args):
@@ -18,7 +18,7 @@ class LuopanEmptyException(Exception):
         logger.ui_error("异常捕获：指定罗盘不足")
 
 
-class PokemonOverflowException(Exception):
+class PokemonOverflowException(CustomException):
     """契灵数量上限"""
 
     def __init__(self, *args):
@@ -110,8 +110,8 @@ class QiLing(Package):
 
             _error = 0
             if not self.check_finish(timeout=2 * 60):  # 排除阵容问题，只有成功或者超时
-                logger.ui_error("指定罗盘不足")  # TODO 自动选其他罗盘
-                raise LuopanEmptyException("指定罗盘不足")
+                # TODO 自动选其他罗盘
+                raise LuopanEmptyException()
             sleep(3)
             finish_random_left_right()
             sleep(3)
