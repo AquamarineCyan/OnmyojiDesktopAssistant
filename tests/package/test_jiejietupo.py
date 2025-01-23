@@ -6,7 +6,6 @@ class JieJieTuPo(Package):
     resource_list = [
         "fail",
         "fangshoujilu",
-        "fighting_fail",
         "geren",
         "jingong",
         "lock",
@@ -15,7 +14,6 @@ class JieJieTuPo(Package):
         "title",
         "tupojilu",
         "unlock",
-        "victory",
         "xunzhang_0",
         "xunzhang_1",
         "xunzhang_2",
