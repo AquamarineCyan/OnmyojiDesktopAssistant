@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         self._init_signals()
         self._init_events()
         self.key_listener = KeyListenerThread()
-        ms.main.key_pressed.connect(self.check_shortcut)
+        ms.main.key_pressed.connect(self._init_shortcut)
         self.key_listener.start()
 
     def _init_settings(self):
@@ -165,7 +165,9 @@ class MainWindow(QMainWindow):
         _restart_msg = "重启生效"
         self.ui.setting_update_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
+        self.ui.setting_xuanshangfengyin_comboBox.setToolTip("立即生效")
         self.ui.setting_window_style_comboBox.setToolTip(_restart_msg)
+        self.ui.setting_backend_interaction_button.setToolTip("测试中，可能存在问题")
 
         self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
@@ -181,26 +183,36 @@ class MainWindow(QMainWindow):
     def _init_events(self):
         """初始化事件"""
         self.ui.button_game_handle.clicked.connect(self.check_game_handle)
-        self.ui.button_start.clicked.connect(self.app_running)
         self.ui.combo_choice.currentIndexChanged.connect(self.game_function_description)
-        self.ui.button_restart.clicked.connect(self.app_restart_func)
+        self.ui.button_start.clicked.connect(self.app_running)
+
+        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_handle)
+        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.buttonGroup_yuhun_driver_handle)
+        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_handle)
+        self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_handle)
+        self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_handle)
+        self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_handle)
+
+        self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_handle)
+        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
+            self.setting_update_download_comboBox_handle
+        )
+        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
+            self.setting_xuanshangfengyin_comboBox_handle
+        )
+        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(self.setting_window_style_comboBox_hanle)
+        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(
+            self.setting_shortcut_start_stop_comboBox_handle
+        )
+        self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_handle)
+        self.ui.setting_backend_interaction_button.clicked.connect(self.setting_backend_interaction_handle)
+
+        self.ui.button_restart.clicked.connect(self.app_restart_handle)
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
         self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
         self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
-        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_change)
-        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.buttonGroup_yuhun_driver_change)
-        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_change)
-        self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_change)
-        self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_change)
-        self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_change)
-        self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_func)
-        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(self.setting_update_download_comboBox_func)  # noqa
-        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(self.setting_xuanshangfengyin_comboBox_func)  # noqa
-        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(self.setting_window_style_comboBox_func)
-        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(self.setting_shortcut_start_stop_comboBox_func)  # noqa
-        self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_func)
 
-    def check_shortcut(self, key):
+    def _init_shortcut(self, key):
         try:
             logger.info(f"Key pressed: {key}")
             if key.lower() == config.user.shortcut_start_stop.lower():
@@ -401,38 +413,38 @@ class MainWindow(QMainWindow):
 
     """设置项变更回调函数"""
 
-    def setting_update_comboBox_func(self) -> None:
+    def setting_update_comboBox_handle(self) -> None:
         """设置-更新模式-更改"""
         text = self.ui.setting_update_comboBox.currentText()
         logger.info(f"设置项：更新模式已更改为 {text}")
         config.update("update", text)
 
-    def setting_update_download_comboBox_func(self) -> None:
+    def setting_update_download_comboBox_handle(self) -> None:
         """设置-下载线路-更改"""
         text = self.ui.setting_update_download_comboBox.currentText()
         logger.info(f"设置项：下载线路已更改为 {text}")
         config.update("update_download", text)
 
-    def setting_xuanshangfengyin_comboBox_func(self) -> None:
+    def setting_xuanshangfengyin_comboBox_handle(self) -> None:
         """设置-悬赏封印-更改"""
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
         logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.update("xuanshangfengyin", text)
         task_xuanshangfengyin.task_start()
 
-    def setting_window_style_comboBox_func(self) -> None:
+    def setting_window_style_comboBox_hanle(self) -> None:
         """设置-界面风格-更改"""
         text = self.ui.setting_window_style_comboBox.currentText()
         logger.info(f"设置项：界面风格已更改为 {text}")
         config.update("window_style", text)
 
-    def setting_shortcut_start_stop_comboBox_func(self) -> None:
+    def setting_shortcut_start_stop_comboBox_handle(self) -> None:
         """设置-快捷键-开始/停止-更改"""
         text = self.ui.setting_shortcut_start_stop_comboBox.currentText()
         logger.info(f"设置项：快捷键-开始/停止已更改为 {text}")
         config.update("shortcut_start_stop", text)
 
-    def setting_remember_last_choice_func(self) -> None:
+    def setting_remember_last_choice_handle(self) -> None:
         """设置-记忆上次所选功能-更改"""
         flag = self.ui.setting_remember_last_choice_button.isChecked()
         if flag:
@@ -443,6 +455,19 @@ class MainWindow(QMainWindow):
             _status = -1
         logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
         config.update("remember_last_choice", _status)
+
+    def setting_backend_interaction_handle(self) -> None:
+        """设置-后台交互-更改"""
+        if self.ui.setting_backend_interaction_button.isChecked():
+            _text = "开启"
+            _status = True
+            logger.ui_warn("开启后台交互，仅本次有效，注意不能将游戏窗口最小化，可以被其他窗口遮挡")
+        else:
+            _text = "关闭"
+            _status = False
+            logger.ui("关闭后台交互")
+        logger.info(f"设置项：后台交互已更改为 {_text}")
+        config.backend = _status
 
     def check_game_handle(self):
         return window.check_game_handle()
@@ -499,7 +524,7 @@ class MainWindow(QMainWindow):
                 # TODO
                 self.ui.button_jiejietupo_refresh_rule_6.hide()
                 self.ui.button_jiejietupo_refresh_rule_9.hide()
-                self.buttonGroup_jiejietupo_switch_change()
+                self.buttonGroup_jiejietupo_switch_handle()
                 self.ui_spin_times_set_value_func(1, 1, 30)
 
             case GameFunction.LIAOTUPO:
@@ -559,7 +584,7 @@ class MainWindow(QMainWindow):
             case GameFunction.YINGJIESHILIAN:
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YINGJIESHILIAN.value)
                 self.ui.button_yingjieshilian_skill.setChecked(True)
-                self.buttonGroup_yingjieshilian_change()
+                self.buttonGroup_yingjieshilian_handle()
 
     def _app_start(self) -> None:
         # 没有选功能前禁止通过快捷键启动程序
@@ -707,19 +732,19 @@ class MainWindow(QMainWindow):
             item.setEnabled(not flag)
         return
 
-    def buttonGroup_yuhun_mode_change(self):
+    def buttonGroup_yuhun_mode_handle(self):
         flag = self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team
         self.ui.button_driver_False.setEnabled(flag)
         self.ui.button_driver_True.setEnabled(flag)
         self.ui.button_passengers_2.setEnabled(flag)
         self.ui.button_passengers_3.setEnabled(flag)
 
-    def buttonGroup_yuhun_driver_change(self):
+    def buttonGroup_yuhun_driver_handle(self):
         flag = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
         self.ui.button_passengers_2.setEnabled(flag)
         self.ui.button_passengers_3.setEnabled(flag)
 
-    def buttonGroup_jiejietupo_switch_change(self):
+    def buttonGroup_jiejietupo_switch_handle(self):
         flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level
         for widget in self.ui.buttonGroup_jiejietupo_current_level.buttons():
             widget.setEnabled(flag)
@@ -728,13 +753,13 @@ class MainWindow(QMainWindow):
         for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
             widget.setEnabled(not flag)
 
-    def button_qiling_tancha_change(self):
+    def button_qiling_tancha_handle(self):
         if self.ui.button_qiling_tancha.isChecked():
             self.ui.spin_qiling_tancha.show()
         else:
             self.ui.spin_qiling_tancha.hide()
 
-    def button_qiling_jieqi_change(self):
+    def button_qiling_jieqi_handle(self):
         if self.ui.button_qiling_jieqi.isChecked():
             self.ui.label_qiling_jieqi_stone.show()
             self.ui.combo_qiling_jieqi_stone.show()
@@ -744,7 +769,7 @@ class MainWindow(QMainWindow):
             self.ui.combo_qiling_jieqi_stone.hide()
             self.ui.spin_qiling_jieqi_stone.hide()
 
-    def buttonGroup_yingjieshilian_change(self):
+    def buttonGroup_yingjieshilian_handle(self):
         flag = self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill
         if flag:
             self.ui_spin_times_set_value_func(50)
@@ -753,7 +778,7 @@ class MainWindow(QMainWindow):
             self.ui_spin_times_set_value_func(1)
             GuiBingYanWu.description()
 
-    def app_restart_func(self):
+    def app_restart_handle(self):
         Restart().app_restart()
 
     def open_homepage(self, *args) -> None:

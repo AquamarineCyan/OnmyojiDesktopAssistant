@@ -394,7 +394,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 368, 299))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 542, 423))
         self.verticalLayout_setting = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_setting.setObjectName(u"verticalLayout_setting")
         self.label_tip_setting_restart = QLabel(self.scrollAreaWidgetContents)
@@ -590,6 +590,24 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_remember_last_choice)
 
+        self.horizontalLayout_setting_backend_interaction = QHBoxLayout()
+        self.horizontalLayout_setting_backend_interaction.setObjectName(u"horizontalLayout_setting_backend_interaction")
+        self.horizontalSpacer_setting_backend_interaction_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_backend_interaction.addItem(self.horizontalSpacer_setting_backend_interaction_left)
+
+        self.setting_backend_interaction_button = QCheckBox(self.groupBox_config)
+        self.setting_backend_interaction_button.setObjectName(u"setting_backend_interaction_button")
+
+        self.horizontalLayout_setting_backend_interaction.addWidget(self.setting_backend_interaction_button)
+
+        self.horizontalSpacer_setting_backend_interaction_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_backend_interaction.addItem(self.horizontalSpacer_setting_backend_interaction_right)
+
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_backend_interaction)
+
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
 
@@ -717,8 +735,9 @@ class Ui_MainWindow(object):
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
         self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
-        self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb/\u505c\u6b62\u70ed\u952e", None))
+        self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5feb\u6377\u952e\uff1a\u5f00\u59cb/\u505c\u6b62", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
+        self.setting_backend_interaction_button.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u4ea4\u4e92\uff08\u4ec5\u672c\u6b21\u751f\u6548\uff09", None))
         self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
         self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))

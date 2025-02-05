@@ -968,8 +968,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>368</width>
-             <height>299</height>
+             <width>542</width>
+             <height>423</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1">
@@ -1259,7 +1259,7 @@
                  <item>
                   <widget class="QLabel" name="setting_shortcut_start_stop_label">
                    <property name="text">
-                    <string>开始/停止热键</string>
+                    <string>快捷键：开始/停止</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1328,6 +1328,43 @@
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_setting_remember_last_choice_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_backend_interaction">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_backend_interaction_left">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="setting_backend_interaction_button">
+                   <property name="text">
+                    <string>后台交互（仅本次生效）</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_backend_interaction_right">
                    <property name="orientation">
                     <enum>Qt::Orientation::Horizontal</enum>
                    </property>
@@ -1455,13 +1492,13 @@
  <resources/>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
   <buttongroup name="buttonGroup_jiejietupo_target_level"/>
   <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_jiejietupo_current_level"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
  </buttongroups>
 </ui>
