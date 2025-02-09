@@ -41,8 +41,8 @@ class CustomLogger(logging.Logger):
         send_gui_msg(msg, "green")
         super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs)
 
-    def num(self, msg, *args, **kwargs):  # TODO remove and used in printbox
-        ms.main.ui_text_completion_times_update.emit(msg)  # 输出至完成次数UI界面
+    def progress(self, msg, *args, **kwargs):
+        ms.main.ui_text_progress_update.emit(str(msg))  # 输出至完成情况UI界面
         super()._log(logging.INFO, f"done number: {msg}", args, **kwargs)
 
 
@@ -83,9 +83,7 @@ def log_clean_up() -> bool:
         logger.error("Not found log dir.")
         return False
     for item in LOG_DIR_PATH.iterdir():
-        log_date = date(
-            int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:])
-        )
+        log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
         # 自动清理
         if (today - log_date).days > 30:
             try:

@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.1
+## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -63,29 +63,27 @@ class Ui_MainWindow(object):
 
         self.gridLayout_groupBox_info.addItem(self.horizontalSpacer_groupBox_info_left, 0, 1, 1, 1)
 
-        self.text_completion_times = QLineEdit(self.groupBox_info)
-        self.text_completion_times.setObjectName(u"text_completion_times")
-        self.text_completion_times.setEnabled(True)
+        self.text_progress = QLineEdit(self.groupBox_info)
+        self.text_progress.setObjectName(u"text_progress")
+        self.text_progress.setEnabled(True)
         font1 = QFont()
         font1.setFamilies([u"\u5b8b\u4f53"])
         font1.setPointSize(9)
-        self.text_completion_times.setFont(font1)
-        self.text_completion_times.setMaxLength(32764)
+        self.text_progress.setFont(font1)
+        self.text_progress.setMaxLength(32764)
 
-        self.gridLayout_groupBox_info.addWidget(self.text_completion_times, 0, 3, 1, 1)
+        self.gridLayout_groupBox_info.addWidget(self.text_progress, 0, 3, 1, 1)
 
         self.text_info = QTextBrowser(self.groupBox_info)
         self.text_info.setObjectName(u"text_info")
 
         self.gridLayout_groupBox_info.addWidget(self.text_info, 1, 0, 1, 6)
 
-        self.label_completion_times = QLabel(self.groupBox_info)
-        self.label_completion_times.setObjectName(u"label_completion_times")
-        self.label_completion_times.setFont(font)
-        self.label_completion_times.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
-        self.label_completion_times.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label_progress = QLabel(self.groupBox_info)
+        self.label_progress.setObjectName(u"label_progress")
+        self.label_progress.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.gridLayout_groupBox_info.addWidget(self.label_completion_times, 0, 2, 1, 1)
+        self.gridLayout_groupBox_info.addWidget(self.label_progress, 0, 2, 1, 1)
 
 
         self.gridLayout_tab_home.addWidget(self.groupBox_info, 0, 1, 13, 1)
@@ -397,12 +395,6 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 542, 423))
         self.verticalLayout_setting = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_setting.setObjectName(u"verticalLayout_setting")
-        self.label_tip_setting_restart = QLabel(self.scrollAreaWidgetContents)
-        self.label_tip_setting_restart.setObjectName(u"label_tip_setting_restart")
-        self.label_tip_setting_restart.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.verticalLayout_setting.addWidget(self.label_tip_setting_restart)
-
         self.groupBox_config = QGroupBox(self.scrollAreaWidgetContents)
         self.groupBox_config.setObjectName(u"groupBox_config")
         self.vboxLayout = QVBoxLayout(self.groupBox_config)
@@ -415,7 +407,7 @@ class Ui_MainWindow(object):
 
         self.setting_update_label = QLabel(self.groupBox_config)
         self.setting_update_label.setObjectName(u"setting_update_label")
-        self.setting_update_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setting_update_label.setMinimumSize(QSize(120, 0))
 
         self.horizontalLayout_setting_update.addWidget(self.setting_update_label)
 
@@ -448,7 +440,7 @@ class Ui_MainWindow(object):
 
         self.setting_update_download_label = QLabel(self.groupBox_config)
         self.setting_update_download_label.setObjectName(u"setting_update_download_label")
-        self.setting_update_download_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setting_update_download_label.setMinimumSize(QSize(120, 0))
 
         self.horizontalLayout_setting_update_download.addWidget(self.setting_update_download_label)
 
@@ -481,7 +473,7 @@ class Ui_MainWindow(object):
 
         self.setting_xuanshangfengyin_label = QLabel(self.groupBox_config)
         self.setting_xuanshangfengyin_label.setObjectName(u"setting_xuanshangfengyin_label")
-        self.setting_xuanshangfengyin_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setting_xuanshangfengyin_label.setMinimumSize(QSize(120, 0))
 
         self.horizontalLayout_setting_xuanshangfengyin.addWidget(self.setting_xuanshangfengyin_label)
 
@@ -514,7 +506,7 @@ class Ui_MainWindow(object):
 
         self.setting_window_style_label = QLabel(self.groupBox_config)
         self.setting_window_style_label.setObjectName(u"setting_window_style_label")
-        self.setting_window_style_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setting_window_style_label.setMinimumSize(QSize(120, 0))
 
         self.horizontalLayout_setting_window_style.addWidget(self.setting_window_style_label)
 
@@ -547,7 +539,7 @@ class Ui_MainWindow(object):
 
         self.setting_shortcut_start_stop_label = QLabel(self.groupBox_config)
         self.setting_shortcut_start_stop_label.setObjectName(u"setting_shortcut_start_stop_label")
-        self.setting_shortcut_start_stop_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setting_shortcut_start_stop_label.setMinimumSize(QSize(120, 0))
 
         self.horizontalLayout_setting_shortcut_start_stop.addWidget(self.setting_shortcut_start_stop_label)
 
@@ -580,6 +572,7 @@ class Ui_MainWindow(object):
 
         self.setting_remember_last_choice_button = QCheckBox(self.groupBox_config)
         self.setting_remember_last_choice_button.setObjectName(u"setting_remember_last_choice_button")
+        self.setting_remember_last_choice_button.setMinimumSize(QSize(160, 0))
 
         self.horizontalLayout_setting_remember_last_choice.addWidget(self.setting_remember_last_choice_button)
 
@@ -598,6 +591,7 @@ class Ui_MainWindow(object):
 
         self.setting_backend_interaction_button = QCheckBox(self.groupBox_config)
         self.setting_backend_interaction_button.setObjectName(u"setting_backend_interaction_button")
+        self.setting_backend_interaction_button.setMinimumSize(QSize(160, 0))
 
         self.horizontalLayout_setting_backend_interaction.addWidget(self.setting_backend_interaction_button)
 
@@ -607,6 +601,25 @@ class Ui_MainWindow(object):
 
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_backend_interaction)
+
+        self.horizontalLayout_setting_win_toast = QHBoxLayout()
+        self.horizontalLayout_setting_win_toast.setObjectName(u"horizontalLayout_setting_win_toast")
+        self.horizontalSpacer_setting_win_toast_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_win_toast.addItem(self.horizontalSpacer_setting_win_toast_left)
+
+        self.setting_win_toast_button = QCheckBox(self.groupBox_config)
+        self.setting_win_toast_button.setObjectName(u"setting_win_toast_button")
+        self.setting_win_toast_button.setMinimumSize(QSize(160, 0))
+
+        self.horizontalLayout_setting_win_toast.addWidget(self.setting_win_toast_button)
+
+        self.horizontalSpacer_setting_win_toast_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_win_toast.addItem(self.horizontalSpacer_setting_win_toast_right)
+
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_win_toast)
 
 
         self.verticalLayout_setting.addWidget(self.groupBox_config)
@@ -665,8 +678,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_setting.addLayout(self.horizontalLayout_restart_update_record)
 
-        self.verticalLayout_setting.setStretch(1, 4)
-        self.verticalLayout_setting.setStretch(2, 1)
+        self.verticalLayout_setting.setStretch(0, 1)
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
         self.gridLayout_6.addWidget(self.scrollArea, 0, 0, 1, 1)
@@ -689,8 +701,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.groupBox_info.setTitle(QCoreApplication.translate("MainWindow", u"\u4fe1\u606f", None))
-        self.text_completion_times.setPlaceholderText("")
-        self.label_completion_times.setText(QCoreApplication.translate("MainWindow", u"\u5b8c\u6210\u6b21\u6570", None))
+        self.text_progress.setPlaceholderText("")
+        self.label_progress.setText(QCoreApplication.translate("MainWindow", u"\u5b8c\u6210\u60c5\u51b5", None))
         self.button_start.setText(QCoreApplication.translate("MainWindow", u"\u5f00\u59cb", None))
         self.groupBox_advanced.setTitle(QCoreApplication.translate("MainWindow", u"\u9ad8\u7ea7\u8bbe\u7f6e", None))
         self.label_driver.setText(QCoreApplication.translate("MainWindow", u"\u662f\u5426\u53f8\u673a", None))
@@ -729,8 +741,6 @@ class Ui_MainWindow(object):
         self.label_numbers.setText(QCoreApplication.translate("MainWindow", u"\u6b21\u6570", None))
         self.button_game_handle.setText(QCoreApplication.translate("MainWindow", u"\u6e38\u620f\u68c0\u6d4b", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_home), QCoreApplication.translate("MainWindow", u"\u9996\u9875", None))
-        self.label_tip_setting_restart.setText(QCoreApplication.translate("MainWindow", u"\u90e8\u5206\u8bbe\u7f6e\u9700\u8981\u91cd\u542f\u751f\u6548", None))
-        self.groupBox_config.setTitle(QCoreApplication.translate("MainWindow", u"\u914d\u7f6e", None))
         self.setting_update_label.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u6a21\u5f0f", None))
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
@@ -738,6 +748,7 @@ class Ui_MainWindow(object):
         self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5feb\u6377\u952e\uff1a\u5f00\u59cb/\u505c\u6b62", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
         self.setting_backend_interaction_button.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u4ea4\u4e92\uff08\u4ec5\u672c\u6b21\u751f\u6548\uff09", None))
+        self.setting_win_toast_button.setText(QCoreApplication.translate("MainWindow", u"\u7cfb\u7edf\u901a\u77e5", None))
         self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
         self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))

@@ -73,7 +73,7 @@ class QiLing(Package):
     def done(self):
         self.stone_count += 1
         logger.ui(f"已使用鸣契石数量: {self.stone_count}")
-        logger.num(f"{self.stone_count}/{self.stone_numbers}")
+        logger.progress(f"{self.stone_count}/{self.stone_numbers}")
 
     @log_function_call
     def fight_tancha(self):

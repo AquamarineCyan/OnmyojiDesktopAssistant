@@ -162,6 +162,9 @@ class MainWindow(QMainWindow):
         _status = config.user.model_dump().get("remember_last_choice")
         self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
 
+        _status = config.user.model_dump().get("win_toast")
+        self.ui.setting_win_toast_button.setChecked(_status)
+
         _restart_msg = "重启生效"
         self.ui.setting_update_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
@@ -176,7 +179,7 @@ class MainWindow(QMainWindow):
         ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
         ms.main.ui_text_info_update.connect(self.ui_text_info_update_func)
         ms.main.is_fighting_update.connect(self.is_fighting)
-        ms.main.ui_text_completion_times_update.connect(self.ui_text_completion_times_update_func)
+        ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_func)
         ms.main.sys_exit.connect(self.exit_func)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
@@ -206,6 +209,7 @@ class MainWindow(QMainWindow):
         )
         self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_handle)
         self.ui.setting_backend_interaction_button.clicked.connect(self.setting_backend_interaction_handle)
+        self.ui.setting_win_toast_button.clicked.connect(self.setting_win_toast_handle)
 
         self.ui.button_restart.clicked.connect(self.app_restart_handle)
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
@@ -304,13 +308,13 @@ class MainWindow(QMainWindow):
         widget.moveCursor(QTextCursor.MoveOperation.End)
         widget.setTextColor("black")
 
-    def ui_text_completion_times_update_func(self, msg: str) -> None:
-        """输出内容至文本框`完成次数`
+    def ui_text_progress_update_func(self, msg: str) -> None:
+        """输出内容至文本框`完成情况`
 
         参数:
             msg (str): 文本
         """
-        self.ui.text_completion_times.setText(msg)
+        self.ui.text_progress.setText(msg)
 
     def ui_spin_times_set_value_func(self, current: int = 1, min: int = 0, max: int = 99):
         widget = self.ui.spin_times
@@ -469,6 +473,18 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：后台交互已更改为 {_text}")
         config.backend = _status
 
+    def setting_win_toast_handle(self) -> None:
+        """设置-系统通知-更改"""
+        flag = self.ui.setting_win_toast_button.isChecked()
+        if flag:
+            _text = "开启"
+            _status = True
+        else:
+            _text = "关闭"
+            _status = False
+        logger.info(f"设置项：系统通知已更改为 {_text}")
+        config.update("win_toast", _status)
+
     def check_game_handle(self):
         return window.check_game_handle()
 
@@ -593,7 +609,7 @@ class MainWindow(QMainWindow):
             return
 
         n = self.ui.spin_times.value()
-        self.ui.text_completion_times.clear()
+        self.ui.text_progress.clear()
         self.is_fighting(True)
 
         match self.game_function_choice:

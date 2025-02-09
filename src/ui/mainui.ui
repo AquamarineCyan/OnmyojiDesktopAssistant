@@ -136,7 +136,7 @@
             </spacer>
            </item>
            <item row="0" column="3">
-            <widget class="QLineEdit" name="text_completion_times">
+            <widget class="QLineEdit" name="text_progress">
              <property name="enabled">
               <bool>true</bool>
              </property>
@@ -158,17 +158,9 @@
             <widget class="QTextBrowser" name="text_info"/>
            </item>
            <item row="0" column="2">
-            <widget class="QLabel" name="label_completion_times">
-             <property name="font">
-              <font>
-               <family>宋体</family>
-              </font>
-             </property>
-             <property name="layoutDirection">
-              <enum>Qt::LayoutDirection::LeftToRight</enum>
-             </property>
+            <widget class="QLabel" name="label_progress">
              <property name="text">
-              <string>完成次数</string>
+              <string>完成情况</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -972,22 +964,9 @@
              <height>423</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="0,4,1">
-            <item>
-             <widget class="QLabel" name="label_tip_setting_restart">
-              <property name="text">
-               <string>部分设置需要重启生效</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
+           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="1,0">
             <item>
              <widget class="QGroupBox" name="groupBox_config">
-              <property name="title">
-               <string>配置</string>
-              </property>
               <layout class="QVBoxLayout">
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_setting_update" stretch="4,2,0,2,4">
@@ -1006,11 +985,14 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="setting_update_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>更新模式</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1069,11 +1051,14 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="setting_update_download_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>下载线路</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1132,11 +1117,14 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="setting_xuanshangfengyin_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>悬赏封印</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1195,11 +1183,14 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="setting_window_style_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>界面风格</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1258,11 +1249,14 @@
                  </item>
                  <item>
                   <widget class="QLabel" name="setting_shortcut_start_stop_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>快捷键：开始/停止</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -1321,6 +1315,12 @@
                  </item>
                  <item>
                   <widget class="QCheckBox" name="setting_remember_last_choice_button">
+                   <property name="minimumSize">
+                    <size>
+                     <width>160</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>记忆上次所选功能</string>
                    </property>
@@ -1358,6 +1358,12 @@
                  </item>
                  <item>
                   <widget class="QCheckBox" name="setting_backend_interaction_button">
+                   <property name="minimumSize">
+                    <size>
+                     <width>160</width>
+                     <height>0</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>后台交互（仅本次生效）</string>
                    </property>
@@ -1365,6 +1371,49 @@
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_setting_backend_interaction_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_win_toast">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_win_toast_left">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="setting_win_toast_button">
+                   <property name="minimumSize">
+                    <size>
+                     <width>160</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>系统通知</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_win_toast_right">
                    <property name="orientation">
                     <enum>Qt::Orientation::Horizontal</enum>
                    </property>
@@ -1492,13 +1541,13 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_jiejietupo_current_level"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_jiejietupo_target_level"/>
+  <buttongroup name="buttonGroup_jiejietupo_current_level"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
  </buttongroups>
 </ui>

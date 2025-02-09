@@ -393,7 +393,6 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 logger.ui_error("当前等级低于目标等级")
                 return
         self.check_title()
-        logger.num(f"0/{self.max}")
 
         while self.n < self.max:
             if bool(event_thread):

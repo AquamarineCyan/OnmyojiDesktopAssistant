@@ -1,4 +1,3 @@
-"""自定义信号"""
 from PySide6.QtCore import QObject, Signal
 
 
@@ -18,6 +17,7 @@ class MySignals(QObject):
 
     class Main(QObject):
         """主界面"""
+
         qmessagbox_update = Signal(str, str)
         """弹窗更新
         
@@ -40,8 +40,8 @@ class MySignals(QObject):
         """
         is_fighting_update = Signal(bool)
         """运行状态更新"""
-        ui_text_completion_times_update = Signal(str)
-        """完成次数更新"""
+        ui_text_progress_update = Signal(str)
+        """完成情况更新"""
         key_pressed = Signal(str)
         """按键按下"""
         sys_exit = Signal()
@@ -49,6 +49,7 @@ class MySignals(QObject):
 
     class UpdateRecord(QObject):
         """更新记录"""
+
         text_update = Signal(str)
         """更新文本"""
         text_markdown_update = Signal(str)
@@ -56,6 +57,7 @@ class MySignals(QObject):
 
     class UpgradeNewVersion(QObject):
         """更新新版本"""
+
         text_update = Signal(str)
         """更新文本"""
         text_insert = Signal(str)

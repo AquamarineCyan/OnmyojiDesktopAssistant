@@ -315,9 +315,9 @@ class Package:
         logger.info(f"screenshot: {screenshot_file}")
 
     def done(self) -> None:
-        """更新一次完成次数"""
+        """更新一次完成情况"""
         self.n += 1
-        logger.num(f"{self.n}/{self.max}")
+        logger.progress(f"{self.n}/{self.max}")
 
     @log_function_call
     def check_result(self) -> bool:
@@ -399,7 +399,9 @@ class Package:
         ms.main.is_fighting_update.emit(True)
         _start = time.perf_counter()
         if self.max:
-            logger.num(f"0/{self.max}")
+            logger.progress(f"0/{self.max}")
+        else:
+            logger.progress(0)
 
         xuanshangfengyin_count.reset()
 

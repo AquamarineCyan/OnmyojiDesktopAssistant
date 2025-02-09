@@ -70,7 +70,7 @@ class DaoGuanTuPo(Package):
             sleep()
             result = RuleOcr().get_raw_result()
             for item in result:
-                if self.OCR_TITLE.keyword  == item.text:
+                if self.OCR_TITLE.keyword == item.text:
                     logger.scene(self.scene_name)
 
                 if self.OCR_DAOJISHI.keyword in item.text:
@@ -147,11 +147,10 @@ class DaoGuanTuPo(Package):
 
     def done(self):
         self.n += 1
-        logger.num(str(self.n))
+        logger.progress(self.n)
 
     def run(self):
         self.check_title()
-        logger.num(0)
         sleep(2)
         if self.state == self.STATE_WAIT_START:
             self.check_click(self.IMAGE_TIAOZHAN, timeout=3)

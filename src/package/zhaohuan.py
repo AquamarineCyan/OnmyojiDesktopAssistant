@@ -48,7 +48,6 @@ class ZhaoHuan(Package):
 
     def run(self) -> None:
         self.check_title()
-        logger.num(f"0/{self.max}")
         self.check_first_times()
         self.done()
         sleep(4, 6)

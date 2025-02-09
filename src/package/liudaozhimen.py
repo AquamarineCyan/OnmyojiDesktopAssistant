@@ -380,7 +380,6 @@ class LiuDaoZhiMen(Package):
                 self.state = self.STATE_START
 
     def run(self):
-        logger.num(f"0/{self.max}")
         self.check_current_scene()
 
         while self.n < self.max:
@@ -389,7 +388,6 @@ class LiuDaoZhiMen(Package):
 
             if self.state == self.STATE_START:
                 self.check_title()
-                # self.check_title_jiaotu() #TODO
                 sleep()
                 self.choose_initial_buff(1)
                 self.map_node_numbers = 0  # 地图上节点的个数
