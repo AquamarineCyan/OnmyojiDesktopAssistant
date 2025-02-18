@@ -80,7 +80,7 @@
 
 1. 使用 `git` 命令下载源码  
     ```bash
-    git close https://github.com/AquamarineCyan/OnmyojiDesktopAssistant.git --depth=1 --single-branch
+    git clone https://github.com/AquamarineCyan/OnmyojiDesktopAssistant.git --depth=1 --single-branch
     ```
 
 2. 安装依赖 
@@ -89,11 +89,14 @@
     - poetry 方式  
     `poetry install`
 
-3. 运行
+3. 添加文字识别依赖库
+    从 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载 `OnmyojiDesktopAssistant-2.x.x.zip`， 解压后找到`ocr`文件夹放在项目根目录下
+
+4. 运行
     - 终端运行 `python main.py`
     - 使用VSCode调试，调试模式选择`Project`
 
-4. 打包
+5. 打包
     - 需要poetry环境，打包配置已存在 `main.spec`  
     - 终端运行 `pyinstaller main.spec` 或者双击 `build.bat`
 
@@ -137,6 +140,10 @@
 4. 如果需要自定义识别的素材，可参考 `resource` 下的分类方法，在 `/data/myresource` 给出相同路径的素材即可。
 
     例如需要使用自定义的 `/resource/huodong/title.png` 文件，则新建 `/data/myresource/huodong/title.png` 即可。程序将优先使用用户给定的自定义素材。
+
+## 感谢
+
+[raoyutian/PaddleOCRSharp](https://gitee.com/raoyutian/PaddleOCRSharp) 基于paddle的本地离线OCR v3识别库
 
 ## 更新记录
 
