@@ -64,8 +64,6 @@ class GlobalResource:
     resource_list: list = [
         "accept_invitation",  # 接受邀请
         "fail",  # 失败
-        "fighting",  # 战斗中
-        "fighting_back_default",  # 战斗中返回
         "finish",  # 结束
         "passenger_2",  # 队员2
         "passenger_3",  # 队员3
@@ -78,9 +76,11 @@ class GlobalResource:
     ]
 
     def __init__(self):
+        self.init: bool = False
         self.load_asset_list()
         try:
             self.load_asset()
+            self.init = True
         except Exception as e:
             logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
             logger.ui_error(f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件")
@@ -98,8 +98,6 @@ class GlobalResource:
     def load_asset(self):
         self.IMAGE_ACCEPT_INVITATION = self.get_image_asset("accept_invitation")
         self.IMAGE_FAIL = self.get_image_asset("fail")
-        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
-        self.IMAGE_FIGHTING_BACK_DEFAULT = self.get_image_asset("fighting_back_default")
         self.IMAGE_FINISH = self.get_image_asset("finish")
         self.IMAGE_PASSENGER_2 = self.get_image_asset("passenger_2")
         self.IMAGE_PASSENGER_3 = self.get_image_asset("passenger_3")
@@ -123,6 +121,8 @@ class Package:
     """路径"""
     resource_list: list = []
     """资源列表"""
+    init: bool = False
+    """初始化"""
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -142,6 +142,7 @@ class Package:
         self.load_asset_list()
         try:
             self.load_asset()
+            self.init = True
         except Exception as e:
             logger.error(f"{self.resource_path}/assets.json 资源加载失败：{e}")
             logger.ui_error(f"{self.resource_path}/assets.json 资源加载失败，请检查资源文件")

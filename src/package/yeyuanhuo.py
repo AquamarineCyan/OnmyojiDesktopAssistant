@@ -43,32 +43,34 @@ class YeYuanHuo(Package):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue
 
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "title":
+                case self.IMAGE_TITLE.name:
                     logger.scene(self.scene_name)
                     msg_title = False
                     self.start(timeout=10)
-                    sleep(self.fast_time)
-                case "start":
+                    sleep()
+
+                case self.IMAGE_START.name:
                     Mouse.click(result.random_point())
-                    sleep(self.fast_time)
-                case "fail":
+                    sleep()
+
+                case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_warn("失败，需要手动处理")
                     break
-                case "victory":
+
+                case self.global_assets.IMAGE_VICTORY.name:
                     logger.ui("胜利")
                     sleep()
-                case "finish":
+
+                case self.global_assets.IMAGE_FINISH.name:
                     logger.ui("结束")
-                    if self.check_click(
-                        self.global_image.IMAGE_SOUL_OVERFLOW, timeout=2
-                    ):
+                    if self.check_click(self.global_assets.IMAGE_SOUL_OVERFLOW, timeout=2):
                         logger.ui_warn("御魂上限")
                     finish_random_left_right()
                     self.done()
@@ -76,6 +78,7 @@ class YeYuanHuo(Package):
                 case "soul_overflow":  # 正常情况下会在结束界面点击，这是备用方案
                     logger.ui_warn("御魂上限")
                     Mouse.click(result.random_point())
+
                 case _:
                     if msg_title:
                         self.title_error_msg()

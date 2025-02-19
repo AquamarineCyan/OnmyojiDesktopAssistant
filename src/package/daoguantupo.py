@@ -45,11 +45,9 @@ class DaoGuanTuPo(Package):
 
     def load_asset(self):
         self.IMAGE_CHUZHAN = self.get_image_asset("chuzhan")
-        self.IMAGE_DAOJISHI = self.get_image_asset("daojishi")
         self.IMAGE_GUANZHAN = self.get_image_asset("guanzhan")
         # self.IMAGE_JIJIE = self.get_image_asset("jijie")  # no idea what it is
         self.IMAGE_QIANWANG = self.get_image_asset("qianwang")
-        self.IMAGE_SHENYUTUPO = self.get_image_asset("shengyutuposhijian")
         self.IMAGE_TIAOZHAN = self.get_image_asset("tiaozhan")
         self.IMAGE_TITLE = self.get_image_asset("title")
         self.IMAGE_ZHANBAO = self.get_image_asset("zhanbao")

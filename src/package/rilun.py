@@ -16,11 +16,8 @@ class RiLun(Package):
     resource_path = "rilun"
 
     @log_function_call
-    def __init__(self, n) -> None:
+    def __init__(self, n: int = 0) -> None:
         super().__init__(n)
-
-    def load_asset(self):
-        self.IMAGE_FIGHTING = self.get_image_asset("fighting")
 
     @log_function_call
     def start(self) -> None:

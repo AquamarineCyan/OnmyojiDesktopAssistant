@@ -30,9 +30,9 @@ class ZhaoHuan(Package):
 
     def load_asset(self):
         self.OCR_TITLE = self.get_ocr_asset("title")
-        self.OCR_ZHAOHUAN = self.get_image_asset("zhaohuan")
-        self.OCR_QUEDING = self.get_image_asset("queding")
-        self.OCR_AGAIN = self.get_image_asset("again")
+        self.OCR_ZHAOHUAN = self.get_ocr_asset("zhaohuan")
+        self.OCR_QUEDING = self.get_ocr_asset("queding")
+        self.OCR_AGAIN = self.get_ocr_asset("again")
 
     def check_first_times(self):
         ocr = RuleOcr(self.OCR_ZHAOHUAN)

@@ -3,12 +3,13 @@ from .utils import Package, check_package
 
 class XuanShangFengYin(Package):
     resource_path = "xuanshangfengyin"
-    resource_list = [
-        "title",
-        "xuanshang_accept",
-        "xuanshang_refuse",
-        "xuanshang_ignore",
-    ]
+
+    image_keys = {
+        "title": "IMAGE_TITLE",
+        "accept": "IMAGE_ACCEPT",
+        "ignore": "IMAGE_IGNORE",
+        "refuse": "IMAGE_REFUSE",
+    }
 
 
 def test_xuanshangfengyin():

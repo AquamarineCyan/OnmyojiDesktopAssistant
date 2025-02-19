@@ -404,13 +404,9 @@ class MainWindow(QMainWindow):
                 return False
 
             # 检查资源文件
-            for item in P.resource_list:
-                file = Path(RESOURCE_DIR_PATH / P.resource_path / f"{item}.png")
-                if not file.exists():
-                    _msg = f"资源文件丢失：\n{file}"
-                    logger.ui_error(_msg)
-                    ms.main.qmessagbox_update.emit("ERROR", _msg)
-                    return False
+            p = P()
+            if not p.init:
+                return False
 
         logger.info("资源完整")
         return True

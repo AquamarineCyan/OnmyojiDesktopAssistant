@@ -23,14 +23,13 @@ class YuHun(Package):
         # "passenger_3",  # 队员3
         # "start_team",  # 组队挑战
         # "start_single",  # 单人挑战
-        # "fighting",  # 魂土进行中
         "finish_2000",  # 结束达摩蛋-鎏金圣域
         "finish_damage",  # 结束特征图像
         "finish_damage_2000",  # 结束特征图像-鎏金圣域
     ]
 
     @log_function_call
-    def __init__(self, n) -> None:
+    def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
     @staticmethod
@@ -148,7 +147,6 @@ class YuHunTeam(YuHun):
 
         self.current_asset_list = [
             self.global_assets.IMAGE_XIEZHANDUIWU,
-            self.global_assets.IMAGE_FIGHTING,
             self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
 

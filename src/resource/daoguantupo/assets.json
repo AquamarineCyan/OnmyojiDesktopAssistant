@@ -8,12 +8,6 @@
             "score": "0.8"
         },
         {
-            "name": "daojishi",
-            "file": "daojishi.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
             "name": "guanzhan",
             "file": "guanzhan.png",
             "region": [0, 0, 0, 0],
@@ -22,12 +16,6 @@
         {
             "name": "qianwang",
             "file": "qianwang.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
-            "name": "shengyutuposhijian",
-            "file": "shengyutuposhijian.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
         },

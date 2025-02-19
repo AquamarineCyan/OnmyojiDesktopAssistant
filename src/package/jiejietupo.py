@@ -57,7 +57,7 @@ class JieJieTuPo(Package):
     ]
 
     @log_function_call
-    def __init__(self, n) -> None:
+    def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
     def load_asset(self):

@@ -63,7 +63,7 @@ class TanSuo(Package):
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             if image := check_image_once(self.current_asset_list):
                 logger.info(f"current image name: {image.name}")
                 return
@@ -79,7 +79,7 @@ class TanSuo(Package):
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             # 如果匹配到小怪的按钮，返回上一级
             if not flag_done and RuleImage(self.IMAGE_FIGHT_LITTLE_MONSTER).match():
                 logger.ui_warn("未进入战斗，重新匹配")
@@ -107,13 +107,15 @@ class TanSuo(Package):
         """boss战后的结束阶段
 
         1.有掉落物，不需要点击，直接左上角退出即可
+
         2.无掉落物，系统自动跳转出去
+        
         3.1、2出来之后，存在宝箱/妖气封印的可能，当前章节的小界面被关闭，需要右侧列表重新点开
         """
         while True:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             # 等待加载完毕
             sleep(1.5, 2)
 
@@ -149,20 +151,22 @@ class TanSuo(Package):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue
 
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case "tansuo_28_0":  # 右侧列表按钮
+                case self.IMAGE_TANSUO_28_0.name:  # 右侧列表按钮
                     Mouse.click(result.center_point())
                     sleep()
-                case "tansuo_28_title":
+
+                case self.IMAGE_TITLE_28.name:
                     self.check_click(self.IMAGE_START)
                     sleep(2)
-                case "chuzhanxiaohao":
+
+                case self.IMAGE_CHUZHANXIAOHAO.name:
                     # 先判断boss面灵气
                     sleep()
                     result = RuleImage(self.IMAGE_FIGHT_BOSS)

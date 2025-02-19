@@ -3,8 +3,11 @@ from .utils import Package, check_package
 
 class RiLun(Package):
     resource_path = "rilun"
-    resource_list = [
-    ]
+
+    image_keys = {
+        "title_3": "IMAGE_TITLE_3",
+        "title_4": "IMAGE_TITLE_4",
+    }
 
 
 def test_rilun():

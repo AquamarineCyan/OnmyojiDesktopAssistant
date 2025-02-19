@@ -6,26 +6,23 @@ from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
 from .liudaozhimen import LiuDaoZhiMen
 from .qiling import QiLing
-from .rilun import RiLun, RiLunSingle,RiLunTeam
+from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
+from .utils import GlobalResource
 from .xuanshangfengyin import XuanShangFengYin, task_xuanshangfengyin
 from .yeyuanhuo import YeYuanHuo
+from .yingjieshilian import BingZangMiJing, GuiBingYanWu
 from .yongshengzhihai import YongShengZhiHai, YongShengZhiHaiTeam
-from .yingjieshilian import GuiBingYanWu, BingZangMiJing
 from .yuhun import YuHun, YuHunSingle, YuHunTeam
 from .yuling import YuLing
 from .zhaohuan import ZhaoHuan
-from .utils import GlobalResource
 
 __all__ = [
     "GlobalResource",
     "BaiGuiYeXing",
-    "BingZangMiJing",
     "DaoGuanTuPo",
     "DouJi",
-    "GuiBingYanWu",
     "HuoDong",
-    # "JieJieTuPo",
     "JieJieTuPoGeRen",
     "JieJieTuPoYinYangLiao",
     "JueXing",
@@ -35,38 +32,47 @@ __all__ = [
     "RiLunSingle",
     "RiLunTeam",
     "TanSuo",
-    # "XuanShangFengYin",
     "task_xuanshangfengyin",
     "YeYuanHuo",
-    "YuLing",
+    "BingZangMiJing",
+    "GuiBingYanWu",
     "YongShengZhiHai",
     "YongShengZhiHaiTeam",
     "YuHun",
     "YuHunSingle",
     "YuHunTeam",
+    "YuLing",
     "ZhaoHuan",
     "get_package_resource_list",
 ]
 
 
 def get_package_resource_list():
-    print("get_package_resource_list")
     return [
         GlobalResource,
         BaiGuiYeXing,
-        BingZangMiJing,
         DaoGuanTuPo,
+        DouJi,
         HuoDong,
-        GuiBingYanWu,
         JieJieTuPo,
+        JieJieTuPoGeRen,
+        JieJieTuPoYinYangLiao,
         JueXing,
+        LiuDaoZhiMen,
         QiLing,
         RiLun,
+        RiLunSingle,
+        RiLunTeam,
         TanSuo,
         XuanShangFengYin,
         YeYuanHuo,
+        BingZangMiJing,
+        GuiBingYanWu,
         YongShengZhiHai,
+        YongShengZhiHaiTeam,
         YuHun,
+        YuHunSingle,
+        YuHunTeam,
         YuLing,
         ZhaoHuan,
     ]
