@@ -341,7 +341,7 @@ class LiuDaoZhiMen(Package):
                 sleep(2)
                 break
             elif "战斗失败" in ocr_data.text:
-                logger.ui("战斗失败", "warn")
+                logger.ui_warn("战斗失败")
                 for item in result:
                     ocr_data = OcrData(item)
                     if ocr_data.text == "放弃前行":

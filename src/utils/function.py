@@ -176,7 +176,7 @@ def check_user_file_exists(file: str) -> Path | None:
     elif _full_path.exists():
         return _full_path
     else:
-        logger.ui(f"no such file {file}", "warn")
+        logger.ui_warn(f"未找到文件：{file}")
         return None
 
 

@@ -15,26 +15,16 @@ def send_gui_msg(msg: str = "", color: str = "black"):
 
 
 class CustomLogger(logging.Logger):
-    def ui(self, msg, level="info", *args, **kwargs):
-        if msg is None:
-            return
-        match level:
-            case "info":
-                send_gui_msg(msg, "black")
-                super()._log(LOG_LEVEL_GUI, msg, args, **kwargs)
-            case "warn":
-                send_gui_msg(msg, "red")
-                super()._log(logging.WARNING, msg, args, **kwargs)
-            case "error":
-                send_gui_msg(msg, "red")
-                super()._log(logging.ERROR, msg, args, **kwargs)
+    def ui(self, msg, *args, **kwargs):
+        send_gui_msg(msg, "black")
+        super()._log(LOG_LEVEL_GUI, msg, args, **kwargs)
 
     def ui_warn(self, msg, *args, **kwargs):
-        send_gui_msg(msg, "red")
+        send_gui_msg(f"[警告] {msg}", "red")
         super()._log(logging.WARNING, msg, args, **kwargs)
 
     def ui_error(self, msg, *args, **kwargs):
-        send_gui_msg(msg, "red")
+        send_gui_msg(f"[错误] {msg}", "red")
         super()._log(logging.ERROR, msg, args, **kwargs)
 
     def scene(self, msg, *args, **kwargs):

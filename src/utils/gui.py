@@ -234,11 +234,8 @@ class MainWindow(QMainWindow):
         logger.info(f"resource path: {RESOURCE_DIR_PATH}")
         logger.info(f"[VERSION] {VERSION}")
         logger.info(f"config_user: {config.user}")
-        logger.ui(
-            "未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版，\
-使用过程中会使用鼠标，如遇紧急情况可将鼠标划至屏幕左上角，触发安全警告强制停止"
-        )
-        logger.ui("程序初始化中，请稍候...")
+        logger.ui_warn("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版")
+        logger.ui("程序初始化中，请稍候")
         log_clean_up()
 
         # 优先在新线程中检查更新
