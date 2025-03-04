@@ -5,8 +5,6 @@ class HuoDong(Package):
     resource_path = "huodong"
 
     image_keys = {
-        "start": "IMAGE_START",
-        "title": "IMAGE_TITLE",
         "result": "IMAGE_RESULT",
     }
 
