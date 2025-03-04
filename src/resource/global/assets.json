@@ -94,6 +94,13 @@
             "region": [0, 0, 0, 0],
             "score": "0.8",
             "method": "PERFACT"
+        },
+        {
+            "name": "start",
+            "keyword": "挑战",
+            "region": [0, 0, 0, 0],
+            "score": "0.6",
+            "method": "PERFACT"
         }
     ]
 }

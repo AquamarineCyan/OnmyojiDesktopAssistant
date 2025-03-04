@@ -555,7 +555,7 @@ class MainWindow(QMainWindow):
                 BaiGuiYeXing.description()
 
             case GameFunction.HUODONG:
-                HuoDong().show_description()
+                HuoDong.description()
 
             case GameFunction.RILUN:
                 RiLun.description()

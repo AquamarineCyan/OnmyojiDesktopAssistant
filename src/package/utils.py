@@ -112,6 +112,7 @@ class GlobalResource:
 
         self.OCR_AUTO_FIGHT = self.get_ocr_asset("auto_fight")
         self.OCR_CLICK_AND_CONTINUE = self.get_ocr_asset("click_and_continue")
+        self.OCR_START = self.get_ocr_asset("start")
 
 
 class Package:
@@ -167,6 +168,9 @@ class Package:
 
     def title_error_msg(self):
         logger.ui_warn("请检查游戏场景")
+
+    def soul_overflow_warn_msg(self):
+        logger.ui_warn("御魂上限提醒")
 
     def scene_handle(self, scene: str = None) -> str:
         if scene is None:
