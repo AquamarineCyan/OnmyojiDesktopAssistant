@@ -92,6 +92,32 @@ class YuHunTeam(YuHun):
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
     @log_function_call
+    def check_fighting(self):
+        """判断是否在战斗中"""
+        flag: bool = False
+        result = RuleOcr().get_raw_result()
+        for item in result:
+            # 点击屏幕继续 是兜底方案
+            if item.text == "自动" or "上限" in item.text or item.text == "点击屏幕继续":
+                logger.info(f"keyword: {item.text}")
+                flag = True
+                break
+
+        if flag:
+            if self.msg_fighting:
+                logger.ui("自动战斗中")
+                self.msg_fighting = False
+
+            self.wait_finish()
+            self.done()
+            self.msg_title = False
+            sleep()
+
+        if self.msg_title:
+            self.title_error_msg()
+            self.msg_title = False
+
+    @log_function_call
     def wait_finish(self):
         """等待结束
 
@@ -142,8 +168,8 @@ class YuHunTeam(YuHun):
                 return
 
     def run(self):
-        msg_title: bool = True
-        msg_fighting: bool = True
+        self.msg_title: bool = True  # 标题消息
+        self.msg_fighting: bool = True  # 自动战斗中消息
 
         self.current_asset_list = [
             self.global_assets.IMAGE_XIEZHANDUIWU,
@@ -157,25 +183,10 @@ class YuHunTeam(YuHun):
             if bool(event_thread):
                 raise GUIStopException
 
-            msg_fighting = True
+            self.msg_fighting = True
             result = check_image_once(self.current_asset_list)
             if result is None:
-                # 判断是否在战斗中
-                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
-                if result.match():
-                    if msg_fighting:
-                        logger.ui("自动战斗中")
-                        msg_fighting = False
-
-                    self.wait_finish()
-                    self.done()
-                    msg_title = False
-                    sleep()
-
-                if msg_title:
-                    self.title_error_msg()
-                    msg_title = False
-
+                self.check_fighting()
                 continue
 
             match result.name:
@@ -186,16 +197,16 @@ class YuHunTeam(YuHun):
                         sleep(1.5)
                         self.start()
                     sleep()
-                    msg_title = False
+                    self.msg_title = False
 
                 case self.global_assets.IMAGE_ACCEPT_INVITATION.name:
                     logger.ui("接受邀请")
                     Mouse.click(result.center_point())
 
                 case _:
-                    if msg_title:
+                    if self.msg_title:
                         self.title_error_msg()
-                        msg_title = False
+                        self.msg_title = False
 
 
 class YuHunSingle(YuHun):
@@ -220,9 +231,29 @@ class YuHunSingle(YuHun):
         """
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
 
+    @log_function_call
+    def check_fighting(self):
+        """判断是否在战斗中"""
+        flag: bool = False
+        result = RuleOcr().get_raw_result()
+        for item in result:
+            # 点击屏幕继续 是兜底方案
+            if item.text == "自动" or "上限" in item.text or item.text == "点击屏幕继续":
+                logger.info(f"keyword: {item.text}")
+                flag = True
+                break
+
+        if flag and self.msg_fighting:
+            logger.ui("自动战斗中")
+            self.msg_fighting = False
+
+        if self.msg_title:
+            self.title_error_msg()
+            self.msg_title = False
+
     def run(self):
-        msg_title: bool = True  # 标题消息
-        msg_fighting: bool = True  # 自动战斗中消息
+        self.msg_title: bool = True  # 标题消息
+        self.msg_fighting: bool = True  # 自动战斗中消息
         flag_soul_overflow: bool = False  # 御魂上限标志
 
         self.current_asset_list = [
@@ -241,18 +272,10 @@ class YuHunSingle(YuHun):
             if bool(event_thread):
                 raise GUIStopException
 
+            self.msg_fighting = True
             result = check_image_once(self.current_asset_list)
             if result is None:
-                # 判断是否在战斗中
-                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
-                if result.match() and msg_fighting:
-                    logger.ui("自动战斗中")
-                    msg_fighting = False
-
-                if msg_title:
-                    self.title_error_msg()
-                    msg_title = False
-
+                self.check_fighting()
                 continue
 
             match result.name:
@@ -265,13 +288,13 @@ class YuHunSingle(YuHun):
                         case self.IMAGE_TITLE_12.name:
                             logger.scene("御魂神罚")
                     self.start()
-                    msg_title = False
+                    self.msg_title = False
                     sleep(2)
 
                 case self.global_assets.IMAGE_START_SINGLE.name:  # 一般在上一级case中已经处理
                     logger.ui("开始挑战")
                     Mouse.click(result.center_point())
-                    msg_title = False
+                    self.msg_title = False
 
                 case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_warn("失败，需要手动处理")
@@ -295,7 +318,7 @@ class YuHunSingle(YuHun):
 
                     finish_random_left_right()
                     self.done()
-                    msg_fighting = False
+                    self.msg_fighting = False
                     sleep(3)  # 等待过场图
 
                 case self.global_assets.IMAGE_SOUL_OVERFLOW.name:  # 正常情况下会在结束界面点击，这是备用方案
@@ -304,6 +327,6 @@ class YuHunSingle(YuHun):
                     flag_soul_overflow = True
 
                 case _:
-                    if msg_title:
+                    if self.msg_title:
                         self.title_error_msg()
-                        msg_title = False
+                        self.msg_title = False
