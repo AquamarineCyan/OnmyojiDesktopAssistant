@@ -26,7 +26,7 @@ class YongShengZhiHai(Package):
 
     @staticmethod
     def description() -> None:
-        logger.ui("默认打手30次")
+        logger.ui("组队永生之海，默认30次")
 
     def load_asset(self):
         self.IMAGE_TITLE = self.get_image_asset("title")
@@ -86,6 +86,32 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 return True
 
     @log_function_call
+    def check_fighting(self):
+        """判断是否在战斗中"""
+        flag: bool = False
+        result = RuleOcr().get_raw_result()
+        for item in result:
+            # 点击屏幕继续 是兜底方案
+            if item.text in ["自动", "特殊机制", "点击屏幕继续"]:
+                logger.info(f"keyword: {item.text}")
+                flag = True
+                break
+
+        if flag:
+            if self.msg_fighting:
+                logger.ui("自动战斗中")
+                self.msg_fighting = False
+
+            self.wait_finish()
+            self.done()
+            self.msg_title = False
+            sleep()
+
+        if self.msg_title:
+            self.title_error_msg()
+            self.msg_title = False
+
+    @log_function_call
     def wait_finish(self):
         """
         结束
@@ -135,13 +161,14 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 return
 
     def run(self):
-        msg_title: bool = True
-        msg_fighting: bool = True
+        self.msg_title: bool = True  # 标题消息
+        self.msg_fighting: bool = True  # 自动战斗中消息
 
         self.current_asset_list = [
             self.IMAGE_TITLE,
             self.global_assets.IMAGE_ACCEPT_INVITATION,
         ]
+
         if self.flag_driver:
             self.current_asset_list.append(self.global_assets.IMAGE_START_TEAM)
 
@@ -149,25 +176,10 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
             if bool(event_thread):
                 raise GUIStopException
 
-            msg_fighting = True
+            self.msg_fighting = True
             result = check_image_once(self.current_asset_list)
             if result is None:
-                # 判断是否在战斗中
-                result = RuleOcr(self.global_assets.OCR_AUTO_FIGHT)
-                if result.match():
-                    if msg_fighting:
-                        logger.ui("自动战斗中")
-                        msg_fighting = False
-
-                    self.wait_finish()
-                    self.done()
-                    msg_title = False
-                    sleep()
-
-                if msg_title:
-                    self.title_error_msg()
-                    msg_title = False
-
+                self.check_fighting()
                 continue
 
             match result.name:
@@ -178,13 +190,14 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                         sleep(1.5)
                         self.start()
                     sleep()
-                    msg_title = False
+                    self.msg_title = False
 
                 case self.global_assets.IMAGE_ACCEPT_INVITATION.name:
                     logger.ui("接受邀请")
                     Mouse.click(result.center_point())
+                    sleep()
 
                 case _:
-                    if msg_title:
+                    if self.msg_title:
                         self.title_error_msg()
-                        msg_title = False
+                        self.msg_title = False
