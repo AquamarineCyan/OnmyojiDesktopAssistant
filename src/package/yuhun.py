@@ -142,10 +142,11 @@ class YuHunTeam(YuHun):
             # 检测到任一图像
             result = check_image_once(
                 [
+                    self.global_assets.IMAGE_SOUL_OVERFLOW,  # 必须优先级最高
+                    self.global_assets.IMAGE_TANCHIGUI,
                     self.global_assets.IMAGE_FINISH,
                     self.IMAGE_FINISH_2000,
                     self.IMAGE_FINISH_DAMAGE_2000,
-                    self.global_assets.IMAGE_TANCHIGUI,
                 ]
             )
 
@@ -155,6 +156,11 @@ class YuHunTeam(YuHun):
 
             if result:
                 logger.info(f"current scene: {result.name}")
+
+                if result.name == self.global_assets.IMAGE_SOUL_OVERFLOW.name:
+                    self.soul_overflow_warn_msg()
+                    Mouse.click(result.center_point())
+
                 if _flag_screenshot and self.flag_drop_statistics:
                     self.screenshot()
                     _flag_screenshot = False
