@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Progject",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${cwd}/main.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}"
+        }
+    ]
+}

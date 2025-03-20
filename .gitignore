@@ -4,7 +4,6 @@
 *.exe
 
 # dir
-.vscode
 build
 data
 dist
