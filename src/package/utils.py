@@ -111,6 +111,8 @@ class GlobalResource:
         self.IMAGE_XIEZHANDUIWU = self.get_image_asset("xiezhanduiwu")
 
         self.OCR_AUTO_FIGHT = self.get_ocr_asset("auto_fight")
+        self.OCR_CANCEL = self.get_ocr_asset("cancel")
+        self.OCR_CONFIRM = self.get_ocr_asset("confirm")
         self.OCR_CLICK_AND_CONTINUE = self.get_ocr_asset("click_and_continue")
         self.OCR_START = self.get_ocr_asset("start")
 

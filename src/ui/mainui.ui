@@ -691,36 +691,20 @@
                 <rect>
                  <x>10</x>
                  <y>80</y>
-                 <width>50</width>
+                 <width>90</width>
                  <height>20</height>
                 </rect>
                </property>
                <property name="text">
-                <string>结契</string>
-               </property>
-              </widget>
-              <widget class="QLabel" name="label_qiling_jieqi_stone">
-               <property name="geometry">
-                <rect>
-                 <x>5</x>
-                 <y>120</y>
-                 <width>40</width>
-                 <height>20</height>
-                </rect>
-               </property>
-               <property name="text">
-                <string>鸣契石</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignmentFlag::AlignCenter</set>
+                <string>结契-鸣契石</string>
                </property>
               </widget>
               <widget class="QComboBox" name="combo_qiling_jieqi_stone">
                <property name="geometry">
                 <rect>
-                 <x>50</x>
+                 <x>10</x>
                  <y>120</y>
-                 <width>70</width>
+                 <width>80</width>
                  <height>20</height>
                 </rect>
                </property>
@@ -728,7 +712,7 @@
               <widget class="QSpinBox" name="spin_qiling_jieqi_stone">
                <property name="geometry">
                 <rect>
-                 <x>125</x>
+                 <x>95</x>
                  <y>120</y>
                  <width>88</width>
                  <height>20</height>

@@ -194,23 +194,6 @@ class CharacterRecognition:
         # TODO 优化返回值，去除多余项
         return self.result
 
-    @run_in_thread
-    @time_count
-    def self_check(self):
-        self.get_raw_result()
-        for item in self.result:
-            logger.debug(item)
-            BoxPoints = item["BoxPoints"]
-            for _ in BoxPoints:
-                logger.debug(_)
-            logger.debug(BoxPoints)
-            logger.debug(item["Score"])
-            logger.debug(item["Text"])
-            if (item["Score"] > 0.9) and (item["Text"] == "阴阳师-网易游戏"):
-                logger.ui("ocr self check successfully.")
-                return
-        logger.warning("ocr self check failed.")
-
     def free_dll(self):
         if not self.flag_init:
             return
@@ -221,12 +204,6 @@ class CharacterRecognition:
 
 
 ocr = CharacterRecognition()
-"""文字识别
-    
-    用法：
-    ```python
-    ocr.get_raw_result()
-"""
 
 
 class OcrData:
@@ -270,10 +247,10 @@ class RuleOcr:
 
     用法2：
     ```python
-    RuleOcr.get_raw_result()
+    result = RuleOcr().get_raw_result()
     for item in result:
         if target_text in item.text:
-            pass
+            do something
 
     ```
     """
@@ -312,7 +289,7 @@ class RuleOcr:
         list_ = []
         for item in result:
             # 过滤无效数据
-            if item["Score"] == 0.0:  
+            if item["Score"] == 0.0:
                 continue
             if item["Text"] == "":
                 continue

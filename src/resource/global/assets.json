@@ -89,6 +89,20 @@
             "method": "PERFACT"
         },
         {
+            "name": "cancel",
+            "keyword": "取消",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "confirm",
+            "keyword": "确定",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
             "name": "click_and_continue",
             "keyword": "点击屏幕继续",
             "region": [0, 0, 0, 0],

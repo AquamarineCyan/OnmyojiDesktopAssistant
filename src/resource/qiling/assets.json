@@ -8,26 +8,14 @@
             "score": "0.8"
         },
         {
-            "name": "queding",
-            "file": "queding.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"    
-        },
-        {
-            "name": "start_jieqi",
-            "file": "start_jieqi.png",
+            "name": "stone_add",
+            "file": "stone_add.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
         },
         {
-            "name": "start_tancha",
-            "file": "start_tancha.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.8"
-        },
-        {
-            "name": "title",
-            "file": "title.png",
+            "name": "stone_max",
+            "file": "stone_max.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
         },
@@ -36,12 +24,29 @@
             "file": "zhenmushou.png",
             "region": [0, 0, 0, 0],
             "score": "0.8"
+        }
+    ],
+    "ocr_data": [
+        {
+            "name": "tancha_start",
+            "keyword": "探查",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
         },
         {
-            "name": "zhenmushou_mingqishi",
-            "file": "zhenmushou_mingqishi.png",
+            "name": "title",
+            "keyword": "契灵之境",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.8",
+            "method": "PERFACT"
+        },
+        {
+            "name": "zhenmushou",
+            "keyword": "镇墓兽",
+            "region": [0, 0, 0, 0],
+            "score": "0.8",
+            "method": "PERFACT"
         }
     ]
 }

@@ -50,7 +50,7 @@ class GameFunction(Enum):
     HUODONG = 10  # 限时活动
     RILUN = 11  # 日轮副本
     TANSUO = 12  # 单人探索
-    QILING = 13  # 契灵
+    QILING = 13  # 契灵之境
     JUEXING = 14  # 觉醒副本
     LIUDAOZHIMEN = 15  # 六道之门速刷
     DOUJI = 16  # 斗技自动上阵
@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         "10.限时活动",
         "11.日轮副本",
         "12.单人探索",
-        "13.契灵",
+        "13.契灵之境",
         "14.觉醒副本",
         "15.六道之门速刷",
         "16.斗技自动上阵",
@@ -579,7 +579,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.button_qiling_jieqi.setChecked(False)
                 self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
-                self.ui.spin_qiling_jieqi_stone.setValue(1)
+                self.ui.spin_qiling_jieqi_stone.setValue(0)
 
             case GameFunction.JUEXING:
                 JueXing.description()
@@ -770,11 +770,9 @@ class MainWindow(QMainWindow):
 
     def button_qiling_jieqi_handle(self):
         if self.ui.button_qiling_jieqi.isChecked():
-            self.ui.label_qiling_jieqi_stone.show()
             self.ui.combo_qiling_jieqi_stone.show()
             self.ui.spin_qiling_jieqi_stone.show()
         else:
-            self.ui.label_qiling_jieqi_stone.hide()
             self.ui.combo_qiling_jieqi_stone.hide()
             self.ui.spin_qiling_jieqi_stone.hide()
 
