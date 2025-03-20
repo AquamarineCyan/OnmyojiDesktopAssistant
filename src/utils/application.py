@@ -50,7 +50,7 @@ class Connect:
     }
     mirror_station = [
         "https://ghfast.top/",
-        "https://github.moeyy.xyz/",
+        "https://gh.222322.xyz/",
         "https://ghproxy.net/",
         "https://gh-proxy.com/",
         "https://gh.pylas.xyz/",

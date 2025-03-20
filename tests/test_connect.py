@@ -16,8 +16,8 @@ def test_api_url():
 def test_mirror_url():
     for url in [
         "https://ghfast.top/",
-        "https://github.moeyy.xyz/",
-        "https://ghps.cc/",
+        "https://gh.222322.xyz/",
+        "https://ghproxy.net/",
         "https://gh-proxy.com/",
         "https://gh.pylas.xyz/",
     ]:

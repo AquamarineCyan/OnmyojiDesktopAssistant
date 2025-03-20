@@ -22,6 +22,8 @@ class GlobalResource(Package):
 
     ocr_keys = {
         "auto_fight": "OCR_AUTO_FIGHT",
+        "cancel": "OCR_CANCEL",
+        "confirm": "OCR_CONFIRM",
         "click_and_continue": "OCR_CLICK_AND_CONTINUE",
         "start": "OCR_START",
     }
