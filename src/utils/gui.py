@@ -526,9 +526,11 @@ class MainWindow(QMainWindow):
             case GameFunction.GERENTUPO:
                 JieJieTuPoGeRen.description()
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
-                self.ui.button_jiejietupo_switch_rule.setChecked(True)
-                self.ui.button_jiejietupo_current_level_60.setChecked(True)
-                self.ui.button_jiejietupo_target_level_60.setChecked(True)
+                self.ui.button_jiejietupo_switch_level.setChecked(True)
+                self.ui.button_jiejietupo_fail.setChecked(True)
+                self.ui.comboBox_jiejietupo_current_level.addItems(["57", "58", "59", "60"])
+                self.ui.comboBox_jiejietupo_target_level.addItems(["57", "58", "59", "60"])
+
                 self.ui.button_jiejietupo_refresh_rule_3.setChecked(True)
                 # TODO
                 self.ui.button_jiejietupo_refresh_rule_6.hide()
@@ -626,19 +628,20 @@ class MainWindow(QMainWindow):
                 YuLing(n=n).task_start()
 
             case GameFunction.GERENTUPO:
-                flag_refresh_need = 0
-                current_level = target_level = 60
+                flag_refresh_need: int = 0
+                current_level = target_level = 57
                 if self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level:
-                    current_level = self.ui.buttonGroup_jiejietupo_current_level.checkedButton().text()
-                    target_level = self.ui.buttonGroup_jiejietupo_target_level.checkedButton().text()
+                    current_level = int(self.ui.comboBox_jiejietupo_current_level.currentText())
+                    target_level = int(self.ui.comboBox_jiejietupo_target_level.currentText())
                 else:
                     # 3胜
-                    flag_refresh_need = self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0]
+                    flag_refresh_need = int(self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0])
                 JieJieTuPoGeRen(
                     n=n,
-                    flag_refresh_rule=int(flag_refresh_need),
-                    flag_current_level=int(current_level),
-                    flag_target_level=int(target_level),
+                    flag_refresh_rule=flag_refresh_need,
+                    flag_current_level=current_level,
+                    flag_target_level=target_level,
+                    flag_first_round_failure=self.ui.button_jiejietupo_fail.isChecked(),
                 ).task_start()
 
             case GameFunction.LIAOTUPO:
@@ -728,15 +731,10 @@ class MainWindow(QMainWindow):
             self.ui.button_passengers_3,
             # 个人突破
             self.ui.button_jiejietupo_switch_level,
-            self.ui.button_jiejietupo_current_level_57,
-            self.ui.button_jiejietupo_current_level_58,
-            self.ui.button_jiejietupo_current_level_59,
-            self.ui.button_jiejietupo_current_level_60,
-            self.ui.button_jiejietupo_target_level_57,
-            self.ui.button_jiejietupo_target_level_58,
-            self.ui.button_jiejietupo_target_level_59,
-            self.ui.button_jiejietupo_target_level_60,
             self.ui.button_jiejietupo_switch_rule,
+            self.ui.comboBox_jiejietupo_current_level,
+            self.ui.comboBox_jiejietupo_target_level,
+            self.ui.button_jiejietupo_fail,
         ]:
             item.setEnabled(not flag)
         return
@@ -755,10 +753,9 @@ class MainWindow(QMainWindow):
 
     def buttonGroup_jiejietupo_switch_handle(self):
         flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level
-        for widget in self.ui.buttonGroup_jiejietupo_current_level.buttons():
-            widget.setEnabled(flag)
-        for widget in self.ui.buttonGroup_jiejietupo_target_level.buttons():
-            widget.setEnabled(flag)
+        self.ui.comboBox_jiejietupo_current_level.setEnabled(flag)
+        self.ui.comboBox_jiejietupo_target_level.setEnabled(flag)
+        self.ui.button_jiejietupo_fail.setEnabled(flag)
         for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
             widget.setEnabled(not flag)
 
