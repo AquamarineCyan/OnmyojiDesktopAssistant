@@ -180,6 +180,7 @@ class MainWindow(QMainWindow):
         ms.main.ui_text_info_update.connect(self.ui_text_info_update_func)
         ms.main.is_fighting_update.connect(self.is_fighting)
         ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_func)
+        ms.main.valid_listWidget_update.connect(self.ui_valid_listWidget_update_handle)
         ms.main.sys_exit.connect(self.exit_func)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
@@ -195,6 +196,8 @@ class MainWindow(QMainWindow):
         self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_handle)
         self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_handle)
         self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_handle)
+
+        self.ui.valid_pushButton.clicked.connect(self.score_handle)
 
         self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_handle)
         self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
@@ -781,6 +784,25 @@ class MainWindow(QMainWindow):
         else:
             self.ui_spin_times_set_value_func(1)
             GuiBingYanWu.description()
+
+    def ui_valid_listWidget_update_handle(self, func: str, item: str) -> None:
+        """valid_listWidget
+
+        参数:
+            func (str): 方法
+            item (str): 内容
+        """
+        if func == "add":
+            self.ui.valid_listWidget.addItem(item)
+        elif func == "clear":
+            self.ui.valid_listWidget.clear()
+
+    def score_handle(self):
+        from .valid import score_handle
+
+        self.ui.valid_pushButton.setEnabled(False)
+        score_handle()
+        self.ui.valid_pushButton.setEnabled(True)
 
     def app_restart_handle(self):
         Restart().app_restart()

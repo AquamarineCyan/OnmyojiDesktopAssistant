@@ -17,10 +17,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QComboBox,
     QFrame, QGridLayout, QGroupBox, QHBoxLayout,
-    QLabel, QLineEdit, QMainWindow, QPushButton,
-    QRadioButton, QScrollArea, QSizePolicy, QSpacerItem,
-    QSpinBox, QStackedWidget, QTabWidget, QTextBrowser,
-    QVBoxLayout, QWidget)
+    QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QMainWindow, QPushButton, QRadioButton, QScrollArea,
+    QSizePolicy, QSpacerItem, QSpinBox, QStackedWidget,
+    QTabWidget, QTextBrowser, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -350,6 +350,20 @@ class Ui_MainWindow(object):
         self.gridLayout_tab_home.setColumnStretch(0, 2)
         self.gridLayout_tab_home.setColumnStretch(1, 3)
         self.tabWidget.addTab(self.tab_home, "")
+        self.tab_valid = QWidget()
+        self.tab_valid.setObjectName(u"tab_valid")
+        self.valid_listWidget = QListWidget(self.tab_valid)
+        self.valid_listWidget.setObjectName(u"valid_listWidget")
+        self.valid_listWidget.setGeometry(QRect(50, 80, 256, 192))
+        self.valid_pushButton = QPushButton(self.tab_valid)
+        self.valid_pushButton.setObjectName(u"valid_pushButton")
+        self.valid_pushButton.setGeometry(QRect(340, 170, 75, 30))
+        self.valid_pushButton.setFont(font3)
+        self.label = QLabel(self.tab_valid)
+        self.label.setObjectName(u"label")
+        self.label.setGeometry(QRect(100, 40, 300, 20))
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.tabWidget.addTab(self.tab_valid, "")
         self.tab_setting = QWidget()
         self.tab_setting.setObjectName(u"tab_setting")
         self.gridLayout_6 = QGridLayout(self.tab_setting)
@@ -701,6 +715,9 @@ class Ui_MainWindow(object):
         self.label_numbers.setText(QCoreApplication.translate("MainWindow", u"\u6b21\u6570", None))
         self.button_game_handle.setText(QCoreApplication.translate("MainWindow", u"\u6e38\u620f\u68c0\u6d4b", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_home), QCoreApplication.translate("MainWindow", u"\u9996\u9875", None))
+        self.valid_pushButton.setText(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"\u5f0f\u795e\u5f55 -> \u5fa1\u9b42\u65b9\u6848 -> \u65b0\u589e\u5fa1\u9b42\u65b9\u6848 -> \u9009\u62e9\u5fa1\u9b42", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_valid), QCoreApplication.translate("MainWindow", u"\u8bcd\u6761\u5206\u6790", None))
         self.setting_update_label.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u6a21\u5f0f", None))
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))

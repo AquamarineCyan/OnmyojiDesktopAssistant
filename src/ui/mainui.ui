@@ -819,6 +819,56 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_valid">
+       <attribute name="title">
+        <string>词条分析</string>
+       </attribute>
+       <widget class="QListWidget" name="valid_listWidget">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>80</y>
+          <width>256</width>
+          <height>192</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="valid_pushButton">
+        <property name="geometry">
+         <rect>
+          <x>340</x>
+          <y>170</y>
+          <width>75</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>宋体</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>分析</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label">
+        <property name="geometry">
+         <rect>
+          <x>100</x>
+          <y>40</y>
+          <width>300</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>式神录 -&gt; 御魂方案 -&gt; 新增御魂方案 -&gt; 选择御魂</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="tab_setting">
        <attribute name="title">
         <string>设置</string>
@@ -1427,11 +1477,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
  </buttongroups>
 </ui>
