@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "OnmyojiDesktopAssistant"
-version = "2.0.1"
+version = "2.0.2"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
@@ -11,22 +11,21 @@ packages = [{include = "src"}]
 python = ">=3.10,<3.11"
 apscheduler = "^3.11.0"
 httpx = "^0.28.1"
-numpy = "^2.2.3"
+numpy = "^2.2.4"
 opencv-python = {extras = ["numpy"], version = "^4.11.0.86"}
 pillow = "^11.1.0"
 pyautogui = "^0.9.54"
 pydantic = "^2.10.6"
-pynput = "^1.7.7"
+pynput = "^1.8.1"
 pyside6 = "^6.8.2.1"
-pywin32 = "^308"
+pywin32 = "^310"
 pyyaml = "^6.0.2"
 win11toast = "^0.35"
 
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.12.0"
-pytest = "^8.3.4"
-ruff = "^0.9.6"
+pytest = "^8.3.5"
 
 [tool.ruff]
 line-length = 120
