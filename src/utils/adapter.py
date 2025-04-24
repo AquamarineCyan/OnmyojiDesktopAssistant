@@ -45,13 +45,12 @@ class Mouse:
     @staticmethod
     def random_tween():
         """补间移动，模拟真人运动轨迹"""
-        list_tween = [
+        tweens = [
             pytweening.easeInQuad,
             pytweening.easeOutQuad,
             pytweening.easeInOutQuad,
         ]
-        random.seed(time.time_ns())
-        return random.choice(list_tween)
+        return random.choice(tweens)
 
     # 鼠标后台点击事件参考 https://learn.microsoft.com/zh-cn/windows/win32/inputdev/mouse-input-notifications
 
@@ -281,7 +280,7 @@ class Mouse:
         current_y = _back_click_y
 
         # 计算移动的步数
-        steps = max(abs(x_offset), abs(y_offset))
+        steps = max(abs(x_offset), abs(y_offset)) // 10
         if steps == 0:
             logger.info("steps == 0")
             steps = 1
@@ -299,6 +298,7 @@ class Mouse:
             current_y += y_step
             lParam = win32api.MAKELONG(int(current_x), int(current_y))
             win32api.PostMessage(hwnd, win32con.WM_MOUSEMOVE, win32con.MK_LBUTTON, lParam)
+            time.sleep(0.01)  # 必要的等待时间，防止移动过快
 
         win32api.PostMessage(hwnd, win32con.WM_LBUTTONUP, 0, lParam)
 
@@ -353,34 +353,45 @@ class Mouse:
 class KeyBoard:
     """键盘事件"""
 
-    @staticmethod
-    def _keyboard_front(key: str):
+    _KEY_MAPPING = {
+        "enter": win32con.VK_RETURN,
+        "esc": win32con.VK_ESCAPE,
+    }
+
+    @classmethod
+    def _front_operation(cls, key: str) -> None:
         pyautogui.press(key)
 
-    @staticmethod
-    def _keyboard_backend(wParam: int = Literal[win32con.VK_ESCAPE, win32con.VK_RETURN]):
+    @classmethod
+    def _backend_operation(cls, key: str) -> None:
+        vk_code = cls._KEY_MAPPING.get(key.lower())
+        if not vk_code:
+            raise ValueError(f"Unsupported key: {key}")
+
         hwnd = window.handle
-        win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, wParam, 0)
-        win32api.PostMessage(hwnd, win32con.WM_KEYUP, wParam, 1)
+        win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, 0)
+        win32api.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 1)
 
     @classmethod
-    def enter(cls, wait: float = 0):
-        """键入`回车键`"""
-        if wait:
-            time.sleep(wait)
+    def send(cls, key: str, delay: float = 0) -> None:
+        """发送按键事件"""
+        if delay:
+            time.sleep(delay)
+
         event_xuanshang.wait()
+        logger.info(f"Sending key: {key.upper()}")
+
         if config.backend:
-            cls._keyboard_backend(win32con.VK_RETURN)
+            cls._backend_operation(key)
         else:
-            cls._keyboard_front("enter")
+            cls._front_operation(key)
 
     @classmethod
-    def esc(cls, wait: float = 0):
-        """键入`ESC键`"""
-        if wait:
-            time.sleep(wait)
-        event_xuanshang.wait()
-        if config.backend:
-            cls._keyboard_backend(win32con.VK_ESCAPE)
-        else:
-            cls._keyboard_front("esc")
+    def enter(cls, delay: float = 0) -> None:
+        """发送回车键"""
+        cls.send("enter", delay)
+
+    @classmethod
+    def esc(cls, delay: float = 0):
+        """发送ESC键"""
+        cls.send("esc", delay)
