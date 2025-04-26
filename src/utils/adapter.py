@@ -133,7 +133,7 @@ class Mouse:
         dst_y = dst_point.y if dst_point else y
 
         # 计算移动的步数
-        steps = max(abs(dst_x - current_x), abs(dst_y - current_y))
+        steps = int(max(abs(dst_x - current_x), abs(dst_y - current_y)))
         if steps == 0:
             logger.info("steps == 0")
             steps = 1
