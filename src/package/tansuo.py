@@ -2,10 +2,11 @@ from ..utils.adapter import KeyBoard, Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
-from ..utils.function import finish_random_left_right, random_num, sleep
+from ..utils.function import finish_random_left_right, random_normal, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.point import RelativePoint
+from ..utils.window import window
 from .utils import Package
 
 
@@ -109,7 +110,7 @@ class TanSuo(Package):
         1.有掉落物，不需要点击，直接左上角退出即可
 
         2.无掉落物，系统自动跳转出去
-        
+
         3.1、2出来之后，存在宝箱/妖气封印的可能，当前章节的小界面被关闭，需要右侧列表重新点开
         """
         while True:
@@ -186,15 +187,15 @@ class TanSuo(Package):
                         else:
                             logger.ui("移动视角")
                             sleep()
-                            x1 = 160
-                            x2 = 930
                             y1 = 300
                             y2 = 550
-                            middle_x = (x1 + x2) // 2
-                            x = random_num(middle_x, x2)
+                            x_middle = window.window_width // 2
+                            x_right = int(window.window_width * 0.9)
+                            x = random_normal(x_middle, x_right)
                             # 移动到窗口中心线右侧
                             Mouse.move(
                                 point=RelativePoint(x, random_num(y1, y2)),
                                 duration=random_num(0.5, 0.8),
                             )
-                            Mouse.drag((middle_x - x), 0, random_num(0.5, 0.8))
+                            Mouse.drag((x_middle - x) * 2, 0, random_num(0.5, 0.8))
+                            logger.info(f"move width: {(x_middle - x) * 2}")
