@@ -1,3 +1,5 @@
+from typing import Literal
+
 import win32api
 import win32con
 import win32gui
@@ -17,29 +19,22 @@ def enum_windows(hwnd, result_list):
     return True
 
 
-def get_all_same_title_window_numbers(
-    title: str = None,
-) -> tuple[int, tuple[int, int, int, int] | None]:
-    """返回相同标题的窗口数量和矩形坐标
+def get_all_target_window(target_title: str = None) -> list[int] | list[None]:
+    """返回所有符合标题的窗口句柄
 
     参数:
-        title (str, optional): 窗口标题
+        titles (list[str]): 窗口标题
 
     返回:
-        int: 窗口数量
-        tuple[int, int, int, int]: 窗口矩形坐标
+        list[int] | list[None]: 窗口句柄列表或空列表
     """
-    # 全部窗口句柄
     window_list = []
     win32gui.EnumWindows(enum_windows, window_list)
-    _window_number = 0
-    _rect = None
+    target_handles = []
     for hwnd in window_list:
-        _title = win32gui.GetWindowText(hwnd)
-        if _title == title:
-            _window_number += 1
-            _rect = win32gui.GetWindowRect(hwnd)
-    return _window_number, _rect
+        if win32gui.GetWindowText(hwnd) == target_title:
+            target_handles.append(hwnd)
+    return target_handles
 
 
 class WindowResolution:
@@ -105,7 +100,9 @@ class GameWindow:
     """窗口标准宽度（官方1136+外框18=1154）"""
     window_standard_height: int = 640 + 39 + 8
     """窗口标准高度（官方640+标题栏39+外框8=687）"""
-    window_title: str = "阴阳师-网易游戏"
+
+    window_title_zh: str = "阴阳师-网易游戏"  # 国服
+    window_title_ja: str = "陰陽師Onmyoji"  # 日服
 
     window_left: int = 0
     """窗口左侧横坐标"""
@@ -121,7 +118,7 @@ class GameWindow:
     window_height: int = 0
     """窗口高度"""
 
-    handle: int = None
+    handle: int = 0
     """窗口句柄"""
     handle_rect: tuple[int, int, int, int] = (0, 0, 0, 0)
     """窗口坐标 (left, top, right, bottom)"""
@@ -138,10 +135,20 @@ class GameWindow:
     current_window_resolution: WindowResolution = None
     """当前游戏窗口的分辨率"""
 
+    def __init__(self):
+        self._window_title: str = self.window_title_zh
+
+    def set_window_title(self, language: str = Literal["国服", "日服"]):
+        if language == "国服":
+            self._window_title = self.window_title_zh
+        elif language == "日服":
+            self._window_title = self.window_title_ja
+
     def window_info_display(self):
         if self.handle_number == 0:
             return
         s = "游戏窗口信息\n"
+        s += f"{win32gui.GetWindowText(self.handle)}\n"
         s += f"左侧横坐标:{self.window_left}\n"
         s += f"顶部纵坐标:{self.window_top}\n"
         s += f"右侧横坐标:{self.window_right}\n"
@@ -150,16 +157,7 @@ class GameWindow:
         s += f"窗口高度:{self.window_height}"
         logger.ui(s)
 
-    def get_top_window_handle(self) -> tuple[int, int, int, int]:
-        """获得最顶层的游戏窗口信息"""
-        try:
-            self.handle = win32gui.FindWindow("Win32Window", self.window_title)
-            _rect = win32gui.GetWindowRect(self.handle)
-        except Exception:
-            _rect = (0, 0, 0, 0)
-        return _rect
-
-    def compare_window_rect(self, new_rect: tuple[int, int, int, int]) -> bool:
+    def _compare_window_rect(self, new_rect: tuple[int, int, int, int]) -> bool:
         """比较新旧窗口矩形坐标是否相同
 
         参数:
@@ -170,13 +168,14 @@ class GameWindow:
         """
         return self.handle_rect == new_rect
 
-    def update_game_window_rect(self, rect: tuple[int, int, int, int]):
+    def _update_window_rect(self, rect: tuple[int, int, int, int] = None):
         """更新游戏窗口矩形坐标
 
         参数:
             rect (tuple[int, int, int, int]): 窗口矩形坐标
         """
         # 偏移量见类初始定义
+        rect = rect or win32gui.GetWindowRect(self.handle)
         self.handle_rect = rect
         self.window_left = rect[0] + 9
         self.window_top = rect[1]
@@ -185,71 +184,69 @@ class GameWindow:
         self.window_width = rect[2] - rect[0] - 18
         self.window_height = rect[3] - rect[1] - 47
 
-    def update_client_rect(self):
+    def _update_client_rect(self):
         """更新客户区矩形坐标"""
         self.client_rect = win32gui.GetClientRect(self.handle)
         self.client_width = self.client_rect[2] - self.client_rect[0]
         self.client_height = self.client_rect[3] - self.client_rect[1]
 
     @log_function_call
-    def get_game_window_handle(self) -> tuple[int, int, int, int]:
-        """获取游戏窗口信息
-
-        返回:
-            tuple[int, int, int, int]: 窗口坐标(left, top, width, height)
-        """
-        _window_number, _rect = get_all_same_title_window_numbers(self.window_title)
-        self.handle_number = _window_number
-
-        if _window_number == 0:
+    def get_game_window_handle(self):
+        """获取游戏窗口信息"""
+        target_handles = get_all_target_window(self._window_title)
+        if target_handles == []:
             logger.ui_error("未找到游戏窗口")
             return
-        
-        _rect = self.get_top_window_handle()
-        self.update_client_rect()
 
-        self.update_game_window_rect(_rect)
+        self.handle_number = len(target_handles)
+        self.handle = target_handles[0]  # 只要最上层的窗口 #TODO 多开管理
+        self._update_client_rect()
+        self._update_window_rect()
         self.window_info_display()
 
     def force_zoom(self):  # TODO 比例差一点
         """强制缩放 1154*687"""
-        if (
-            (self.handle is not None)
-            and (self.handle_rect[0] != 0)
-            and (self.window_top != 0)
-        ):
+        if self.handle and self.handle_rect[0] != 0 and self.window_top != 0:
             win32gui.SetWindowPos(
                 self.handle,
                 win32con.HWND_TOP,
-                self.handle_rect[0],
-                self.handle_rect[1],
-                self.window_standard_width,
-                self.window_standard_height,
-                win32con.SWP_SHOWWINDOW,
+                0,
+                0,
+                self.current_window_resolution.window_standard_width,
+                self.current_window_resolution.window_standard_height,
+                win32con.SWP_SHOWWINDOW | win32con.SWP_NOMOVE,
             )
-            self.update_game_window_rect(win32gui.GetWindowRect(self.handle))
+            self._update_window_rect()
             logger.info(f"new_handle_coor:{self.handle_rect}")
             return True
         else:
             logger.ui_error("强制缩放失败")
             return False
 
-    def scheduler_get_game_window_handle(self):
+    def scheduler_get_game_window_handle(self):  # TODO 使用global_task.add合并到全局任务
         """定时任务：获取游戏窗口句柄"""
-        _window_number, _rect = get_all_same_title_window_numbers(self.window_title)
-        if _window_number != 1:  # 多开或者未检测到游戏窗口，跳过
+        target_handles = get_all_target_window(self._window_title)
+        if len(target_handles) != 1:  # 多开或者未检测到游戏窗口，跳过
             return
 
         # 单开，自动更新窗口
-        # _rect = self.get_top_window_handle()
-        if not self.compare_window_rect(_rect):
-            self.update_game_window_rect(_rect)
+        handler_new = target_handles[0]
+        if handler_new != self.handle:
+            self.handle = handler_new
+            logger.info("检测到游戏窗口变化")
+            self._update_client_rect()
+            self._update_window_rect()
             logger.ui("已自动更新游戏窗口坐标")
+            return
+
+        rect_new = win32gui.GetWindowRect(self.handle)
+        if not self._compare_window_rect(rect_new):
+            self._update_window_rect(rect_new)
+            logger.ui("已自动更新游戏窗口坐标")
+            self.window_info_display()
 
     def proportional_scaling(self, rect):
-        return proportional_scaling(
-            self.current_window_resolution, self.handle_rect, rect
-        )
+        return proportional_scaling(self.current_window_resolution, self.handle_rect, rect)
 
     def check_game_handle(self) -> bool:
         """游戏窗口检测
@@ -259,7 +256,7 @@ class GameWindow:
         """
         logger.ui(f"屏幕分辨率：{SCREEN_SIZE}")
         self.get_game_window_handle()
-        _rect = self.handle_rect
+        rect = self.handle_rect
         if SCREEN_SIZE == WindowResolution1920.screen_size:
             self.current_window_resolution = WindowResolution1920()
         elif SCREEN_SIZE == WindowResolution2560.screen_size:
@@ -267,14 +264,14 @@ class GameWindow:
         else:
             self.current_window_resolution = WindowResolutionDefault()
 
-        if _rect == (0, 0, 0, 0):
+        if rect == (0, 0, 0, 0):
             logger.error("Game is close!")
             ms.main.qmessagbox_update.emit("ERROR", "请在打开游戏后点击 游戏检测！")
-        elif _rect[0] < -9 or _rect[1] < 0 or _rect[2] < 0 or _rect[3] < 0:
-            logger.error(f"Game is background, handle_rect:{_rect}")
+        elif rect[0] < -9 or rect[1] < 0 or rect[2] < 0 or rect[3] < 0:
+            logger.error(f"Game is background, handle_rect:{rect}")
             ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
         elif not is_rect_within_range(
-            _rect,
+            rect,
             self.current_window_resolution.window_standard_width,
             self.current_window_resolution.window_standard_height,
         ):
@@ -295,5 +292,5 @@ def is_rect_within_range(rect, range_width, range_height):
     offset = 10
     return (
         range_width - offset <= (x2 - x1) < range_width + offset
-        and range_height - offset  <= (y2 - y1) < range_height + offset
+        and range_height - offset <= (y2 - y1) < range_height + offset
     )
