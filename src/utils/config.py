@@ -71,8 +71,9 @@ class Config:
         self.default: DefaultConfig = DefaultConfig()
         self.backend: bool = False  # 后台交互
         self.data_error: int = 0
+        self._init()
 
-    def config_yaml_init(self) -> None:
+    def _init(self) -> None:
         """初始化"""
         if self.config_path.is_file():
             logger.info("Find config file.")

@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-# main.py
-
 import sys
 from ctypes import windll
 
@@ -13,7 +9,6 @@ from src.utils.gui import MainWindow
 if __name__ == "__main__":
     # Is Admin
     if windll.shell32.IsUserAnAdmin():
-        config.config_yaml_init()
         app = QApplication([])
         if config.user.window_style == "Fusion":
             app.setStyle("Fusion")
