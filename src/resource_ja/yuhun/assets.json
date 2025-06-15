@@ -1,0 +1,41 @@
+{
+    "current_path": "yuhun",
+    "image_data": [
+        {
+            "name": "finish_2000",
+            "file": "finish_2000.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "finish_damage_2000",
+            "file": "finish_damage_2000.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "finish_damage",
+            "file": "finish_damage.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "title_10",
+            "file": "title_10.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "title_11",
+            "file": "title_11.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "title_12",
+            "file": "title_12.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}

@@ -1,9 +1,11 @@
 import yaml
 from pydantic import BaseModel
 
-from .application import USER_DATA_DIR_PATH
+from .application import RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
 
+_game_language_list = ["国服", "日服"]
+"""游戏语言"""
 _update_list = ["自动更新", "关闭"]
 """更新模式"""
 _update_download_list = ["mirror", "GitHub"]
@@ -33,6 +35,7 @@ _shortcut_start_stop_list = [
 class DefaultConfig(BaseModel):
     """默认配置"""
 
+    game_language: list = _game_language_list
     update: list = _update_list
     update_download: list = _update_download_list
     xuanshangfengyin: list = _xuanshangfengyin_list
@@ -45,6 +48,8 @@ class DefaultConfig(BaseModel):
 class UserConfig(BaseModel):
     """用户配置"""
 
+    game_language: str = _game_language_list[0]
+    """游戏语言"""
     update: str = _update_list[0]
     """更新模式"""
     update_download: str = _update_download_list[0]
@@ -71,6 +76,7 @@ class Config:
         self.default: DefaultConfig = DefaultConfig()
         self.backend: bool = False  # 后台交互
         self.data_error: int = 0
+        self.resource_dir = RESOURCE_DIR_PATH
         self._init()
 
     def _init(self) -> None:
@@ -86,6 +92,9 @@ class Config:
             logger.ui_warn("Cannot find config file.")
             self._save(self.user)
             logger.ui("create file config.yaml success.")
+
+        if self.user.game_language == "日服":
+            self.resource_dir = RESOURCE_JA_DIR_PATH
 
     def _read(self) -> dict:
         with open(self.config_path, encoding="utf-8") as f:

@@ -1,0 +1,17 @@
+{
+    "current_path": "yeyuanhuo",
+    "image_data": [
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "start",
+            "file": "start.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}

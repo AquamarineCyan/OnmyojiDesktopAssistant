@@ -24,14 +24,12 @@ if not LOG_DIR_PATH.exists():
 
 RESOURCE_DIR_PATH: Path = APP_PATH / "resource"
 """资源/素材文件夹路径"""
+RESOURCE_JA_DIR_PATH: Path = APP_PATH / "resource_ja"
 # 开发路径
 if Path(APP_PATH / "src/resource").exists():
     RESOURCE_DIR_PATH = Path(APP_PATH / "src/resource")
 if not RESOURCE_DIR_PATH.exists():
     RESOURCE_DIR_PATH.mkdir(parents=True)
-
-RESOURCE_GLOBAL_PATH = RESOURCE_DIR_PATH / "global"
-"""通用资源路径"""
 
 SCREENSHOT_DIR_PATH: Path = USER_DATA_DIR_PATH / "screenshot"
 """截图文件夹路径"""

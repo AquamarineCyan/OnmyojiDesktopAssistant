@@ -1,0 +1,11 @@
+{
+    "current_path": "huodong",
+    "image_data": [
+        {
+            "name": "result",
+            "file": "result.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}

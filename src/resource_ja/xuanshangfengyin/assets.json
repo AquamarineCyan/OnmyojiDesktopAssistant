@@ -1,0 +1,29 @@
+{
+    "current_path": "xuanshangfengyin",
+    "image_data": [
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "accept",
+            "file": "xuanshang_accept.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "ignore",
+            "file": "xuanshang_ignore.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "refuse",
+            "file": "xuanshang_refuse.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}

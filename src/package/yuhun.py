@@ -1,11 +1,12 @@
-from ..utils.adapter import KeyBoard, Mouse
+from ..utils.adapter import Mouse
+from ..utils.config import config
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
-from ..utils.image import RuleImage, check_image_once
+from ..utils.image import check_image_once
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr, ocr_match_once
+from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
 
@@ -31,6 +32,12 @@ class YuHun(Package):
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+        if config.user.game_language == "国服":
+            self.ocr_auto = "自动"
+        elif config.user.game_language == "日服":
+            self.ocr_auto = "自動"
+        logger.info(f"当前游戏语言: {config.user.game_language}")
+        logger.info(f"当前OCR自动战斗关键字: {self.ocr_auto}")
 
     @staticmethod
     def description() -> None:
@@ -98,7 +105,7 @@ class YuHunTeam(YuHun):
         result = RuleOcr().get_raw_result()
         for item in result:
             # 点击屏幕继续 是兜底方案
-            if item.text == "自动" or "上限" in item.text or item.text == "点击屏幕继续":
+            if item.text == self.ocr_auto or "上限" in item.text or item.text == "点击屏幕继续":
                 logger.info(f"keyword: {item.text}")
                 flag = True
                 break
@@ -244,7 +251,7 @@ class YuHunSingle(YuHun):
         result = RuleOcr().get_raw_result()
         for item in result:
             # 点击屏幕继续 是兜底方案
-            if item.text == "自动" or "上限" in item.text or item.text == "点击屏幕继续":
+            if item.text == self.ocr_auto or "上限" in item.text or item.text == "点击屏幕继续":
                 logger.info(f"keyword: {item.text}")
                 flag = True
                 break

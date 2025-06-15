@@ -1,0 +1,17 @@
+{
+    "current_path": "rilun",
+    "image_data": [
+        {
+            "name": "title_3",
+            "file": "title_3.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "title_4",
+            "file": "title_4.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}

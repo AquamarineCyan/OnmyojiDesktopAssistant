@@ -905,6 +905,72 @@
              <widget class="QGroupBox" name="groupBox_config">
               <layout class="QVBoxLayout">
                <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_language" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_language_left">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_language_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>游戏服务器</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_language_middle">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_language_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_language_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_setting_update" stretch="4,2,0,2,4">
                  <item>
                   <spacer name="horizontalSpacer_setting_update_left">
@@ -1477,11 +1543,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
  </buttongroups>
 </ui>

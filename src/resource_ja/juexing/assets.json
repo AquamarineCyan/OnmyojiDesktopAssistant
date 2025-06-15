@@ -1,0 +1,11 @@
+{
+    "current_path": "juexing",
+    "image_data": [
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"    
+        }
+    ]
+}

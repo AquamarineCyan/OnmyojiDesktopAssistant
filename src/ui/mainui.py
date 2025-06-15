@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -29,11 +29,11 @@ class Ui_MainWindow(object):
         MainWindow.resize(550, 450)
         palette = QPalette()
         brush = QBrush(QColor(255, 255, 255, 255))
-        brush.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Active, QPalette.Window, brush)
-        palette.setBrush(QPalette.Inactive, QPalette.Window, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.Base, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.Window, brush)
+        brush.setStyle(Qt.BrushStyle.SolidPattern)
+        palette.setBrush(QPalette.ColorGroup.Active, QPalette.ColorRole.Window, brush)
+        palette.setBrush(QPalette.ColorGroup.Inactive, QPalette.ColorRole.Window, brush)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Base, brush)
+        palette.setBrush(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Window, brush)
         MainWindow.setPalette(palette)
         font = QFont()
         font.setFamilies([u"\u5b8b\u4f53"])
@@ -381,6 +381,39 @@ class Ui_MainWindow(object):
         self.groupBox_config.setObjectName(u"groupBox_config")
         self.vboxLayout = QVBoxLayout(self.groupBox_config)
         self.vboxLayout.setObjectName(u"vboxLayout")
+        self.horizontalLayout_setting_language = QHBoxLayout()
+        self.horizontalLayout_setting_language.setObjectName(u"horizontalLayout_setting_language")
+        self.horizontalSpacer_setting_language_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_language.addItem(self.horizontalSpacer_setting_language_left)
+
+        self.setting_language_label = QLabel(self.groupBox_config)
+        self.setting_language_label.setObjectName(u"setting_language_label")
+        self.setting_language_label.setMinimumSize(QSize(120, 0))
+
+        self.horizontalLayout_setting_language.addWidget(self.setting_language_label)
+
+        self.horizontalSpacer_setting_language_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_language.addItem(self.horizontalSpacer_setting_language_middle)
+
+        self.setting_language_comboBox = QComboBox(self.groupBox_config)
+        self.setting_language_comboBox.setObjectName(u"setting_language_comboBox")
+        self.setting_language_comboBox.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_setting_language.addWidget(self.setting_language_comboBox)
+
+        self.horizontalSpacer_setting_language_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_language.addItem(self.horizontalSpacer_setting_language_right)
+
+        self.horizontalLayout_setting_language.setStretch(0, 4)
+        self.horizontalLayout_setting_language.setStretch(1, 2)
+        self.horizontalLayout_setting_language.setStretch(3, 2)
+        self.horizontalLayout_setting_language.setStretch(4, 4)
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_language)
+
         self.horizontalLayout_setting_update = QHBoxLayout()
         self.horizontalLayout_setting_update.setObjectName(u"horizontalLayout_setting_update")
         self.horizontalSpacer_setting_update_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -718,6 +751,7 @@ class Ui_MainWindow(object):
         self.valid_pushButton.setText(QCoreApplication.translate("MainWindow", u"\u5206\u6790", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"\u5f0f\u795e\u5f55 -> \u5fa1\u9b42\u65b9\u6848 -> \u65b0\u589e\u5fa1\u9b42\u65b9\u6848 -> \u9009\u62e9\u5fa1\u9b42", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_valid), QCoreApplication.translate("MainWindow", u"\u8bcd\u6761\u5206\u6790", None))
+        self.setting_language_label.setText(QCoreApplication.translate("MainWindow", u"\u6e38\u620f\u670d\u52a1\u5668", None))
         self.setting_update_label.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u6a21\u5f0f", None))
         self.setting_update_download_label.setText(QCoreApplication.translate("MainWindow", u"\u4e0b\u8f7d\u7ebf\u8def", None))
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))

@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
-        self.setWindowTitle(f"{APP_NAME} - v{VERSION}")  # 版本号显示
+        self.setWindowTitle(f"{APP_NAME} - v{VERSION} - {config.user.game_language}")
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
@@ -149,6 +149,7 @@ class MainWindow(QMainWindow):
     def _init_settings(self):
         """初始化设置"""
         _setting_QComboBox_dict = {
+            self.ui.setting_language_comboBox: "game_language",
             self.ui.setting_update_comboBox: "update",
             self.ui.setting_update_download_comboBox: "update_download",
             self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
@@ -199,6 +200,7 @@ class MainWindow(QMainWindow):
 
         self.ui.valid_pushButton.clicked.connect(self.score_handle)
 
+        self.ui.setting_language_comboBox.currentIndexChanged.connect(self.setting_language_comboBox_handle)
         self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_handle)
         self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
             self.setting_update_download_comboBox_handle
@@ -234,7 +236,7 @@ class MainWindow(QMainWindow):
     def software_init(self) -> None:
         """程序初始化"""
         logger.info(f"application path: {APP_PATH}")
-        logger.info(f"resource path: {RESOURCE_DIR_PATH}")
+        logger.info(f"resource path: {config.resource_dir}")
         logger.info(f"[VERSION] {VERSION}")
         logger.info(f"config_user: {config.user}")
         logger.ui_warn("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版")
@@ -251,6 +253,7 @@ class MainWindow(QMainWindow):
         logger.ui("初始化成功")
 
         # 游戏窗口检测
+        window.set_window_title(config.user.game_language)
         self.ui.button_game_handle.setEnabled(True)
         if self.check_game_handle():
             self.application_init()
@@ -391,14 +394,14 @@ class MainWindow(QMainWindow):
             bool: 是否完整
         """
         logger.info("开始检查资源")
-        if not Path(RESOURCE_DIR_PATH).exists():
+        if not config.resource_dir.exists():
             return False
 
         _package_resource_list = get_package_resource_list()
         for P in _package_resource_list:
             # 检查子文件夹
-            if not Path(RESOURCE_DIR_PATH / P.resource_path).exists():
-                _msg = "资源文件夹不存在！"
+            if not Path(config.resource_dir / P.resource_path).exists():
+                _msg = f"资源文件夹 {config.resource_dir} 不存在！"
                 logger.ui_error(_msg)
                 ms.main.qmessagbox_update.emit("ERROR", _msg)
                 return False
@@ -412,6 +415,12 @@ class MainWindow(QMainWindow):
         return True
 
     """设置项变更回调函数"""
+
+    def setting_language_comboBox_handle(self) -> None:
+        """设置-游戏服务器-更改"""
+        text = self.ui.setting_language_comboBox.currentText()
+        logger.info(f"设置项：游戏服务器已更改为 {text}")
+        config.update("game_language", text)
 
     def setting_update_comboBox_handle(self) -> None:
         """设置-更新模式-更改"""

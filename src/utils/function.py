@@ -5,7 +5,8 @@ import time
 from pathlib import Path
 
 from .adapter import Mouse
-from .application import APP_PATH, RESOURCE_DIR_PATH, USER_DATA_DIR_PATH
+from .application import APP_PATH, USER_DATA_DIR_PATH
+from .config import config
 from .decorator import log_function_call
 from .event import event_thread
 from .exception import GUIStopException
@@ -168,7 +169,7 @@ def finish_random_left_right(
 
 def check_user_file_exists(file: str) -> Path | None:
     """检查用户素材"""
-    _full_path = RESOURCE_DIR_PATH / file
+    _full_path = config.resource_dir / file
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
     if _full_path_user.exists():
         logger.info(f"使用用户素材{_full_path_user}")
@@ -228,7 +229,7 @@ def merge_dict(base_dict, update_dict) -> dict:
 
 
 def get_asset_data(resource_path) -> tuple[Path | dict]:
-    _full_path = RESOURCE_DIR_PATH / resource_path / "assets.json"
+    _full_path = config.resource_dir / resource_path / "assets.json"
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
 
     data_default = open_asset_file(_full_path)

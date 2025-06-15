@@ -1,0 +1,113 @@
+{
+    "current_path": "jiejietupo",
+    "image_data": [
+        {
+            "name": "fail",
+            "file": "fail.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "fangshoujilu",
+            "file": "fangshoujilu.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "geren",
+            "file": "geren.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "jingong",
+            "file": "jingong.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "lock",
+            "file": "lock.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "queding",
+            "file": "queding.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "shuaxin",
+            "file": "shuaxin.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [470, 40, 250, 150],
+            "score": "0.8"    
+        },
+        {
+            "name": "tupojilu",
+            "file": "tupojilu.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "unlock",
+            "file": "unlock.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_0",
+            "file": "xunzhang_0.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_1",
+            "file": "xunzhang_1.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_2",
+            "file": "xunzhang_2.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_3",
+            "file": "xunzhang_3.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_4",
+            "file": "xunzhang_4.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "xunzhang_5",
+            "file": "xunzhang_5.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "yinyangliao",
+            "file": "yinyangliao.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        },
+        {
+            "name": "zaicitiaozhan",
+            "file": "zaicitiaozhan.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.8"
+        }
+    ]
+}
