@@ -167,6 +167,7 @@ class MainWindow(QMainWindow):
         self.ui.setting_win_toast_button.setChecked(_status)
 
         _restart_msg = "重启生效"
+        self.ui.setting_language_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_comboBox.setToolTip(_restart_msg)
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
         self.ui.setting_xuanshangfengyin_comboBox.setToolTip("立即生效")
