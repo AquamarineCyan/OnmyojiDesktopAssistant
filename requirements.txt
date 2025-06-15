@@ -1,4 +1,4 @@
-apscheduler
+apscheduler<4.0.0
 httpx>=0.23.0
 numpy>=2.0.0
 opencv-python
