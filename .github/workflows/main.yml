@@ -1,11 +1,11 @@
-name: Test
+name: Build
 
 on:
   push:
 
 jobs:
   test:
-    name: Test
+    name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -15,7 +15,7 @@ jobs:
     env:
       OS: ${{ matrix.os }}
       PYTHON_VERSION: ${{ matrix.python-version }}
-      EXE_NAME: Onmyoji_Python
+      EXE_NAME: OnmyojiDesktopAssistant
 
     steps:
       - uses: actions/checkout@v4
@@ -33,17 +33,11 @@ jobs:
       - name: Build
         run: |
             poetry run pyinstaller main.spec --clean --noconfirm --distpath .
-            dir
-            cd output
-            dir
-            cd ..\src\resource\
-            dir
+            mkdir output\resource
+            xcopy src\resource output\resource /s /e /v /q /y
       
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.EXE_NAME }}
-          path: |
-            output
-            buzhihuo.ico
-            src\resource\
+          path: output/
