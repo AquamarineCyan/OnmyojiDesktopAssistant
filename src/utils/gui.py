@@ -68,34 +68,6 @@ class StackedWidgetIndex(Enum):
     YINGJIESHILIAN = 5
 
 
-class KeyListenerThread(QThread):
-    """监听键盘线程"""
-
-    def run(self):
-        def on_key_press(key):
-            try:
-                if key in [
-                    keyboard.Key.f1,
-                    keyboard.Key.f2,
-                    keyboard.Key.f3,
-                    keyboard.Key.f4,
-                    keyboard.Key.f5,
-                    keyboard.Key.f6,
-                    keyboard.Key.f7,
-                    keyboard.Key.f8,
-                    keyboard.Key.f9,
-                    keyboard.Key.f10,
-                    keyboard.Key.f11,
-                    keyboard.Key.f12,
-                ]:
-                    ms.main.key_pressed.emit(key.name)
-            except AttributeError:
-                ms.main.key_pressed.emit(f"Key pressed: {key}")
-
-        with keyboard.Listener(on_press=on_key_press) as listener:
-            listener.join()
-
-
 class MainWindow(QMainWindow):
     """主界面"""
 
@@ -142,8 +114,9 @@ class MainWindow(QMainWindow):
         self._init_settings()
         self._init_signals()
         self._init_events()
+
         self.key_listener = KeyListenerThread()
-        ms.main.key_pressed.connect(self._init_shortcut)
+        ms.main.key_pressed.connect(self._shortcut_handle)
         self.key_listener.start()
 
     def _init_settings(self):
@@ -222,7 +195,8 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
         self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
 
-    def _init_shortcut(self, key):
+    def _shortcut_handle(self, key: str):
+        """快捷键处理"""
         try:
             logger.info(f"Key pressed: {key}")
             if key.lower() == config.user.shortcut_start_stop.lower():
@@ -834,7 +808,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
-        global_scheduler.shutdown()
+        self.key_listener.stop()
         with suppress(Exception):
             logger.info("[EXIT]")
         event.accept()
