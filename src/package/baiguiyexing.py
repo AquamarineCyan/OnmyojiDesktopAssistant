@@ -6,7 +6,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import random_num, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.window import window
+from ..utils.window import window_manager
 from .utils import Package
 
 
@@ -89,9 +89,9 @@ class BaiGuiYeXing(Package):
             # 屏幕中心区域
             point = random_point(
                 60,
-                window.window_width - 120,
+                window_manager.current.window_width - 120,
                 300,
-                window.window_height - 100,
+                window_manager.current.window_height - 100,
             )
             Mouse.click(point, duration=0.25)
 

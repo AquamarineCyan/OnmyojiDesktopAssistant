@@ -3,8 +3,6 @@ from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 
-from pynput import keyboard
-from PySide6.QtCore import QThread
 from PySide6.QtGui import QIcon, QTextCursor
 from PySide6.QtWidgets import (
     QDialogButtonBox,
@@ -19,20 +17,21 @@ from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui import Ui_MainWindow
 from ..ui.update_record import Ui_Form as Ui_Update_Record
 from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
-from .application import APP_NAME, APP_PATH, RESOURCE_DIR_PATH, VERSION, Connect
+from .application import APP_NAME, APP_PATH, VERSION, Connect
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
+from .global_task import global_task
+from .keyboard_listener import KeyListenerThread
 from .log import log_clean_up, logger
-from .myschedule import global_scheduler
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
 from .update import get_update_info, update_record
 from .upgrade import upgrade
-from .window import window
+from .window import window_manager
 
 
 class GameFunction(Enum):
@@ -107,7 +106,6 @@ class MainWindow(QMainWindow):
         self.ui.combo_choice.addItems(self._list_function)
         self.ui.button_start.setEnabled(False)
         self.ui.combo_choice.setEnabled(False)
-        self.ui.button_game_handle.setEnabled(False)
         self.ui.spin_times.setEnabled(False)
 
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
@@ -227,11 +225,17 @@ class MainWindow(QMainWindow):
             return
         logger.ui("初始化成功")
 
-        # 游戏窗口检测
-        window.set_window_title(config.user.game_language)
-        self.ui.button_game_handle.setEnabled(True)
-        if self.check_game_handle():
-            self.application_init()
+        self._global_task_init()
+
+    def _global_task_init(self):
+        """全局任务初始化"""
+        window_manager.set_window_title(config.user.game_language)
+        window_manager.set_gui_button_callback(self._window_button_enabled_handle)
+        window_manager.screen_init()
+
+        global_task.add(window_manager.update_window_task)
+        global_task.add(XuanShangFengYin().check_task)
+        global_task.start()
 
     def qmessagbox_update_func(self, level: str, msg: str) -> None:
         if level == "ERROR":
@@ -248,8 +252,7 @@ class MainWindow(QMainWindow):
                     == QMessageBox.StandardButton.Yes
                 ):
                     logger.info("用户接受强制缩放")
-                    if window.force_zoom():
-                        self.application_init()
+                    window_manager.force_zoom()
                 else:
                     logger.info("用户拒绝强制缩放")
             elif msg == "更新重启":
@@ -344,22 +347,14 @@ class MainWindow(QMainWindow):
         if config.user.remember_last_choice > 0:
             self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
 
-        # 检查任务是否已经存在
-        job_id = "scheduler_get_game_window_handle"
-        if all(job.id != job_id for job in global_scheduler.get_jobs()):
-            global_scheduler.add_job(
-                window.scheduler_get_game_window_handle,
-                "interval",
-                seconds=1,
-                id=job_id,
-            )
-        # 检查调度器是否已经启动
-        if not global_scheduler.running:
-            logger.info(global_scheduler.get_jobs())
-            global_scheduler.start()
+    def _window_button_enabled_handle(self):
+        logger.ui("检测到游戏窗口")
+        self.ui.combo_choice.setEnabled(True)
+        self.ui.spin_times.setEnabled(True)
 
-        # 悬赏封印任务
-        task_xuanshangfengyin.task_start()
+        # 记忆上次所选功能
+        if config.user.remember_last_choice > 0:
+            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
 
     @log_function_call
     def is_resource_directory_complete(self) -> bool:
@@ -414,7 +409,6 @@ class MainWindow(QMainWindow):
         text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
         logger.info(f"设置项：悬赏封印已更改为 {text}")
         config.update("xuanshangfengyin", text)
-        task_xuanshangfengyin.task_start()
 
     def setting_window_style_comboBox_hanle(self) -> None:
         """设置-界面风格-更改"""
@@ -466,7 +460,7 @@ class MainWindow(QMainWindow):
         config.update("win_toast", _status)
 
     def check_game_handle(self):
-        return window.check_game_handle()
+        return window_manager.force_top_window()
 
     def game_function_description(self):
         """功能描述"""
@@ -808,7 +802,10 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event) -> None:
         """关闭程序事件（继承类）"""
+        # 清理线程
         self.key_listener.stop()
+        global_task.stop()
+
         with suppress(Exception):
             logger.info("[EXIT]")
         event.accept()

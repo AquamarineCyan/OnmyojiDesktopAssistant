@@ -1,4 +1,4 @@
-from .window import SCREEN_SIZE, window
+from .window import SCREEN_SIZE, window_manager
 
 
 class Point:
@@ -41,8 +41,8 @@ class AbsolutePoint(Point):
         super().__init__(x, y)
 
     def abs_to_rela(self) -> "RelativePoint":
-        x = self.x - window.window_left
-        y = self.y - window.window_top
+        x = self.x - window_manager.current.window_left
+        y = self.y - window_manager.current.window_top
         return RelativePoint(x, y)
 
 
@@ -56,8 +56,8 @@ class RelativePoint(Point):
         super().__init__(x, y)
 
     def rela_to_abs(self) -> "AbsolutePoint":
-        x = self.x + window.window_left
-        y = self.y + window.window_top
+        x = self.x + window_manager.current.window_left
+        y = self.y + window_manager.current.window_top
         width, height = SCREEN_SIZE
         if 0 <= x < width and 0 <= y < height:
             return AbsolutePoint(x, y)

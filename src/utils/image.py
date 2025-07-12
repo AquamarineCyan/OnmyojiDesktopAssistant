@@ -12,7 +12,7 @@ from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import RelativePoint
 from .screenshot import ScreenShot
-from .window import window
+from .window import window_manager
 
 
 def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
@@ -80,7 +80,7 @@ class RuleImage:
 
         # 空值或者(0,0,0,0)则匹配整个窗口
         if self.region is None or self.region == (0, 0, 0, 0):
-            self.region = (0, 0, window.window_width, window.window_height)
+            self.region = (0, 0, window_manager.current.window_width, window_manager.current.window_height)
 
         self._image = None
         self.match_result = None

@@ -9,7 +9,7 @@ from .qiling import QiLing
 from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
 from .utils import GlobalResource
-from .xuanshangfengyin import XuanShangFengYin, task_xuanshangfengyin
+from .xuanshangfengyin import XuanShangFengYin
 from .yeyuanhuo import YeYuanHuo
 from .yingjieshilian import BingZangMiJing, GuiBingYanWu
 from .yongshengzhihai import YongShengZhiHai, YongShengZhiHaiTeam
@@ -32,7 +32,7 @@ __all__ = [
     "RiLunSingle",
     "RiLunTeam",
     "TanSuo",
-    "task_xuanshangfengyin",
+    "XuanShangFengYin",
     "YeYuanHuo",
     "BingZangMiJing",
     "GuiBingYanWu",

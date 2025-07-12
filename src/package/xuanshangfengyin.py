@@ -1,11 +1,10 @@
 from ..utils.config import config
-from ..utils.decorator import run_in_thread
 from ..utils.event import event_xuanshang
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.myschedule import global_scheduler
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
+from ..utils.window import window_manager
 from .global_parameter import xuanshangfengyin_count
 from .utils import Package
 
@@ -21,14 +20,11 @@ class XuanShangFengYin(Package):
         "xuanshang_refuse",  # 拒绝
         "xuanshang_ignore",  # 忽略
     ]
-    STATE_STOP = 1
-    STATE_START = 2
 
     def __init__(self) -> None:
         super().__init__()
         self._flag_is_first: bool = True
         self._flag_msg: bool = False
-        self.state = self.STATE_STOP
         event_xuanshang.set()
 
     def load_asset(self):
@@ -37,7 +33,10 @@ class XuanShangFengYin(Package):
         self.IMAGE_IGNORE = self.get_image_asset("ignore")
         self.IMAGE_REFUSE = self.get_image_asset("refuse")
 
-    def scheduler_check(self):
+    def check_task(self):
+        if not window_manager.is_alive:
+            return
+
         if config.user.xuanshangfengyin == "关闭":
             return
 
@@ -74,24 +73,3 @@ class XuanShangFengYin(Package):
         self.check_click(_asset, 5, "center")
 
         xuanshangfengyin_count.add()
-
-    @run_in_thread
-    def task_start(self):
-        if config.user.xuanshangfengyin == "关闭":
-            if global_scheduler.get_job(self.resource_path):
-                logger.ui("检测到悬赏封印已关闭，停止定时任务")
-                global_scheduler.remove_job(self.resource_path)
-                self.state = self.STATE_STOP
-        elif self.state == self.STATE_STOP:
-            # 添加定时任务，间隔1分钟，同一时间只有一个实例在运行
-            global_scheduler.add_job(
-                self.scheduler_check,
-                "interval",
-                seconds=1,
-                id=self.resource_path,
-                coalesce=True,
-            )
-            self.state = self.STATE_START
-
-
-task_xuanshangfengyin = XuanShangFengYin()

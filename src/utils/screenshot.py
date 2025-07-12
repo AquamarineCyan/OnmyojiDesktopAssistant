@@ -7,7 +7,7 @@ from PIL import Image, ImageGrab
 
 from .config import config
 from .log import logger
-from .window import window
+from .window import window_manager
 
 
 class ScreenShot:
@@ -17,13 +17,13 @@ class ScreenShot:
         _log: bool = False,
         debug: bool = False,
     ) -> None:
-        self.hwnd = window.handle
+        self.hwnd = window_manager.current.handle
         self._image = None
         _rect = (
-            window.window_left,
-            window.window_top,
-            window.window_width,
-            window.window_height,
+            window_manager.current.window_left,
+            window_manager.current.window_top,
+            window_manager.current.window_width,
+            window_manager.current.window_height,
         )
         if rect:
             self.rect = (_rect[0] + rect[0], _rect[1] + rect[1], rect[2], rect[3])
@@ -36,6 +36,9 @@ class ScreenShot:
 
         # 最多重试10次
         for i in range(10):
+            if not window_manager.is_alive:
+                return
+
             try:
                 if config.backend:
                     if rect:
@@ -73,7 +76,7 @@ class ScreenShot:
 
     def _screenshot_backend(self) -> Image.Image:
         """截图区域只有窗口客户区，不包括标题栏等"""
-        client_rect = window.client_rect
+        client_rect = window_manager.current.client_rect
         if self.rect_backend:
             width = self.rect_backend[2]
             height = self.rect_backend[3] + 39

@@ -13,7 +13,7 @@ from .exception import GUIStopException
 from .log import logger
 from .paddleocr import OcrData
 from .point import AbsolutePoint, RelativePoint
-from .window import window
+from .window import window_manager
 
 __all__ = ["Mouse", "KeyBoard"]
 
@@ -96,8 +96,8 @@ class Mouse:
                     x = int(x) if x else startx
                     y = int(y) if y else starty
                 elif isinstance(dst_point, RelativePoint):
-                    x = int(window.window_left + dst_point.x)
-                    y = int(window.window_top + dst_point.y)
+                    x = int(window_manager.current.window_left + dst_point.x)
+                    y = int(window_manager.current.window_top + dst_point.y)
                 elif isinstance(dst_point, AbsolutePoint):
                     x = int(dst_point.x)
                     y = int(dst_point.y)
@@ -126,7 +126,7 @@ class Mouse:
         # else:
         #     x, y = point.coor
 
-        hwnd = window.handle
+        hwnd = window_manager.current.handle
         current_x = _back_click_x
         current_y = _back_click_y
         dst_x = dst_point.x if dst_point else x
@@ -204,7 +204,7 @@ class Mouse:
         else:
             dst_x, dst_y = point.coor
 
-        hwnd = window.handle
+        hwnd = window_manager.current.handle
         current_x = _back_click_x
         current_y = _back_click_y
 
@@ -275,7 +275,7 @@ class Mouse:
     def _drag_backend(cls, x_offset: int = None, y_offset: int = None):
         global _back_click_x, _back_click_y
 
-        hwnd = window.handle
+        hwnd = window_manager.current.handle
         current_x = _back_click_x
         current_y = _back_click_y
 
@@ -326,7 +326,7 @@ class Mouse:
 
     @classmethod
     def _scroll_backend(cls, distance: int):
-        hwnd = window.handle
+        hwnd = window_manager.current.handle
         current_x = _back_click_x
         current_y = _back_click_y
 
@@ -368,7 +368,7 @@ class KeyBoard:
         if not vk_code:
             raise ValueError(f"Unsupported key: {key}")
 
-        hwnd = window.handle
+        hwnd = window_manager.current.handle
         win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, 0)
         win32api.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 1)
 

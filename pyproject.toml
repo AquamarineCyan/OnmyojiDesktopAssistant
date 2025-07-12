@@ -9,7 +9,6 @@ packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
-apscheduler = "3.11.0"
 httpx = "^0.28.1"
 numpy = "^2.2.6"
 opencv-python = "^4.11.0.86"
@@ -33,7 +32,7 @@ line-length = 120
 [[tool.poetry.source]]
 name = "mirrors"
 url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
-priority = "primary"
+priority = "supplemental"
 
 [build-system]
 requires = ["poetry-core"]

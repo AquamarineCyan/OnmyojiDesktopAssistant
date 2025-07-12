@@ -6,7 +6,7 @@ from ..utils.function import finish_random_left_right, random_normal, random_num
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.point import RelativePoint
-from ..utils.window import window
+from ..utils.window import window_manager
 from .utils import Package
 
 
@@ -189,8 +189,8 @@ class TanSuo(Package):
                             sleep()
                             y1 = 300
                             y2 = 550
-                            x_middle = window.window_width // 2
-                            x_right = int(window.window_width * 0.9)
+                            x_middle = window_manager.current.window_width // 2
+                            x_right = int(window_manager.current.window_width * 0.9)
                             x = random_normal(x_middle, x_right)
                             # 移动到窗口中心线右侧
                             Mouse.move(
