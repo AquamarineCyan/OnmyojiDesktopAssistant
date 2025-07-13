@@ -5,13 +5,13 @@
             "name": "start",
             "file": "start.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "title",
             "file": "title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ]
 }

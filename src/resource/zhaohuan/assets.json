@@ -5,7 +5,7 @@
             "name": "title",
             "file": "title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ],
     "ocr_data": [
@@ -13,28 +13,28 @@
             "name": "title",
             "keyword": "召唤",
             "region": [70, 40, 200, 100],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "zhaohuan",
             "keyword": "普通召唤",
             "region": [360, 630, 100, 50],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "queding",
             "keyword": "确定",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "again",
             "keyword": "再次召唤",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         }
     ]

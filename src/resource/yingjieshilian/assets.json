@@ -5,67 +5,67 @@
             "name": "exp_start",
             "file": "exp_start.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "exp_title",
             "file": "exp_title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"    
+            "score": "0.7"    
         },
         {
             "name": "main_title",
             "file": "main_title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "main_goto_exp",
             "file": "main_goto_exp.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "main_goto_skill",
             "file": "main_goto_skill.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_choose_attribute",
             "file": "skill_choose_attribute.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_choose_buff",
             "file": "skill_choose_buff.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_choose_buff_ensure",
             "file": "skill_choose_buff_ensure.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_first_remain",
             "file": "skill_first_remain.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_start",
             "file": "skill_start.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "skill_title",
             "file": "skill_title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ],
     "ocr_data": [
@@ -73,7 +73,7 @@
             "name": "main_title",
             "keyword": "英杰试炼",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         }
     ]

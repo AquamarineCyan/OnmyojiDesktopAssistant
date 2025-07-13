@@ -6,68 +6,68 @@
             "file": "chuzhanxiaohao.png",
             "description": "出战消耗",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "fight_boss",
             "file": "fighting_boss.png",
             "description": "挑战boss",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "fight_little_monster",
             "file": "fighting.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "kunnan_big",
             "file": "kunnan_big.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "quit_true",
             "file": "quit_true.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "quit",
             "file": "quit.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tansuo_28_0",
             "file": "tansuo_28_0.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tansuo_28_title",
             "file": "tansuo_28_title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tansuo_28",
             "file": "tansuo_28.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tansuo",
             "file": "tansuo.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "treasure_box",
             "file": "treasure_box.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ]
 }

@@ -5,31 +5,31 @@
             "name": "baiguiqiyueshu",
             "file": "baiguiqiyueshu.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "jinru",
             "file": "jinru.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "kaishi",
             "file": "kaishi.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "title",
             "file": "title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "choose",
             "file": "choose.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ]
 }

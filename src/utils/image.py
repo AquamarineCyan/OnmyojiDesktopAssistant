@@ -47,7 +47,7 @@ class RuleImage:
         name: str = None,
         file: str | Path = None,
         region: tuple = None,
-        score: float = 0.8,
+        score: float = 0.7,
         method: Literal["COLOR", "GRAYSCALE"] = "COLOR",
     ) -> None:
         """

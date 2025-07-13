@@ -52,7 +52,7 @@ class LiuDaoZhiMen(Package):
         result = ocr.get_raw_result()
         for item in result:
             ocr_data = OcrData(item)
-            if ocr_data.score < 0.8:
+            if ocr_data.score < 0.7:
                 continue
             if (isinstance(text, str) and ocr_data.text == text) or (isinstance(text, list) and ocr_data.text in text):
                 logger.scene(ocr_data.text)
@@ -63,7 +63,7 @@ class LiuDaoZhiMen(Package):
         result = ocr.get_raw_result()
         for item in result:
             ocr_data = OcrData(item)
-            if ocr_data.score > 0.8 and ocr_data.text == text:
+            if ocr_data.score > 0.7 and ocr_data.text == text:
                 # click(RelativePoint(ocr_data.x1, ocr_data.y1).rela_to_abs())
                 return ocr_data
         return None
@@ -73,7 +73,7 @@ class LiuDaoZhiMen(Package):
         result = ocr.get_raw_result()
         for item in result:
             ocr_data = OcrData(item)
-            if ocr_data.score > 0.8 and ocr_data.text in list:
+            if ocr_data.score > 0.7 and ocr_data.text in list:
                 logger.scene(ocr_data.text)
                 return ocr_data
         return None
@@ -109,7 +109,7 @@ class LiuDaoZhiMen(Package):
         result = ocr.get_raw_result()
         for item in result:
             ocr_data = OcrData(item)
-            if ocr_data.score < 0.8:
+            if ocr_data.score < 0.7:
                 continue
             if "回合后迎战月读" in ocr_data.text:
                 logger.scene("战斗进行中")
@@ -142,7 +142,7 @@ class LiuDaoZhiMen(Package):
         for item in result:
             ocr_data = OcrData(item)
             logger.ui(ocr_data.text)
-            if ocr_data.score < 0.8:
+            if ocr_data.score < 0.7:
                 continue
 
             # 按优先级排序
@@ -228,7 +228,7 @@ class LiuDaoZhiMen(Package):
                         for item in new_result:
                             ocr_data = OcrData(item)
                             logger.ui(ocr_data.text)
-                            if ocr_data.score < 0.8:
+                            if ocr_data.score < 0.7:
                                 continue
                             if ocr_data.text == "柔风抱暖":
                                 self.check_click(self.IMAGE_IMITATION, timeout=3)

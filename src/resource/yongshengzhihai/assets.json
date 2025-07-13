@@ -5,19 +5,19 @@
             "name": "passenger",
             "file": "passenger.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "title",
             "file": "title_team.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "start_team",
             "file": "start_team.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ]
 }

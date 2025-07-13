@@ -5,49 +5,49 @@
             "name": "chuzhan",
             "file": "chuzhan.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "guanzhan",
             "file": "guanzhan.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "qianwang",
             "file": "qianwang.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tiaozhan",
             "file": "tiaozhan.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "title",
             "file": "title.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "zhanbao",
             "file": "zhanbao.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "zhuwei",
             "file": "zhuwei.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "zhuwei_gray",
             "file": "zhuwei_gray.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ],
     "ocr_data": [
@@ -55,21 +55,21 @@
             "name": "title",
             "keyword": "道馆突破",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "daojishi",
             "keyword": "后开战",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "shengyutuposhijian",
             "keyword": "剩余突破时间",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         }
     ]

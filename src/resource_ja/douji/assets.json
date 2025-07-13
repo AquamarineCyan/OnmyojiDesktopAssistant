@@ -5,7 +5,7 @@
             "name": "title",
             "keyword": "斗技",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
@@ -26,28 +26,28 @@
             "name": "intentional",
             "keyword": "手动",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "victory",
             "keyword": "胜利",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "fail",
             "keyword": "失败",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "level_up",
             "keyword": "段位上升",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         }
     ]

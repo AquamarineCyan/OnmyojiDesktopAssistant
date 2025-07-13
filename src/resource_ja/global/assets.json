@@ -5,79 +5,79 @@
             "name": "accept_invitation",
             "file": "accept_invitation.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "fail",
             "file": "fail.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"    
+            "score": "0.7"    
         },
         {
             "name": "finish",
             "file": "finish.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "passenger_2",
             "file": "passenger_2.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "passenger_3",
             "file": "passenger_3.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "ready_new",
             "file": "ready_new.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "ready_old",
             "file": "ready_old.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "soul_overflow",
             "file": "soul_overflow.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "start_single",
             "file": "start_single.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "start_team",
             "file": "start_team.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "tanchigui",
             "file": "tanchigui.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "victory",
             "file": "victory.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         },
         {
             "name": "xiezhanduiwu",
             "file": "xiezhanduiwu.png",
             "region": [0, 0, 0, 0],
-            "score": "0.8"
+            "score": "0.7"
         }
     ],
     "ocr_data": [
@@ -85,28 +85,28 @@
             "name": "auto_fight",
             "keyword": "自动",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "cancel",
             "keyword": "取消",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "confirm",
             "keyword": "确定",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "click_and_continue",
             "keyword": "点击屏幕继续",
             "region": [0, 0, 0, 0],
-            "score": "0.8",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {

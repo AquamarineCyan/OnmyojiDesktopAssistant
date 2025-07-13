@@ -261,7 +261,7 @@ class RuleOcr:
         name: str = None,
         keyword: str = None,
         region: tuple = None,  # 暂未用上
-        score: float = 0.8,
+        score: float = 0.7,
         method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
     ) -> None:
         if assetocr:
