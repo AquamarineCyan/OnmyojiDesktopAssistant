@@ -60,10 +60,8 @@ class MySignals(QObject):
     class UpgradeNewVersion(QObject):
         """更新新版本"""
 
-        text_update = Signal(str)
-        """更新文本"""
-        text_insert = Signal(str)
-        """覆盖文本"""
+        progress_text_update = Signal(str)
+        """更新文件进度文本"""
         progressBar_update = Signal(int)
         """更新进度条"""
         show_ui = Signal()

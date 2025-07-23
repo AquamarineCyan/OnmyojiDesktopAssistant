@@ -172,9 +172,7 @@ class Upgrade(Connect):
     def download_upgrade_zip(self, download_url: str) -> bool:
         """下载更新包"""
         try:
-            with httpx.stream(
-                "GET", download_url, headers=self.headers, follow_redirects=True
-            ) as r:
+            with httpx.stream("GET", download_url, headers=self.headers, follow_redirects=True) as r:
                 logger.info(f"status_code: {r.status_code}")
                 if r.status_code != 200:
                     logger.ui_error(f"下载链接异常，url: {download_url}")
@@ -245,9 +243,7 @@ class Upgrade(Connect):
                 f_zip.extractall(self.zip_files_path)
                 # 保留提取文件修改日期
                 for info in f_zip.infolist():
-                    info.filename = info.filename.encode("cp437").decode(
-                        "gbk"
-                    )  # 解决中文文件名乱码问题
+                    info.filename = info.filename.encode("cp437").decode("gbk")  # 解决中文文件名乱码问题
                     f_zip.extract(info, self.zip_files_path)
                     timestamp = time.mktime(info.date_time + (0, 0, -1))
                     os.utime(
@@ -312,14 +308,35 @@ def download_zip_percentage_update(file, max: int):
     """
     下载进度条
 
-    xxMB/xxMB
+    xxMB/xxMB (速度: xx MB/s)
     """
+    last_time = time.time()
+    last_size = 0
+    speed = 0.0
+
     while True:
         curr = Path(file).stat().st_size if Path(file).exists() else 0
-        ms.upgrade_new_version.text_insert.emit(
-            f"{hum_convert(curr)}/{hum_convert(max)}"
-        )
-        ms.upgrade_new_version.progressBar_update.emit(int(100 * (curr / max)))
+        current_time = time.time()
+
+        # 计算下载速度
+        time_diff = current_time - last_time
+        if time_diff > 0:  # 只有在时间差大于0时才计算速度
+            size_diff = curr - last_size
+            speed = size_diff / time_diff / (1024 * 1024)  # 转换为MB/s
+
+        # 更新显示文本：大小 + 速度
+        display_text = f"{hum_convert(curr)}/{hum_convert(max)} (速度: {speed:.2f} MB/s)"
+        ms.upgrade_new_version.progress_text_update.emit(display_text)
+
+        progress = 0
+        if max > 0:
+            progress = min(100, int(100 * (curr / max)))
+        ms.upgrade_new_version.progressBar_update.emit(progress)
+
+        # 更新上一次记录
+        last_time = current_time
+        last_size = curr
+
         time.sleep(0.1)
         if curr >= max:
             break

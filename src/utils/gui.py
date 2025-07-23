@@ -5,18 +5,16 @@ from pathlib import Path
 
 from PySide6.QtGui import QIcon, QTextCursor
 from PySide6.QtWidgets import (
-    QDialogButtonBox,
     QMainWindow,
     QMessageBox,
-    QPushButton,
     QWidget,
 )
 
 from ..package import *  # noqa: F403
 from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui import Ui_MainWindow
-from ..ui.update_record import Ui_Form as Ui_Update_Record
-from ..ui.upgrade_new_version import Ui_Form as Ui_Upgrade_New_Version
+from ..ui.update_record_widget import UpdateRecordWindow
+from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
 from .application import APP_NAME, APP_PATH, VERSION, Connect
 from .config import config
 from .decorator import log_function_call, run_in_thread
@@ -29,7 +27,7 @@ from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
-from .update import get_update_info, update_record
+from .update import get_update_info
 from .upgrade import upgrade
 from .window import window_manager
 
@@ -811,110 +809,9 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def show_update_record_window(self):
-        self.update_record_ui = UpdateRecordWindow()
-        self.update_record_ui.show()
+        self.ui.update_record_ui = UpdateRecordWindow()
+        self.ui.update_record_ui.show()
 
     def show_upgrade_new_version_window(self):
-        self.upgrade_new_version_ui = UpgradeNewVersionWindow()
-        self.upgrade_new_version_ui.show()
-
-
-class UpdateRecordWindow(QWidget):
-    """更新记录"""
-
-    def __init__(self):
-        super().__init__()
-        self.ui = Ui_Update_Record()
-        self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
-        # 关联事件
-        ms.update_record.text_update.connect(self.textBrowser_update_func)
-        ms.update_record.text_markdown_update.connect(self.textBrowser_markdown_update_func)
-        # 初始化
-        update_record()
-
-    def textBrowser_update_func(self, text: str):
-        logger.info(f"[update record]\n{text}")
-        widget = self.ui.textBrowser
-        widget.append(text)
-        widget.ensureCursorVisible()
-        widget.moveCursor(QTextCursor.MoveOperation.Start)
-
-    def textBrowser_markdown_update_func(self, msg: str):
-        widget = self.ui.textBrowser
-        widget.setMarkdown(msg)
-
-
-class UpgradeNewVersionWindow(QWidget):
-    """更新新版本"""
-
-    def __init__(self):
-        super().__init__()
-        self.ui = Ui_Upgrade_New_Version()
-        self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
-
-        button_update = QPushButton("下载更新", self)
-        button_download = QPushButton("仅下载", self)
-        button_cancel = QPushButton("忽略本次", self)
-
-        self.ui.buttonBox.addButton(button_update, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_download, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_cancel, QDialogButtonBox.ButtonRole.RejectRole)
-        self.ui.progressBar.hide()
-
-        button_update.clicked.connect(self.button_update_clicked_func)
-        button_download.clicked.connect(self.button_download_clicked_func)
-        button_cancel.clicked.connect(self.close)
-        ms.upgrade_new_version.text_update.connect(self.textBrowser_update_func)
-        ms.upgrade_new_version.text_insert.connect(self.textBrowser_insert_func)
-        ms.upgrade_new_version.progressBar_update.connect(self.progressBar_update_func)
-        ms.upgrade_new_version.close_ui.connect(self.close)
-
-        ms.upgrade_new_version.text_update.emit(f"v{upgrade.new_version}\n{upgrade.new_version_info}")
-
-    def textBrowser_update_func(self, msg: str) -> None:
-        """输出内容至文本框
-
-        参数:
-            msg(str): 文本内容
-        """
-        self.ui.textBrowser.append(msg)
-        self.ui.textBrowser.ensureCursorVisible()
-        self.ui.textBrowser.moveCursor(QTextCursor.MoveOperation.End)
-
-    def textBrowser_insert_func(self, msg: str):
-        """插入内容
-
-        参数:
-            msg (str): 文本内容
-        """
-        cursor = self.ui.textBrowser.textCursor()
-        cursor.movePosition(QTextCursor.MoveOperation.StartOfLine)
-        cursor.movePosition(QTextCursor.MoveOperation.EndOfLine, QTextCursor.MoveMode.KeepAnchor)
-        cursor.removeSelectedText()
-        cursor.insertText(msg)
-
-    def progressBar_update_func(self, value: int):
-        """更新进度条
-
-        参数:
-            value (int): 百分比
-        """
-        self.ui.progressBar.setValue(value)
-
-    def progressBar_show_func(self):
-        if self.ui.progressBar.isHidden():
-            self.ui.progressBar.show()
-
-    def button_update_clicked_func(self):
-        self.progressBar_show_func()
-        upgrade.ui_update_func()
-
-    def button_download_clicked_func(self):
-        self.progressBar_show_func()
-        upgrade.ui_download_func()
-
-    def closeEvent(self, event):
-        logger.info("[EXIT]")
-        event.accept()
+        self.ui.upgrade_new_version_ui = UpgradeNewVersionWidget()
+        self.ui.upgrade_new_version_ui.show()

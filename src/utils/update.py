@@ -2,11 +2,11 @@ import json
 
 import httpx
 
-from .application import Connect, USER_DATA_DIR_PATH, VERSION
-from .mysignal import global_ms as ms
+from .application import USER_DATA_DIR_PATH, VERSION, Connect
 from .log import logger
+from .mysignal import global_ms as ms
 
-__all__ = ["update_record", "get_update_info"]
+__all__ = ["get_local_update_record", "get_update_info"]
 
 UPDATE_INFO_FILE = USER_DATA_DIR_PATH / "update_info.json"
 
@@ -21,7 +21,8 @@ def json_write(file_path: str, data: dict):
         json.dump(data, f, ensure_ascii=False, indent=4)
 
 
-def save_update_info(_file):
+def get_latest_update_info(_file):
+    """获取最新更新信息"""
     try:
         response = httpx.get(Connect.releases_api, headers=Connect.headers)
         if response.status_code != 200:
@@ -39,7 +40,7 @@ def save_update_info(_file):
 
         json_write(_file, _list)
     except Exception as e:
-        logger.ui_error(f"获取更新信息失败: {e}")
+        logger.ui_error(f"获取更新信息失败: {str(e)}")
 
 
 def get_update_info():
@@ -47,21 +48,16 @@ def get_update_info():
     if not USER_DATA_DIR_PATH.exists():
         USER_DATA_DIR_PATH.mkdir(parents=True)
 
-    _update_info_file = UPDATE_INFO_FILE
-    if _update_info_file.exists():
-        _update_info = json_read(_update_info_file)
+    file = UPDATE_INFO_FILE
+    if file.exists():
+        _update_info = json_read(file)
         _version = ".".join(VERSION.split(".")[:3])  # 基础版本号
         if _update_info[0]["version"] == _version:
             return
 
-    save_update_info(_update_info_file)
+    get_latest_update_info(file)
 
 
-def update_record():
-    """更新记录"""
-    _update_info = json_read(UPDATE_INFO_FILE)
-    for item in range(len(_update_info)):
-        _version = _update_info[item].get("version")
-        _body = _update_info[item].get("body")
-        msg = f"{_version}\n{_body}\n"
-        ms.update_record.text_update.emit(msg)
+def get_local_update_record():
+    """获取本地更新记录"""
+    return json_read(UPDATE_INFO_FILE)
