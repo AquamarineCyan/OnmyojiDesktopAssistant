@@ -855,6 +855,12 @@ class MainWindow(QMainWindow):
         self.key_listener.stop()
         global_task.stop()
 
+        # 关闭子窗口
+        if hasattr(self.ui, "update_record_ui"):
+            self.ui.update_record_ui.close()
+        if hasattr(self.ui, "upgrade_new_version_ui"):
+            self.ui.upgrade_new_version_ui.close()
+
         with suppress(Exception):
             logger.info("[EXIT]")
 
