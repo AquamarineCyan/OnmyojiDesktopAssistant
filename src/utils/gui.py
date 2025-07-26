@@ -1,9 +1,10 @@
-import sys
 from contextlib import suppress
 from enum import Enum
 from pathlib import Path
 
-from PySide6.QtGui import QIcon, QTextCursor
+from PIL.ImageQt import ImageQt
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QPixmap, QTextCursor
 from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
@@ -12,7 +13,7 @@ from PySide6.QtWidgets import (
 
 from ..package import *  # noqa: F403
 from ..ui import icon_rc  # noqa: F401
-from ..ui.mainui import Ui_MainWindow
+from ..ui.mainui_ui import Ui_MainWindow
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
 from .application import APP_NAME, APP_PATH, VERSION, Connect
@@ -27,6 +28,7 @@ from .mysignal import global_ms as ms
 from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
+from .screenshot import ScreenShot
 from .update import get_update_info
 from .upgrade import upgrade
 from .window import window_manager
@@ -168,6 +170,9 @@ class MainWindow(QMainWindow):
         self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_handle)
         self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_handle)
 
+        self.ui.tab_window_manager_preview_button.clicked.connect(self.preview_window)
+        self.ui.tab_window_manager_apply_button.clicked.connect(self.apply_selected_window)
+
         self.ui.valid_pushButton.clicked.connect(self.score_handle)
 
         self.ui.setting_language_comboBox.currentIndexChanged.connect(self.setting_language_comboBox_handle)
@@ -229,6 +234,7 @@ class MainWindow(QMainWindow):
         """全局任务初始化"""
         window_manager.set_window_title(config.user.game_language)
         window_manager.set_gui_button_callback(self._window_button_enabled_handle)
+        window_manager.set_gui_window_manager_list_callback(self.refresh_window_list)
         window_manager.screen_init()
 
         global_task.add(window_manager.update_window_task)
@@ -458,7 +464,7 @@ class MainWindow(QMainWindow):
         config.update("win_toast", _status)
 
     def check_game_handle(self):
-        return window_manager.force_top_window()
+        return window_manager.force_update()
 
     def game_function_description(self):
         """功能描述"""
@@ -760,6 +766,54 @@ class MainWindow(QMainWindow):
         else:
             self.ui_spin_times_set_value_func(1)
             GuiBingYanWu.description()
+
+    def refresh_window_list(self, handles):
+        self.ui.tab_window_manager_comboBox.clear()
+        if handles:
+            for handle in handles:
+                self.ui.tab_window_manager_comboBox.addItem(f"{handle.title} - {handle.handle}")
+            self.ui.tab_window_manager_comboBox.setCurrentIndex(0)
+
+            logger.info(f"刷新窗口列表，当前窗口数量：{len(handles)}")
+        else:
+            logger.info("刷新窗口列表，当前窗口数量：0")
+
+    def preview_window(self):
+        """预览选中的窗口"""
+
+        current_text = self.ui.tab_window_manager_comboBox.currentText()
+        if current_text:
+            handle = current_text.split(" - ")[-1]
+            if handle:
+                image = ScreenShot(handle=int(handle)).get_image()
+
+                qimage = ImageQt(image)
+                pixmap = QPixmap.fromImage(qimage)
+
+                # 缩放图像以适应预览区域
+                scaled_pixmap = pixmap.scaled(
+                    self.ui.tab_window_manager_preview_image.width(),
+                    self.ui.tab_window_manager_preview_image.height(),
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+                self.ui.tab_window_manager_preview_image.setPixmap(scaled_pixmap)
+
+                logger.info(f"预览窗口：{handle}")
+            else:
+                logger.warning("未选中窗口")
+                ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
+
+    def apply_selected_window(self):
+        """应用选中的窗口"""
+        current_text = self.ui.tab_window_manager_comboBox.currentText()
+        if current_text:
+            handle = current_text.split(" - ")[-1]
+            window_manager.force_update(handle)
+            logger.info(f"应用选中的窗口：{handle}")
+        else:
+            logger.warning("未选中窗口")
+            ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
 
     def ui_valid_listWidget_update_handle(self, func: str, item: str) -> None:
         """valid_listWidget

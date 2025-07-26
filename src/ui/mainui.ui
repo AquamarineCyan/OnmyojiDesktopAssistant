@@ -819,6 +819,73 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_window_manager">
+       <attribute name="title">
+        <string>窗口管理</string>
+       </attribute>
+       <widget class="QComboBox" name="tab_window_manager_comboBox">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>60</y>
+          <width>200</width>
+          <height>30</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="tab_window_manager_apply_button">
+        <property name="geometry">
+         <rect>
+          <x>380</x>
+          <y>60</y>
+          <width>80</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>应用</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="tab_window_manager_label">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>20</y>
+          <width>100</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>检测到的窗口：</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="tab_window_manager_preview_button">
+        <property name="geometry">
+         <rect>
+          <x>280</x>
+          <y>60</y>
+          <width>80</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>预览</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="tab_window_manager_preview_image">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>140</y>
+          <width>400</width>
+          <height>250</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
       <widget class="QWidget" name="tab_valid">
        <attribute name="title">
         <string>词条分析</string>
@@ -1543,11 +1610,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
  </buttongroups>
 </ui>

@@ -5,7 +5,7 @@ from ..utils.decorator import run_in_thread
 from ..utils.log import logger
 from ..utils.mysignal import global_ms as ms
 from ..utils.upgrade import upgrade
-from .upgrade_new_version import Ui_Form
+from .upgrade_new_version_ui import Ui_Form
 
 
 class UpgradeNewVersionWidget(QWidget):

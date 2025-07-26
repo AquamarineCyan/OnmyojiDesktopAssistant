@@ -47,7 +47,8 @@ class GameWindow:
     """客户区矩形坐标 (left, top, right, bottom)"""
 
     def __init__(self, handle: int):
-        self.handle = handle
+        self.handle = int(handle)
+        self.title = win32gui.GetWindowText(self.handle)
 
         # 偏移量见类初始定义
         self.window_rect = win32gui.GetWindowRect(self.handle)
@@ -64,7 +65,7 @@ class GameWindow:
 
     def display(self):
         s = "游戏窗口信息\n"
-        s += f"{win32gui.GetWindowText(self.handle)}\n"
+        s += f"{self.title}\n"
         s += f"左侧横坐标:{self.window_left}\n"
         s += f"顶部纵坐标:{self.window_top}\n"
         s += f"右侧横坐标:{self.window_right}\n"
@@ -126,7 +127,7 @@ class GameWindowManager:
         self._window_title: str = self.window_title_zh
 
         self.current: GameWindow = None  # 当前窗口
-        self.handles: list[int] = []  # 窗口句柄列表
+        self.handles: list[GameWindow] = []  # 窗口句柄列表
 
         self._initialized: bool = False
         self._background_flag: bool = False
@@ -152,6 +153,10 @@ class GameWindowManager:
     def set_gui_button_callback(self, callback):
         """设置GUI按钮回调函数"""
         self.gui_button_callback = callback
+
+    def set_gui_window_manager_list_callback(self, callback):
+        """设置GUI窗口管理列表回调函数"""
+        self.gui_window_manager_list_callback = callback
 
     def _compare(self, old_rect: tuple[int, int, int, int], new_rect: tuple[int, int, int, int]) -> bool:
         """比较新旧窗口矩形坐标是否相同
@@ -235,6 +240,15 @@ class GameWindowManager:
         """更新游戏窗口信息"""
         target_handles = get_all_target_window(self._window_title)
 
+        if target_handles != self.handles:
+            logger.info(f"检测到游戏窗口变化，当前窗口数量：{len(target_handles)}")
+            self.handles = target_handles
+            handles = []
+            for handle in target_handles:
+                handles.append(GameWindow(handle))
+            if hasattr(self, "gui_window_manager_list_callback"):
+                self.gui_window_manager_list_callback(handles)
+
         if not target_handles:
             self.current = None  # 未找到游戏窗口
             if self._initialized and not self._close_window_flag:
@@ -260,13 +274,23 @@ class GameWindowManager:
             logger.info("检测到游戏窗口变化")
             self._update(new_window)
 
-    def force_top_window(self):
-        """强制更新顶层游戏窗口"""
-        target_handles = get_all_target_window(self._window_title)
-        if not target_handles:
-            logger.ui_error("未找到游戏窗口")
-            return
-        self._update(GameWindow(target_handles[0]))
+        if hasattr(self, "gui_window_manager_list_current_callback"):
+            self.gui_window_manager_list_current_callback(self.current)
+
+    def force_update(self, handle: int = None):
+        """强制更新游戏窗口
+
+        Args:
+            handle (int): 选中的句柄。默认为空。
+        """
+        if handle:
+            self._update(GameWindow(handle))
+        else:
+            target_handles = get_all_target_window(self._window_title)
+            if not target_handles:
+                logger.ui_error("未找到游戏窗口")
+                return
+            self._update(GameWindow(target_handles[0]))
 
     @property
     def is_alive(self) -> bool:

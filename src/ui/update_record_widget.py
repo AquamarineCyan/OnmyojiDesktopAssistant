@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget
 
 from ..utils.log import logger
 from ..utils.update import get_local_update_record
-from .update_record import Ui_Form
+from .update_record_ui import Ui_Form
 
 
 class UpdateRecordWindow(QWidget):

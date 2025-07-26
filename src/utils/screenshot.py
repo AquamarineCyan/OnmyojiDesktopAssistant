@@ -7,23 +7,31 @@ from PIL import Image, ImageGrab
 
 from .config import config
 from .log import logger
-from .window import window_manager
+from .window import GameWindow, window_manager
 
 
 class ScreenShot:
     def __init__(
         self,
         rect: tuple[int, int, int, int] = None,
+        handle: int = None,
         _log: bool = False,
         debug: bool = False,
     ) -> None:
-        self.hwnd = window_manager.current.handle
+        if handle:
+            if isinstance(handle, GameWindow):
+                self.gamewindow = handle
+            else:
+                self.gamewindow = GameWindow(handle)
+        else:  # 如果没有传入句柄，则使用当前窗口
+            self.gamewindow = window_manager.current
+
         self._image = None
         _rect = (
-            window_manager.current.window_left,
-            window_manager.current.window_top,
-            window_manager.current.window_width,
-            window_manager.current.window_height,
+            self.gamewindow.window_left,
+            self.gamewindow.window_top,
+            self.gamewindow.window_width,
+            self.gamewindow.window_height,
         )
         if rect:
             self.rect = (_rect[0] + rect[0], _rect[1] + rect[1], rect[2], rect[3])
@@ -76,7 +84,7 @@ class ScreenShot:
 
     def _screenshot_backend(self) -> Image.Image:
         """截图区域只有窗口客户区，不包括标题栏等"""
-        client_rect = window_manager.current.client_rect
+        client_rect = self.gamewindow.client_rect
         if self.rect_backend:
             width = self.rect_backend[2]
             height = self.rect_backend[3] + 39
