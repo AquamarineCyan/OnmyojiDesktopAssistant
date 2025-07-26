@@ -1,3 +1,5 @@
+from subprocess import Popen
+
 from .application import APP_EXE_NAME
 from .log import logger
 from .mysignal import global_ms as ms
@@ -25,7 +27,6 @@ class Restart:
         if not is_upgrade:
             self.write_restart_bat()
         # 启动.bat文件
-        from subprocess import Popen
         Popen([self.bat_path])
         # 关闭当前exe程序
         logger.info("App Exiting...")
@@ -56,22 +57,16 @@ del %0
 """
         self.save(bat_text)
 
-    def write_upgrage_restart_bat(self, zip_path: str = None, reserve_resource: bool = False) -> None:
+    def write_upgrage_restart_bat(self, unzip_path: str = "zip_files") -> None:
         """编写更新重启脚本
 
         参数:
-            zip_path (str): 更新包路径
-            reserve_resource (bool): 是否保留个人资源，默认否
+            unzip_path (str): 解压文件路径
         """
-        if reserve_resource:
-            need_backup = 1
-        else:
-            need_backup = 0
 
         bat_text = f"""@echo off
 @echo 当前为更新程序，等待自动完成
 set program_name={self.app_exe_name}
-set need_backup={need_backup}
 
 :a
 tasklist | findstr /I /C:"%program_name%" > nul
@@ -87,29 +82,15 @@ if errorlevel 1 (
 :b
 echo Continue upgrading...
 
-if not exist zip_files\\{self.app_exe_name} exit
+if not exist {unzip_path}\\{self.app_exe_name} exit
 timeout /T 3 /NOBREAK
 
-if %need_backup%==1 (
-echo backup resource...
-md backup\\resource
-xcopy .\\resource .\\backup\\resource /s /e /y
-)
-
 echo copy new version...
-xcopy .\\zip_files . /d /s /e /y
-rd /s /q zip_files
-del {zip_path}
-
-if %need_backup%==1 (
-echo recover resource...
-xcopy .\\backup\\resource .\\resource /s /e /y
-if exist backup (
-rd /s /q backup
-)
-)
+xcopy .\\{unzip_path} . /s /e /y /v
+rd /s /q {unzip_path}
 
 echo start exe...
+timeout /T 3 /NOBREAK
 start {self.app_exe_name}
 del %0
 """

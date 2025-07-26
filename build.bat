@@ -1,31 +1,25 @@
 @echo off
 
-if exist main.spec (
-    echo find main.spec
-    poetry run pyinstaller main.spec --clean --noconfirm --distpath .
-) else (
-    echo not find main.spec
-    poetry run pyinstaller main.py --name "output" --contents-directory "lib" -w -i "buzhihuo.ico" --uac-admin --clean  --noconfirm --distpath .
+if not exist main.spec (
+    echo Error: main.spec not found
+    pause
+    exit /b 1
 )
 
-if exist output (
-    if exist output\output.exe (
-        ren output\output.exe Onmyoji_Python.exe
-    )
-    rmdir /s /q "lib"
-    xcopy output . /s /e /v /q /y
-    rmdir /s /q "build" "output"
-) else if exist main (
-    ren main\main.exe Onmyoji_Python.exe
-    rmdir /s /q "lib"
-    xcopy main . /s /e /v /q /y
-    rmdir /s /q "build" "main"
-) else (
-    echo build failed
+echo Building with main.spec...
+poetry run pyinstaller main.spec --clean --noconfirm --distpath .
+
+
+if not exist output (
+    echo Build failed: Output directory not found
+    pause
+    exit /b 1
 )
 
-if exist output.spec (
-    ren output.spec main.spec
-)
+rmdir /s /q "lib"
+xcopy output . /s /e /v /q /y
+rmdir /s /q "build" "output"
+
+echo Build completed successfully!
 
 pause

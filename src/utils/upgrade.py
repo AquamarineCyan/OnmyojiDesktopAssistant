@@ -285,7 +285,7 @@ class Upgrade(Connect):
         # self._move_files_recursive(self.zip_files_path, APP_PATH)
         # logger.info(f"finish moving {self.move_n} files.")
         _restart = Restart()
-        _restart.write_upgrage_restart_bat(self.zip_path)
+        _restart.write_upgrage_restart_bat(self.zip_files_path.name)
         _restart.app_restart(is_upgrade=True)
 
 

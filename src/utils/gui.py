@@ -154,7 +154,7 @@ class MainWindow(QMainWindow):
         ms.main.is_fighting_update.connect(self.is_fighting)
         ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_func)
         ms.main.valid_listWidget_update.connect(self.ui_valid_listWidget_update_handle)
-        ms.main.sys_exit.connect(self.exit_func)
+        ms.main.sys_exit.connect(self._exit_handle)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
     def _init_events(self):
@@ -849,18 +849,19 @@ class MainWindow(QMainWindow):
         logger.info("open helpdoc address.")
         webbrowser.open(Connect.helpdoc)
 
-    def exit_func(self):
-        sys.exit()
-
     def closeEvent(self, event) -> None:
-        """关闭程序事件（继承类）"""
+        """关闭程序事件"""
         # 清理线程
         self.key_listener.stop()
         global_task.stop()
 
         with suppress(Exception):
             logger.info("[EXIT]")
-        event.accept()
+
+        super().closeEvent(event)
+
+    def _exit_handle(self):
+        self.close()
 
     def show_update_record_window(self):
         self.ui.update_record_ui = UpdateRecordWindow()
