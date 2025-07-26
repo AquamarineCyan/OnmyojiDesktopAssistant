@@ -25,6 +25,7 @@ class ScreenShot:
                 self.gamewindow = GameWindow(handle)
         else:  # 如果没有传入句柄，则使用当前窗口
             self.gamewindow = window_manager.current
+        self.hwnd = self.gamewindow.handle
 
         self._image = None
         _rect = (
@@ -59,8 +60,7 @@ class ScreenShot:
                 break
 
             except Exception as e:
-                if self._log:
-                    logger.error(f"screenshot error: {e}")
+                logger.error(f"截图失败: {str(e)}")
                 logger.ui_error(f"截图失败，重试第{i + 1}次")
                 time.sleep(0.1)
 
@@ -106,16 +106,21 @@ class ScreenShot:
         saveDC.SelectObject(saveBitMap)
         # 保存bitmap到内存设备描述表
         if self.rect_backend:
-            saveDC.BitBlt(
-                (0, 0), (width, height), mfcDC, (self.rect_backend[0], self.rect_backend[1]), win32con.SRCCOPY
-            )
+            srcPos = (self.rect_backend[0], self.rect_backend[1])
         else:
-            saveDC.BitBlt((0, 0), (width, height), mfcDC, (0, 0), win32con.SRCCOPY)
+            srcPos = (0, 0)
+        saveDC.BitBlt(
+            (0, 0),
+            (width, height),
+            mfcDC,
+            srcPos,
+            win32con.SRCCOPY,
+        )
 
-        ###获取位图信息
+        # 获取位图信息
         bmpinfo = saveBitMap.GetInfo()
         bmpstr = saveBitMap.GetBitmapBits(True)
-        ###生成图像
+        # 生成图像
         image = Image.frombuffer(
             "RGB",
             (bmpinfo["bmWidth"], bmpinfo["bmHeight"]),
