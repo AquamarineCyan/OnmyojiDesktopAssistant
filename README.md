@@ -1,6 +1,6 @@
 # OnmyojiDesktopAssistant
 
-![Python](https://img.shields.io/badge/python-3.10+-blue)
+![Python](https://img.shields.io/badge/python-3.11+-blue)
 
 [![GitHub release (with filter)](https://img.shields.io/github/v/release/AquamarineCyan/OnmyojiDesktopAssistant)](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
 
