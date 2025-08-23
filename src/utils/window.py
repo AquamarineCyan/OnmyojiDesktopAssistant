@@ -63,6 +63,11 @@ class GameWindow:
         self.client_width = self.client_rect[2] - self.client_rect[0]
         self.client_height = self.client_rect[3] - self.client_rect[1]
 
+        # 计算客户区在屏幕中的左上角位置
+        self.client_top_left = win32gui.ClientToScreen(handle, (0, 0))
+        self.client_left: int = self.client_top_left[0]
+        self.client_top: int = self.client_top_left[1]
+
     def display(self):
         s = "游戏窗口信息\n"
         s += f"{self.title}\n"

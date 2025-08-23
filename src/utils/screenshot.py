@@ -11,13 +11,22 @@ from .window import GameWindow, window_manager
 
 
 class ScreenShot:
+    """屏幕截图"""
+
     def __init__(
         self,
-        rect: tuple[int, int, int, int] = None,
-        handle: int = None,
+        rect: tuple[int, int, int, int] | None = None,
+        handle: int | None = None,
         _log: bool = False,
         debug: bool = False,
     ) -> None:
+        """
+        Args:
+            rect (tuple[int, int, int, int] | None): 自定义矩形(left, top, width, height)。默认为None，表示整个窗口客户区。
+            handle (int | None): 窗口句柄。如果为None，则使用当前活动窗口。
+            _log (bool): 是否记录日志。默认False。
+            debug (bool): 是否在调试模式下显示截图。默认False。
+        """
         if handle:
             if isinstance(handle, GameWindow):
                 self.gamewindow = handle
@@ -28,20 +37,15 @@ class ScreenShot:
         self.hwnd = self.gamewindow.handle
 
         self._image = None
-        _rect = (
-            self.gamewindow.window_left,
-            self.gamewindow.window_top,
-            self.gamewindow.window_width,
-            self.gamewindow.window_height,
-        )
-        if rect:
-            self.rect = (_rect[0] + rect[0], _rect[1] + rect[1], rect[2], rect[3])
+        client_rect = self.gamewindow.client_rect
+
+        if rect:  # 使用自定义矩形区域（相对于客户区）
+            self.rect = rect
         else:
-            self.rect = _rect
-        # self.rect = window.handle_rect if rect is None else rect
+            self.rect = client_rect
+
         self._log = _log
         self._debug = debug
-        self.rect_backend = None
 
         # 最多重试10次
         for i in range(10):
@@ -50,13 +54,15 @@ class ScreenShot:
 
             try:
                 if config.backend:
-                    if rect:
-                        self.rect_backend = rect
-                        if rect[1] > 0:  # top
-                            self.rect_backend = (rect[0], rect[1] - 39, rect[2], rect[3])
-                    self._screenshot_backend()
+                    self._screenshot_backend(self.rect)
                 else:
-                    self._screenshot_front()
+                    window_rect = (
+                        self.gamewindow.client_left + self.rect[0],
+                        self.gamewindow.client_top + self.rect[1],
+                        self.rect[2],
+                        self.rect[3],
+                    )
+                    self._screenshot_front(window_rect)
                 break
 
             except Exception as e:
@@ -64,33 +70,21 @@ class ScreenShot:
                 logger.ui_error(f"截图失败，重试第{i + 1}次")
                 time.sleep(0.1)
 
-    def _screenshot_front(self) -> Image.Image:
-        _rect = (
-            self.rect[0],
-            self.rect[1],
-            self.rect[0] + self.rect[2],
-            self.rect[1] + self.rect[3] + 39,
-        )
+    def _screenshot_front(self, window_rect: tuple[int, int, int, int]) -> Image.Image:
+        # ImageGrab.grab() 需要一个四元组 (left, top, right, bottom)
+        _rect = (window_rect[0], window_rect[1], window_rect[0] + window_rect[2], window_rect[1] + window_rect[3])
         _start = time.perf_counter()
         image = ImageGrab.grab(_rect)
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot front cost {self.time_cost} ms, {_rect}")
+            logger.info(f"screenshot front cost {self.time_cost} ms, {window_rect}")
         if self._debug:
             image.show()
         self._image = image
         return image
 
-    def _screenshot_backend(self) -> Image.Image:
-        """截图区域只有窗口客户区，不包括标题栏等"""
-        client_rect = self.gamewindow.client_rect
-        if self.rect_backend:
-            width = self.rect_backend[2]
-            height = self.rect_backend[3] + 39
-        else:
-            width = client_rect[2] - client_rect[0]
-            height = client_rect[3] - client_rect[1]
+    def _screenshot_backend(self, client_rect: tuple[int, int, int, int]) -> Image.Image:
         _start = time.perf_counter()
         # 返回句柄窗口的设备环境，覆盖整个窗口，包括非客户区，标题栏，菜单，边框
         hWndDC = win32gui.GetDC(self.hwnd)
@@ -101,19 +95,15 @@ class ScreenShot:
         # 创建位图对象准备保存图片
         saveBitMap = win32ui.CreateBitmap()
         # 为bitmap开辟存储空间
-        saveBitMap.CreateCompatibleBitmap(mfcDC, width, height)
+        saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect[2], client_rect[3])
         # 将截图保存到saveBitMap中
         saveDC.SelectObject(saveBitMap)
         # 保存bitmap到内存设备描述表
-        if self.rect_backend:
-            srcPos = (self.rect_backend[0], self.rect_backend[1])
-        else:
-            srcPos = (0, 0)
         saveDC.BitBlt(
             (0, 0),
-            (width, height),
+            (client_rect[2], client_rect[3]),
             mfcDC,
-            srcPos,
+            (client_rect[0], client_rect[1]),
             win32con.SRCCOPY,
         )
 
