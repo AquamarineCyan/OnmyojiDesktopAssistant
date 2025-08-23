@@ -48,7 +48,7 @@ class Connect:
     }
     mirror_station = [
         "https://ghproxy.gpnu.org/",
-        "https://gh.222322.xyz/",
+        "https://ghfast.top/",
         "https://ghproxy.net/",
         "https://gh-proxy.com/",
         "https://gh.pylas.xyz/",
