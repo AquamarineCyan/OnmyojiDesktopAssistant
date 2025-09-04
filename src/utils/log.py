@@ -1,5 +1,6 @@
 import logging
 from datetime import date, datetime
+from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 from .application import APP_NAME, LOG_DIR_PATH
@@ -36,14 +37,19 @@ class CustomLogger(logging.Logger):
         super()._log(logging.INFO, f"done number: {msg}", args, **kwargs)
 
 
-_log_file: Path = LOG_DIR_PATH / f"log-{datetime.now().strftime('%Y%m%d')}.log"
-
 # 创建日志记录器
 logger = CustomLogger(APP_NAME)
 logger.setLevel(logging.DEBUG)
 
 # 创建文件处理程序
-file_handler = logging.FileHandler(_log_file, encoding="utf-8")
+file_handler = TimedRotatingFileHandler(
+    Path(LOG_DIR_PATH / f"{APP_NAME}.log"),
+    when="midnight",
+    interval=1,
+    backupCount=30,
+    encoding="utf-8",
+)
+
 file_handler.setLevel(logging.INFO)
 
 # 创建屏幕处理程序
@@ -52,7 +58,7 @@ stream_handler.setLevel(logging.DEBUG)
 
 # 创建日志格式
 formatter = logging.Formatter(
-    fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(pathname)s[line:%(lineno)d]-%(funcName)s %(message)s",
+    fmt="%(asctime)s.%(msecs)03d %(levelname)-7s %(filename)s[line:%(lineno)d]-%(funcName)s %(message)s",
     datefmt="%H:%M:%S",
 )
 file_handler.setFormatter(formatter)
@@ -65,7 +71,7 @@ logger.addHandler(stream_handler)
 
 def log_clean_up() -> bool:
     """日志清理"""
-    # TODO https://docs.python.org/zh-cn/3/library/logging.handlers.html#logging.handlers.TimedRotatingFileHandler
+    # TODO v2.1.0后移除
     logger.info("log clean up...")
     today = date.today()
     n = 0
@@ -73,14 +79,17 @@ def log_clean_up() -> bool:
         logger.error("Not found log dir.")
         return False
     for item in LOG_DIR_PATH.iterdir():
-        log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
-        # 自动清理
-        if (today - log_date).days > 30:
-            try:
-                item.unlink()
-                n += 1
-                logger.info(f"Remove file: {item.absolute()} successfully.")
-            except Exception:
-                logger.error(f"Remove file: {item.absolute()} failed.")
+        try:
+            log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
+            # 自动清理
+            if (today - log_date).days > 30:
+                try:
+                    item.unlink()
+                    n += 1
+                    logger.info(f"Remove file: {item.absolute()} successfully.")
+                except Exception:
+                    logger.error(f"Remove file: {item.absolute()} failed.")
+        except Exception:
+            continue
     logger.info(f"Clean up {n} log files in total.")
     return True
