@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "OnmyojiDesktopAssistant"
-version = "2.0.4"
+version = "2.0.5"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
@@ -23,7 +23,7 @@ win11toast = "^0.35"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.14.2"
+pyinstaller = "^6.15.0"
 pytest = "^8.4.1"
 
 [tool.ruff]
