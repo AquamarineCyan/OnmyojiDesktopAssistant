@@ -5,7 +5,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, ocr
-from ..utils.point import RelativePoint
+from ..utils.point import Point
 from .utils import Package
 
 
@@ -159,14 +159,14 @@ class LiuDaoZhiMen(Package):
                 if self.map_node_numbers > 3:
                     self.map_node_numbers = 1
                 if self.map_node_numbers == 1:
-                    _coor = RelativePoint(585, 420)
+                    _coor = Point(585, 390)
                 if self.map_node_numbers == 2:
                     # 2个关卡的右侧
-                    _coor = RelativePoint(820, 430)
+                    _coor = Point(820, 400)
                 if self.map_node_numbers == 3:
                     # 3个关卡的中间
-                    _coor = RelativePoint(635, 360)
-                logger.ui(f"点击地图坐标{_coor.coor}")
+                    _coor = Point(635, 330)
+                logger.ui(f"点击地图坐标{_coor}")
                 Mouse.click(_coor)
 
                 logger.ui(f"检查是否生效，第{self.map_node_numbers}次")
@@ -201,18 +201,18 @@ class LiuDaoZhiMen(Package):
                         flag_has_buff = True
                         break
                 if not flag_has_buff:
-                    Mouse.click(RelativePoint(560, 315))
+                    Mouse.click(Point(560, 285))
                     self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif "战之屿" in ocr_data.text:
                 logger.scene("鏖战之屿")
-                _coor = RelativePoint(650, 300)  # 右侧怪 - 技能BUFF
+                _coor = Point(650, 270)  # 右侧怪 - 技能BUFF
                 Mouse.click(_coor)
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "星之屿":
                 logger.scene("星之屿")
-                Mouse.click(RelativePoint(380, 300))  # 左侧怪
+                Mouse.click(Point(380, 270))  # 左侧怪
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 break
             elif ocr_data.text == "神秘之屿":
@@ -222,7 +222,7 @@ class LiuDaoZhiMen(Package):
                     if ocr_data.text == "背包仿造":
                         logger.scene("背包仿造")
                         #  遍历所有buff
-                        Mouse.click(RelativePoint(760, 240))
+                        Mouse.click(Point(760, 210))
                         flag_max_buff = True
                         new_result = ocr.get_raw_result()
                         for item in new_result:
@@ -282,7 +282,7 @@ class LiuDaoZhiMen(Package):
                     logger.scene("柔风抱暖")
                     # fight_buff_need = 3
                     _coor = ocr_data.center
-                    _coor.y += 217
+                    _coor.set_y(217)
                     Mouse.click(_coor)
                 if ocr_data.text == "万相之赐":
                     logger.scene("万相之赐")
@@ -302,7 +302,7 @@ class LiuDaoZhiMen(Package):
                     # break
                     if ocr_data.text == "当前装配":
                         _coor = ocr_data.center
-                        _coor.x -= 80
+                        _coor.set_x(-80)
                         Mouse.click(_coor)
                         break
                 break
@@ -318,8 +318,8 @@ class LiuDaoZhiMen(Package):
                     KeyBoard.enter(1)
                 # 检查每个BUFF
                 for _ in range(1):
-                    Mouse.click(RelativePoint(760, 150))  # [1,1]
-                    # Mouse.click(RelativePoint(760, 240))  # [2,1]
+                    Mouse.click(Point(760, 120))  # [1,1]
+                    # Mouse.click(Point(760, 210))  # [2,1]
                     sleep()
                     new_result = ocr.get_raw_result()
                     for item in new_result:
@@ -328,7 +328,7 @@ class LiuDaoZhiMen(Package):
                             for item in new_result:
                                 ocr_data = OcrData(item)
                                 if ocr_data.text == "装备":
-                                    logger.scene(ocr_data.center.coor)
+                                    logger.scene(ocr_data.center)
                                     Mouse.click(ocr_data.center)
                                     break
                             break

@@ -5,7 +5,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, random_normal, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from ..utils.point import RelativePoint
+from ..utils.point import Point
 from ..utils.window import window_manager
 from .utils import Package
 
@@ -194,7 +194,7 @@ class TanSuo(Package):
                             x = random_normal(x_middle, x_right)
                             # 移动到窗口中心线右侧
                             Mouse.move(
-                                point=RelativePoint(x, random_num(y1, y2)),
+                                point=Point(x, random_num(y1, y2)),
                                 duration=random_num(0.5, 0.8),
                             )
                             Mouse.drag((x_middle - x) * 2, 0, random_num(0.5, 0.8))

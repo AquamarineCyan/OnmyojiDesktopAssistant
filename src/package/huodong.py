@@ -1,4 +1,3 @@
-from ..utils.paddleocr import RuleOcr
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
@@ -6,6 +5,7 @@ from ..utils.exception import GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
+from ..utils.paddleocr import RuleOcr
 from .utils import Package
 
 
@@ -73,6 +73,7 @@ class HuoDong(Package):
             result = check_image_once(self.current_asset_list)
             if result is None:
                 self.check_start()
+                sleep()
                 continue
 
             logger.info(f"current result name: {result.name}")
@@ -80,7 +81,7 @@ class HuoDong(Package):
                 case self.IMAGE_RESULT.name:
                     self.state = self.STATE_RESULT
                     logger.ui("获得奖励")
-                    finish_random_left_right(is_multiple_drops_y=True)
+                    finish_random_left_right(is_multiple_drops_x=True, is_multiple_drops_y=True)
                     _flag_result_click = True
                     sleep(0.4, 0.8)
 
@@ -101,7 +102,7 @@ class HuoDong(Package):
                 case self.global_assets.IMAGE_FINISH.name:
                     logger.ui("结束")
                     sleep(0.4, 0.8)
-                    _point = finish_random_left_right(is_multiple_drops_y=True)
+                    _point = finish_random_left_right(is_multiple_drops_x=True, is_multiple_drops_y=True)
                     sleep()
                     if self.flag_soul_overflow:
                         sleep()

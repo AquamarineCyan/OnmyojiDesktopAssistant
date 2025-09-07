@@ -42,7 +42,7 @@ class ZhaoHuan(Package):
 
             if result := ocr.match():
                 point = result.center
-                point.y -= 50
+                point.set_y(-50)
                 Mouse.click(point)
                 return
 

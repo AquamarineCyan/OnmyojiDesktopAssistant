@@ -11,7 +11,7 @@ from .decorator import log_function_call
 from .event import event_thread
 from .exception import GUIStopException
 from .log import logger
-from .point import Rectangle, RelativePoint
+from .point import Point, Rectangle
 
 
 def is_Chinese_Path() -> bool:
@@ -59,7 +59,7 @@ def random_num(minimum: int | float, maximum: int | float) -> float:
     return round((random.random() * (maximum - minimum) + minimum), 2)
 
 
-def random_point(x1: int, x2: int, y1: int, y2: int) -> RelativePoint:
+def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
     """伪随机坐标，返回给定坐标区间的随机值
 
     参数:
@@ -74,7 +74,7 @@ def random_point(x1: int, x2: int, y1: int, y2: int) -> RelativePoint:
     x = random_normal(x1, x2)
     y = random_normal(y1, y2)
     logger.info(f"random_coor: {x},{y}")
-    return RelativePoint(x, y)
+    return Point(x, y)
 
 
 def random_sleep(minimum: int | float = 1.0, maximum: int | float = None) -> None:
@@ -104,7 +104,7 @@ def finish_random_left_right(
     is_click: bool = True,
     is_multiple_drops_x: bool = False,
     is_multiple_drops_y: bool = False,
-) -> RelativePoint:
+) -> Point:
     """结算界面点击
 
     参数:
@@ -113,7 +113,7 @@ def finish_random_left_right(
         is_multiple_drops_y (bool): 多掉落纵向区域,默认否
 
     返回:
-        RelativePoint: 相对坐标
+        ClientPoint: 相对坐标
     """
     # 绝对坐标
     finish_left_x1 = 20
@@ -142,8 +142,8 @@ def finish_random_left_right(
 
     # 计算鼠标到两个矩形中心的距离
     position = Mouse.position()
-    distance_to_left = distance_between_two_points(position.coor, rect_left.get_center())
-    distance_to_right = distance_between_two_points(position.coor, rect_right.get_center())
+    distance_to_left = distance_between_two_points((position.client_x, position.client_y), rect_left.get_center())
+    distance_to_right = distance_between_two_points((position.client_x, position.client_y), rect_right.get_center())
 
     # 判断距离
     if distance_to_left < distance_to_right:

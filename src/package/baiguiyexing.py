@@ -89,9 +89,9 @@ class BaiGuiYeXing(Package):
             # 屏幕中心区域
             point = random_point(
                 60,
-                window_manager.current.window_width - 120,
+                window_manager.current.client_width - 120,
                 300,
-                window_manager.current.window_height - 100,
+                window_manager.current.client_height - 100,
             )
             Mouse.click(point, duration=0.25)
 

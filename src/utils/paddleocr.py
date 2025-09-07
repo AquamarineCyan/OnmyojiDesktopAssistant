@@ -9,10 +9,9 @@ import win32api
 
 from .application import APP_NAME, APP_PATH
 from .assets import AssetOcr
-from .decorator import run_in_thread, time_count
 from .event import event_ocr_init
 from .log import logger
-from .point import Rectangle
+from .point import Point, Rectangle
 from .screenshot import ScreenShot
 
 
@@ -191,7 +190,7 @@ class CharacterRecognition:
         self.result = json.loads(result)
         for item in self.result:
             logger.info(f"ocr result: {item}")
-        # TODO 优化返回值，去除多余项
+        # TODO 优化返回值，去除多余项，一般用下面的RuleOcr.get_raw_result
         return self.result
 
     def free_dll(self):
@@ -220,19 +219,11 @@ class OcrData:
                     self.x2: int = _BoxPoints[i]["X"]
                     self.y2: int = _BoxPoints[i]["Y"]
         self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
-        self.center = self.rect.get_rela_center()
+        center = self.rect.get_center()
+        self.center = Point(client_x=int(center[0]), client_y=int(center[1]))
 
     def __str__(self) -> str:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
-
-
-def check_raw_result_once(text: str = None, score: float = 0.8) -> OcrData | None:
-    result = ocr.get_raw_result()
-    for item in result:
-        ocr_data = OcrData(item)
-        if ocr_data.score >= score and ocr_data.text == text:
-            return ocr_data
-    return None
 
 
 class RuleOcr:

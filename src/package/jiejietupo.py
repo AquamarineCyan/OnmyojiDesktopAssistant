@@ -11,7 +11,7 @@ from ..utils.function import finish_random_left_right, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
-from ..utils.point import RelativePoint
+from ..utils.point import Point
 from .utils import Package
 
 
@@ -77,7 +77,7 @@ class JieJieTuPo(Package):
         self.IMAGE_XUNZHANG_5 = self.get_image_asset("xunzhang_5")
         self.IMAGE_YINYANGLIAO = self.get_image_asset("yinyangliao")
 
-    def get_lineup_state(self) -> tuple[LineupState, RelativePoint | None]:
+    def get_lineup_state(self) -> tuple[LineupState, Point | None]:
         result = RuleImage(self.IMAGE_LOCK)
         if result.match():
             logger.ui("阵容已锁定")
@@ -121,9 +121,9 @@ class JieJieTuPo(Package):
             y0 (int): 顶部纵坐标
         """
         # 优先使用中心坐标
-        _x = x0 + 185 // 2
-        _y = y0 + 80 // 2
-        Mouse.click(RelativePoint(_x, _y))
+        x = x0 + 185 // 2
+        y = y0 + 80 // 2
+        Mouse.click(Point(x, y))
         if self.check_click(self.IMAGE_JINGONG, timeout=3):
             return
 
@@ -422,7 +422,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
             # 获得每个结界的勋章数
             if self.list_xunzhang is None:
-                self.list_xunzhang = self.list_num_xunzhang()    
+                self.list_xunzhang = self.list_num_xunzhang()
             self.tupo_victory = self.list_xunzhang.count(-1)  # 已经攻破的次数
 
             # 按顺序打九

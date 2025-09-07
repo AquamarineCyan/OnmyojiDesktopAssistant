@@ -10,7 +10,7 @@ from .assets import AssetImage
 from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
-from .point import RelativePoint
+from .point import Point
 from .screenshot import ScreenShot
 from .window import window_manager
 
@@ -80,7 +80,7 @@ class RuleImage:
 
         # 空值或者(0,0,0,0)则匹配整个窗口
         if self.region is None or self.region == (0, 0, 0, 0):
-            self.region = (0, 0, window_manager.current.window_width, window_manager.current.window_height)
+            self.region = (0, 0, window_manager.current.client_width, window_manager.current.client_height)
 
         self._image = None
         self.match_result = None
@@ -96,7 +96,7 @@ class RuleImage:
         elif self.method == "GRAYSCALE":
             _method = cv2.IMREAD_GRAYSCALE
 
-        if os.path.exists(str(self.file)):
+        if Path(self.file).exists():
             img = cv2.imread(str(self.file), _method)
             self._image = img
         else:
@@ -149,19 +149,19 @@ class RuleImage:
 
         return True
 
-    def random_point(self) -> RelativePoint:
+    def random_point(self) -> Point:  # TODO 移除，只使用中心坐标
         """获取随机坐标"""
         x1, y1, x2, y2 = self.match_result
         x = random_normal(x1, x2)
         y = random_normal(y1, y2)
-        return RelativePoint(x, y)
+        return Point(x, y)
 
-    def center_point(self) -> RelativePoint:
+    def center_point(self) -> Point:
         """获取中心坐标"""
         x1, y1, x2, y2 = self.match_result
         x = int((x1 + x2) / 2)
         y = int((y1 + y2) / 2)
-        return RelativePoint(x, y)
+        return Point(x, y)
 
 
 def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:

@@ -1,11 +1,10 @@
-from src.utils.image import RuleImage
 from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import sleep
+from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr, ocr_match_once
-from ..utils.point import RelativePoint
 from .utils import Package
 
 
@@ -44,6 +43,7 @@ class DouJi(Package):
             if bool(event_thread):
                 raise GUIStopException
 
+            sleep()
             result = ocr_match_once(self.current_asset_list)
             if result is None:
                 ruleimage = RuleImage(self.global_assets.IMAGE_FAIL)
@@ -121,5 +121,6 @@ class DouJi(Package):
             _ocr = RuleOcr(self.OCR_LEVEL_UP)
             if result := _ocr.match():
                 logger.ui("段位上升")
-                point = RelativePoint(result.center.x, result.center.y + 200)
+                point = result.center
+                point.set_y(200)
                 Mouse.click(point)

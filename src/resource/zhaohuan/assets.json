@@ -12,14 +12,14 @@
         {
             "name": "title",
             "keyword": "召唤",
-            "region": [70, 40, 200, 100],
+            "region": [70, 0, 200, 100],
             "score": "0.7",
             "method": "PERFACT"
         },
         {
             "name": "zhaohuan",
             "keyword": "普通召唤",
-            "region": [360, 630, 100, 50],
+            "region": [360, 600, 100, 50],
             "score": "0.7",
             "method": "PERFACT"
         },
