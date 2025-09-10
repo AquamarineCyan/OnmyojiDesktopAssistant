@@ -82,6 +82,7 @@ class HuoDong(Package):
                     self.state = self.STATE_RESULT
                     logger.ui("获得奖励")
                     finish_random_left_right(is_multiple_drops_x=True, is_multiple_drops_y=True)
+                    self.done()
                     _flag_result_click = True
                     sleep(0.4, 0.8)
 
