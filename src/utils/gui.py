@@ -540,6 +540,7 @@ class MainWindow(QMainWindow):
 
             case GameFunction.HUODONG:
                 HuoDong.description()
+                self.ui_spin_times_set_value_func(1, 1, 9999)
 
             case GameFunction.RILUN:
                 RiLun.description()
