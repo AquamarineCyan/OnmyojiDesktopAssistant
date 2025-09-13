@@ -6,8 +6,8 @@ headers = {
 }
 
 MIRROR_URLS = [
-    "https://ghproxy.gpnu.org/",
     "https://ghfast.top/",
+    "https://gh.nxnow.top/",
     "https://ghproxy.net/",
     "https://gh-proxy.com/",
     "https://gh.pylas.xyz/",
