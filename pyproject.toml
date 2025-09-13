@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "OnmyojiDesktopAssistant"
-version = "2.0.5"
+version = "2.0.6"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = ["AquamarineCyan <1057424730@qq.com>"]
 readme = "README.md"
