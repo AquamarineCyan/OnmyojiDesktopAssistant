@@ -72,8 +72,11 @@ class RuleImage:
             self.region = region
             self.score = score
             self.method = method
+
         if region:
             self.region = region
+        if score:
+            self.score = score
 
         # 获得图像的绝对路径
         self.file = check_user_file_exists(_file)
