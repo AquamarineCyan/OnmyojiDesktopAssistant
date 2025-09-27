@@ -566,7 +566,7 @@ class MainWindow(QMainWindow):
                 self.ui.button_qiling_tancha.setChecked(False)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.button_qiling_jieqi.setChecked(False)
-                self.ui.combo_qiling_jieqi_stone.addItem("镇墓兽")
+                self.ui.combo_qiling_jieqi_stone.addItems(["镇墓兽", "火灵", "茨球", "小黑"])
                 self.ui.spin_qiling_jieqi_stone.setValue(0)
 
             case GameFunction.JUEXING:

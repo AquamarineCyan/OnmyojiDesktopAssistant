@@ -1,11 +1,12 @@
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.exception import CustomException, GUIStopException
+from ..utils.exception import CustomException, GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
+from ..utils.point import Point
 from .utils import Package
 
 
@@ -17,30 +18,18 @@ class LuopanEmptyException(CustomException):
         logger.ui_error("异常捕获：指定罗盘不足")
 
 
-class PokemonOverflowException(CustomException):
-    """契灵数量上限"""
-
-    def __init__(self, *args):
-        super().__init__(*args)
-        logger.ui_error("异常捕获：契灵数量上限")
-
-
 class QiLing(Package):
     """契灵"""
 
     scene_name = "契灵"
     resource_path = "qiling"
-    resource_list: list = [
-        "mingqizhaohuan",
-        "queding",
-        "start_jieqi",
-        "start_tancha",
-        "title",
-        "zhenmushou",
-        "zhenmushou_mingqishi",
-    ]
 
-    map_pockmon_max: int = 5
+    pockmon_mapping = {
+        "镇墓兽": (220, 450),
+        "火灵": (400, 480),
+        "茨球": (620, 440),
+        "小黑": (850, 450),
+    }
 
     @log_function_call
     def __init__(
@@ -54,27 +43,22 @@ class QiLing(Package):
         super().__init__(n)
         self.if_tancha = if_tancha
         self.if_jieqi = if_jieqi
-        self.stone_pokemon = stone_pokemon  # 指定鸣契石，目前仅支持镇墓兽
+        self.if_jieqi_give_up: bool = True  # 手动放弃结契
+        self.stone_pokemon = stone_pokemon  # 指定鸣契石
         self.stone_numbers = stone_numbers  # 使用鸣契石数量
-        self.stone_count: int = 0  # 已使用鸣契石数量
 
     def description() -> None:
-        logger.ui("请提前在游戏内配置「结契设置」，鸣契石数量0表示不消耗石头，直接挑战场上的契灵")
+        logger.ui("请提前配置「结契设置」，鸣契石数量0表示不消耗石头，直接挑战场上的契灵，取消勾选「连续结契」")
+        # TODO 连续10次结契失败只能手动放弃
 
     def load_asset(self):
-        self.IMAGE_MINGQIZHAOHUAN = self.get_image_asset("mingqizhaohuan")
         self.IMAGE_STONE_ADD = self.get_image_asset("stone_add")
         self.IMAGE_STONE_MAX = self.get_image_asset("stone_max")
-        self.IMAGE_ZHENMUSHOU = self.get_image_asset("zhenmushou")
+        self.IMAGE_ZHAOHUAN = self.get_image_asset("zhaohuan")
 
         self.OCR_TANCHA_START = self.get_ocr_asset("tancha_start")
         self.OCR_TITLE = self.get_ocr_asset("title")
-        self.OCR_ZHENMUSHOU = self.get_ocr_asset("zhenmushou")
-
-    def done(self):
-        self.stone_count += 1
-        logger.ui(f"已使用鸣契石数量: {self.stone_count}")
-        logger.progress(f"{self.stone_count}/{self.stone_numbers}")
+        self.OCR_JIEQI_GIVE_UP = self.get_ocr_asset("jieqi_give_up")
 
     def check_jieqi_ready(self):
         result = RuleOcr().get_raw_result()
@@ -87,7 +71,26 @@ class QiLing(Package):
                 return False
         return None
 
-    @log_function_call
+    def check_result(self, times: int = 30) -> bool:
+        for _ in range(times):
+            if bool(event_thread):
+                raise GUIStopException
+
+            result = RuleOcr().get_raw_result()
+            for item in result:
+                if item.text == self.OCR_JIEQI_GIVE_UP.keyword:
+                    logger.ui("放弃结契")
+                    Mouse.click(item.center)
+                    return
+            # 只检测，不点击
+            if RuleImage(self.global_assets.IMAGE_FINISH).match():
+                logger.ui("战斗结束")
+                return
+
+            sleep(3)
+
+        raise LuopanEmptyException()
+
     def fight_until_finish(self):
         """战斗，直到战胜当前契灵"""
         count = 0
@@ -103,6 +106,7 @@ class QiLing(Package):
                 continue
 
             self.check_click(self.global_assets.OCR_START, timeout=3)
+            logger.ui("开始挑战")
             sleep(2)
             for i in range(3):
                 if self.check_click(self.global_assets.OCR_START, timeout=3):
@@ -111,32 +115,60 @@ class QiLing(Package):
                 else:
                     break
             if error > 2:
-                raise PokemonOverflowException("进入失败，可能契灵数量上限")
+                raise TimesNotEnoughException()
 
             error = 0
-            if not self.check_finish(timeout=2 * 60):  # 排除阵容问题，只有成功或者超时
-                # TODO 自动选其他罗盘
-                raise LuopanEmptyException()
+
+            if self.if_jieqi_give_up:  # 手动放弃结契
+                self.check_result(3 * 60)
+                sleep(3)
+
+            if not self.check_finish(timeout=3 * 60):  # 排除阵容问题，只有成功或者超时
+                raise Exception()
+
             sleep(3)
             finish_random_left_right()
-            sleep(3)
             count += 1
-            logger.ui(f"[镇墓兽]，第{count}次")
+            logger.ui(f"[{self.stone_pokemon}] 第{count}次")
+            sleep(3)
 
-    @log_function_call
-    def check_pokemon_remain(self):
-        image = RuleImage(self.IMAGE_ZHENMUSHOU)
-        if not image.match():
-            logger.ui("未检测到剩余[镇墓兽]")
-            return False
+    def check_pokemon_remain(self, need_click: bool) -> bool:
+        """检查当前契灵是否还有剩余
 
-        logger.ui("剩余契灵[镇墓兽]")
-        Mouse.click(image.center_point())
-        sleep(2)
-        self.fight_until_finish()
+        Returns:
+            bool: 是否剩余
+        """
 
-    @log_function_call
-    def choose_stone_queding(self):
+        point = Point(
+            self.pockmon_mapping[self.stone_pokemon][0],
+            self.pockmon_mapping[self.stone_pokemon][1],
+        )
+        if need_click:
+            Mouse.click(point)
+            sleep(2)
+
+            if self.stone_numbers == 0:
+                logger.ui("鸣契石数量为0，跳过鸣契召唤")
+                return True  # 不使用鸣契石，直接挑战
+
+            if self.check_click(self.IMAGE_ZHAOHUAN, timeout=3, point_type="center"):
+                logger.ui("召唤")
+                return True
+
+        result = RuleOcr().get_raw_result()
+        for item in result:
+            if item.text == "请选择鸣契的契灵数量":
+                logger.ui("请选择鸣契的契灵数量")
+                if self.stone_numbers == 0:
+                    logger.ui("鸣契石数量为0，跳过鸣契召唤")
+                    raise Exception("鸣契石数量为0，跳过鸣契召唤")
+                self.choose_stone(self.stone_numbers)
+                if need_click:
+                    sleep(7)
+                    Mouse.click(point)
+                return False
+
+    def choose_stone_confirm(self):
         result = RuleOcr().get_raw_result()
         for item in result:
             if item.text[-2:] == "鸣契":
@@ -147,15 +179,7 @@ class QiLing(Package):
 
     def choose_stone(self, number: int = 1):
         """选择鸣契石"""
-        logger.ui("选择鸣契石[镇墓兽]")
-
-        if not self.check_click(self.IMAGE_MINGQIZHAOHUAN, timeout=5, point_type="center"):
-            logger.ui_warn("超时，未检测到鸣契石")
-        sleep(2)
-
-        if not self.check_click(self.OCR_ZHENMUSHOU, timeout=5):
-            logger.ui_warn("超时，未检测到镇墓兽")
-        sleep(2)
+        logger.ui(f"选择鸣契石[{self.stone_pokemon}]")
 
         if number == 99:
             if not self.check_click(self.IMAGE_STONE_MAX, timeout=5):
@@ -166,7 +190,7 @@ class QiLing(Package):
                 if not self.check_click(self.IMAGE_STONE_ADD, timeout=5):
                     logger.ui_warn("超时，未检测到加号按钮")
                 sleep()
-        if not self.choose_stone_queding():
+        if not self.choose_stone_confirm():
             logger.ui_warn("超时，未检测到鸣契按钮")
         sleep()
 
@@ -174,10 +198,9 @@ class QiLing(Package):
         if number > 1 and not self.check_click(self.global_assets.OCR_CONFIRM, timeout=5):
             logger.ui_warn("超时，未检测到确认按钮")
 
-        logger.ui("选择鸣契石[镇墓兽]成功")
+        logger.ui(f"选择鸣契石[{self.stone_pokemon}]成功")
         return True
 
-    @log_function_call
     def tancha_task(self):
         while self.n < self.max:
             if bool(event_thread):
@@ -198,7 +221,7 @@ class QiLing(Package):
             self.check_finish()
             sleep()
             finish_random_left_right()
-            super().done()
+            self.done()
             sleep(4)
 
     def jieqi_get_stone_numbers(self):
@@ -213,12 +236,10 @@ class QiLing(Package):
         """结契"""
         self.jieqi_get_stone_numbers()
         sleep(2)
-        if self.stone_numbers == 0:
-            logger.ui("没有鸣契石，跳过鸣契召唤任务")
-        else:
-            self.choose_stone(self.stone_numbers)
-            sleep(4, 7)
-        self.check_pokemon_remain()
+        if self.check_pokemon_remain(need_click=True):  # 第一次如果使用鸣契石
+            sleep(5)
+            self.check_pokemon_remain(need_click=False)
+        self.fight_until_finish()
 
     def run(self):
         self.check_title()
