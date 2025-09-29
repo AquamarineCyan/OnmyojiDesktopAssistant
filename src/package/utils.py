@@ -4,16 +4,18 @@ from typing import Literal
 from ..utils.adapter import Mouse
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
+from ..utils.config import config
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.exception import CustomException, GUIStopException
-from ..utils.function import finish_random_left_right, get_asset_data, sleep
+from ..utils.function import finish_random_left_right, get_asset_data, prevent_sleep, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
 from ..utils.mysignal import global_ms as ms
 from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
+from ..utils.window import window_manager
 from .global_parameter import xuanshangfengyin_count
 
 __all__ = ["Package", "GlobalResource"]
@@ -412,6 +414,16 @@ class Package:
 
         xuanshangfengyin_count.reset()
 
+        need_prevent_sleep: bool = False  # 是否需要防止休眠
+        interaction_mode = config.user.model_dump().get("interaction_mode")
+        if interaction_mode.get("mode") == "前台":
+            if interaction_mode.get("frontend").get("force_window"):
+                window_manager.set_foreground()
+        else:
+            if interaction_mode.get("backend").get("prevent_sleep"):
+                if prevent_sleep(True):
+                    need_prevent_sleep = True
+
         try:
             self.run()
         except Exception as e:
@@ -420,6 +432,9 @@ class Package:
 
                 logger.ui_error(f"任务出错: {e}")
                 logger.error(traceback.format_exception(e))
+
+        if need_prevent_sleep:
+            prevent_sleep(False)
 
         _end = time.perf_counter()
         _cost = _end - _start

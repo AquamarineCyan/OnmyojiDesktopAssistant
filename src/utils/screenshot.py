@@ -53,7 +53,7 @@ class ScreenShot:
                 return
 
             try:
-                if config.backend:
+                if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
                     self._screenshot_backend(self.rect)
                 else:
                     window_rect = (

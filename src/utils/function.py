@@ -1,7 +1,9 @@
+import ctypes
 import json
 import math
 import random
 import time
+from ctypes import wintypes
 from pathlib import Path
 
 from .adapter import Mouse
@@ -113,7 +115,7 @@ def finish_random_left_right(
         is_multiple_drops_y (bool): 多掉落纵向区域,默认否
 
     返回:
-        ClientPoint: 相对坐标
+        Point: 坐标
     """
     # 绝对坐标
     finish_left_x1 = 20
@@ -239,3 +241,34 @@ def get_asset_data(resource_path) -> tuple[Path | dict]:
         assets_file = _full_path_user
 
     return (assets_file, merge_dict(data_default, data_user))
+
+
+def prevent_sleep(enable: bool):
+    """
+    阻止或允许系统休眠
+
+    参数：
+        enable (bool): True：阻止休眠, False：允许休眠
+    """
+    # 常量定义
+    ES_CONTINUOUS = 0x80000000
+    ES_SYSTEM_REQUIRED = 0x00000001
+    ES_DISPLAY_REQUIRED = 0x00000002
+
+    # 定义函数签名
+    SetThreadExecutionState = ctypes.windll.kernel32.SetThreadExecutionState
+    SetThreadExecutionState.argtypes = [wintypes.DWORD]
+    SetThreadExecutionState.restype = wintypes.DWORD
+
+    if enable:
+        # 阻止系统休眠+保持屏幕开启
+        state = ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+    else:
+        # 恢复默认电源策略
+        state = ES_CONTINUOUS
+
+    result = SetThreadExecutionState(state)
+    if result != 0:
+        logger.info(f"防休眠模式 {'启用' if enable else '关闭'}")
+    else:
+        logger.ui_error(f"防休眠模式 {'启用' if enable else '关闭'}失败")

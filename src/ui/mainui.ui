@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>550</width>
-    <height>450</height>
+    <width>600</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="palette">
@@ -963,8 +963,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>542</width>
-             <height>423</height>
+             <width>592</width>
+             <height>473</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="1,0">
@@ -1368,6 +1368,158 @@
                 </layout>
                </item>
                <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_interaction_mode" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_interaction_mode_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>交互模式</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_middle">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_interaction_mode_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_interaction_mode_frontend">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_frontend_left">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="setting_interaction_mode_frontend_button">
+                   <property name="minimumSize">
+                    <size>
+                     <width>160</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>前台运行前置游戏窗口</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_frontend_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_setting_interaction_mode_backend">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_backend_left">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="setting_interaction_mode_backend_button">
+                   <property name="minimumSize">
+                    <size>
+                     <width>160</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>后台运行禁止系统休眠</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_mode_backend_right">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_setting_remember_last_choice">
                  <item>
                   <spacer name="horizontalSpacer_setting_remember_last_choice_left">
@@ -1397,49 +1549,6 @@
                  </item>
                  <item>
                   <spacer name="horizontalSpacer_setting_remember_last_choice_right">
-                   <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_setting_backend_interaction">
-                 <item>
-                  <spacer name="horizontalSpacer_setting_backend_interaction_left">
-                   <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item>
-                  <widget class="QCheckBox" name="setting_backend_interaction_button">
-                   <property name="minimumSize">
-                    <size>
-                     <width>160</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string>后台交互（仅本次生效）</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_setting_backend_interaction_right">
                    <property name="orientation">
                     <enum>Qt::Orientation::Horizontal</enum>
                    </property>
@@ -1610,11 +1719,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
   <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
  </buttongroups>
 </ui>

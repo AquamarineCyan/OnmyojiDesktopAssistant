@@ -297,6 +297,19 @@ class GameWindowManager:
                 return
             self._update(GameWindow(target_handles[0]))
 
+    def set_foreground(self) -> bool:
+        """将游戏窗口置于前台"""
+        if self.current is None:
+            logger.ui_error("请先获取游戏窗口")
+            return False
+        try:
+            win32gui.SetForegroundWindow(self.current.handle)
+            logger.ui("游戏窗口已置于前台")
+            return True
+        except Exception as e:
+            logger.ui_error(f"将游戏窗口置于前台失败: {str(e)}")
+            return False
+
     @property
     def is_alive(self) -> bool:
         """检查游戏窗口是否存在"""

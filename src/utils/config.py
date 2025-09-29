@@ -30,6 +30,11 @@ _shortcut_start_stop_list = [
     "F12",
 ]
 """快捷键-开始/停止"""
+_interaction_mode_list = ["前台", "后台"]
+"""交互模式"""
+# 前台/后台的子配置
+_frontend_sub_config = {"force_window": [True, False]}
+_backend_sub_config = {"prevent_sleep": [True, False]}
 
 
 class DefaultConfig(BaseModel):
@@ -43,6 +48,11 @@ class DefaultConfig(BaseModel):
     remember_last_choice: int = -1
     shortcut_start_stop: list = _shortcut_start_stop_list
     win_toast: bool = True
+    interaction_mode: dict = {
+        "mode": _interaction_mode_list,
+        "frontend": _frontend_sub_config,
+        "backend": _backend_sub_config,
+    }
 
 
 class UserConfig(BaseModel):
@@ -64,6 +74,12 @@ class UserConfig(BaseModel):
     """快捷键-开始/停止"""
     win_toast: bool = True
     """系统通知"""
+    interaction_mode: dict = {
+        "mode": _interaction_mode_list[0],  # 默认 "前台"
+        "frontend": {"force_window": True},
+        "backend": {"prevent_sleep": True},
+    }
+    """交互模式"""
 
 
 class Config:
@@ -74,7 +90,6 @@ class Config:
     def __init__(self):
         self.user: UserConfig = UserConfig()
         self.default: DefaultConfig = DefaultConfig()
-        self.backend: bool = False  # 后台交互
         self.data_error: int = 0
         self.resource_dir = RESOURCE_DIR_PATH
         self._init()
@@ -105,7 +120,7 @@ class Config:
             data = data.model_dump()
         if isinstance(data, dict):
             with open(self.config_path, "w", encoding="utf-8") as f:
-                yaml.dump(data, f, allow_unicode=True, sort_keys=False)
+                yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
         else:
             logger.ui_error("file config.yaml save failed.")
             return False
@@ -115,25 +130,57 @@ class Config:
         """设置项更新
 
         参数:
-            key (str): 设置项
+            key (str): 设置项，可以是一级("update")或二级("notifications.sound")或三级("interaction_mode.frontend.force_window")
             value (str): 属性
+
+        示例：
+        ``` python
+            config.update("interaction_mode.mode", "后台")
+            config.update("interaction_mode.frontend.force_window", False)
+            config.update("interaction_mode.backend.prevent_sleep", False)
+        ```
         """
-        logger.info(f"Config setting [{key}] change to [{value}].")
+        logger.info(f"Config setting [{key}] change to [{value}]")
         config_dict = self.user.model_dump()
-        config_dict[key] = value
-        logger.info(config_dict)
+
+        keys = key.split(".")
+        target = config_dict
+        for k in keys[:-1]:
+            target = target.setdefault(k, {})
+        target[keys[-1]] = value
+
         self.user = UserConfig.model_validate(config_dict)
         self._save(self.user.model_dump())
 
     def _check_outdated(self, data: dict) -> dict:
         """仅检查不符合配置项的部分，不存在的设置项可以通过UserConfig的model_dump()方法获取默认值"""
-        for key, value in self.default.model_dump().items():
-            if not isinstance(value, list):
+
+        def validate(value, default_value):
+            # 如果 default 是列表，表示候选值
+            if isinstance(default_value, list):
+                if value not in default_value:
+                    return default_value[0], True
+                return value, False
+            # 如果 default 是字典，递归检查
+            elif isinstance(default_value, dict):
+                fixed = {}
+                changed = False
+                for k, v in default_value.items():
+                    sub_val, sub_changed = validate(value.get(k), v) if isinstance(value, dict) else (v, True)
+                    fixed[k] = sub_val
+                    if sub_changed:
+                        changed = True
+                return fixed, changed
+            # 其他类型，直接返回
+            return value, False
+
+        for key, default_value in self.default.model_dump().items():
+            if key not in data:
                 continue
-            if key in data.keys():
-                if data.get(key) not in value:
-                    data[key] = value[0]
-                    self.data_error += 1
+            fixed_value, changed = validate(data[key], default_value)
+            if changed:
+                data[key] = fixed_value
+                self.data_error += 1
         return data
 
 

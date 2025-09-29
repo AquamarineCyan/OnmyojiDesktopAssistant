@@ -26,7 +26,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(550, 450)
+        MainWindow.resize(600, 500)
         palette = QPalette()
         brush = QBrush(QColor(255, 255, 255, 255))
         brush.setStyle(Qt.BrushStyle.SolidPattern)
@@ -392,7 +392,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 542, 423))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 592, 473))
         self.verticalLayout_setting = QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_setting.setObjectName(u"verticalLayout_setting")
         self.groupBox_config = QGroupBox(self.scrollAreaWidgetContents)
@@ -597,6 +597,77 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_shortcut_start_stop)
 
+        self.horizontalLayout_setting_interaction_mode = QHBoxLayout()
+        self.horizontalLayout_setting_interaction_mode.setObjectName(u"horizontalLayout_setting_interaction_mode")
+        self.horizontalSpacer_setting_interaction_mode = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode.addItem(self.horizontalSpacer_setting_interaction_mode)
+
+        self.setting_interaction_mode_label = QLabel(self.groupBox_config)
+        self.setting_interaction_mode_label.setObjectName(u"setting_interaction_mode_label")
+        self.setting_interaction_mode_label.setMinimumSize(QSize(120, 0))
+
+        self.horizontalLayout_setting_interaction_mode.addWidget(self.setting_interaction_mode_label)
+
+        self.horizontalSpacer_setting_interaction_mode_middle = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode.addItem(self.horizontalSpacer_setting_interaction_mode_middle)
+
+        self.setting_interaction_mode_comboBox = QComboBox(self.groupBox_config)
+        self.setting_interaction_mode_comboBox.setObjectName(u"setting_interaction_mode_comboBox")
+        self.setting_interaction_mode_comboBox.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_setting_interaction_mode.addWidget(self.setting_interaction_mode_comboBox)
+
+        self.horizontalSpacer_setting_interaction_mode_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode.addItem(self.horizontalSpacer_setting_interaction_mode_right)
+
+        self.horizontalLayout_setting_interaction_mode.setStretch(0, 4)
+        self.horizontalLayout_setting_interaction_mode.setStretch(1, 2)
+        self.horizontalLayout_setting_interaction_mode.setStretch(3, 2)
+        self.horizontalLayout_setting_interaction_mode.setStretch(4, 4)
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_interaction_mode)
+
+        self.horizontalLayout_setting_interaction_mode_frontend = QHBoxLayout()
+        self.horizontalLayout_setting_interaction_mode_frontend.setObjectName(u"horizontalLayout_setting_interaction_mode_frontend")
+        self.horizontalSpacer_setting_interaction_mode_frontend_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode_frontend.addItem(self.horizontalSpacer_setting_interaction_mode_frontend_left)
+
+        self.setting_interaction_mode_frontend_button = QCheckBox(self.groupBox_config)
+        self.setting_interaction_mode_frontend_button.setObjectName(u"setting_interaction_mode_frontend_button")
+        self.setting_interaction_mode_frontend_button.setMinimumSize(QSize(160, 0))
+
+        self.horizontalLayout_setting_interaction_mode_frontend.addWidget(self.setting_interaction_mode_frontend_button)
+
+        self.horizontalSpacer_setting_interaction_mode_frontend_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode_frontend.addItem(self.horizontalSpacer_setting_interaction_mode_frontend_right)
+
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_interaction_mode_frontend)
+
+        self.horizontalLayout_setting_interaction_mode_backend = QHBoxLayout()
+        self.horizontalLayout_setting_interaction_mode_backend.setObjectName(u"horizontalLayout_setting_interaction_mode_backend")
+        self.horizontalSpacer_setting_interaction_mode_backend_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode_backend.addItem(self.horizontalSpacer_setting_interaction_mode_backend_left)
+
+        self.setting_interaction_mode_backend_button = QCheckBox(self.groupBox_config)
+        self.setting_interaction_mode_backend_button.setObjectName(u"setting_interaction_mode_backend_button")
+        self.setting_interaction_mode_backend_button.setMinimumSize(QSize(160, 0))
+
+        self.horizontalLayout_setting_interaction_mode_backend.addWidget(self.setting_interaction_mode_backend_button)
+
+        self.horizontalSpacer_setting_interaction_mode_backend_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_setting_interaction_mode_backend.addItem(self.horizontalSpacer_setting_interaction_mode_backend_right)
+
+
+        self.vboxLayout.addLayout(self.horizontalLayout_setting_interaction_mode_backend)
+
         self.horizontalLayout_setting_remember_last_choice = QHBoxLayout()
         self.horizontalLayout_setting_remember_last_choice.setObjectName(u"horizontalLayout_setting_remember_last_choice")
         self.horizontalSpacer_setting_remember_last_choice_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -615,25 +686,6 @@ class Ui_MainWindow(object):
 
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_remember_last_choice)
-
-        self.horizontalLayout_setting_backend_interaction = QHBoxLayout()
-        self.horizontalLayout_setting_backend_interaction.setObjectName(u"horizontalLayout_setting_backend_interaction")
-        self.horizontalSpacer_setting_backend_interaction_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_setting_backend_interaction.addItem(self.horizontalSpacer_setting_backend_interaction_left)
-
-        self.setting_backend_interaction_button = QCheckBox(self.groupBox_config)
-        self.setting_backend_interaction_button.setObjectName(u"setting_backend_interaction_button")
-        self.setting_backend_interaction_button.setMinimumSize(QSize(160, 0))
-
-        self.horizontalLayout_setting_backend_interaction.addWidget(self.setting_backend_interaction_button)
-
-        self.horizontalSpacer_setting_backend_interaction_right = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_setting_backend_interaction.addItem(self.horizontalSpacer_setting_backend_interaction_right)
-
-
-        self.vboxLayout.addLayout(self.horizontalLayout_setting_backend_interaction)
 
         self.horizontalLayout_setting_win_toast = QHBoxLayout()
         self.horizontalLayout_setting_win_toast.setObjectName(u"horizontalLayout_setting_win_toast")
@@ -780,8 +832,10 @@ class Ui_MainWindow(object):
         self.setting_xuanshangfengyin_label.setText(QCoreApplication.translate("MainWindow", u"\u60ac\u8d4f\u5c01\u5370", None))
         self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
         self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5feb\u6377\u952e\uff1a\u5f00\u59cb/\u505c\u6b62", None))
+        self.setting_interaction_mode_label.setText(QCoreApplication.translate("MainWindow", u"\u4ea4\u4e92\u6a21\u5f0f", None))
+        self.setting_interaction_mode_frontend_button.setText(QCoreApplication.translate("MainWindow", u"\u524d\u53f0\u8fd0\u884c\u524d\u7f6e\u6e38\u620f\u7a97\u53e3", None))
+        self.setting_interaction_mode_backend_button.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u8fd0\u884c\u7981\u6b62\u7cfb\u7edf\u4f11\u7720", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))
-        self.setting_backend_interaction_button.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u4ea4\u4e92\uff08\u4ec5\u672c\u6b21\u751f\u6548\uff09", None))
         self.setting_win_toast_button.setText(QCoreApplication.translate("MainWindow", u"\u7cfb\u7edf\u901a\u77e5", None))
         self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
         self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))

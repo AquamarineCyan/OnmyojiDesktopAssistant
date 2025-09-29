@@ -160,7 +160,7 @@ class Mouse:
         duration: float = 0,
         tween=linear,
     ):
-        if config.backend:
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._move_backend(point, x, y, xOffset, yOffset)
         else:
             cls._move_front(point, x, y, xOffset, yOffset, duration, tween)
@@ -249,7 +249,7 @@ class Mouse:
         if wait:
             time.sleep(wait)
 
-        if config.backend:
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             # logger.info(f"backend click {point.x},{point.y}")
             cls._click_backend(point)
         else:
@@ -301,7 +301,7 @@ class Mouse:
             y_offset (int): 纵轴拖动量
             duration (float): 持续时间
         """
-        if config.backend:
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._drag_backend(x_offset, y_offset)
         else:
             cls._drag_front(x_offset, y_offset, duration)
@@ -328,7 +328,7 @@ class Mouse:
             scroll up/away from the user, negative values scroll down/toward the
             user.
         """
-        if config.backend:
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._scroll_backend(distance)
         else:
             cls._scroll_front(distance)
@@ -366,7 +366,7 @@ class KeyBoard:
         event_xuanshang.wait()
         logger.info(f"Sending key: {key.upper()}")
 
-        if config.backend:
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._backend_operation(key)
         else:
             cls._front_operation(key)

@@ -131,6 +131,15 @@ class MainWindow(QMainWindow):
             key.addItems(config.default.model_dump()[value])
             key.setCurrentText(config.user.model_dump().get(value))
 
+        self.ui.setting_interaction_mode_comboBox.addItems(config.default.model_dump()["interaction_mode"]["mode"])
+        self.ui.setting_interaction_mode_comboBox.setCurrentText(config.user.model_dump()["interaction_mode"]["mode"])
+
+        _status = config.user.model_dump().get("interaction_mode").get("frontend").get("force_window")
+        self.ui.setting_interaction_mode_frontend_button.setChecked(_status)
+
+        _status = config.user.model_dump().get("interaction_mode").get("backend").get("prevent_sleep")
+        self.ui.setting_interaction_mode_backend_button.setChecked(_status)
+
         _status = config.user.model_dump().get("remember_last_choice")
         self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
 
@@ -143,7 +152,6 @@ class MainWindow(QMainWindow):
         self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
         self.ui.setting_xuanshangfengyin_comboBox.setToolTip("立即生效")
         self.ui.setting_window_style_comboBox.setToolTip(_restart_msg)
-        self.ui.setting_backend_interaction_button.setToolTip("测试中，可能存在问题")
 
         self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
 
@@ -187,8 +195,12 @@ class MainWindow(QMainWindow):
         self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(
             self.setting_shortcut_start_stop_comboBox_handle
         )
+        self.ui.setting_interaction_mode_comboBox.currentIndexChanged.connect(
+            self.setting_interaction_mode_comboBox_handle
+        )
         self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_handle)
-        self.ui.setting_backend_interaction_button.clicked.connect(self.setting_backend_interaction_handle)
+        self.ui.setting_interaction_mode_frontend_button.clicked.connect(self.setting_interaction_mode_frontend_handle)
+        self.ui.setting_interaction_mode_backend_button.clicked.connect(self.setting_interaction_mode_backend_handle)
         self.ui.setting_win_toast_button.clicked.connect(self.setting_win_toast_handle)
 
         self.ui.button_restart.clicked.connect(self.app_restart_handle)
@@ -426,6 +438,12 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：快捷键-开始/停止已更改为 {text}")
         config.update("shortcut_start_stop", text)
 
+    def setting_interaction_mode_comboBox_handle(self) -> None:
+        """设置-交互模式-更改"""
+        text = self.ui.setting_interaction_mode_comboBox.currentText()
+        logger.info(f"设置项：交互模式已更改为 {text}")
+        config.update("interaction_mode.mode", text)
+
     def setting_remember_last_choice_handle(self) -> None:
         """设置-记忆上次所选功能-更改"""
         flag = self.ui.setting_remember_last_choice_button.isChecked()
@@ -438,18 +456,15 @@ class MainWindow(QMainWindow):
         logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
         config.update("remember_last_choice", _status)
 
-    def setting_backend_interaction_handle(self) -> None:
-        """设置-后台交互-更改"""
-        if self.ui.setting_backend_interaction_button.isChecked():
-            _text = "开启"
-            _status = True
-            logger.ui_warn("开启后台交互，仅本次有效，注意不能将游戏窗口最小化，可以被其他窗口遮挡")
-        else:
-            _text = "关闭"
-            _status = False
-            logger.ui("关闭后台交互")
-        logger.info(f"设置项：后台交互已更改为 {_text}")
-        config.backend = _status
+    def setting_interaction_mode_frontend_handle(self) -> None:
+        """设置-前台运行前置游戏窗口-更改"""
+        status = self.ui.setting_interaction_mode_frontend_button.isChecked()
+        config.update("interaction_mode.frontend.force_window", status)
+
+    def setting_interaction_mode_backend_handle(self) -> None:
+        """设置-后台运行禁止系统休眠-更改"""
+        status = self.ui.setting_interaction_mode_backend_button.isChecked()
+        config.update("interaction_mode.backend.prevent_sleep", status)
 
     def setting_win_toast_handle(self) -> None:
         """设置-系统通知-更改"""
