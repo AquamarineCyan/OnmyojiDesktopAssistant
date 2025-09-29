@@ -5,16 +5,15 @@ class QiLing(Package):
     resource_path = "qiling"
 
     image_keys = {
-        "mingqizhaohuan": "IMAGE_MINGQIZHAOHUAN",
         "stone_add": "IMAGE_STONE_ADD",
         "stone_max": "IMAGE_STONE_MAX",
-        "zhenmushou": "IMAGE_ZHENMUSHOU",
+        "zhaohuan": "IMAGE_ZHAOHUAN",
     }
 
     ocr_keys = {
         "tancha_start": "OCR_TANCHA_START",
         "title": "OCR_TITLE",
-        "zhenmushou": "OCR_ZHENMUSHOU",
+        "jieqi_give_up": "OCR_JIEQI_GIVE_UP",
     }
 
 
