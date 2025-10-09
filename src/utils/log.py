@@ -18,23 +18,23 @@ def send_gui_msg(msg: str = "", color: str = "black"):
 class CustomLogger(logging.Logger):
     def ui(self, msg, *args, **kwargs):
         send_gui_msg(msg, "black")
-        super()._log(LOG_LEVEL_GUI, msg, args, **kwargs)
+        super()._log(LOG_LEVEL_GUI, msg, args, **kwargs, stacklevel=2)
 
     def ui_warn(self, msg, *args, **kwargs):
         send_gui_msg(f"[警告] {msg}", "red")
-        super()._log(logging.WARNING, msg, args, **kwargs)
+        super()._log(logging.WARNING, msg, args, **kwargs, stacklevel=2)
 
     def ui_error(self, msg, *args, **kwargs):
         send_gui_msg(f"[错误] {msg}", "red")
-        super()._log(logging.ERROR, msg, args, **kwargs)
+        super()._log(logging.ERROR, msg, args, **kwargs, stacklevel=2)
 
     def scene(self, msg, *args, **kwargs):
         send_gui_msg(msg, "green")
-        super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs)
+        super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs, stacklevel=2)
 
     def progress(self, msg, *args, **kwargs):
         ms.main.ui_text_progress_update.emit(str(msg))  # 输出至完成情况UI界面
-        super()._log(logging.INFO, f"done number: {msg}", args, **kwargs)
+        super()._log(logging.INFO, f"done number: {msg}", args, **kwargs, stacklevel=2)
 
 
 # 创建日志记录器
