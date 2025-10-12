@@ -162,9 +162,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
         3: 815,
     }
     tupo_geren_y = {
-        1: 175,
-        2: 295,
-        3: 415,
+        1: 140,
+        2: 260,
+        3: 380,
     }
 
     @log_function_call
@@ -491,8 +491,16 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     """
 
     scene_name = "阴阳寮突破"
-    tupo_yinyangliao_x = {1: 460, 2: 760}
-    tupo_yinyangliao_y = {1: 170, 2: 290, 3: 410, 4: 530}
+    tupo_yinyangliao_x = {
+        1: 460,
+        2: 760,
+    }
+    tupo_yinyangliao_y = {
+        1: 140,
+        2: 260,
+        3: 380,
+        4: 500,
+    }
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
