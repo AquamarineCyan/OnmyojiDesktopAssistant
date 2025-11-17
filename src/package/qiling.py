@@ -29,7 +29,16 @@ class QiLing(Package):
         "火灵": (400, 480),
         "茨球": (620, 440),
         "小黑": (850, 450),
+        "针女": (220, 450),
+        "薙魂": (400, 480),
+        "月魔兔": (620, 440),
+        "狐火": (850, 450),
     }
+
+    @classmethod
+    def get_pockmon_list(cls) -> list[str]:
+        """返回契灵列表"""
+        return list(cls.pockmon_mapping.keys())
 
     @log_function_call
     def __init__(
@@ -47,6 +56,7 @@ class QiLing(Package):
         self.stone_pokemon = stone_pokemon  # 指定鸣契石
         self.stone_numbers = stone_numbers  # 使用鸣契石数量
 
+    @staticmethod
     def description() -> None:
         logger.ui("请提前配置「结契设置」，鸣契石数量0表示不消耗石头，直接挑战场上的契灵，取消勾选「连续结契」")
         # TODO 连续10次结契失败只能手动放弃
@@ -60,7 +70,7 @@ class QiLing(Package):
         self.OCR_TITLE = self.get_ocr_asset("title")
         self.OCR_JIEQI_GIVE_UP = self.get_ocr_asset("jieqi_give_up")
 
-    def check_jieqi_ready(self):
+    def check_jieqi_ready(self) -> bool | None:
         result = RuleOcr().get_raw_result()
         for item in result:
             if item.text in ["契灵结契", "结契情报", "结契设置"]:
@@ -168,7 +178,7 @@ class QiLing(Package):
                     Mouse.click(point)
                 return False
 
-    def choose_stone_confirm(self):
+    def choose_stone_confirm(self) -> bool:
         result = RuleOcr().get_raw_result()
         for item in result:
             if item.text[-2:] == "鸣契":
@@ -177,7 +187,7 @@ class QiLing(Package):
                 return True
         return False
 
-    def choose_stone(self, number: int = 1):
+    def choose_stone(self, number: int = 1) -> bool:
         """选择鸣契石"""
         logger.ui(f"选择鸣契石[{self.stone_pokemon}]")
 
