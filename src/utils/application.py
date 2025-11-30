@@ -1,7 +1,6 @@
 from pathlib import Path
 
-VERSION: str = "2.0.7"
-"""版本号"""
+from .version import VERSION  # noqa: F401
 
 APP_NAME: str = "OnmyojiDesktopAssistant"
 """程序名称"""
