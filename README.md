@@ -65,6 +65,15 @@
 
 ## 使用方法
 
+### 桌面版
+
+ - 旧版桌面版
+   - [NGA下载地址](https://nga.178.com/read.php?tid=29661629)
+ - 新版桌面模拟器，通过官方MuMu专版下载，支持新区账号登录
+   - [阴阳师桌面模拟器](https://yys.163.com/zmb/)
+ - 新版与旧版仅窗口名称区别，其余功能一致。
+
+
 ###  应用程序运行
 
 - 前往 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
@@ -72,8 +81,6 @@
 - 解压后双击 `OnmyojiDesktopAssistant.exe` 即可运行。
 > [!NOTE]
 > 需要解压到英文路径下
-
-- 阴阳师桌面版 [提供NGA下载地址](https://nga.178.com/read.php?tid=29661629)
 
 ### 源码编译运行
 

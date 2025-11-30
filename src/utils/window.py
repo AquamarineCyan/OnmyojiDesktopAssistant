@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Iterable, Literal
 
 import win32api
 import win32con
@@ -19,20 +19,28 @@ def enum_windows(hwnd, result_list):
     return True
 
 
-def get_all_target_window(target_title: str = None) -> list[int] | list[None]:
+def get_all_target_window(target_titles: str | Iterable[str]) -> list[int]:
     """返回所有符合标题的窗口句柄
 
     参数:
-        titles (list[str]): 窗口标题
+        target_titles (str | Iterable[str]): 单个标题或可迭代的多个窗口标题
 
     返回:
-        list[int] | list[None]: 窗口句柄列表或空列表
+        list[int]: 符合任意标题的窗口句柄列表（可能为空）
     """
+    if target_titles is None:
+        return []
+
+    if isinstance(target_titles, str):
+        titles = {target_titles}
+    else:
+        titles = {t for t in target_titles if t}
+
     window_list = []
     win32gui.EnumWindows(enum_windows, window_list)
-    target_handles = []
+    target_handles: list[int] = []
     for hwnd in window_list:
-        if win32gui.GetWindowText(hwnd) == target_title:
+        if win32gui.GetWindowText(hwnd) in titles:
             target_handles.append(hwnd)
     return target_handles
 
@@ -123,6 +131,7 @@ class GameWindowManager:
     """窗口标准高度（官方640+标题栏39+外框8=687）"""
 
     window_title_zh: str = "阴阳师-网易游戏"  # 国服
+    window_title_zh_mumu: str = "阴阳师-MuMu模拟器专版"  # 国服MuMu专版
     window_title_ja: str = "陰陽師Onmyoji"  # 日服
 
     current_window_resolution: WindowResolution = None
@@ -162,6 +171,16 @@ class GameWindowManager:
     def set_gui_window_manager_list_callback(self, callback):
         """设置GUI窗口管理列表回调函数"""
         self.gui_window_manager_list_callback = callback
+
+    def _titles_to_search(self) -> tuple[str, ...]:
+        """返回用于搜索的窗口标题元组。
+
+        - 国服（默认）尝试两个标题：普通 + MuMu 专版
+        - 日服或其它只尝试当前设置的标题
+        """
+        if self._window_title == self.window_title_zh:
+            return (self.window_title_zh, self.window_title_zh_mumu)
+        return (self._window_title,)
 
     def _compare(self, old_rect: tuple[int, int, int, int], new_rect: tuple[int, int, int, int]) -> bool:
         """比较新旧窗口矩形坐标是否相同
@@ -243,7 +262,7 @@ class GameWindowManager:
 
     def update_window_task(self):
         """更新游戏窗口信息"""
-        target_handles = get_all_target_window(self._window_title)
+        target_handles = get_all_target_window(self._titles_to_search())
 
         if target_handles != self.handles:
             logger.info(f"检测到游戏窗口变化，当前窗口数量：{len(target_handles)}")
@@ -291,7 +310,7 @@ class GameWindowManager:
         if handle:
             self._update(GameWindow(handle))
         else:
-            target_handles = get_all_target_window(self._window_title)
+            target_handles = get_all_target_window(self._titles_to_search())
             if not target_handles:
                 logger.ui_error("未找到游戏窗口")
                 return
