@@ -51,6 +51,6 @@ class Connect:
         "https://gh.nxnow.top/",
         "https://ghproxy.net/",
         "https://gh-proxy.com/",
-        "https://gh.pylas.xyz/",
+        "https://free.cn.eu.org/",
     ]
     helpdoc = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"
