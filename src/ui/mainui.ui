@@ -1609,7 +1609,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="1,1,1,1,1,1,1,1,1">
+             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="0,0,0,0,0,0,0,0,0,0,0">
               <item>
                <spacer name="horizontalSpacer_other_1">
                 <property name="orientation">
@@ -1664,6 +1664,26 @@
                </spacer>
               </item>
               <item>
+               <widget class="QPushButton" name="pushButton_shortcut">
+                <property name="text">
+                 <string>创建桌面快捷方式</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_other_4">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
                <widget class="QPushButton" name="button_restart">
                 <property name="text">
                  <string>重启</string>
@@ -1671,7 +1691,7 @@
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_4">
+               <spacer name="horizontalSpacer_other_5">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -1691,7 +1711,7 @@
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_5">
+               <spacer name="horizontalSpacer_other_6">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
@@ -1719,11 +1739,11 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
  </buttongroups>
 </ui>

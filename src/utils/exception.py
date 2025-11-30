@@ -10,7 +10,7 @@ class GUIStopException(CustomException):
 
     def __init__(self, *args):
         super().__init__(*args)
-        logger.ui_error("异常捕获：GUI停止按钮")
+        logger.ui_error("手动停止")
 
 
 class TimesNotEnoughException(CustomException):

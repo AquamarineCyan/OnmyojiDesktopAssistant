@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'mainui.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.9.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -733,33 +733,33 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_3)
 
+        self.pushButton_shortcut = QPushButton(self.scrollAreaWidgetContents)
+        self.pushButton_shortcut.setObjectName(u"pushButton_shortcut")
+
+        self.horizontalLayout_restart_update_record.addWidget(self.pushButton_shortcut)
+
+        self.horizontalSpacer_other_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_4)
+
         self.button_restart = QPushButton(self.scrollAreaWidgetContents)
         self.button_restart.setObjectName(u"button_restart")
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_restart)
 
-        self.horizontalSpacer_other_4 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_other_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_4)
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_5)
 
         self.button_update_record = QPushButton(self.scrollAreaWidgetContents)
         self.button_update_record.setObjectName(u"button_update_record")
 
         self.horizontalLayout_restart_update_record.addWidget(self.button_update_record)
 
-        self.horizontalSpacer_other_5 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.horizontalSpacer_other_6 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_5)
+        self.horizontalLayout_restart_update_record.addItem(self.horizontalSpacer_other_6)
 
-        self.horizontalLayout_restart_update_record.setStretch(0, 1)
-        self.horizontalLayout_restart_update_record.setStretch(1, 1)
-        self.horizontalLayout_restart_update_record.setStretch(2, 1)
-        self.horizontalLayout_restart_update_record.setStretch(3, 1)
-        self.horizontalLayout_restart_update_record.setStretch(4, 1)
-        self.horizontalLayout_restart_update_record.setStretch(5, 1)
-        self.horizontalLayout_restart_update_record.setStretch(6, 1)
-        self.horizontalLayout_restart_update_record.setStretch(7, 1)
-        self.horizontalLayout_restart_update_record.setStretch(8, 1)
 
         self.verticalLayout_setting.addLayout(self.horizontalLayout_restart_update_record)
 
@@ -839,6 +839,7 @@ class Ui_MainWindow(object):
         self.setting_win_toast_button.setText(QCoreApplication.translate("MainWindow", u"\u7cfb\u7edf\u901a\u77e5", None))
         self.pushButton_homepage.setText(QCoreApplication.translate("MainWindow", u"\u9879\u76ee\u4e3b\u9875", None))
         self.pushButton_helpdoc.setText(QCoreApplication.translate("MainWindow", u"\u4f7f\u7528\u6587\u6863", None))
+        self.pushButton_shortcut.setText(QCoreApplication.translate("MainWindow", u"\u521b\u5efa\u684c\u9762\u5feb\u6377\u65b9\u5f0f", None))
         self.button_restart.setText(QCoreApplication.translate("MainWindow", u"\u91cd\u542f", None))
         self.button_update_record.setText(QCoreApplication.translate("MainWindow", u"\u66f4\u65b0\u8bb0\u5f55", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_setting), QCoreApplication.translate("MainWindow", u"\u8bbe\u7f6e", None))

@@ -29,6 +29,7 @@ from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr
 from .restart import Restart
 from .screenshot import ScreenShot
+from .shortcut import create_desktop_shortcut
 from .update import get_update_info
 from .upgrade import upgrade
 from .window import window_manager
@@ -205,6 +206,7 @@ class MainWindow(QMainWindow):
 
         self.ui.button_restart.clicked.connect(self.app_restart_handle)
         self.ui.button_update_record.clicked.connect(self.show_update_record_window)
+        self.ui.pushButton_shortcut.clicked.connect(create_desktop_shortcut)
         self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
         self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
 
@@ -351,17 +353,6 @@ class MainWindow(QMainWindow):
             return False
 
         return True
-
-    def application_init(self) -> None:
-        # 自检正常，初始化各类事件
-
-        logger.ui("检测到游戏窗口")
-        self.ui.combo_choice.setEnabled(True)
-        self.ui.spin_times.setEnabled(True)
-
-        # 记忆上次所选功能
-        if config.user.remember_last_choice > 0:
-            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
 
     def _window_button_enabled_handle(self):
         logger.ui("检测到游戏窗口")

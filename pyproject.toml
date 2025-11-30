@@ -16,10 +16,11 @@ pillow = "^11.3.0"
 pyautogui = "^0.9.54"
 pydantic = "^2.11.9"
 pynput = "^1.8.1"
-pyside6 = "^6.9.1"
+pyside6 = "^6.10.1"
 pywin32 = "^311"
-pyyaml = "^6.0.2"
+pyyaml = "^6.0.3"
 win11toast = "^0.35"
+winshell = "^0.6"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -32,7 +33,7 @@ line-length = 120
 [[tool.poetry.source]]
 name = "mirrors"
 url = "https://mirrors.aliyun.com/pypi/simple/"
-priority = "supplemental"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core"]
