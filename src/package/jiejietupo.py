@@ -303,6 +303,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         # 解锁阵容
         state, point = self.get_lineup_state()
         if state == LineupState.LOCK:
+            sleep()
             Mouse.click(point)
         logger.ui("已解锁阵容")
         sleep()
@@ -343,9 +344,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
         sleep(2)
         self.check_scene(self.IMAGE_FANGSHOUJILU)
         state, point = self.get_lineup_state()
-        if state == LineupState.UNLOCK:
-            Mouse.click(point)
+        sleep()
+        Mouse.click(point)
         logger.ui("已锁定阵容")
+        sleep()
 
     def refresh(self) -> None:
         """刷新"""
