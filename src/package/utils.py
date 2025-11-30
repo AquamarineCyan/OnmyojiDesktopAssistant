@@ -99,6 +99,7 @@ class GlobalResource:
 
     def load_asset(self):
         self.IMAGE_ACCEPT_INVITATION = self.get_image_asset("accept_invitation")
+        self.IMAGE_CLOSE = self.get_image_asset("close")
         self.IMAGE_FAIL = self.get_image_asset("fail")
         self.IMAGE_FINISH = self.get_image_asset("finish")
         self.IMAGE_PASSENGER_2 = self.get_image_asset("passenger_2")

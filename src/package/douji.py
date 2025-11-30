@@ -4,7 +4,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr, ocr_match_once
+from ..utils.paddleocr import ocr_match_once
 from .utils import Package
 
 
@@ -12,10 +12,11 @@ class DouJi(Package):
     scene_name = "斗技"
     resource_path = "douji"
 
-    def __init__(self, n: int = 0) -> None:
+    def __init__(self, n: int = 0):
         super().__init__(n)
 
-    def description() -> None:
+    @staticmethod
+    def description():
         logger.ui("支持五段至名士之间的固定翻牌上阵")
 
     def load_asset(self):
@@ -59,7 +60,6 @@ class DouJi(Package):
                 case self.OCR_TITLE.name:
                     logger.scene(self.scene_name)
                     msg_title = False
-                    # self.check_click(self.OCR_FIGHT, timeout=5)
                     self.current_asset_list.remove(self.OCR_TITLE)
 
                 case self.OCR_FIGHT.name:
@@ -91,6 +91,12 @@ class DouJi(Package):
                     logger.ui("胜利")
                     Mouse.click(result.match_result.center)
                     self.done()
+                    sleep(2)
+                    if self.check_click(self.global_assets.IMAGE_FINISH, timeout=5):
+                        logger.ui("胧车燃料")
+                        sleep()
+                        if self.check_click(self.OCR_VICTORY, timeout=3):
+                            logger.ui("胜利*2")
                     return
 
                 case self.OCR_FAIL.name:
@@ -118,9 +124,5 @@ class DouJi(Package):
                 logger.ui("周奖励")
                 weekly_rewards += 1
 
-            _ocr = RuleOcr(self.OCR_LEVEL_UP)
-            if result := _ocr.match():
+            if self.check_click(self.global_assets.IMAGE_CLOSE, timeout=5):
                 logger.ui("段位上升")
-                point = result.center
-                point.set_y(200)
-                Mouse.click(point)
