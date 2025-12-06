@@ -28,7 +28,7 @@
         {
             "name": "lock",
             "file": "lock.png",
-            "region": [0, 0, 0, 0],
+            "region": [720, 510, 50, 50],
             "score": "0.7"
         },
         {
@@ -58,7 +58,7 @@
         {
             "name": "unlock",
             "file": "unlock.png",
-            "region": [0, 0, 0, 0],
+            "region": [720, 510, 50, 50],
             "score": "0.7"
         },
         {

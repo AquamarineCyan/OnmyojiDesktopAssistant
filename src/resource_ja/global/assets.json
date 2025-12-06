@@ -8,6 +8,12 @@
             "score": "0.7"
         },
         {
+            "name": "close",
+            "file": "close.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
             "name": "fail",
             "file": "fail.png",
             "region": [0, 0, 0, 0],
