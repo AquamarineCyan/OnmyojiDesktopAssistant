@@ -9,7 +9,6 @@ import win32api
 
 from .application import APP_NAME, APP_PATH
 from .assets import AssetOcr
-from .event import event_ocr_init
 from .log import logger
 from .point import Point, Rectangle
 from .screenshot import ScreenShot
@@ -117,7 +116,7 @@ class CharacterRecognition:
     """文字识别"""
 
     def __init__(self) -> None:
-        self.flag_init: bool = False  # 与 event_ocr_init 作用相同
+        self.flag_init: bool = False
         self.result: list = []
 
     def init(self):
@@ -126,7 +125,6 @@ class CharacterRecognition:
             logger.info(f"ocr_path:{ocr_path}")
         else:
             self.flag_init = False
-            event_ocr_init.clear()
             return False
 
         dll_path = os.path.join(ocr_path, "dll")
@@ -167,7 +165,6 @@ class CharacterRecognition:
         self.img_file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
         self.paddleocr = paddleOCR
         self.flag_init = True
-        event_ocr_init.set()
         return True
 
     def get_raw_result(self) -> dict | None:
@@ -296,7 +293,7 @@ class RuleOcr:
         score: float = None,
         debug: bool = False,
     ) -> OcrData | None:
-        if not bool(event_ocr_init):
+        if not ocr.flag_init:
             ocr.init()
 
         if not isinstance(ocr_result, list):
@@ -306,18 +303,16 @@ class RuleOcr:
             keyword = self.keyword
         if score is None:
             score = self.score
+
         for item in ocr_result:
-            # TODO match region first
             if item.score < score:
                 continue
             if self.method == "PERFACT":
                 if item.text == self.keyword:
-                    logger.info(f"{self.name} ocr match successfully.")
                     self.match_result = item
                     return item
             elif self.method == "INCLUDE":
                 if self.keyword in item.text:
-                    logger.info(f"{self.name} ocr match successfully.")
                     self.match_result = item
                     return item
 

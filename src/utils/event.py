@@ -19,5 +19,3 @@ if bool(event_thread):
 """
 event_xuanshang = MyEvent()
 """悬赏封印"""
-event_ocr_init = MyEvent()
-"""OCR（文字识别）初始化"""
