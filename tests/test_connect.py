@@ -15,7 +15,7 @@ MIRROR_URLS = [
 
 
 def test_api_url():
-    api_url = "https://api.github.com/repos/AquamarineCyan/Onmyoji_Python/releases/latest"
+    api_url = "https://api.github.com/repos/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest"
     try:
         r = httpx.get(api_url, headers=headers, timeout=10)
     except httpx.RequestError as e:
