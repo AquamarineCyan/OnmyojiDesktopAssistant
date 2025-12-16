@@ -12,7 +12,7 @@ _update_download_list = ["mirror", "GitHub"]
 """下载线路"""
 _xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
 """悬赏封印"""
-_window_style_list = ["Windows", "Fusion"]
+_window_style_list = ["Fusion", "Windows"]
 """界面风格"""
 _shortcut_start_stop_list = [
     "无",
