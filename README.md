@@ -12,6 +12,8 @@
 
 [帮助文档](https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY)
 
+[交流群]((https://qm.qq.com/q/T5pnZ5tGAs))
+
 ## 主要功能
 
 1. 御魂副本

@@ -52,4 +52,11 @@ class Connect:
         "https://gh-proxy.com/",
         "https://free.cn.eu.org/",
     ]
-    helpdoc = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"
+
+
+HOME_PAGE_LINK = Connect.homepage
+"""主页链接"""
+HELP_DOC_LINK = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"
+"""帮助文档链接"""
+QQ_GROUP_LINK = "https://qm.qq.com/q/T5pnZ5tGAs"
+"""QQ群链接"""

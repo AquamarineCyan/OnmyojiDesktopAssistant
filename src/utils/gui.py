@@ -16,7 +16,7 @@ from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui_ui import Ui_MainWindow
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, VERSION, Connect
+from .application import APP_NAME, APP_PATH, HELP_DOC_LINK, HOME_PAGE_LINK, QQ_GROUP_LINK, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -154,7 +154,9 @@ class MainWindow(QMainWindow):
         self.ui.setting_xuanshangfengyin_comboBox.setToolTip("立即生效")
         self.ui.setting_window_style_comboBox.setToolTip(_restart_msg)
 
-        self.ui.pushButton_homepage.setToolTip("通过浏览器打开")
+        self.ui.button_about_homePage.setToolTip("通过浏览器打开")
+        self.ui.button_about_helpDoc.setToolTip("通过浏览器打开")
+        self.ui.button_about_Qgroup.setToolTip("通过浏览器打开")
 
     def _init_signals(self):
         """初始化信号"""
@@ -204,11 +206,12 @@ class MainWindow(QMainWindow):
         self.ui.setting_interaction_mode_backend_button.clicked.connect(self.setting_interaction_mode_backend_handle)
         self.ui.setting_win_toast_button.clicked.connect(self.setting_win_toast_handle)
 
-        self.ui.button_restart.clicked.connect(self.app_restart_handle)
-        self.ui.button_update_record.clicked.connect(self.show_update_record_window)
-        self.ui.pushButton_shortcut.clicked.connect(create_desktop_shortcut)
-        self.ui.pushButton_homepage.mousePressEvent = self.open_homepage
-        self.ui.pushButton_helpdoc.mousePressEvent = self.open_helpdoc
+        self.ui.button_about_appRestart.clicked.connect(self.app_restart_handle)
+        self.ui.button_about_updateRecord.clicked.connect(self.show_update_record_window)
+        self.ui.button_about_shortCut.clicked.connect(create_desktop_shortcut)
+        self.ui.button_about_homePage.mousePressEvent = self.open_homepage
+        self.ui.button_about_helpDoc.mousePressEvent = self.open_helpdoc
+        self.ui.button_about_Qgroup.mousePressEvent = self.open_Qgroup
 
     def _shortcut_handle(self, key: str):
         """快捷键处理"""
@@ -848,13 +851,19 @@ class MainWindow(QMainWindow):
         import webbrowser
 
         logger.info("open homepage address.")
-        webbrowser.open(Connect.homepage)
+        webbrowser.open(HOME_PAGE_LINK)
 
     def open_helpdoc(self, *args) -> None:
         import webbrowser
 
         logger.info("open helpdoc address.")
-        webbrowser.open(Connect.helpdoc)
+        webbrowser.open(HELP_DOC_LINK)
+
+    def open_Qgroup(self, *args) -> None:
+        import webbrowser
+
+        logger.info("open Qgroup address.")
+        webbrowser.open(QQ_GROUP_LINK)
 
     def closeEvent(self, event) -> None:
         """关闭程序事件"""

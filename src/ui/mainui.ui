@@ -963,11 +963,11 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>592</width>
-             <height>473</height>
+             <width>590</width>
+             <height>471</height>
             </rect>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="1,0">
+           <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="1,0,0">
             <item>
              <widget class="QGroupBox" name="groupBox_config">
               <layout class="QVBoxLayout">
@@ -1609,117 +1609,148 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_restart_update_record" stretch="0,0,0,0,0,0,0,0,0,0,0">
+             <layout class="QHBoxLayout" name="horizontalLayout_about1">
               <item>
-               <spacer name="horizontalSpacer_other_1">
+               <spacer name="horizontalSpacer_about1_1">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>40</width>
-                  <height>20</height>
+                  <width>0</width>
+                  <height>0</height>
                  </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_homepage">
+               <widget class="QPushButton" name="button_about_homePage">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>项目主页</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_2">
+               <spacer name="horizontalSpacer_about1_2">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_helpdoc">
+               <widget class="QPushButton" name="button_about_helpDoc">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>使用文档</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_3">
+               <spacer name="horizontalSpacer_about1_3">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="pushButton_shortcut">
+               <widget class="QPushButton" name="button_about_Qgroup">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>交流群</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="horizontalSpacer_about1_4">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+              </item>
+              <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_about2">
+              <item>
+               <spacer name="horizontalSpacer_about2_1">
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="button_about_shortCut">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>创建桌面快捷方式</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_4">
+               <spacer name="horizontalSpacer_about2_2">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="button_restart">
+               <widget class="QPushButton" name="button_about_appRestart">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>重启</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_5">
+               <spacer name="horizontalSpacer_about2_3">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
                 </property>
                </spacer>
               </item>
               <item>
-               <widget class="QPushButton" name="button_update_record">
+               <widget class="QPushButton" name="button_about_updateRecord">
+                <property name="minimumSize">
+                 <size>
+                  <width>120</width>
+                  <height>25</height>
+                 </size>
+                </property>
                 <property name="text">
                  <string>更新记录</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_other_6">
+               <spacer name="horizontalSpacer_about2_4">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
                 </property>
                </spacer>
               </item>
@@ -1740,10 +1771,10 @@
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
   <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
  </buttongroups>
 </ui>
