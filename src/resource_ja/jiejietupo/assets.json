@@ -29,7 +29,7 @@
             "name": "lock",
             "file": "lock.png",
             "region": [720, 510, 50, 50],
-            "score": "0.7"
+            "score": "0.8"
         },
         {
             "name": "queding",
@@ -59,7 +59,7 @@
             "name": "unlock",
             "file": "unlock.png",
             "region": [720, 510, 50, 50],
-            "score": "0.7"
+            "score": "0.75"
         },
         {
             "name": "xunzhang_0",
@@ -71,31 +71,31 @@
             "name": "xunzhang_1",
             "file": "xunzhang_1.png",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.9"
         },
         {
             "name": "xunzhang_2",
             "file": "xunzhang_2.png",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.9"
         },
         {
             "name": "xunzhang_3",
             "file": "xunzhang_3.png",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.9"
         },
         {
             "name": "xunzhang_4",
             "file": "xunzhang_4.png",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.9"
         },
         {
             "name": "xunzhang_5",
             "file": "xunzhang_5.png",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.9"
         },
         {
             "name": "yinyangliao",

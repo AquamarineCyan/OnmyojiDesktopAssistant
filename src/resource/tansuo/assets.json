@@ -13,7 +13,7 @@
             "file": "fighting_boss.png",
             "description": "挑战boss",
             "region": [0, 0, 0, 0],
-            "score": "0.7"
+            "score": "0.6"
         },
         {
             "name": "fight_little_monster",
