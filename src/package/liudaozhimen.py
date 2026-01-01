@@ -6,10 +6,10 @@ from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
 from ..utils.paddleocr import OcrData, ocr
 from ..utils.point import Point
-from .utils import Package
+from .base_package import BasePackage
 
 
-class LiuDaoZhiMen(Package):
+class LiuDaoZhiMen(BasePackage):
     """六道之门速刷"""
 
     scene_name = "六道之门速刷"

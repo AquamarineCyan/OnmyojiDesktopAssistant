@@ -5,10 +5,10 @@ from ..utils.exception import GUIStopException
 from ..utils.function import sleep
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
-from .utils import Package
+from .base_package import BasePackage
 
 
-class ZhaoHuan(Package):
+class ZhaoHuan(BasePackage):
     """普通召唤"""
 
     scene_name = "普通召唤"

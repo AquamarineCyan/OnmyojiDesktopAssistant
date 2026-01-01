@@ -5,11 +5,11 @@ from ..utils.log import logger
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
 from ..utils.window import window_manager
+from .base_package import BasePackage
 from .global_parameter import xuanshangfengyin_count
-from .utils import Package
 
 
-class XuanShangFengYin(Package):
+class XuanShangFengYin(BasePackage):
     """悬赏封印"""
 
     scene_name = "悬赏封印"

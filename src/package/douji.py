@@ -5,10 +5,10 @@ from ..utils.function import sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import ocr_match_once
-from .utils import Package
+from .base_package import BasePackage
 
 
-class DouJi(Package):
+class DouJi(BasePackage):
     scene_name = "斗技"
     resource_path = "douji"
 

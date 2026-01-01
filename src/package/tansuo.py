@@ -7,10 +7,10 @@ from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.point import Point
 from ..utils.window import window_manager
-from .utils import Package
+from .base_package import BasePackage
 
 
-class TanSuo(Package):
+class TanSuo(BasePackage):
     """探索"""
 
     scene_name = "探索"

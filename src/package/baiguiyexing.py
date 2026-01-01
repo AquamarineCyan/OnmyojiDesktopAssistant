@@ -7,10 +7,10 @@ from ..utils.function import random_num, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.window import window_manager
-from .utils import Package
+from .base_package import BasePackage
 
 
-class BaiGuiYeXing(Package):
+class BaiGuiYeXing(BasePackage):
     """百鬼夜行"""
 
     scene_name = "百鬼夜行"

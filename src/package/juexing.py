@@ -5,10 +5,10 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
-from .utils import Package
+from .base_package import BasePackage
 
 
-class JueXing(Package):
+class JueXing(BasePackage):
     """觉醒副本"""
 
     scene_name = "觉醒副本"

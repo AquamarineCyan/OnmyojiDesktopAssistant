@@ -6,10 +6,10 @@ from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.mythread import WorkTimer
-from .utils import Package
+from .base_package import BasePackage
 
 
-class YingJieShiLian(Package):
+class YingJieShiLian(BasePackage):
     main_name = "英杰试炼"
     resource_path = "yingjieshilian"
 
@@ -80,7 +80,7 @@ class GuiBingYanWu(YingJieShiLian):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             result = check_image_once(self.current_asset_list)
             if result is None:
                 continue
@@ -131,7 +131,7 @@ class GuiBingYanWu(YingJieShiLian):
                     while True:
                         if bool(event_thread):
                             raise GUIStopException
-                        
+
                         # 先判断御魂上限提醒
                         result = RuleImage(self.global_assets.IMAGE_SOUL_OVERFLOW)
                         if result.match():
@@ -230,6 +230,6 @@ class BingZangMiJing(YingJieShiLian):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             sleep(3)
             self.fight()

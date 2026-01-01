@@ -6,10 +6,10 @@ from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
-from .utils import Package
+from .base_package import BasePackage
 
 
-class DaoGuanTuPo(Package):
+class DaoGuanTuPo(BasePackage):
     """道馆突破"""
 
     scene_name = "道馆突破"

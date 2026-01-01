@@ -1,6 +1,7 @@
 from .baiguiyexing import BaiGuiYeXing
 from .daoguantupo import DaoGuanTuPo
 from .douji import DouJi
+from .global_resource import GlobalResource
 from .huodong import HuoDong
 from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
@@ -8,7 +9,6 @@ from .liudaozhimen import LiuDaoZhiMen
 from .qiling import QiLing
 from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
-from .utils import GlobalResource
 from .xuanshangfengyin import XuanShangFengYin
 from .yeyuanhuo import YeYuanHuo
 from .yingjieshilian import BingZangMiJing, GuiBingYanWu
@@ -18,7 +18,6 @@ from .yuling import YuLing
 from .zhaohuan import ZhaoHuan
 
 __all__ = [
-    "GlobalResource",
     "BaiGuiYeXing",
     "DaoGuanTuPo",
     "DouJi",
@@ -49,10 +48,10 @@ __all__ = [
 
 def get_package_resource_list():
     return [
-        GlobalResource,
         BaiGuiYeXing,
         DaoGuanTuPo,
         DouJi,
+        GlobalResource,
         HuoDong,
         JieJieTuPo,
         JieJieTuPoGeRen,

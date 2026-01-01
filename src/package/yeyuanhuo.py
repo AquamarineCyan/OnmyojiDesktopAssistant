@@ -5,10 +5,10 @@ from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
-from .utils import Package
+from .base_package import BasePackage
 
 
-class YeYuanHuo(Package):
+class YeYuanHuo(BasePackage):
     """业原火副本"""
 
     scene_name = "业原火副本"

@@ -7,10 +7,10 @@ from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
-from .utils import Package
+from .base_package import BasePackage
 
 
-class YuHun(Package):
+class YuHun(BasePackage):
     """御魂副本"""
 
     scene_name = "御魂副本"

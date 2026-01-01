@@ -3,10 +3,10 @@ from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
-from .utils import Package
+from .base_package import BasePackage
 
 
-class YuLing(Package):
+class YuLing(BasePackage):
     """御灵副本"""
 
     scene_name = "御灵副本"
@@ -33,7 +33,7 @@ class YuLing(Package):
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
-            
+
             sleep()
             # 开始
             self.check_click(self.IMAGE_START)

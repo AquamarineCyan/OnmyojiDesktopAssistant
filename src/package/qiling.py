@@ -7,7 +7,7 @@ from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
 from ..utils.point import Point
-from .utils import Package
+from .base_package import BasePackage
 
 
 class LuopanEmptyException(CustomException):
@@ -18,7 +18,7 @@ class LuopanEmptyException(CustomException):
         logger.ui_error("异常捕获：指定罗盘不足")
 
 
-class QiLing(Package):
+class QiLing(BasePackage):
     """契灵"""
 
     scene_name = "契灵"

@@ -12,7 +12,7 @@ from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
 from ..utils.point import Point
-from .utils import Package
+from .base_package import BasePackage
 
 
 class LineupState(Enum):
@@ -31,7 +31,7 @@ class LiaoTuPoFullException(CustomException):
         logger.ui_warn("异常捕获：寮突破已满")
 
 
-class JieJieTuPo(Package):
+class JieJieTuPo(BasePackage):
     """结界突破"""
 
     scene_name: str = "结界突破"
