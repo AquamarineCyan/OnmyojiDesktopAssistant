@@ -311,6 +311,26 @@ class BasePackage:
         """任务结束信息，支持重写"""
         pass
 
+    def _format_time_cost(self, cost: int):
+        """格式化用时为可读字符串，支持小时/分钟/秒
+
+        Args:
+            cost (int): 秒数
+        """
+        try:
+            s = int(cost)
+            if s >= 3600:
+                hours = s // 3600
+                minutes = (s % 3600) // 60
+                seconds = s % 60
+                logger.ui(f"用时 {hours}时{minutes}分{seconds}秒")
+            elif s >= 60:
+                logger.ui(f"用时 {(s // 60)}分{(s % 60)}秒")
+            else:
+                logger.ui(f"用时 {s}秒")
+        except Exception:
+            logger.error("用时统计计算失败")
+
     @run_in_thread
     def task_start(self):
         """任务开始"""
@@ -348,14 +368,7 @@ class BasePackage:
             prevent_sleep(False)
 
         _end = time.perf_counter()
-        _cost = _end - _start
-        try:
-            if _cost >= 60:
-                logger.ui(f"耗时{int(_cost // 60)}分{int(_cost % 60)}秒")
-            else:
-                logger.ui(f"耗时{int(_cost)}秒")
-        except Exception:
-            logger.error("耗时统计计算失败")
+        self._format_time_cost(int(_end - _start))
 
         self.task_finish_info()
         if xuanshangfengyin_count.get():
