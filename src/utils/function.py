@@ -9,7 +9,7 @@ from pathlib import Path
 from .adapter import Mouse
 from .application import APP_PATH, USER_DATA_DIR_PATH
 from .config import config
-from .decorator import log_function_call
+from .decorator import log_caller, log_function_call
 from .event import event_thread
 from .exception import GUIStopException
 from .log import logger
@@ -79,17 +79,18 @@ def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
     return Point(x, y)
 
 
-def random_sleep(minimum: int | float = 1.0, maximum: int | float = None) -> None:
+@log_caller
+def random_sleep(caller_name, minimum: int | float = 1.0, maximum: int | float | None = None) -> None:
     """随机延时（秒）
 
     参数:
-        minimum (int): 最小值（含），默认1.0
-        maximum (int): 最大值（不含），默认None
+        minimum (int | float): 最小值（含），默认1.0
+        maximum (int | float | None): 最大值（不含），默认None
     """
     if maximum is None:
         maximum = minimum + 1
     _sleep_time = random_num(minimum, maximum)
-    logger.info(f"sleep for {_sleep_time} seconds")
+    logger.info(f"sleep {_sleep_time} seconds from [{caller_name}]")
     time.sleep(_sleep_time)
 
 
