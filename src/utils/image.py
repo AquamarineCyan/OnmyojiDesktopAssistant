@@ -1,4 +1,4 @@
-import os
+from enum import Enum
 from pathlib import Path
 from typing import Literal
 
@@ -13,6 +13,14 @@ from .log import logger
 from .point import Point
 from .screenshot import ScreenShot
 from .window import window_manager
+
+
+class LOGLEVEL(Enum):
+    """日志等级"""
+
+    NONE = 0
+    FAIL = 1
+    SUCCESS = 2
 
 
 def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
@@ -111,6 +119,7 @@ class RuleImage:
         score: float = None,
         debug: bool = False,
         normal: bool = True,
+        logger_lever: Literal["ERROR", "SUCCESS", "NONE"] = "SUCCESS",
     ) -> bool:
         if normal:
             event_xuanshang.wait()
@@ -131,9 +140,12 @@ class RuleImage:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
         if max_val < score:
+            if logger_lever == "ERROR":
+                logger.warning(f"[ERROR] {self.name} [score] {round(max_val, 4)}")
             return False
 
-        logger.info(f"{self.name} 匹配成功，相似度: {round(max_val, 2)}")
+        if logger_lever in ("SUCCESS", "ERROR"):
+            logger.info(f"[SUCCESS] {self.name} [score] {round(max_val, 4)}")
         # https://blog.csdn.net/m0_37579176/article/details/116950903
         # 匹配区域里的相对坐标
         x1, y1 = max_loc

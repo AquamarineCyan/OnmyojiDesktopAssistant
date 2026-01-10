@@ -2,7 +2,6 @@ import json
 import os
 import tempfile
 from ctypes import *
-from datetime import datetime, timezone
 from typing import Literal
 
 import win32api
@@ -12,6 +11,7 @@ from .assets import AssetOcr
 from .log import logger
 from .point import Point, Rectangle
 from .screenshot import ScreenShot
+from .window import window_manager
 
 
 class PaddleOCRParameter(Structure):
@@ -167,29 +167,6 @@ class CharacterRecognition:
         self.flag_init = True
         return True
 
-    def get_raw_result(self) -> dict | None:
-        if not self.flag_init:
-            return None
-
-        ScreenShot().save(self.img_file)
-
-        # 下面的方法不能实现，只能保存到本地，然后用gbk编码打开
-        # byte_image = io.BytesIO()
-        # img.save(byte_image, format="PNG")
-        # byte_image = byte_image.getvalue()
-
-        t2 = datetime.now(timezone.utc)
-        img = str(self.img_file).encode("gbk")
-        result = self.paddleocr.Detect(img)
-        t3 = datetime.now(timezone.utc)
-
-        logger.info(f"ocr cost: {t3 - t2}")
-        self.result = json.loads(result)
-        for item in self.result:
-            logger.info(f"ocr result: {item}")
-        # TODO 优化返回值，去除多余项，一般用下面的RuleOcr.get_raw_result
-        return self.result
-
     def free_dll(self):
         if not self.flag_init:
             return
@@ -203,6 +180,15 @@ ocr = CharacterRecognition()
 
 
 class OcrData:
+    text: str
+    """识别文本"""
+    score: float
+    """分数阈值"""
+    rect: Rectangle
+    """识别区域"""
+    center: Point
+    """识别区域中心坐标"""
+
     def __init__(self, item) -> None:
         self.score: float = round(item["Score"], 2)
         self.text: str = item["Text"]
@@ -219,7 +205,7 @@ class OcrData:
         center = self.rect.get_center()
         self.center = Point(client_x=int(center[0]), client_y=int(center[1]))
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
 
 
@@ -252,6 +238,15 @@ class RuleOcr:
         score: float = 0.7,
         method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
     ) -> None:
+        """
+        Args:
+            assetocr (AssetOcr):  文字识别资源
+            name (str): 名称
+            keyword (str): 关键词
+            region (tuple): 区域
+            score (float): 识别阈值
+            method (Literal["PERFACT", "INCLUDE"]): 匹配方式，PERFACT：完全匹配，INCLUDE：包含匹配
+        """
         if assetocr:
             self.keyword = assetocr.keyword
             self.name = assetocr.name
@@ -265,30 +260,45 @@ class RuleOcr:
             self.score = score
             self.method = method
 
+        if self.region is None or self.region == (0, 0, 0, 0):
+            self.region = window_manager.current.client_rect
+
         self.match_result: OcrData = None
 
-    def get_raw_result(self, file: str = None) -> list[OcrData]:
-        if file is None:
-            file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
-            ScreenShot().save(file)
+    def get_raw_result(self) -> list[OcrData]:
+        file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
+        ScreenShot(rect=self.region).save(file)
         image = file.encode("gbk")
-        result = ocr.paddleocr.Detect(image)
-        result = json.loads(result)
-        list_ = []
-        for item in result:
+        ocr_result = ocr.paddleocr.Detect(image)
+
+        data_result: list[OcrData] = []
+        try:
+            ocr_result = json.loads(ocr_result)
+            if not isinstance(ocr_result, list):
+                logger.error(f"OCR result is not a list: {ocr_result}")
+                return data_result
+        except Exception as e:
+            logger.error(f"Failed to parse OCR result: {str(e)}")
+            logger.error(f"Raw OCR result: {ocr_result}")
+            return data_result
+
+        for item in ocr_result:
             # 过滤无效数据
-            if item["Score"] == 0.0:
+            if not isinstance(item, dict):
+                logger.warning(f"OCR item is not a dict: {item}")
                 continue
-            if item["Text"] == "":
+            if item.get("Score", 0.0) == 0.0:
+                continue
+            if item.get("Text", "") == "":
                 continue
             ocr_data = OcrData(item)
             logger.info(f"ocr result: {ocr_data}")
-            list_.append(ocr_data)
-        return list_
+            data_result.append(ocr_data)
+        return data_result
 
     def match(
         self,
-        ocr_result: str | list[OcrData] = None,
+        ocr_result: list[OcrData] = None,
         keyword: str = None,
         score: float = None,
         debug: bool = False,
@@ -296,8 +306,8 @@ class RuleOcr:
         if not ocr.flag_init:
             ocr.init()
 
-        if not isinstance(ocr_result, list):
-            ocr_result = self.get_raw_result(ocr_result)
+        if ocr_result is None:
+            ocr_result = self.get_raw_result()
 
         if keyword is None:
             keyword = self.keyword
