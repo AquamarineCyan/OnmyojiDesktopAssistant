@@ -8,8 +8,14 @@
             "score": "0.7"
         },
         {
-            "name": "fight_ready_quit",
-            "file": "fight_ready_quit.png",
+            "name": "fight",
+            "file": "fight.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "fight_choose_skill_refresh",
+            "file": "fight_choose_skill_refresh.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"    
         },
@@ -26,12 +32,6 @@
             "score": "0.7"
         },
         {
-            "name": "fight",
-            "file": "fight.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
             "name": "imitation",
             "file": "imitation.png",
             "region": [0, 0, 0, 0],
@@ -42,6 +42,12 @@
             "file": "open.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
+        },
+        {
+            "name": "quit",
+            "file": "quit.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"    
         },
         {
             "name": "shop_refresh",
