@@ -199,10 +199,3 @@ class TanSuo(BasePackage):
                             )
                             Mouse.drag((x_middle - x) * 2, 0, random_num(0.5, 0.8))
                             logger.info(f"move width: {(x_middle - x) * 2}")
-
-        logger.ui("准备关闭弹窗")
-        sleep()
-        if self.check_click(self.global_assets.IMAGE_CLOSE, timeout=5):
-            logger.ui("关闭弹窗")
-        else:
-            logger.ui("无需关闭弹窗")

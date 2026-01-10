@@ -694,6 +694,157 @@
                </attribute>
               </widget>
              </widget>
+             <widget class="QWidget" name="_6_huijuan">
+              <widget class="QGroupBox" name="groupBox_huijuan_jiejietupo">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>50</y>
+                 <width>190</width>
+                 <height>125</height>
+                </rect>
+               </property>
+               <widget class="QLabel" name="label_huijuan_jiejietupo_target_level">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>62</y>
+                  <width>48</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>目标等级</string>
+                </property>
+               </widget>
+               <widget class="QLabel" name="label_huijuan_jiejietupo_current_level">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>36</y>
+                  <width>55</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>当前等级</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="button_huijuan_jiejietupo_switch_level">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>10</y>
+                  <width>70</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>卡级</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_huijuan_jiejietupo_switch</string>
+                </attribute>
+               </widget>
+               <widget class="QComboBox" name="comboBox_huijuan_jiejietupo_current_level">
+                <property name="geometry">
+                 <rect>
+                  <x>80</x>
+                  <y>35</y>
+                  <width>90</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QComboBox" name="comboBox_huijuan_jiejietupo_target_level">
+                <property name="geometry">
+                 <rect>
+                  <x>80</x>
+                  <y>60</y>
+                  <width>90</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+               </widget>
+               <widget class="QCheckBox" name="button_huijuan_jiejietupo_fail">
+                <property name="geometry">
+                 <rect>
+                  <x>80</x>
+                  <y>10</y>
+                  <width>90</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>首轮退级</string>
+                </property>
+               </widget>
+               <widget class="QRadioButton" name="button_huijuan_jiejietupo_switch_rule">
+                <property name="geometry">
+                 <rect>
+                  <x>5</x>
+                  <y>90</y>
+                  <width>70</width>
+                  <height>20</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>3胜刷新</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup_huijuan_jiejietupo_switch</string>
+                </attribute>
+               </widget>
+              </widget>
+              <widget class="QGroupBox" name="groupBox_huijuan_tansuo">
+               <property name="geometry">
+                <rect>
+                 <x>10</x>
+                 <y>0</y>
+                 <width>190</width>
+                 <height>40</height>
+                </rect>
+               </property>
+               <widget class="QLabel" name="huijuan_tansuo_label_numbers">
+                <property name="geometry">
+                 <rect>
+                  <x>10</x>
+                  <y>0</y>
+                  <width>60</width>
+                  <height>35</height>
+                 </rect>
+                </property>
+                <property name="text">
+                 <string>探索次数</string>
+                </property>
+               </widget>
+               <widget class="QSpinBox" name="huijuan_tansuo_spin_times">
+                <property name="geometry">
+                 <rect>
+                  <x>90</x>
+                  <y>7</y>
+                  <width>75</width>
+                  <height>23</height>
+                 </rect>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>60</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>宋体</family>
+                  <pointsize>10</pointsize>
+                 </font>
+                </property>
+                <property name="maximum">
+                 <number>999</number>
+                </property>
+               </widget>
+              </widget>
+             </widget>
             </widget>
            </item>
           </layout>
@@ -1641,6 +1792,12 @@
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
               </item>
               <item>
@@ -1660,6 +1817,12 @@
                <spacer name="horizontalSpacer_about1_3">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </spacer>
               </item>
@@ -1681,16 +1844,28 @@
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
               </item>
              </layout>
-              </item>
-              <item>
+            </item>
+            <item>
              <layout class="QHBoxLayout" name="horizontalLayout_about2">
               <item>
                <spacer name="horizontalSpacer_about2_1">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </spacer>
               </item>
@@ -1712,6 +1887,12 @@
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
               </item>
               <item>
@@ -1731,6 +1912,12 @@
                <spacer name="horizontalSpacer_about2_3">
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </spacer>
               </item>
@@ -1752,6 +1939,12 @@
                 <property name="orientation">
                  <enum>Qt::Orientation::Horizontal</enum>
                 </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
                </spacer>
               </item>
              </layout>
@@ -1770,11 +1963,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
   <buttongroup name="buttonGroup_yuhun_mode"/>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_huijuan_jiejietupo_switch"/>
  </buttongroups>
 </ui>

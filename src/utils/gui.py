@@ -55,6 +55,7 @@ class GameFunction(Enum):
     LIUDAOZHIMEN = 15  # 六道之门速刷
     DOUJI = 16  # 斗技自动上阵
     YINGJIESHILIAN = 17  # 英杰试炼
+    HUIJUAN = 18  # 绘卷刷分
 
 
 class StackedWidgetIndex(Enum):
@@ -66,6 +67,7 @@ class StackedWidgetIndex(Enum):
     DAOGUANTUPO = 3
     QILING = 4
     YINGJIESHILIAN = 5
+    HUIJUAN = 6
 
 
 class MainWindow(QMainWindow):
@@ -89,6 +91,7 @@ class MainWindow(QMainWindow):
         "15.六道之门速刷",
         "16.斗技自动上阵",
         "17.英杰试炼",
+        "18.绘卷刷分",
     ]
 
     def __init__(self):
@@ -180,6 +183,9 @@ class MainWindow(QMainWindow):
         self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_handle)
         self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_handle)
         self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_handle)
+        self.ui.buttonGroup_huijuan_jiejietupo_switch.buttonClicked.connect(
+            self.buttonGroup_huijuan_jiejietupo_switch_handle
+        )
 
         self.ui.tab_window_manager_preview_button.clicked.connect(self.preview_window)
         self.ui.tab_window_manager_apply_button.clicked.connect(self.apply_selected_window)
@@ -592,6 +598,15 @@ class MainWindow(QMainWindow):
                 self.ui.button_yingjieshilian_skill.setChecked(True)
                 self.buttonGroup_yingjieshilian_handle()
 
+            case GameFunction.HUIJUAN:
+                HuiJuan.description()
+                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.HUIJUAN.value)
+                self.ui.button_huijuan_jiejietupo_switch_level.setChecked(True)
+                self.ui.button_huijuan_jiejietupo_fail.setChecked(True)
+                self.ui.comboBox_huijuan_jiejietupo_current_level.addItems(["57", "58", "59", "60"])
+                self.ui.comboBox_huijuan_jiejietupo_target_level.addItems(["57", "58", "59", "60"])
+                self.ui.button_huijuan_jiejietupo_switch_rule.setChecked(False)
+
     def _app_start(self) -> None:
         # 没有选功能前禁止通过快捷键启动程序
         if self.ui.combo_choice.currentIndex() == -1:
@@ -695,6 +710,26 @@ class MainWindow(QMainWindow):
                 else:
                     GuiBingYanWu(n=n).task_start()
 
+            case GameFunction.HUIJUAN:
+                flag_refresh_need: int = 0
+                current_level = target_level = 57
+                if (
+                    self.ui.buttonGroup_huijuan_jiejietupo_switch.checkedButton()
+                    == self.ui.button_huijuan_jiejietupo_switch_level
+                ):
+                    current_level = int(self.ui.comboBox_huijuan_jiejietupo_current_level.currentText())
+                    target_level = int(self.ui.comboBox_huijuan_jiejietupo_target_level.currentText())
+                else:
+                    flag_refresh_need = 3
+                HuiJuan(
+                    n=n,
+                    loop_count=self.ui.huijuan_tansuo_spin_times.value(),
+                    flag_refresh_rule=flag_refresh_need,
+                    flag_current_level=current_level,
+                    flag_target_level=target_level,
+                    flag_first_round_failure=self.ui.button_huijuan_jiejietupo_fail.isChecked(),
+                ).task_start()
+
     def _app_stop(self) -> None:
         event_thread.set()
         logger.ui("停止中，请稍候")
@@ -776,6 +811,15 @@ class MainWindow(QMainWindow):
         else:
             self.ui_spin_times_set_value_func(1)
             GuiBingYanWu.description()
+
+    def buttonGroup_huijuan_jiejietupo_switch_handle(self):
+        flag = (
+            self.ui.buttonGroup_huijuan_jiejietupo_switch.checkedButton()
+            == self.ui.button_huijuan_jiejietupo_switch_level
+        )
+        self.ui.comboBox_huijuan_jiejietupo_current_level.setEnabled(flag)
+        self.ui.comboBox_huijuan_jiejietupo_target_level.setEnabled(flag)
+        self.ui.button_huijuan_jiejietupo_fail.setEnabled(flag)
 
     def refresh_window_list(self, handles):
         self.ui.tab_window_manager_comboBox.clear()

@@ -2,6 +2,7 @@ from .baiguiyexing import BaiGuiYeXing
 from .daoguantupo import DaoGuanTuPo
 from .douji import DouJi
 from .global_resource import GlobalResource
+from .huijuan import HuiJuan
 from .huodong import HuoDong
 from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
@@ -21,6 +22,7 @@ __all__ = [
     "BaiGuiYeXing",
     "DaoGuanTuPo",
     "DouJi",
+    "HuiJuan",
     "HuoDong",
     "JieJieTuPoGeRen",
     "JieJieTuPoYinYangLiao",
