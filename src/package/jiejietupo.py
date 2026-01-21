@@ -167,6 +167,11 @@ class JieJieTuPoGeRen(JieJieTuPo):
         3: 380,
     }
 
+    @classmethod
+    def get_level_list(cls) -> list[str]:
+        """返回等级列表"""
+        return ["57", "58", "59", "60"]
+
     @log_function_call
     def __init__(
         self,

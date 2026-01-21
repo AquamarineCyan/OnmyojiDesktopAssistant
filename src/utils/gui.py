@@ -113,6 +113,13 @@ class MainWindow(QMainWindow):
         self.ui.spin_times.setEnabled(False)
 
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
+        gerentupo_level_list = JieJieTuPoGeRen.get_level_list()
+        self.ui.comboBox_jiejietupo_current_level.addItems(gerentupo_level_list)
+        self.ui.comboBox_jiejietupo_target_level.addItems(gerentupo_level_list)
+        self.ui.comboBox_huijuan_jiejietupo_current_level.addItems(gerentupo_level_list)
+        self.ui.comboBox_huijuan_jiejietupo_target_level.addItems(gerentupo_level_list)
+        self.ui.combo_qiling_jieqi_stone.addItems(QiLing.get_pockmon_list())
+
         self._init_settings()
         self._init_signals()
         self._init_events()
@@ -528,8 +535,6 @@ class MainWindow(QMainWindow):
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
                 self.ui.button_jiejietupo_switch_level.setChecked(True)
                 self.ui.button_jiejietupo_fail.setChecked(True)
-                self.ui.comboBox_jiejietupo_current_level.addItems(["57", "58", "59", "60"])
-                self.ui.comboBox_jiejietupo_target_level.addItems(["57", "58", "59", "60"])
 
                 self.ui.button_jiejietupo_refresh_rule_3.setChecked(True)
                 # TODO
@@ -581,7 +586,6 @@ class MainWindow(QMainWindow):
                 self.ui.button_qiling_tancha.setChecked(False)
                 self.ui.button_qiling_jieqi.setChecked(True)
                 self.ui.button_qiling_jieqi.setChecked(False)
-                self.ui.combo_qiling_jieqi_stone.addItems(QiLing.get_pockmon_list())
                 self.ui.spin_qiling_jieqi_stone.setValue(0)
 
             case GameFunction.JUEXING:
@@ -603,8 +607,6 @@ class MainWindow(QMainWindow):
                 self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.HUIJUAN.value)
                 self.ui.button_huijuan_jiejietupo_switch_level.setChecked(True)
                 self.ui.button_huijuan_jiejietupo_fail.setChecked(True)
-                self.ui.comboBox_huijuan_jiejietupo_current_level.addItems(["57", "58", "59", "60"])
-                self.ui.comboBox_huijuan_jiejietupo_target_level.addItems(["57", "58", "59", "60"])
                 self.ui.button_huijuan_jiejietupo_switch_rule.setChecked(False)
 
     def _app_start(self) -> None:
