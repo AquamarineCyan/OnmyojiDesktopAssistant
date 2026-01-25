@@ -1,4 +1,6 @@
 import time
+from ctypes import windll
+from typing import Literal
 
 import win32con
 import win32gui
@@ -54,7 +56,10 @@ class ScreenShot:
 
             try:
                 if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
-                    self._screenshot_backend(self.rect)
+                    self._screenshot_backend(
+                        self.rect,
+                        config.user.model_dump().get("interaction_mode").get("backend").get("screenshot_method"),
+                    )
                 else:
                     window_rect = (
                         self.gamewindow.client_left + self.rect[0],
@@ -84,7 +89,20 @@ class ScreenShot:
         self._image = image
         return image
 
-    def _screenshot_backend(self, client_rect: tuple[int, int, int, int]) -> Image.Image:
+    def _screenshot_backend(
+        self,
+        client_rect: tuple[int, int, int, int],
+        method: Literal["BitBlt", "PrintWindow"],
+    ) -> Image.Image:
+        """后台截图
+
+        Args:
+            client_rect (tuple[int, int, int, int]): 客户区尺寸
+            method (Literal["BitBlt", "PrintWindow"]): 截图模式
+
+        Returns:
+            Image.Image: 截取图像
+        """
         _start = time.perf_counter()
         # 返回句柄窗口的设备环境，覆盖整个窗口，包括非客户区，标题栏，菜单，边框
         hWndDC = win32gui.GetDC(self.hwnd)
@@ -99,13 +117,18 @@ class ScreenShot:
         # 将截图保存到saveBitMap中
         saveDC.SelectObject(saveBitMap)
         # 保存bitmap到内存设备描述表
-        saveDC.BitBlt(
-            (0, 0),
-            (client_rect[2], client_rect[3]),
-            mfcDC,
-            (client_rect[0], client_rect[1]),
-            win32con.SRCCOPY,
-        )
+        if method == "BitBlt":
+            saveDC.BitBlt(
+                (0, 0),
+                (client_rect[2], client_rect[3]),
+                mfcDC,
+                (client_rect[0], client_rect[1]),
+                win32con.SRCCOPY,
+            )
+        elif method == "PrintWindow":
+            windll.user32.PrintWindow(self.hwnd, saveDC.GetSafeHdc(), 3)
+        else:
+            raise ValueError("method must be 'BitBlt' or 'PrintWindow'")
 
         # 获取位图信息
         bmpinfo = saveBitMap.GetInfo()

@@ -1585,6 +1585,72 @@
                 </layout>
                </item>
                <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_interaction_backend_screenshot_method" stretch="4,2,0,2,4">
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_backend_screenshot_method">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="setting_interaction_backend_screenshot_method_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>后台截图模式</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_backend_screenshot_method_2">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="setting_interaction_backend_screenshot_method_comboBox">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_setting_interaction_backend_screenshot_method_3">
+                   <property name="orientation">
+                    <enum>Qt::Orientation::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_setting_interaction_mode_frontend">
                  <item>
                   <spacer name="horizontalSpacer_setting_interaction_mode_frontend_left">
@@ -1963,12 +2029,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_yingjieshilian"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
   <buttongroup name="buttonGroup_huijuan_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yingjieshilian"/>
  </buttongroups>
 </ui>

@@ -673,6 +673,39 @@ class Ui_MainWindow(object):
 
         self.vboxLayout.addLayout(self.horizontalLayout_setting_interaction_mode)
 
+        self.horizontalLayout_interaction_backend_screenshot_method = QHBoxLayout()
+        self.horizontalLayout_interaction_backend_screenshot_method.setObjectName(u"horizontalLayout_interaction_backend_screenshot_method")
+        self.horizontalSpacer_setting_interaction_backend_screenshot_method = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_interaction_backend_screenshot_method.addItem(self.horizontalSpacer_setting_interaction_backend_screenshot_method)
+
+        self.setting_interaction_backend_screenshot_method_label = QLabel(self.groupBox_config)
+        self.setting_interaction_backend_screenshot_method_label.setObjectName(u"setting_interaction_backend_screenshot_method_label")
+        self.setting_interaction_backend_screenshot_method_label.setMinimumSize(QSize(120, 0))
+
+        self.horizontalLayout_interaction_backend_screenshot_method.addWidget(self.setting_interaction_backend_screenshot_method_label)
+
+        self.horizontalSpacer_setting_interaction_backend_screenshot_method_2 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_interaction_backend_screenshot_method.addItem(self.horizontalSpacer_setting_interaction_backend_screenshot_method_2)
+
+        self.setting_interaction_backend_screenshot_method_comboBox = QComboBox(self.groupBox_config)
+        self.setting_interaction_backend_screenshot_method_comboBox.setObjectName(u"setting_interaction_backend_screenshot_method_comboBox")
+        self.setting_interaction_backend_screenshot_method_comboBox.setMinimumSize(QSize(80, 0))
+
+        self.horizontalLayout_interaction_backend_screenshot_method.addWidget(self.setting_interaction_backend_screenshot_method_comboBox)
+
+        self.horizontalSpacer_setting_interaction_backend_screenshot_method_3 = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_interaction_backend_screenshot_method.addItem(self.horizontalSpacer_setting_interaction_backend_screenshot_method_3)
+
+        self.horizontalLayout_interaction_backend_screenshot_method.setStretch(0, 4)
+        self.horizontalLayout_interaction_backend_screenshot_method.setStretch(1, 2)
+        self.horizontalLayout_interaction_backend_screenshot_method.setStretch(3, 2)
+        self.horizontalLayout_interaction_backend_screenshot_method.setStretch(4, 4)
+
+        self.vboxLayout.addLayout(self.horizontalLayout_interaction_backend_screenshot_method)
+
         self.horizontalLayout_setting_interaction_mode_frontend = QHBoxLayout()
         self.horizontalLayout_setting_interaction_mode_frontend.setObjectName(u"horizontalLayout_setting_interaction_mode_frontend")
         self.horizontalSpacer_setting_interaction_mode_frontend_left = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -906,6 +939,7 @@ class Ui_MainWindow(object):
         self.setting_window_style_label.setText(QCoreApplication.translate("MainWindow", u"\u754c\u9762\u98ce\u683c", None))
         self.setting_shortcut_start_stop_label.setText(QCoreApplication.translate("MainWindow", u"\u5feb\u6377\u952e\uff1a\u5f00\u59cb/\u505c\u6b62", None))
         self.setting_interaction_mode_label.setText(QCoreApplication.translate("MainWindow", u"\u4ea4\u4e92\u6a21\u5f0f", None))
+        self.setting_interaction_backend_screenshot_method_label.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u622a\u56fe\u6a21\u5f0f", None))
         self.setting_interaction_mode_frontend_button.setText(QCoreApplication.translate("MainWindow", u"\u524d\u53f0\u8fd0\u884c\u524d\u7f6e\u6e38\u620f\u7a97\u53e3", None))
         self.setting_interaction_mode_backend_button.setText(QCoreApplication.translate("MainWindow", u"\u540e\u53f0\u8fd0\u884c\u7981\u6b62\u7cfb\u7edf\u4f11\u7720", None))
         self.setting_remember_last_choice_button.setText(QCoreApplication.translate("MainWindow", u"\u8bb0\u5fc6\u4e0a\u6b21\u6240\u9009\u529f\u80fd", None))

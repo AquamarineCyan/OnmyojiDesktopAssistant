@@ -33,12 +33,17 @@ _shortcut_start_stop_list = [
 _interaction_mode_list = ["前台", "后台"]
 """交互模式"""
 # 前台/后台的子配置
-_frontend_sub_config = {"force_window": [True, False]}
-_backend_sub_config = {"prevent_sleep": [True, False]}
+_frontend_sub_config = {
+    "force_window": [True, False],
+}
+_backend_sub_config = {
+    "prevent_sleep": [True, False],
+    "screenshot_method": ["BitBlt", "PrintWindow"],
+}
 
 
 class DefaultConfig(BaseModel):
-    """默认配置"""
+    """默认配置，用于UI显示选项"""
 
     game_language: list = _game_language_list
     update: list = _update_list
@@ -76,8 +81,13 @@ class UserConfig(BaseModel):
     """系统通知"""
     interaction_mode: dict = {
         "mode": _interaction_mode_list[0],  # 默认 "前台"
-        "frontend": {"force_window": True},
-        "backend": {"prevent_sleep": True},
+        "frontend": {
+            "force_window": True,
+        },
+        "backend": {
+            "prevent_sleep": True,
+            "screenshot_method": "BitBlt",
+        },
     }
     """交互模式"""
 

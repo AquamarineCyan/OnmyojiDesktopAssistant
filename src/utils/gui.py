@@ -145,6 +145,13 @@ class MainWindow(QMainWindow):
         self.ui.setting_interaction_mode_comboBox.addItems(config.default.model_dump()["interaction_mode"]["mode"])
         self.ui.setting_interaction_mode_comboBox.setCurrentText(config.user.model_dump()["interaction_mode"]["mode"])
 
+        self.ui.setting_interaction_backend_screenshot_method_comboBox.addItems(
+            config.default.model_dump()["interaction_mode"]["backend"]["screenshot_method"]
+        )
+        self.ui.setting_interaction_backend_screenshot_method_comboBox.setCurrentText(
+            config.user.model_dump()["interaction_mode"]["backend"]["screenshot_method"]
+        )
+
         _status = config.user.model_dump().get("interaction_mode").get("frontend").get("force_window")
         self.ui.setting_interaction_mode_frontend_button.setChecked(_status)
 
@@ -214,6 +221,9 @@ class MainWindow(QMainWindow):
         self.ui.setting_interaction_mode_comboBox.currentIndexChanged.connect(
             self.setting_interaction_mode_comboBox_handle
         )
+        self.ui.setting_interaction_backend_screenshot_method_comboBox.currentIndexChanged.connect(
+            self.setting_interaction_backend_screenshot_method_comboBox_handle
+        )
         self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_handle)
         self.ui.setting_interaction_mode_frontend_button.clicked.connect(self.setting_interaction_mode_frontend_handle)
         self.ui.setting_interaction_mode_backend_button.clicked.connect(self.setting_interaction_mode_backend_handle)
@@ -257,6 +267,11 @@ class MainWindow(QMainWindow):
             logger.ui_error("初始化失败")
             return
         logger.ui("初始化成功")
+
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+            logger.ui_warn(
+                "当前为后台交互模式，需要在窗口管理中检查截图是否正常。如果在移动游戏窗口后截图黑屏，可尝试切换后台截图模式解决"
+            )
 
         self._global_task_init()
 
@@ -450,6 +465,12 @@ class MainWindow(QMainWindow):
         text = self.ui.setting_interaction_mode_comboBox.currentText()
         logger.info(f"设置项：交互模式已更改为 {text}")
         config.update("interaction_mode.mode", text)
+
+    def setting_interaction_backend_screenshot_method_comboBox_handle(self) -> None:
+        """设置-后台运行截图模式-更改"""
+        text = self.ui.setting_interaction_backend_screenshot_method_comboBox.currentText()
+        logger.info(f"设置项：后台运行截图模式已更改为 {text}")
+        config.update("interaction_mode.backend.screenshot_method", text)
 
     def setting_remember_last_choice_handle(self) -> None:
         """设置-记忆上次所选功能-更改"""
