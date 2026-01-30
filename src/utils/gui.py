@@ -420,8 +420,7 @@ class MainWindow(QMainWindow):
                 return False
 
             # 检查资源文件
-            p = P()
-            if not p.init:
+            if not check_assets(P.resource_path):
                 return False
 
         logger.info("资源完整")

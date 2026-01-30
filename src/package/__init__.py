@@ -10,6 +10,7 @@ from .liudaozhimen import LiuDaoZhiMen
 from .qiling import QiLing
 from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
+from .utils import check_assets
 from .xuanshangfengyin import XuanShangFengYin
 from .yeyuanhuo import YeYuanHuo
 from .yingjieshilian import YingJieShiLianExp, YingJieShiLianSkill
@@ -45,6 +46,7 @@ __all__ = [
     "YuLing",
     "ZhaoHuan",
     "get_package_resource_list",
+    "check_assets",
 ]
 
 

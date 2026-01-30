@@ -1,6 +1,9 @@
+import json
+from pathlib import Path
 from typing import Literal
 
 from ..utils.assets import AssetOcr
+from ..utils.config import config
 from ..utils.function import get_asset_data
 from ..utils.image import AssetImage
 from ..utils.log import logger
@@ -42,3 +45,32 @@ def get_image_asset(asset_image_list, name) -> AssetImage:
 
 def get_ocr_asset(asset_ocr_list, name) -> AssetOcr:
     return AssetOcr(**get_asset(asset_ocr_list, name))
+
+
+def check_assets(resource_path: str) -> bool:
+    try:
+        assets_path = config.resource_dir / resource_path / "assets.json"
+        raw_data: dict = {}
+        with open(str(assets_path), encoding="utf-8") as f:
+            raw_data = json.load(f)
+
+        current_asset = raw_data.get("current_path")
+        if current_asset is None:
+            return False
+
+        image_data = raw_data.get("image_data")
+        # image_data 可以不存在
+        if isinstance(image_data, list):
+            for item in image_data:
+                file = Path(config.resource_dir / current_asset / item["file"])
+                if file.exists():
+                    logger.info(f"resource file [{file}] exists.")
+                else:
+                    logger.ui_error(f"资源文件[{file}]丢失")
+                    raise FileNotFoundError
+
+    except Exception as e:
+        logger.ui_error(f"资源文件夹{resource_path}加载失败: {str(e)}")
+        return False
+
+    return True
