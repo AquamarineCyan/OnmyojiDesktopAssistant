@@ -665,13 +665,13 @@
                <property name="geometry">
                 <rect>
                  <x>30</x>
-                 <y>30</y>
-                 <width>98</width>
-                 <height>19</height>
+                 <y>70</y>
+                 <width>100</width>
+                 <height>25</height>
                 </rect>
                </property>
                <property name="text">
-                <string>鬼兵演武</string>
+                <string>经验本</string>
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">buttonGroup_yingjieshilian</string>
@@ -681,17 +681,27 @@
                <property name="geometry">
                 <rect>
                  <x>30</x>
-                 <y>60</y>
-                 <width>98</width>
-                 <height>19</height>
+                 <y>100</y>
+                 <width>100</width>
+                 <height>25</height>
                 </rect>
                </property>
                <property name="text">
-                <string>兵藏秘境</string>
+                <string>技能本</string>
                </property>
                <attribute name="buttonGroup">
                 <string notr="true">buttonGroup_yingjieshilian</string>
                </attribute>
+              </widget>
+              <widget class="QComboBox" name="combo_yingjieshilian">
+               <property name="geometry">
+                <rect>
+                 <x>30</x>
+                 <y>30</y>
+                 <width>140</width>
+                 <height>25</height>
+                </rect>
+               </property>
               </widget>
              </widget>
              <widget class="QWidget" name="_6_huijuan">
@@ -2029,12 +2039,12 @@
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_yuhun_passengers"/>
-  <buttongroup name="buttonGroup_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_huijuan_jiejietupo_switch"/>
-  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
-  <buttongroup name="buttonGroup_yuhun_mode"/>
-  <buttongroup name="buttonGroup_yuhun_driver"/>
   <buttongroup name="buttonGroup_yingjieshilian"/>
+  <buttongroup name="buttonGroup_yuhun_passengers"/>
+  <buttongroup name="buttonGroup_huijuan_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_jiejietupo_switch"/>
+  <buttongroup name="buttonGroup_yuhun_driver"/>
+  <buttongroup name="buttonGroup_yuhun_mode"/>
+  <buttongroup name="buttonGroup_jiejietupo_refresh_rule"/>
  </buttongroups>
 </ui>

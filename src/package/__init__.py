@@ -12,7 +12,7 @@ from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
 from .xuanshangfengyin import XuanShangFengYin
 from .yeyuanhuo import YeYuanHuo
-from .yingjieshilian import BingZangMiJing, GuiBingYanWu
+from .yingjieshilian import YingJieShiLianExp, YingJieShiLianSkill
 from .yongshengzhihai import YongShengZhiHai, YongShengZhiHaiTeam
 from .yuhun import YuHun, YuHunSingle, YuHunTeam
 from .yuling import YuLing
@@ -35,8 +35,8 @@ __all__ = [
     "TanSuo",
     "XuanShangFengYin",
     "YeYuanHuo",
-    "BingZangMiJing",
-    "GuiBingYanWu",
+    "YingJieShiLianExp",
+    "YingJieShiLianSkill",
     "YongShengZhiHai",
     "YongShengZhiHaiTeam",
     "YuHun",
@@ -67,8 +67,8 @@ def get_package_resource_list():
         TanSuo,
         XuanShangFengYin,
         YeYuanHuo,
-        BingZangMiJing,
-        GuiBingYanWu,
+        YingJieShiLianExp,
+        YingJieShiLianSkill,
         YongShengZhiHai,
         YongShengZhiHaiTeam,
         YuHun,

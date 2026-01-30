@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..package import *  # noqa: F403
+from ..package.types import Yingjie
 from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui_ui import Ui_MainWindow
 from ..ui.update_record_widget import UpdateRecordWindow
@@ -114,10 +115,14 @@ class MainWindow(QMainWindow):
 
         self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
         gerentupo_level_list = JieJieTuPoGeRen.get_level_list()
+
         self.ui.comboBox_jiejietupo_current_level.addItems(gerentupo_level_list)
         self.ui.comboBox_jiejietupo_target_level.addItems(gerentupo_level_list)
         self.ui.comboBox_huijuan_jiejietupo_current_level.addItems(gerentupo_level_list)
         self.ui.comboBox_huijuan_jiejietupo_target_level.addItems(gerentupo_level_list)
+
+        self.ui.combo_yingjieshilian.addItems([e.value for e in Yingjie])
+
         self.ui.combo_qiling_jieqi_stone.addItems(QiLing.get_pockmon_list())
 
         self._init_settings()
@@ -728,10 +733,11 @@ class MainWindow(QMainWindow):
                 DouJi(n=n).task_start()
 
             case GameFunction.YINGJIESHILIAN:
+                yingjie = self.ui.combo_yingjieshilian.currentText()
                 if self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill:
-                    BingZangMiJing(n=n).task_start()
+                    YingJieShiLianSkill(yingjie, n=n).task_start()
                 else:
-                    GuiBingYanWu(n=n).task_start()
+                    YingJieShiLianExp(yingjie, n=n).task_start()
 
             case GameFunction.HUIJUAN:
                 flag_refresh_need: int = 0
@@ -829,11 +835,11 @@ class MainWindow(QMainWindow):
     def buttonGroup_yingjieshilian_handle(self):
         flag = self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill
         if flag:
-            self.ui_spin_times_set_value_func(50)
-            BingZangMiJing.description()
+            self.ui_spin_times_set_value_func(50, 0, 999)
+            YingJieShiLianSkill.description()
         else:
-            self.ui_spin_times_set_value_func(1)
-            GuiBingYanWu.description()
+            self.ui_spin_times_set_value_func(1, 0, 999)
+            YingJieShiLianExp.description()
 
     def buttonGroup_huijuan_jiejietupo_switch_handle(self):
         flag = (
