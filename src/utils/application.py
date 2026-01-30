@@ -27,8 +27,8 @@ RESOURCE_JA_DIR_PATH: Path = APP_PATH / "resource_ja"
 # 开发路径
 if Path(APP_PATH / "src/resource").exists():
     RESOURCE_DIR_PATH = Path(APP_PATH / "src/resource")
-if not RESOURCE_DIR_PATH.exists():
-    RESOURCE_DIR_PATH.mkdir(parents=True)
+if Path(APP_PATH / "src/resource_ja").exists():
+    RESOURCE_JA_DIR_PATH = Path(APP_PATH / "src/resource_ja")
 
 SCREENSHOT_DIR_PATH: Path = USER_DATA_DIR_PATH / "screenshot"
 """截图文件夹路径"""
