@@ -1,4 +1,5 @@
 from contextlib import suppress
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 
@@ -880,6 +881,9 @@ class MainWindow(QMainWindow):
                     Qt.TransformationMode.SmoothTransformation,
                 )
                 self.ui.tab_window_manager_preview_image.setPixmap(scaled_pixmap)
+                self.ui.tab_window_manager_info_label.setText(
+                    f"{image.size[0]}X{image.size[1]}  {datetime.now().strftime('%H:%M:%S.%f')[:-3]}"
+                )
 
                 logger.info(f"预览窗口：{handle}")
             else:

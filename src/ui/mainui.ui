@@ -1007,7 +1007,7 @@
          <string>应用</string>
         </property>
        </widget>
-       <widget class="QLabel" name="tab_window_manager_label">
+       <widget class="QLabel" name="tab_window_manager_title_label">
         <property name="geometry">
          <rect>
           <x>50</x>
@@ -1015,6 +1015,12 @@
           <width>100</width>
           <height>30</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>宋体</family>
+          <pointsize>10</pointsize>
+         </font>
         </property>
         <property name="text">
          <string>检测到的窗口：</string>
@@ -1044,6 +1050,19 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+       <widget class="QLabel" name="tab_window_manager_info_label">
+        <property name="geometry">
+         <rect>
+          <x>300</x>
+          <y>380</y>
+          <width>150</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </widget>
@@ -1124,8 +1143,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>590</width>
-             <height>471</height>
+             <width>578</width>
+             <height>484</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_setting" stretch="1,0,0">
