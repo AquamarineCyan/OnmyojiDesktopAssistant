@@ -79,13 +79,14 @@ class JieJieTuPo(BasePackage):
 
     def get_lineup_state(self) -> tuple[LineupState, Point | None]:
         result = RuleImage(self.IMAGE_LOCK)
-        if result.match():
-            logger.ui("阵容已锁定")
+        if result.match(logger_lever="ERROR"):
+            logger.ui("阵容状态：锁定")
             return LineupState.LOCK, result.center_point()
         result = RuleImage(self.IMAGE_UNLOCK)
-        if result.match():
-            logger.ui("阵容未锁定")
+        if result.match(logger_lever="ERROR"):
+            logger.ui("阵容状态：解锁")
             return LineupState.UNLOCK, result.center_point()
+        logger.ui_warn("阵容状态：未知")
         return LineupState.NONE, None
 
     def check_title(self) -> None:
@@ -213,25 +214,28 @@ class JieJieTuPoGeRen(JieJieTuPo):
             if bool(event_thread):
                 raise GUIStopException
 
+            logger.info(f"检测第{i}个结界勋章数")
+
             x = self.tupo_geren_x[(i + 2) % 3 + 1]
             y = self.tupo_geren_y[(i + 2) // 3]
             region = (x - 25, y + 40, 185 + 20, 90 - 20)
-            if RuleImage(self.IMAGE_XUNZHANG_5, region=region, score=0.9).match():
+
+            if RuleImage(self.IMAGE_XUNZHANG_5, region=region).match(logger_lever="ERROR"):
                 alist.append(5)
                 continue
-            if RuleImage(self.IMAGE_XUNZHANG_4, region=region, score=0.9).match():
+            if RuleImage(self.IMAGE_XUNZHANG_4, region=region).match(logger_lever="ERROR"):
                 alist.append(4)
                 continue
-            if RuleImage(self.IMAGE_XUNZHANG_3, region=region, score=0.9).match():
+            if RuleImage(self.IMAGE_XUNZHANG_3, region=region).match(logger_lever="ERROR"):
                 alist.append(3)
                 continue
-            if RuleImage(self.IMAGE_XUNZHANG_2, region=region, score=0.9).match():
+            if RuleImage(self.IMAGE_XUNZHANG_2, region=region).match(logger_lever="ERROR"):
                 alist.append(2)
                 continue
-            if RuleImage(self.IMAGE_XUNZHANG_1, region=region, score=0.9).match():
+            if RuleImage(self.IMAGE_XUNZHANG_1, region=region).match(logger_lever="ERROR"):
                 alist.append(1)
                 continue
-            if RuleImage(self.IMAGE_XUNZHANG_0, region=region, score=0.9).match():
+            if RuleImage(self.IMAGE_XUNZHANG_0, region=region).match(logger_lever="ERROR"):
                 alist.append(0)
                 continue
             alist.append(-1)  # 未识别到勋章，说明已攻破
@@ -307,10 +311,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
         count = 0
         # 解锁阵容
         state, point = self.get_lineup_state()
-        if state == LineupState.LOCK:
+        if state == LineupState.LOCK:  # TODO 3次检测机会
             sleep()
             Mouse.click(point)
-        logger.ui("已解锁阵容")
+        # logger.ui("已解锁阵容")
         sleep()
 
         # 获得每个结界的勋章数

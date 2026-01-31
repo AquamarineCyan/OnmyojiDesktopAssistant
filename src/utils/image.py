@@ -121,6 +121,21 @@ class RuleImage:
         normal: bool = True,
         logger_lever: Literal["ERROR", "SUCCESS", "NONE"] = "SUCCESS",
     ) -> bool:
+        """图像匹配
+
+        Args:
+            image (ScreenShot | Image | str | None): 待匹配图像，None表示使用当前截图
+            score (float): 匹配阈值，低于该值则匹配失败
+            debug (bool): 是否显示调试信息，默认为False
+            normal (bool): 是否正常状态（非悬赏等待状态）下进行匹配
+            logger_lever (Literal["ERROR", "SUCCESS", "NONE"]): 日志级别
+                        - "ERROR" : 仅记录失败
+                        - "SUCCESS" : 记录成功和失败
+                        - "NONE" : 不记录日志
+
+        Returns:
+            bool: 匹配成功/失败
+        """
         if normal:
             event_xuanshang.wait()
         if image is None:
