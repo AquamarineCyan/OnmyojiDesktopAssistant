@@ -136,6 +136,9 @@ class Config:
             return False
         return True
 
+    def log(self):
+        logger.info(f"配置更新完成\n{yaml.dump(self.user.model_dump(), allow_unicode=True, sort_keys=False)}")
+
     def update(self, key: str, value: str) -> None:
         """设置项更新
 

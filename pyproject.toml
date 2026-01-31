@@ -24,8 +24,8 @@ winshell = "^0.6"
 
 
 [tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.17.0"
-pytest = "^9.0.1"
+pyinstaller = "^6.18.0"
+pytest = "^9.0.2"
 
 [tool.ruff]
 line-length = 120

@@ -7,7 +7,7 @@ from src.utils.config import config
 from src.utils.gui import MainWindow
 
 if __name__ == "__main__":
-    # Is Admin
+    # 管理员启动
     if windll.shell32.IsUserAnAdmin():
         app = QApplication([])
         if config.user.window_style == "Fusion":
@@ -16,6 +16,7 @@ if __name__ == "__main__":
         main_win_ui.show()
         app.exec()
     else:
-        # Run Admin by UAC
+        print("请以管理员身份运行程序")  # IDE模式下才会触发
+        # 触发UAC提权
         windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
         sys.exit(0)

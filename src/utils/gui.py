@@ -101,7 +101,11 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
-        self.setWindowTitle(f"{APP_NAME} - v{VERSION} - {config.user.game_language}")
+        if config.user.game_language == "国服":
+            title = f"{APP_NAME} - v{VERSION}."
+        else:
+            title = f"{APP_NAME} - v{VERSION} - {config.user.game_language}"
+        self.setWindowTitle(title)
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
@@ -260,7 +264,7 @@ class MainWindow(QMainWindow):
         logger.info(f"application path: {APP_PATH}")
         logger.info(f"resource path: {config.resource_dir}")
         logger.info(f"[VERSION] {VERSION}")
-        logger.info(f"config_user: {config.user}")
+        config.log()
         logger.ui_warn("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版")
         logger.ui("程序初始化中，请稍候")
         log_clean_up()
@@ -273,6 +277,9 @@ class MainWindow(QMainWindow):
             logger.ui_error("初始化失败")
             return
         logger.ui("初始化成功")
+
+        if not config.user.game_language == "国服":
+            logger.ui_warn("当前非国服，请注意部分资源可能不兼容")
 
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             logger.ui_warn(
