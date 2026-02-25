@@ -6,6 +6,12 @@
             "file": "result.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
+        },
+        {
+            "name": "snake_purple",
+            "file": "snake_purple.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
         }
     ]
 }

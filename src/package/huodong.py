@@ -1,5 +1,4 @@
 from ..utils.adapter import Mouse
-from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
@@ -19,7 +18,6 @@ class HuoDong(BasePackage):
     STATE_NORMAL = 1  # 「达摩蛋」弹出
     STATE_RESULT = 2  # 「获得奖励」弹窗
 
-    @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
         self.flag_soul_overflow: bool = False
@@ -31,6 +29,7 @@ class HuoDong(BasePackage):
 
     def load_asset(self) -> None:
         self.IMAGE_RESULT = self.get_image_asset("result")
+        self.IMAGE_SNAKE_PURPLE = self.get_image_asset("snake_purple")
 
     def check_start(self) -> None:
         ruleocr = RuleOcr(self.global_assets.OCR_START)
@@ -56,6 +55,7 @@ class HuoDong(BasePackage):
     def run(self) -> None:
         self.current_asset_list = [
             self.IMAGE_RESULT,
+            self.IMAGE_SNAKE_PURPLE,
             self.global_assets.IMAGE_FINISH,
             self.global_assets.IMAGE_FAIL,
             self.global_assets.IMAGE_VICTORY,
@@ -100,8 +100,11 @@ class HuoDong(BasePackage):
                         continue
                     sleep()
 
-                case self.global_assets.IMAGE_FINISH.name:
-                    logger.ui("结束")
+                case self.IMAGE_SNAKE_PURPLE.name | self.global_assets.IMAGE_FINISH.name:
+                    if result.name == self.IMAGE_SNAKE_PURPLE.name:
+                        logger.ui("获得「八岐大蛇鳞片」")
+                    else:
+                        logger.ui("结束")
                     sleep(0.4, 0.8)
                     _point = finish_random_left_right(is_multiple_drops_x=True, is_multiple_drops_y=True)
                     sleep()
