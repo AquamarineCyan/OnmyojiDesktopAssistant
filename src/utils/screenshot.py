@@ -112,10 +112,17 @@ class ScreenShot:
         saveDC = mfcDC.CreateCompatibleDC()
         # 创建位图对象准备保存图片
         saveBitMap = win32ui.CreateBitmap()
+        client_rect_full = self.gamewindow.client_rect
+
         # 为bitmap开辟存储空间
-        saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect[2], client_rect[3])
+        if method == "BitBlt":
+            saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect[2], client_rect[3])
+        elif method == "PrintWindow":
+            saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect_full[2], client_rect_full[3])
+
         # 将截图保存到saveBitMap中
         saveDC.SelectObject(saveBitMap)
+
         # 保存bitmap到内存设备描述表
         if method == "BitBlt":
             saveDC.BitBlt(
@@ -144,17 +151,26 @@ class ScreenShot:
             1,
         ).convert("RGB")
 
+        if method == "PrintWindow":
+            image = image.crop(
+                (
+                    client_rect[0],
+                    client_rect[1],
+                    client_rect[0] + client_rect[2],
+                    client_rect[1] + client_rect[3],
+                )
+            )
+
         # 内存释放
         win32gui.DeleteObject(saveBitMap.GetHandle())
         saveDC.DeleteDC()
         mfcDC.DeleteDC()
         win32gui.ReleaseDC(self.hwnd, hWndDC)
 
-        # image = ImageGrab.grab(_rect)
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot backend cost {self.time_cost} ms, {client_rect}")
+            logger.info(f"screenshot backend [{method}] cost {self.time_cost} ms, {client_rect}")
         if self._debug:
             image.show()
         self._image = image
