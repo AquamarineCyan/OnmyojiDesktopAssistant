@@ -2,6 +2,7 @@ from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import sleep
+from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.paddleocr import RuleOcr
 from ..utils.point import Point
@@ -14,6 +15,7 @@ class HuiJuan(BasePackage):
     """绘卷"""
 
     scene_name = "绘卷刷分"
+    resource_path: str = "huijuan"
 
     def __init__(
         self,
@@ -44,8 +46,8 @@ class HuiJuan(BasePackage):
     def description() -> None:
         logger.ui("提前准备好自动轮换和加成，独立预设御魂，采取探索 + 个人突破的方式")
 
-    def load_asset_list(self):
-        pass
+    def load_asset(self):
+        self.IMAGE_MAP_JIEJIETUPO = self.get_image_asset("map_jiejietupo")
 
     def get_current_number(self):
         result = RuleOcr(region=(650, 0, 100, 55)).get_raw_result()
@@ -60,9 +62,16 @@ class HuiJuan(BasePackage):
         return number
 
     def get_current_scene(self) -> Point | None:
+        # 优先使用图像识别
+        result = RuleImage(self.IMAGE_MAP_JIEJIETUPO)
+        if result.match(logger_lever="ERROR"):
+            logger.info("使用图像识别结界突破成功")
+            return result.center_point()
+
         result = RuleOcr(region=(200, 550, 100, 90)).get_raw_result()
         for item in result:
             if "结界突破" in item.text:
+                logger.info("使用文字识别结界突破成功")
                 return Point(
                     item.center.client_x + 200, item.center.client_y + 550
                 )  # TODO 底层解决相对截图时的坐标问题
