@@ -102,7 +102,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
         if config.user.game_language == "国服":
-            title = f"{APP_NAME} - v{VERSION}."
+            title = f"{APP_NAME} - v{VERSION}"
         else:
             title = f"{APP_NAME} - v{VERSION} - {config.user.game_language}"
         self.setWindowTitle(title)
