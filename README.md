@@ -103,14 +103,17 @@
     `poetry install`
 
 3. 添加文字识别依赖库
+
     从 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载 `OnmyojiDesktopAssistant-2.x.x.zip`， 解压后找到`ocr`文件夹放在项目根目录下
 
 4. 运行/调试
+
     - 使用管理员程序启动你的IDE，如 `PyCharm`、`VSCode` 。
     - 如果使用 `VSCode` 调试，已经提供了对应的调试文件，选择 `Project` 调试模式启动。
     - 其他IDE：终端运行 `python main.py` 。
 
 5. 打包
+
     打包配置保存在 `main.spec` ，使用 `pyinstaller main.spec` 命令，会在根目录下生成 `output` 文件夹。
 
 </details>
