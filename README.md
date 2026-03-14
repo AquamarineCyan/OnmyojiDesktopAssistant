@@ -6,7 +6,7 @@
 
 ## 简介
 
-本项目仅支持阴阳师桌面版使用，~~使用过程中会占用鼠标，桌面版需前置（可使用游戏自带的置顶功能）~~ V2版本提供了后台交互的功能，开启后仅当前一次使用生效。
+本项目仅支持阴阳师桌面版使用，同时支持前台和后台交互方式。
 
 ## 帮助文档
 
@@ -28,7 +28,7 @@
     - 卡级/退级
     - 3胜刷新
 6. 寮突破
-    - 锁定阵容，从上至下进攻
+    - 90%进度提前结束
 7. 道馆突破
     - 等待系统进入/手动挑战/正在进行中
     - 仅支持挂机阵容
@@ -37,12 +37,13 @@
 9. 百鬼夜行
     - 清票
 10. 限时活动
-    - 体力爬塔300次/周年庆999次
+    - 仅适用于月度活动的爬塔，支持体力爬塔300次/周年庆999次
 11. 日轮副本
     - 组队/单人
     - 组队司机/打手
 12. 单人探索
     - 准备自动轮换
+    - 自动拾取结束后的掉落宝箱
 13. 契灵
     - 探查
     - 结契
@@ -52,9 +53,10 @@
 16. 斗技自动上阵
     - 挂机阵容，自动上阵
 17. 英杰试炼
-    - 鬼兵演武
-    - 兵藏秘境
-
+    - 源赖光/藤原道长
+    - 经验本/技能本
+18. 绘卷刷分
+    - 采用单人探索+个人突破的组合方式
 ---
 
 - [x] 全局悬赏封印
@@ -67,30 +69,31 @@
 
 ## 使用方法
 
-### 桌面版
+### 1. 安装桌面版
 
  - 旧版桌面版
    - [NGA下载地址](https://nga.178.com/read.php?tid=29661629)
  - 新版桌面模拟器，通过官方MuMu专版下载，支持新区账号登录
    - [阴阳师桌面模拟器](https://yys.163.com/zmb/)
+   - [【阴阳师】幼教级新桌面版安装及多开教程](https://www.bilibili.com/video/BV1rEUiBdEL6)
  - 新版与旧版仅窗口名称区别，其余功能一致。
 
 
-###  应用程序运行
+###  2. 运行本软件
 
-- 前往 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
-- 下载最新压缩包 `OnmyojiDesktopAssistant-2.x.x.zip`
-- 解压后双击 `OnmyojiDesktopAssistant.exe` 即可运行。
+  1. 前往 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
+  2. 下载最新压缩包 `OnmyojiDesktopAssistant-2.x.x.zip`
+  3. 解压后双击 `OnmyojiDesktopAssistant.exe` 即可运行。
 > [!NOTE]
 > 需要解压到英文路径下
 
-### 源码编译运行
+### 3. 源码编译运行（不推荐）
 
-<details><summary> 不推荐 </summary>
+<details><summary> 不推荐，需要自行安装Python环境 </summary>
 
-1. 使用 `git` 命令下载源码  
+1. 下载源码  
     ```bash
-    git clone https://github.com/AquamarineCyan/OnmyojiDesktopAssistant.git --depth=1 --single-branch
+    git clone https://github.com/AquamarineCyan/OnmyojiDesktopAssistant.git
     ```
 
 2. 安装依赖 
@@ -102,33 +105,57 @@
 3. 添加文字识别依赖库
     从 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载 `OnmyojiDesktopAssistant-2.x.x.zip`， 解压后找到`ocr`文件夹放在项目根目录下
 
-4. 运行
-    - 终端运行 `python main.py`
-    - 使用VSCode调试，调试模式选择`Project`
+4. 运行/调试
+    - 使用管理员程序启动你的IDE，如 `PyCharm`、`VSCode` 。
+    - 如果使用 `VSCode` 调试，已经提供了对应的调试文件，选择 `Project` 调试模式启动。
+    - 其他IDE：终端运行 `python main.py` 。
 
 5. 打包
-    - 需要poetry环境，打包配置已存在 `main.spec`  
-    - 终端运行 `pyinstaller main.spec` 或者双击 `build.bat`
+    打包配置保存在 `main.spec` ，使用 `pyinstaller main.spec` 命令，会在根目录下生成 `output` 文件夹。
 
 </details>
 
 ## 程序目录
 
 ```
+|- OnmyojiDesktopAssistant # 根目录
    |- data # 用户数据
-      |- myresource # 自定义素材，用法见(#注意事项)
-      |- screenshot # 截图
+      |- myresource # 自定义素材，用法见 [#注意事项](#注意事项)
+      |- screenshot # 截图（百鬼夜行结束会生成）
       |- config.yaml # 配置文件
       |- update_info.json # 更新记录
    |- lib # 运行库
    |- log # 日志
    |- ocr # 文字识别库
    |- resource # 素材文件
+   |- OnmyojiDesktopAssistant.exe # 主程序
 ```
 
 ## 主界面
 
-![效果图](效果图.png)
+![效果图](docs/效果图.png)
+
+## 后台交互模式
+
+![后台交互模式](docs/后台交互模式.png)
+   
+使用后台交互模式可以释放鼠标的使用，同时保证游戏不能被最小化，允许被其他应用遮挡。
+   
+验证是否可以正常使用后台交互模式：
+1. 启动本软件。
+2. 切换到 `设置` 页签，勾选 `后台` 交互模式。
+3. 切换到 `窗口管理` 页签，点击 `预览` 按钮，能够显示游戏窗口截图，表明可以正常使用后台交互模式。
+4. 如果游戏窗口截图为黑屏，在 `设置` 页签切换 `后台截图模式` 后重试。如果所有的截图模式都显示黑屏，请改为 `前台交互模式`。
+
+
+## 多开
+
+1. 启动多个游戏窗口
+2. 启动多个本软件，切换到 `设置` 页签，推荐启用 `后台` 交互模式，避免多个软件互相争夺鼠标控制。使用后台交互模式后，在 `窗口管理` 页签点击 `预览`
+2. 切换到 `窗口管理` 页签，点击 `预览` 按钮，选择对应窗口，确认每个软件检测到对应的游戏，并点击 `应用` 按钮。
+
+![多开示意图](docs/多开示意图.png)
+
 
 ## 日服
 
