@@ -44,7 +44,11 @@ class HuiJuan(BasePackage):
 
     @staticmethod
     def description() -> None:
-        logger.ui("提前准备好自动轮换和加成，独立预设御魂，采取探索 + 个人突破的方式")
+        logger.ui(
+            """提前准备好自动轮换和加成，独立预设御魂，采取探索 + 个人突破的方式，突破券是自动识别。"""
+            """上方的一次功能为一轮，先探索再个人突破，探索次数为单轮循环中完成挑战探索boss的次数。"""
+            """比如你要刷100次探索，每5次探索清理一次突破，如此循环20轮。那么你上面的次数填写20，下面填写5。"""
+        )
 
     def load_asset(self):
         self.IMAGE_MAP_JIEJIETUPO = self.get_image_asset("map_jiejietupo")
