@@ -97,9 +97,17 @@ def random_sleep(caller_name, minimum: int | float = 1.0, maximum: int | float |
 sleep = random_sleep
 
 
-def distance_between_two_points(point1, point2):
-    """计算两点之间的距离"""
-    return math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+def distance_between_two_points(point1: Point, point2: Point):
+    """计算两点之间的距离
+
+    Args:
+        point1 (Point): 第一个点
+        point2 (Point): 第二个点
+
+    Returns:
+        float: 两点之间的距离
+    """
+    return math.sqrt((point1.client_x - point2.client_x) ** 2 + (point1.client_y - point2.client_y) ** 2)
 
 
 @log_function_call
@@ -145,8 +153,8 @@ def finish_random_left_right(
 
     # 计算鼠标到两个矩形中心的距离
     position = Mouse.position()
-    distance_to_left = distance_between_two_points((position.client_x, position.client_y), rect_left.get_center())
-    distance_to_right = distance_between_two_points((position.client_x, position.client_y), rect_right.get_center())
+    distance_to_left = distance_between_two_points(position, rect_left.get_center_point())
+    distance_to_right = distance_between_two_points(position, rect_right.get_center_point())
 
     # 判断距离
     if distance_to_left < distance_to_right:

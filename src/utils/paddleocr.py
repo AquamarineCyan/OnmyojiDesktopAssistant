@@ -202,8 +202,7 @@ class OcrData:
                     self.x2: int = _BoxPoints[i]["X"]
                     self.y2: int = _BoxPoints[i]["Y"]
         self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
-        center = self.rect.get_center()
-        self.center = Point(client_x=int(center[0]), client_y=int(center[1]))
+        self.center = self.rect.get_center_point()
 
     def __repr__(self) -> str:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"

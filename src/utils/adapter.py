@@ -37,7 +37,7 @@ class Mouse:
     @classmethod
     def position(cls) -> Point:
         abs_x, abs_y = pyautogui.position()
-        return Point(screen_x=abs_x, screen_y=abs_y)
+        return Point.from_screen(abs_x, abs_y)
 
     @staticmethod
     def random_tween():
@@ -93,7 +93,7 @@ class Mouse:
                     x = int(x) if x else startx
                     y = int(y) if y else starty
                 else:
-                    x, y = dst_point.screen_x, dst_point.screen_y
+                    x, y = dst_point.to_screen()
                 pyautogui.moveTo(x, y, duration, tween)
 
         except pyautogui.FailSafeException:
@@ -171,7 +171,7 @@ class Mouse:
             x, y = pyautogui.position()
             logger.info("click at current position")
         else:
-            x, y = point.screen_x, point.screen_y
+            x, y = point.to_screen()
             logger.info(f"Point:({x},{y})")
 
         # cls.move(x=_x, y=_y, duration=duration, tween=random.choice(list_tween))
