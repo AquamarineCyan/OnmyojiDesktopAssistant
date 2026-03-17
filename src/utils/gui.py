@@ -1,3 +1,4 @@
+import shutil
 from contextlib import suppress
 from datetime import datetime
 from enum import Enum
@@ -18,7 +19,7 @@ from ..ui import icon_rc  # noqa: F401
 from ..ui.mainui_ui import Ui_MainWindow
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, HELP_DOC_LINK, HOME_PAGE_LINK, QQ_GROUP_LINK, VERSION
+from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, HELP_DOC_LINK, HOME_PAGE_LINK, QQ_GROUP_LINK, VERSION
 from .config import config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -28,7 +29,7 @@ from .keyboard_listener import KeyListenerThread
 from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
 from .mythread import WorkThread
-from .paddleocr import check_ocr_folder, ocr
+from .paddleocr import check_ocr_folder, ocr_manager
 from .restart import Restart
 from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut
@@ -390,10 +391,11 @@ class MainWindow(QMainWindow):
             return False
 
         # 初始化文字识别
-        if ocr.init():
+        try:
+            ocr_manager.init()
             logger.info("文字识别资源初始化成功")
-        else:
-            logger.ui_error("文字识别资源初始化失败")
+        except Exception as e:
+            logger.ui_error(f"文字识别资源初始化失败: {e}")
             return False
 
         return True
@@ -959,6 +961,12 @@ class MainWindow(QMainWindow):
             self.ui.update_record_ui.close()
         if hasattr(self.ui, "upgrade_new_version_ui"):
             self.ui.upgrade_new_version_ui.close()
+
+        # 删除缓存文件夹
+        with suppress(Exception):
+            if CACHE_DIR_PATH.exists():
+                shutil.rmtree(CACHE_DIR_PATH)
+                logger.info(f"已删除缓存文件夹: {CACHE_DIR_PATH}")
 
         with suppress(Exception):
             logger.info("[EXIT]")

@@ -1,3 +1,4 @@
+import uuid
 from pathlib import Path
 
 from .version import VERSION  # noqa: F401
@@ -34,6 +35,18 @@ SCREENSHOT_DIR_PATH: Path = USER_DATA_DIR_PATH / "screenshot"
 """截图文件夹路径"""
 if not SCREENSHOT_DIR_PATH.exists():
     SCREENSHOT_DIR_PATH.mkdir(parents=True)
+
+ROOT_CACHE_DIR_PATH: Path = USER_DATA_DIR_PATH / "cache"
+"""根缓存文件夹路径"""
+if not ROOT_CACHE_DIR_PATH.exists():
+    ROOT_CACHE_DIR_PATH.mkdir(parents=True)
+
+
+UUID_FOLDER = str(uuid.uuid4())[:8]  # 使用uuid4的前8个字符作为文件夹名
+CACHE_DIR_PATH: Path = ROOT_CACHE_DIR_PATH / UUID_FOLDER
+"""缓存文件夹路径，区分多开程序"""
+if not CACHE_DIR_PATH.exists():
+    CACHE_DIR_PATH.mkdir(parents=True)
 
 
 class Connect:

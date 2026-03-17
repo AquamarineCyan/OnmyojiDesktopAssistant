@@ -1,12 +1,10 @@
 import json
 import os
-import tempfile
+import time
 from ctypes import *
 from typing import Literal
 
-import win32api
-
-from .application import APP_NAME, APP_PATH
+from .application import APP_PATH, CACHE_DIR_PATH
 from .assets import AssetOcr
 from .log import logger
 from .point import Point, Rectangle
@@ -112,20 +110,23 @@ def check_ocr_folder():
     return True
 
 
-class CharacterRecognition:
-    """文字识别"""
+class OCRManager:
+    """OCR管理器，负责OCR的初始化、资源管理和清理"""
 
-    def __init__(self) -> None:
-        self.flag_init: bool = False
-        self.result: list = []
+    def __init__(self):
+        self._init: bool = False
+        self.paddleocr = None
 
     def init(self):
+        """初始化OCR"""
+        if self._init:
+            return
+
         ocr_path = os.path.join(str(APP_PATH), "ocr")
         if os.path.exists(ocr_path):
             logger.info(f"ocr_path:{ocr_path}")
         else:
-            self.flag_init = False
-            return False
+            raise FileNotFoundError(f"OCR文件夹不存在: {ocr_path}")
 
         dll_path = os.path.join(ocr_path, "dll")
         model_path = os.path.join(ocr_path, "model")
@@ -134,49 +135,66 @@ class CharacterRecognition:
         os.add_dll_directory(dll_path)
 
         # https://gitee.com/raoyutian/PaddleOCRSharp/tree/dev/PaddleOCRDemo/python
-        paddleOCR = cdll.LoadLibrary("PaddleOCR.dll")
-        encode = "gbk"
-        cls_infer = os.path.join(model_path, "ch_ppocr_mobile_v2.0_cls_infer")
-        rec_infer = os.path.join(model_path, "ch_PP-OCRv3_rec_infer")
-        det_infer = os.path.join(model_path, "ch_PP-OCRv3_det_infer")
-        ocrkeys = os.path.join(model_path, "ppocr_keys.txt")
-
-        parameter = PaddleOCRParameter()
-        p_cls_infer = cls_infer.encode(encode)
-        p_rec_infer = rec_infer.encode(encode)
-        p_det_infer = det_infer.encode(encode)
-        p_ocrkeys = ocrkeys.encode(encode)
-
-        # OCR_DEBUG_FILE = SCREENSHOT_DIR_PATH / "ocr_debug.png"
-        # if not SCREENSHOT_DIR_PATH.exists():
-        # SCREENSHOT_DIR_PATH.mkdir()
-
-        parameterjson = json.dumps(parameter, default=PaddleOCRParameter2dict)
-        paddleOCR.Initializejson(
-            p_det_infer,
-            p_cls_infer,
-            p_rec_infer,
-            p_ocrkeys,
-            parameterjson.encode(encode),
-        )
-        paddleOCR.Detect.restype = c_wchar_p
-
-        # self.img_file = OCR_DEBUG_FILE
-        self.img_file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
-        self.paddleocr = paddleOCR
-        self.flag_init = True
-        return True
-
-    def free_dll(self):
-        if not self.flag_init:
-            return
         try:
-            win32api.FreeLibrary(self.paddleocr._handle)
-        except Exception:
-            logger.error("free dll failed")
+            paddleOCR = cdll.LoadLibrary("PaddleOCR.dll")
+            encode = "gbk"
+            cls_infer = os.path.join(model_path, "ch_ppocr_mobile_v2.0_cls_infer")
+            rec_infer = os.path.join(model_path, "ch_PP-OCRv3_rec_infer")
+            det_infer = os.path.join(model_path, "ch_PP-OCRv3_det_infer")
+            ocrkeys = os.path.join(model_path, "ppocr_keys.txt")
+
+            parameter = PaddleOCRParameter()
+            p_cls_infer = cls_infer.encode(encode)
+            p_rec_infer = rec_infer.encode(encode)
+            p_det_infer = det_infer.encode(encode)
+            p_ocrkeys = ocrkeys.encode(encode)
+
+            parameterjson = json.dumps(parameter, default=PaddleOCRParameter2dict)
+            paddleOCR.Initializejson(
+                p_det_infer,
+                p_cls_infer,
+                p_rec_infer,
+                p_ocrkeys,
+                parameterjson.encode(encode),
+            )
+            paddleOCR.Detect.restype = c_wchar_p
+
+            self.paddleocr = paddleOCR
+            self._init = True
+            logger.info("OCR初始化成功")
+
+        except Exception as e:
+            logger.error(f"OCR初始化失败: {e}")
+            self._init = False
+            raise
+
+    def is_initialized(self) -> bool:
+        """检查OCR是否已初始化"""
+        return self._init
+
+    def detect(self, image_path: str) -> str:
+        """执行OCR检测
+
+        Args:
+            image_path: 图像路径
+
+        Returns:
+            str: OCR检测结果（JSON字符串）
+        """
+        if not self._init:
+            if not self.init():
+                return ""
+
+        try:
+            image = image_path.encode("gbk")
+            return self.paddleocr.Detect(image)
+        except Exception as e:
+            logger.error(f"OCR检测失败: {e}")
+            return ""
 
 
-ocr = CharacterRecognition()
+# 全局OCR管理器实例
+ocr_manager = OCRManager()
 
 
 class OcrData:
@@ -208,6 +226,57 @@ class OcrData:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
 
 
+class OcrDetector:
+    """OCR检测器，负责执行OCR检测和结果处理"""
+
+    def __init__(self, region: tuple | None = None):
+        """
+        Args:
+            region: 检测区域，格式为 (x, y, width, height)
+        """
+        self.region = region or window_manager.current.client_rect
+
+    def get_raw_result(self) -> list[OcrData]:
+        """获取原始OCR检测结果
+
+        Returns:
+            list[OcrData]: OCR检测结果列表
+        """
+        start_time = time.time()
+        file = os.path.join(str(CACHE_DIR_PATH), "ocr_screenshot.png")
+        ScreenShot(rect=self.region).save(file)
+
+        ocr_result = ocr_manager.detect(file)
+        data_result: list[OcrData] = []
+        try:
+            ocr_result = json.loads(ocr_result)
+            if not isinstance(ocr_result, list):
+                logger.error(f"OCR result is not a list: {ocr_result}")
+                return data_result
+        except Exception as e:
+            logger.error(f"Failed to parse OCR result: {str(e)}")
+            logger.error(f"Raw OCR result: {ocr_result}")
+            return data_result
+
+        for item in ocr_result:
+            # 过滤无效数据
+            if not isinstance(item, dict):
+                logger.warning(f"OCR item is not a dict: {item}")
+                continue
+            if item.get("Score", 0.0) == 0.0:
+                continue
+            if item.get("Text", "") == "":
+                continue
+            ocr_data = OcrData(item)
+            logger.info(f"ocr result: {ocr_data}")
+            data_result.append(ocr_data)
+
+        end_time = time.time()
+        elapsed_ms = (end_time - start_time) * 1000
+        logger.debug(f"OCR detection took {elapsed_ms:.2f} ms")
+        return data_result
+
+
 class RuleOcr:
     """文字识别
 
@@ -220,7 +289,8 @@ class RuleOcr:
 
     用法2：
     ```python
-    result = RuleOcr().get_raw_result()
+    detector = OcrDetector()
+    result = detector.get_raw_result()
     for item in result:
         if target_text in item.text:
             do something
@@ -263,37 +333,15 @@ class RuleOcr:
             self.region = window_manager.current.client_rect
 
         self.match_result: OcrData = None
+        self.detector = OcrDetector(self.region)
 
     def get_raw_result(self) -> list[OcrData]:
-        file = os.path.join(tempfile.gettempdir(), f"{APP_NAME}_ocr_debug.png")
-        ScreenShot(rect=self.region).save(file)
-        image = file.encode("gbk")
-        ocr_result = ocr.paddleocr.Detect(image)
+        """获取原始OCR检测结果
 
-        data_result: list[OcrData] = []
-        try:
-            ocr_result = json.loads(ocr_result)
-            if not isinstance(ocr_result, list):
-                logger.error(f"OCR result is not a list: {ocr_result}")
-                return data_result
-        except Exception as e:
-            logger.error(f"Failed to parse OCR result: {str(e)}")
-            logger.error(f"Raw OCR result: {ocr_result}")
-            return data_result
-
-        for item in ocr_result:
-            # 过滤无效数据
-            if not isinstance(item, dict):
-                logger.warning(f"OCR item is not a dict: {item}")
-                continue
-            if item.get("Score", 0.0) == 0.0:
-                continue
-            if item.get("Text", "") == "":
-                continue
-            ocr_data = OcrData(item)
-            logger.info(f"ocr result: {ocr_data}")
-            data_result.append(ocr_data)
-        return data_result
+        Returns:
+            list[OcrData]: OCR检测结果列表
+        """
+        return self.detector.get_raw_result()
 
     def match(
         self,
@@ -302,8 +350,20 @@ class RuleOcr:
         score: float = None,
         debug: bool = False,
     ) -> OcrData | None:
-        if not ocr.flag_init:
-            ocr.init()
+        """执行文字匹配
+
+        Args:
+            ocr_result: 预计算的OCR结果，如果为None则自动计算
+            keyword: 要匹配的关键词，如果为None则使用初始化时的关键词
+            score: 匹配阈值，如果为None则使用初始化时的阈值
+            debug: 是否开启调试模式
+
+        Returns:
+            OcrData | None: 匹配结果
+        """
+        # 确保OCR已初始化
+        if not ocr_manager.is_initialized():
+            ocr_manager.init()
 
         if ocr_result is None:
             ocr_result = self.get_raw_result()
@@ -317,11 +377,11 @@ class RuleOcr:
             if item.score < score:
                 continue
             if self.method == "PERFACT":
-                if item.text == self.keyword:
+                if item.text == keyword:
                     self.match_result = item
                     return item
             elif self.method == "INCLUDE":
-                if self.keyword in item.text:
+                if keyword in item.text:
                     self.match_result = item
                     return item
 
@@ -337,10 +397,14 @@ def ocr_match_once(asset_list: list[AssetOcr]) -> RuleOcr | None:
     返回:
         AssetOcr | None: 识别结果
     """
-    ocr_result = RuleOcr().get_raw_result()
+    # 使用OcrDetector获取一次OCR结果，避免重复截图
+    detector = OcrDetector()
+    ocr_result = detector.get_raw_result()
+
     for item in asset_list:
         rule = RuleOcr(item)
         result = rule.match(ocr_result)
         if result:
             return rule
+
     return None
