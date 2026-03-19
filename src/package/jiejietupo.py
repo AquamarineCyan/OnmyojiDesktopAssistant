@@ -66,6 +66,7 @@ class JieJieTuPo(BasePackage):
         self.IMAGE_GEREN = self.get_image_asset("geren")
         self.IMAGE_JINGONG = self.get_image_asset("jingong")
         self.IMAGE_LOCK = self.get_image_asset("lock")
+        self.IMAGE_SUCCESS = self.get_image_asset("success")
         self.IMAGE_TITLE = self.get_image_asset("title")
         self.IMAGE_TUPOJILU = self.get_image_asset("tupojilu")
         self.IMAGE_UNLOCK = self.get_image_asset("unlock")
@@ -95,7 +96,7 @@ class JieJieTuPo(BasePackage):
             if bool(event_thread):
                 raise GUIStopException
 
-            if RuleImage(self.IMAGE_TITLE).match():
+            if RuleImage(self.IMAGE_TITLE).match(logger_lever="ERROR"):
                 logger.scene(JieJieTuPo.scene_name)
                 if isinstance(self, JieJieTuPoGeRen):
                     file_1 = self.IMAGE_FANGSHOUJILU
@@ -201,53 +202,98 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.IMAGE_REFRESH_TRUE = self.get_image_asset("queding")
         self.IMAGE_FIGHT_AGAIN = self.get_image_asset("zaicitiaozhan")
 
-    def list_num_xunzhang(self) -> list[int]:
-        """
-        创建列表，返回每个结界的勋章数
+    def list_num_xunzhang(self, only_victory: bool = False) -> list[int]:
+        """返回每个结界的勋章数列表
 
-        返回:
-            勋章个数列表
+        Args:
+            only_victory (bool): 是否只返回已攻破的勋章数
+
+        Returns:
+            list[int]: 勋章个数列表
+                - -1 表示已攻破
+                - 0 表示未攻破
+                - 其他值表示勋章数
         """
         logger.ui("正在遍历结界勋章")
         alist = [0]  # 第一个数固定为0，方便后续9个计数
+
         for i in range(1, 10):
             if bool(event_thread):
                 raise GUIStopException
 
-            logger.info(f"检测第{i}个结界勋章数")
-
             x = self.tupo_geren_x[(i + 2) % 3 + 1]
             y = self.tupo_geren_y[(i + 2) // 3]
-            region = (x - 25, y + 40, 185 + 20, 90 - 20)
+            region = (x + 40, y - 10, 185 + 20, 90)
 
-            if RuleImage(self.IMAGE_XUNZHANG_5, region=region).match(logger_lever="ERROR"):
-                alist.append(5)
-                continue
-            if RuleImage(self.IMAGE_XUNZHANG_4, region=region).match(logger_lever="ERROR"):
-                alist.append(4)
-                continue
-            if RuleImage(self.IMAGE_XUNZHANG_3, region=region).match(logger_lever="ERROR"):
-                alist.append(3)
-                continue
-            if RuleImage(self.IMAGE_XUNZHANG_2, region=region).match(logger_lever="ERROR"):
-                alist.append(2)
-                continue
-            if RuleImage(self.IMAGE_XUNZHANG_1, region=region).match(logger_lever="ERROR"):
-                alist.append(1)
-                continue
-            if RuleImage(self.IMAGE_XUNZHANG_0, region=region).match(logger_lever="ERROR"):
-                alist.append(0)
-                continue
-            alist.append(-1)  # 未识别到勋章，说明已攻破
-
-        list_xunzhang = "勋章数：["
-        for i in range(1, 10):
-            if i == 1:
-                list_xunzhang += str(alist[i])
+            if RuleImage(self.IMAGE_SUCCESS, region=region).match():
+                logger.info(f"第{i}个结界：已攻破")
+                alist.append(-1)
             else:
-                list_xunzhang = f"{list_xunzhang},{str(alist[i])}"
-        list_xunzhang += "]"
-        logger.ui(list_xunzhang)
+                logger.info(f"第{i}个结界：未攻破")
+                alist.append(0)
+
+        if only_victory:
+            print_str = "当前已攻破："
+            for index, number in enumerate(alist):
+                if index == 0:
+                    continue
+                if number == -1:
+                    print_str += str(index) + " "
+            logger.ui(print_str)
+
+            print_str = "当前未攻破："
+            for index, number in enumerate(alist):
+                if index == 0:
+                    continue
+                if number == 1:
+                    print_str += str(index) + " "
+            logger.ui(print_str)
+
+        else:
+            for i in range(1, 10):
+                if bool(event_thread):
+                    raise GUIStopException
+
+                x = self.tupo_geren_x[(i + 2) % 3 + 1]
+                y = self.tupo_geren_y[(i + 2) // 3]
+                region = (x - 25, y + 40, 185 + 20, 90 - 20)
+                logger.info(f"检测第{i}个结界勋章数")
+
+                if RuleImage(self.IMAGE_XUNZHANG_5, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 5
+                    logger.info(f"第{i}个结界：5")
+                    continue
+                if RuleImage(self.IMAGE_XUNZHANG_4, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 4
+                    logger.info(f"第{i}个结界：4")
+                    continue
+                if RuleImage(self.IMAGE_XUNZHANG_3, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 3
+                    logger.info(f"第{i}个结界：3")
+                    continue
+                if RuleImage(self.IMAGE_XUNZHANG_2, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 2
+                    logger.info(f"第{i}个结界：2")
+                    continue
+                if RuleImage(self.IMAGE_XUNZHANG_1, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 1
+                    logger.info(f"第{i}个结界：1")
+                    continue
+                if RuleImage(self.IMAGE_XUNZHANG_0, region=region).match(logger_lever="ERROR"):
+                    alist[i] = 0
+                    logger.info(f"第{i}个结界：0")
+                    logger.info(f"第{i}个结界：未攻破")
+                    continue
+
+            print_str = "勋章数：["
+            for i in range(1, 10):
+                if i == 1:
+                    print_str += str(alist[i])
+                else:
+                    print_str = f"{print_str},{str(alist[i])}"
+            print_str += "]"
+            logger.ui(print_str)
+
         return alist
 
     def fighting(self) -> None:
@@ -317,8 +363,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         # logger.ui("已解锁阵容")
         sleep()
 
-        # 获得每个结界的勋章数
-        self.list_xunzhang = self.list_num_xunzhang()
+        self.list_xunzhang = self.list_num_xunzhang(only_victory=True)
         for i in range(1, len(self.list_xunzhang)):
             if self.list_xunzhang[i] != -1:
                 logger.ui(f"{i} 可进攻")
@@ -336,7 +381,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             ):
                 continue
 
-            sleep()
+            sleep(3)
             self.fighting_proactive_failure_once()
             count += 1
             logger.ui(f"失败次数: {count}")
@@ -433,7 +478,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
             # 获得每个结界的勋章数
             if self.list_xunzhang is None:
-                self.list_xunzhang = self.list_num_xunzhang()
+                self.list_xunzhang = self.list_num_xunzhang(only_victory=True)
             self.tupo_victory = self.list_xunzhang.count(-1)  # 已经攻破的次数
 
             # 按顺序打九
