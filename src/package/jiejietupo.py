@@ -245,7 +245,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
             for index, number in enumerate(alist):
                 if index == 0:
                     continue
-                if number == 1:
+                if number == 0:
                     print_str += str(index) + " "
             logger.ui(print_str)
 
