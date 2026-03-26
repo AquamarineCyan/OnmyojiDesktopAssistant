@@ -91,12 +91,6 @@ class DouJi(BasePackage):
                     logger.ui("胜利")
                     Mouse.click(result.match_result.center)
                     self.done()
-                    sleep(2)
-                    if self.check_click(self.global_assets.IMAGE_FINISH, timeout=5):
-                        logger.ui("胧车燃料")
-                        sleep()
-                        if self.check_click(self.OCR_VICTORY, timeout=3):
-                            logger.ui("胜利*2")
                     return
 
                 case self.OCR_FAIL.name:
