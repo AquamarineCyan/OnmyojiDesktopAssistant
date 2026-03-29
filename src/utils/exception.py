@@ -27,3 +27,11 @@ class TimeoutException(CustomException):
     def __init__(self, *args):
         super().__init__(*args)
         logger.ui_error("异常捕获：超时")
+
+
+class DailyLimitException(CustomException):
+    """该玩法次数已达本日上限"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_error("异常捕获：该玩法次数已达本日上限")

@@ -1,7 +1,7 @@
 from ..utils.adapter import KeyBoard, Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
-from ..utils.exception import GUIStopException
+from ..utils.exception import DailyLimitException, GUIStopException
 from ..utils.function import finish_random_left_right, random_normal, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
@@ -32,6 +32,7 @@ class TanSuo(BasePackage):
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
+        self.start_click_count = 0  # 连续点击IMAGE_START的次数
 
     @staticmethod
     def description() -> None:
@@ -165,9 +166,15 @@ class TanSuo(BasePackage):
 
                 case self.IMAGE_TITLE_28.name:
                     self.check_click(self.IMAGE_START)
+                    self.start_click_count += 1
+                    if self.start_click_count >= 3:
+                        logger.ui_warn("尝试进入探索失败3次")
+                        self.start_click_count = 0  # 重置计数器
+                        raise DailyLimitException("探索次数已达本日上限")
                     sleep(2)
 
                 case self.IMAGE_CHUZHANXIAOHAO.name:
+                    self.start_click_count = 0  # 成功进入探索，重置计数器
                     # 先判断boss面灵气
                     sleep()
                     result = RuleImage(self.IMAGE_FIGHT_BOSS)
