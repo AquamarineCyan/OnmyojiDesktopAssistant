@@ -1,11 +1,19 @@
 from ..utils.adapter import Mouse
 from ..utils.event import event_thread
-from ..utils.exception import GUIStopException
+from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import ocr_match_once
+from ..utils.paddleocr import RuleOcr, ocr_match_once
 from .base_package import BasePackage
+
+
+class DouJiScoreFullException(CustomException):
+    """斗技分数已达名士"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_warn("异常捕获：斗技分数已达名士")
 
 
 class DouJi(BasePackage):
@@ -14,6 +22,7 @@ class DouJi(BasePackage):
 
     def __init__(self, n: int = 0):
         super().__init__(n)
+        self.current_score: int = 1000  # 当前分数
 
     @staticmethod
     def description():
@@ -27,6 +36,27 @@ class DouJi(BasePackage):
         self.OCR_VICTORY = self.get_ocr_asset("victory")
         self.OCR_FAIL = self.get_ocr_asset("fail")
         self.OCR_LEVEL_UP = self.get_ocr_asset("level_up")
+
+    def get_current_score(self):
+        try:
+            result = RuleOcr(region=(480, 370, 160, 100)).get_raw_result()
+            for item in result:
+                if "名士" in item.text:
+                    self.current_score = 3000
+                    break
+
+                if "/" in item.text.strip():
+                    current = item.text.split("/")[0]
+                    self.current_score = int(current)
+                    break
+
+            logger.ui(f"当前分数: {self.current_score}")
+
+        except Exception as e:
+            logger.error(f"获取当前分数失败: {str(e)}")
+
+        if self.current_score >= 3000:
+            raise DouJiScoreFullException
 
     def fighting_once(self):
         _flag = False
@@ -61,6 +91,8 @@ class DouJi(BasePackage):
                     logger.scene(self.scene_name)
                     msg_title = False
                     self.current_asset_list.remove(self.OCR_TITLE)
+
+                    self.get_current_score()
 
                 case self.OCR_FIGHT.name:
                     logger.ui("开始战斗")
