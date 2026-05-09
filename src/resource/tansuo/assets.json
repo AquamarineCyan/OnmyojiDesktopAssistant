@@ -22,32 +22,14 @@
             "score": "0.7"
         },
         {
-            "name": "kunnan_big",
-            "file": "kunnan_big.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
             "name": "quit_true",
             "file": "quit_true.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
         },
         {
-            "name": "quit",
-            "file": "quit.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
-            "name": "tansuo_28_0",
-            "file": "tansuo_28_0.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
-            "name": "tansuo_28_title",
-            "file": "tansuo_28_title.png",
+            "name": "start",
+            "file": "start.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
         },
@@ -58,8 +40,8 @@
             "score": "0.7"
         },
         {
-            "name": "tansuo",
-            "file": "tansuo.png",
+            "name": "title_28",
+            "file": "title_28.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
         },

@@ -38,6 +38,12 @@
             "score": "0.7"
         },
         {
+            "name": "quit",
+            "file": "quit.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
             "name": "ready_new",
             "file": "ready_new.png",
             "region": [0, 0, 0, 0],

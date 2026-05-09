@@ -14,6 +14,7 @@ class GlobalResource:
         "finish",  # 结束
         "passenger_2",  # 队员2
         "passenger_3",  # 队员3
+        "quit",  # 退出
         "ready_new",  # 准备-简约主题
         "ready_old",  # 准备-怀旧主题
         "start_single",  # 单人挑战
@@ -49,6 +50,7 @@ class GlobalResource:
         self.IMAGE_FINISH = self.get_image_asset("finish")
         self.IMAGE_PASSENGER_2 = self.get_image_asset("passenger_2")
         self.IMAGE_PASSENGER_3 = self.get_image_asset("passenger_3")
+        self.IMAGE_QUIT = self.get_image_asset("quit")
         self.IMAGE_READY_NEW = self.get_image_asset("ready_new")
         self.IMAGE_READY_OLD = self.get_image_asset("ready_old")
         self.IMAGE_START_SINGLE = self.get_image_asset("start_single")

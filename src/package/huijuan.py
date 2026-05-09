@@ -9,6 +9,7 @@ from ..utils.point import Point
 from .base_package import BasePackage
 from .jiejietupo import JieJieTuPoGeRen
 from .tansuo import TanSuo
+from .utils import get_image_asset, load_asset
 
 
 class HuiJuan(BasePackage):
@@ -53,6 +54,15 @@ class HuiJuan(BasePackage):
     def load_asset(self):
         self.IMAGE_MAP_JIEJIETUPO = self.get_image_asset("map_jiejietupo")
 
+    def close_tansuo(self):
+        asset_image_list = load_asset(TanSuo.resource_path, "image")
+        IMAGE_TITLE_28 = get_image_asset(asset_image_list, "title_28")
+        if RuleImage(IMAGE_TITLE_28).match():
+            logger.ui("当前在探索入口处，尝试关闭")
+            self.check_click(self.global_assets.IMAGE_QUIT, point_type="center")
+        else:
+            logger.ui("当前不在探索入口处，无需关闭")
+
     def get_current_number(self):
         result = RuleOcr(region=(650, 0, 100, 55)).get_raw_result()
         try:
@@ -65,20 +75,18 @@ class HuiJuan(BasePackage):
             logger.ui_error("突破券识别失败")
         return number
 
-    def get_current_scene(self) -> Point | None:
+    def get_jiejietupo_scene(self) -> Point | None:
         # 优先使用图像识别
         result = RuleImage(self.IMAGE_MAP_JIEJIETUPO)
         if result.match(logger_lever="ERROR"):
             logger.info("使用图像识别结界突破成功")
             return result.center_point()
 
-        result = RuleOcr(region=(200, 550, 100, 90)).get_raw_result()
+        result = RuleOcr(region=(40, 600, 940, 35)).get_raw_result()
         for item in result:
             if "结界突破" in item.text:
                 logger.info("使用文字识别结界突破成功")
-                return Point(
-                    item.center.client_x + 200, item.center.client_y + 550
-                )  # TODO 底层解决相对截图时的坐标问题
+                return Point(item.center.client_x + 40, item.center.client_y + 600)  # TODO 底层解决相对截图时的坐标问题
 
         return None
 
@@ -93,7 +101,7 @@ class HuiJuan(BasePackage):
             tansuo_count = self.loop_count
             logger.ui(f"探索{tansuo_count}次")
             TanSuo(tansuo_count).run()
-            self.close_current_scene()
+            self.close_tansuo()
 
             sleep(2)
             number = self.get_current_number()
@@ -102,7 +110,7 @@ class HuiJuan(BasePackage):
             logger.ui("正在前往 结界突破")
             sleep(2)
 
-            point = self.get_current_scene()
+            point = self.get_jiejietupo_scene()
             if point:
                 Mouse.click(point)
             else:

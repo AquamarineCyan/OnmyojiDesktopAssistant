@@ -19,8 +19,6 @@ class TanSuo(BasePackage):
         "chuzhanxiaohao",
         "fighting",
         "fighting_boss",
-        "kunnan_big",
-        "quit",
         "quit_true",
         "tansuo",
         "tansuo_28",
@@ -39,17 +37,14 @@ class TanSuo(BasePackage):
         logger.ui("提前准备好自动轮换和加成，仅单人探索")
 
     def load_asset(self):
-        self.IMAGE_START = self.get_image_asset("tansuo")
+        self.IMAGE_START = self.get_image_asset("start")
         self.IMAGE_CHUZHANXIAOHAO = self.get_image_asset("chuzhanxiaohao")
         self.IMAGE_FIGHT_BOSS = self.get_image_asset("fight_boss")
         self.IMAGE_FIGHT_LITTLE_MONSTER = self.get_image_asset("fight_little_monster")
-        self.IMAGE_KUNNAN_BIG = self.get_image_asset("kunnan_big")
         self.IMAGE_QUIT_TRUE = self.get_image_asset("quit_true")
         self.IMAGE_TREASURE_BOX = self.get_image_asset("treasure_box")
-        self.IMAGE_QUIT = self.get_image_asset("quit")
-        self.IMAGE_TANSUO_28_0 = self.get_image_asset("tansuo_28_0")
         self.IMAGE_TANSUO_28 = self.get_image_asset("tansuo_28")
-        self.IMAGE_TITLE_28 = self.get_image_asset("tansuo_28_title")
+        self.IMAGE_TITLE_28 = self.get_image_asset("title_28")
 
     @log_function_call
     def check_title(self) -> None:
@@ -57,7 +52,6 @@ class TanSuo(BasePackage):
         self.current_asset_list = [
             self.IMAGE_CHUZHANXIAOHAO,
             self.IMAGE_TANSUO_28,
-            self.IMAGE_TANSUO_28_0,
             self.IMAGE_TITLE_28,
         ]
         self.log_current_asset_list()
@@ -129,13 +123,14 @@ class TanSuo(BasePackage):
 
             # 在探索进入的前置界面
             else:
-                image = RuleImage(self.IMAGE_START)
+                image_start = RuleImage(self.IMAGE_START)
                 image_treasure_box = RuleImage(self.IMAGE_TREASURE_BOX)
-                if image.match():
+                if image_start.match():
                     logger.ui("探索结束")
                 # 宝箱
                 elif image_treasure_box.match():
                     Mouse.click(image_treasure_box.center_point())
+                    logger.info("获得宝箱")
                     Mouse.click(wait=2)
                 # 不管有没有宝箱，都退出这次探索
                 return
@@ -144,9 +139,8 @@ class TanSuo(BasePackage):
         self.check_title()
         self.current_asset_list = [
             self.IMAGE_CHUZHANXIAOHAO,
-            self.IMAGE_TANSUO_28_0,
+            self.IMAGE_TANSUO_28,
             self.IMAGE_TITLE_28,
-            self.IMAGE_KUNNAN_BIG,
             self.IMAGE_START,
         ]
 
@@ -160,11 +154,12 @@ class TanSuo(BasePackage):
 
             logger.info(f"current result name: {result.name}")
             match result.name:
-                case self.IMAGE_TANSUO_28_0.name:  # 右侧列表按钮
+                case self.IMAGE_TANSUO_28.name:  # 右侧列表按钮
                     Mouse.click(result.center_point())
-                    sleep()
+                    sleep(3)  # 等待行动动画
 
                 case self.IMAGE_TITLE_28.name:
+                    logger.ui("准备进入探索")
                     self.check_click(self.IMAGE_START)
                     self.start_click_count += 1
                     if self.start_click_count >= 3:
