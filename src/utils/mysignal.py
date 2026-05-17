@@ -44,8 +44,8 @@ class MySignals(QObject):
         """完成情况更新"""
         key_pressed = Signal(str)
         """按键按下"""
-        valid_listWidget_update = Signal(str, str)
-        """更新`valid_listWidget`"""
+        effective_entry_analysis_list_widget_update = Signal(str, str)
+        """更新有效词条分析列表框"""
         sys_exit = Signal()
         """退出程序"""
 

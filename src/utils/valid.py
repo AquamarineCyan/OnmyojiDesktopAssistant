@@ -5,7 +5,7 @@ from .paddleocr import RuleOcr
 
 
 def valid_handle():
-    ms.main.valid_listWidget_update.emit("clear", "")
+    ms.main.effective_entry_analysis_list_widget_update.emit("CLEAR", "")
     attribute_list: list = [
         "速度",
         "暴击",
@@ -47,14 +47,14 @@ def score_handle():
     valid_list = valid_handle()
     first = True
 
-    ms.main.valid_listWidget_update.emit("clear", "")
-    ms.main.valid_listWidget_update.emit("add", "属性\t数值\t有效次数\n")
+    ms.main.effective_entry_analysis_list_widget_update.emit("CLEAR", "")
+    ms.main.effective_entry_analysis_list_widget_update.emit("ADD", "属性\t数值\t有效次数\n")
 
     for item in valid_list:
         if first:
             first = False
             text = f"{item[0]}\t{item[1]}"
-            ms.main.valid_listWidget_update.emit("add", f"{text}\n")
+            ms.main.effective_entry_analysis_list_widget_update.emit("ADD", f"{text}\n")
             continue
         attribute = item[0]
         num = item[1]
@@ -76,4 +76,4 @@ def score_handle():
             text = f"{item[0]}\t{item[1]}"
         else:
             text = f"{item[0]}\t{item[1]}\t{score}"
-        ms.main.valid_listWidget_update.emit("add", f"{text}\n")
+        ms.main.effective_entry_analysis_list_widget_update.emit("ADD", f"{text}\n")

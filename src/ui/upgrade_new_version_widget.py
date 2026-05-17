@@ -1,11 +1,14 @@
-from PySide6.QtGui import QDesktopServices, QIcon
-from PySide6.QtWidgets import QDialogButtonBox, QPushButton, QWidget
+from threading import Thread
 
-from ..utils.decorator import run_in_thread
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QDesktopServices, QIcon
+from PySide6.QtWidgets import QDialogButtonBox, QHBoxLayout, QVBoxLayout, QWidget
+from qfluentwidgets import BodyLabel, ProgressBar, PushButton, TextBrowser
+
+from ..utils.application import ICO_RESOURCE_PATH
 from ..utils.log import logger
 from ..utils.mysignal import global_ms as ms
 from ..utils.upgrade import upgrade
-from .upgrade_new_version_ui import Ui_Form
 
 
 class UpgradeNewVersionWidget(QWidget):
@@ -13,70 +16,86 @@ class UpgradeNewVersionWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.ui = Ui_Form()
-        self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
+        self.setWindowIcon(QIcon(ICO_RESOURCE_PATH))
+        self.setWindowTitle("更新新版本")
+        self.resize(500, 400)
 
-        self.ui.textBrowser.setOpenLinks(False)  # 禁用内部链接处理
-        self.ui.textBrowser.anchorClicked.connect(self._open_external_browser)
+        self.text_browser = TextBrowser()
+        self.text_browser.setOpenLinks(False)  # 禁用内部链接处理
+        self.text_browser.anchorClicked.connect(self._open_external_browser)
 
-        button_update = QPushButton("下载更新", self)
-        button_download = QPushButton("仅下载", self)
-        button_cancel = QPushButton("忽略本次", self)
+        self.update_button = PushButton("下载更新")
+        self.download_button = PushButton("仅下载")
+        self.cancel_button = PushButton("忽略本次")
 
-        self.ui.buttonBox.addButton(button_update, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_download, QDialogButtonBox.ButtonRole.AcceptRole)
-        self.ui.buttonBox.addButton(button_cancel, QDialogButtonBox.ButtonRole.RejectRole)
-        self.ui.progressBar.hide()
+        self.progress_bar = ProgressBar()
 
-        button_update.clicked.connect(self.button_update_clicked_func)
-        button_download.clicked.connect(self._button_download_clicked_handle)
-        button_cancel.clicked.connect(self.close)
+        self.progress_percent_label = BodyLabel()
+        self.download_info_label = BodyLabel()
 
-        ms.upgrade_new_version.progress_text_update.connect(self._update_progress_text_handle)
-        ms.upgrade_new_version.progressBar_update.connect(self._update_progressBar_handle)
+        self.button_box = QDialogButtonBox()
+
+        self.button_box.addButton(self.update_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.button_box.addButton(self.download_button, QDialogButtonBox.ButtonRole.AcceptRole)
+        self.button_box.addButton(self.cancel_button, QDialogButtonBox.ButtonRole.RejectRole)
+
+        self.update_button.clicked.connect(self._update_button_handle)
+        self.download_button.clicked.connect(self._download_button_handle)
+        self.cancel_button.clicked.connect(self.close)
+
+        ms.upgrade_new_version.progress_text_update.connect(self._download_info_update_handle)
+        ms.upgrade_new_version.progressBar_update.connect(self._progress_update_handle)
         ms.upgrade_new_version.close_ui.connect(self.close)
 
+        self.progress_hBoxLayout = QHBoxLayout()
+        self.progress_hBoxLayout.addWidget(self.download_info_label, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.progress_hBoxLayout.addWidget(self.progress_percent_label, alignment=Qt.AlignmentFlag.AlignRight)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setSpacing(10)
+        self.vBoxLayout.addWidget(self.text_browser)
+        self.vBoxLayout.addWidget(self.progress_bar)
+        self.vBoxLayout.addLayout(self.progress_hBoxLayout)
+        self.vBoxLayout.addWidget(self.button_box)
+
+        self.progress_bar.hide()
         text = self.convert_to_markdown(upgrade.new_version, upgrade.new_version_info)
-        self.ui.textBrowser.setMarkdown(text)
+        self.text_browser.setMarkdown(text)
         logger.info(f"[upgrade new version]\n{text}")
 
     def _open_external_browser(self, url):
         QDesktopServices.openUrl(url)
 
-    def _update_progress_text_handle(self, text: str):
+    def _download_info_update_handle(self, text: str):
         """更新文件进度信息
 
-        参数:
+        Args:
             text (str): 文本内容
         """
-        self.ui.label.setText(text)
+        self.download_info_label.setText(text)
 
-    def _update_progressBar_handle(self, value: int):
+    def _progress_update_handle(self, value: int):
         """更新进度条
 
-        参数:
+        Args:
             value (int): 百分比
         """
-        self.ui.progressBar.setValue(value)
+        self.progress_bar.setValue(value)
+        self.progress_percent_label.setText(f"{value}%")
 
-    def _show_progressBar_handle(self):
-        if self.ui.progressBar.isHidden():
-            self.ui.progressBar.show()
+    def _progress_bar_show_handle(self):
+        if self.progress_bar.isHidden():
+            self.progress_bar.show()
 
-    def button_update_clicked_func(self):
-        self._show_progressBar_handle()
+    def _update_button_handle(self):
+        self._progress_bar_show_handle()
         upgrade.ui_update_func()
 
-    @run_in_thread
-    def _button_download_clicked_handle(self):
-        self._show_progressBar_handle()
-        # upgrade.ui_download_func()
-        url = "https://dldir1v6.qq.com/qqfile/qq/QQNT/Windows/QQ_9.9.20_250626_x64_01.exe"
-        upgrade.file = url.split("/")[-1]
-        upgrade.download_upgrade_zip(url)
+    def _download_button_handle(self):
+        self._progress_bar_show_handle()
+        Thread(target=upgrade.ui_download_func, name="upgrade.ui_download_func", daemon=True).start()
 
-    def downgrade_headings(self, text):
+    def downgrade_headings(self, text: str):
         """
         将Markdown文本中的所有标题降一级（如# 标题 → ## 标题）
         最多处理到六级标题，超过六级保持不变
@@ -104,7 +123,7 @@ class UpgradeNewVersionWidget(QWidget):
         markdown_lines.append("")  # 空行
 
         # 处理并添加更新内容
-        body = new_version_info
+        body: str = new_version_info
         # 替换Windows换行符为通用换行符
         body = body.replace("\r\n", "\n")
         # 移除行尾空白

@@ -1,9 +1,10 @@
 from PySide6.QtGui import QDesktopServices, QIcon
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QVBoxLayout, QWidget
+from qfluentwidgets import TextBrowser
 
+from ..utils.application import ICO_RESOURCE_PATH
 from ..utils.log import logger
 from ..utils.update import get_local_update_record
-from .update_record_ui import Ui_Form
 
 
 class UpdateRecordWindow(QWidget):
@@ -11,22 +12,27 @@ class UpdateRecordWindow(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.ui = Ui_Form()
-        self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
+        self.setWindowIcon(QIcon(ICO_RESOURCE_PATH))
+        self.setWindowTitle("更新记录")
+        self.resize(600, 450)
 
-        self.ui.textBrowser.setOpenLinks(False)  # 禁用内部链接处理
-        self.ui.textBrowser.anchorClicked.connect(self._open_external_browser)
+        self.text_browser = TextBrowser(self)
+        self.text_browser.setOpenLinks(False)  # 禁用内部链接处理
+        self.text_browser.anchorClicked.connect(self._open_external_browser)
+
+        self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
+        self.vBoxLayout.addWidget(self.text_browser)
 
         update_info = get_local_update_record()
         text = self.convert_to_markdown(update_info)
-        self.ui.textBrowser.setMarkdown(text)
+        self.text_browser.setMarkdown(text)
         logger.info(f"[update record]\n{text}")
 
     def _open_external_browser(self, url):
         QDesktopServices.openUrl(url)
 
-    def downgrade_headings(self, text):
+    def downgrade_headings(self, text: str):
         """
         将Markdown文本中的所有标题降一级（如# 标题 → ## 标题）
         最多处理到六级标题，超过六级保持不变
@@ -46,7 +52,7 @@ class UpdateRecordWindow(QWidget):
                 processed_lines.append(line)
         return "\n".join(processed_lines)
 
-    def convert_to_markdown(self, update_info):
+    def convert_to_markdown(self, update_info: list[dict]):
         # 按版本号降序排序（最新版本在前）
         sorted_info = sorted(
             update_info,
@@ -61,7 +67,7 @@ class UpdateRecordWindow(QWidget):
             markdown_lines.append("")  # 空行
 
             # 处理并添加更新内容
-            body = item["body"]
+            body: str = item["body"]
             # 替换Windows换行符为通用换行符
             body = body.replace("\r\n", "\n")
             # 移除行尾空白

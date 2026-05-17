@@ -73,3 +73,6 @@ HELP_DOC_LINK = "https://docs.qq.com/doc/DZUxDdm9ya2NpR2FY"
 """帮助文档链接"""
 QQ_GROUP_LINK = "https://qm.qq.com/q/T5pnZ5tGAs"
 """QQ群链接"""
+
+ICO_RESOURCE_PATH: str = ":/icon/buzhihuo.jpg"
+"""图标路径（Qt资源）"""

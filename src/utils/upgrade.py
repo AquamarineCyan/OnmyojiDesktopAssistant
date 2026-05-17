@@ -140,7 +140,7 @@ class Upgrade(Connect):
         sorted_download_urls.extend(f"{url}{self.browser_download_url}" for url in sorted_urls)
 
         download_url_list = []
-        if config.user.update_download == _update_download_list[0]:  # mirror
+        if config.user.update_download == _update_download_list[0]:  # 镜像站
             download_url_list.extend(sorted_download_urls)
             download_url_list.append(self.browser_download_url)
         else:
@@ -203,7 +203,7 @@ class Upgrade(Connect):
     @run_in_thread
     def check_latest(self) -> None:
         """检查更新"""
-        if config.user.update == "关闭":
+        if not config.user.auto_update:
             logger.info("跳过更新")
             return
 

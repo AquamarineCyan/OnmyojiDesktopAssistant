@@ -3,24 +3,22 @@ from contextlib import suppress
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
+from threading import Thread
+from typing import Literal
 
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QPixmap, QTextCursor
-from PySide6.QtWidgets import (
-    QMainWindow,
-    QMessageBox,
-    QWidget,
-)
+from PySide6.QtGui import QPixmap, QTextCursor
+from qfluentwidgets import Dialog, MessageBox
 
 from ..package import *  # noqa: F403
-from ..package.types import Yingjie
+from ..package.types import GameFunction
 from ..ui import icon_rc  # noqa: F401
-from ..ui.mainui_ui import Ui_MainWindow
+from ..ui.fluent import Window as FluentWindow
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, HELP_DOC_LINK, HOME_PAGE_LINK, QQ_GROUP_LINK, VERSION
-from .config import config
+from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, VERSION
+from .config import _game_language_list, _interaction_mode_list, config, default_config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
@@ -28,37 +26,14 @@ from .global_task import global_task
 from .keyboard_listener import KeyListenerThread
 from .log import log_clean_up, logger
 from .mysignal import global_ms as ms
-from .mythread import WorkThread
 from .paddleocr import check_ocr_folder, ocr_manager
 from .restart import Restart
 from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut
 from .update import get_update_info
 from .upgrade import upgrade
-from .window import window_manager
-
-
-class GameFunction(Enum):
-    """游戏功能"""
-
-    YUHUN = 1  # 御魂副本
-    YONGSHENGZHIHAI = 2  # 永生之海副本
-    YEYUANHUO = 3  # 业原火副本
-    YULING = 4  # 御灵副本
-    GERENTUPO = 5  # 个人突破
-    LIAOTUPO = 6  # 寮突破
-    DAOGUANTUPO = 7  # 道馆突破
-    ZHAOHUAN = 8  # 普通召唤
-    BAIGUIYEXING = 9  # 百鬼夜行
-    HUODONG = 10  # 限时活动
-    RILUN = 11  # 日轮副本
-    TANSUO = 12  # 单人探索
-    QILING = 13  # 契灵之境
-    JUEXING = 14  # 觉醒副本
-    LIUDAOZHIMEN = 15  # 六道之门速刷
-    DOUJI = 16  # 斗技自动上阵
-    YINGJIESHILIAN = 17  # 英杰试炼
-    HUIJUAN = 18  # 绘卷刷分
+from .valid import score_handle
+from .window import GameWindow, window_manager
 
 
 class StackedWidgetIndex(Enum):
@@ -73,35 +48,9 @@ class StackedWidgetIndex(Enum):
     HUIJUAN = 6
 
 
-class MainWindow(QMainWindow):
-    """主界面"""
-
-    _list_function = [  # 功能列表
-        "1.御魂副本",
-        "2.永生之海副本",
-        "3.业原火副本",
-        "4.御灵副本",
-        "5.个人突破",
-        "6.寮突破",
-        "7.道馆突破",
-        "8.普通召唤",
-        "9.百鬼夜行",
-        "10.限时活动",
-        "11.日轮副本",
-        "12.单人探索",
-        "13.契灵之境",
-        "14.觉醒副本",
-        "15.六道之门速刷",
-        "16.斗技自动上阵",
-        "17.英杰试炼",
-        "18.绘卷刷分",
-    ]
-
+class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        self.setWindowIcon(QIcon(":/icon/buzhihuo.jpg"))
         if config.user.game_language == "国服":
             title = f"{APP_NAME} - v{VERSION}"
         else:
@@ -113,23 +62,10 @@ class MainWindow(QMainWindow):
         self.software_init()
 
     def ui_init(self):
-        """初始化GUI"""
-        self.ui.combo_choice.addItems(self._list_function)
-        self.ui.button_start.setEnabled(False)
-        self.ui.combo_choice.setEnabled(False)
-        self.ui.spin_times.setEnabled(False)
-
-        self.ui.stackedWidget.setCurrentIndex(0)  # 索引0，空白
-        gerentupo_level_list = JieJieTuPoGeRen.get_level_list()
-
-        self.ui.comboBox_jiejietupo_current_level.addItems(gerentupo_level_list)
-        self.ui.comboBox_jiejietupo_target_level.addItems(gerentupo_level_list)
-        self.ui.comboBox_huijuan_jiejietupo_current_level.addItems(gerentupo_level_list)
-        self.ui.comboBox_huijuan_jiejietupo_target_level.addItems(gerentupo_level_list)
-
-        self.ui.combo_yingjieshilian.addItems([e.value for e in Yingjie])
-
-        self.ui.combo_qiling_jieqi_stone.addItems(QiLing.get_pockmon_list())
+        """初始化UI"""
+        self.homeInterface.basic_group.func_combobox.setEnabled(False)
+        self.homeInterface.basic_group.number_spinbox.setEnabled(False)
+        self.homeInterface.button_status.setEnabled(False)
 
         self._init_settings()
         self._init_signals()
@@ -141,111 +77,56 @@ class MainWindow(QMainWindow):
 
     def _init_settings(self):
         """初始化设置"""
-        _setting_QComboBox_dict = {
-            self.ui.setting_language_comboBox: "game_language",
-            self.ui.setting_update_comboBox: "update",
-            self.ui.setting_update_download_comboBox: "update_download",
-            self.ui.setting_xuanshangfengyin_comboBox: "xuanshangfengyin",
-            self.ui.setting_window_style_comboBox: "window_style",
-            self.ui.setting_shortcut_start_stop_comboBox: "shortcut_start_stop",
-        }
-        for key, value in _setting_QComboBox_dict.items():
-            key.addItems(config.default.model_dump()[value])
-            key.setCurrentText(config.user.model_dump().get(value))
+        card = self.settingInterface
+        setting = config.user
 
-        self.ui.setting_interaction_mode_comboBox.addItems(config.default.model_dump()["interaction_mode"]["mode"])
-        self.ui.setting_interaction_mode_comboBox.setCurrentText(config.user.model_dump()["interaction_mode"]["mode"])
-
-        self.ui.setting_interaction_backend_screenshot_method_comboBox.addItems(
-            config.default.model_dump()["interaction_mode"]["backend"]["screenshot_method"]
+        card.language_card.combobox.setCurrentText(setting.game_language)
+        card.xuanshangfengyin_card.combobox.setCurrentText(setting.xuanshangfengyin)
+        card.interaction_mode_card.mode_combobox.setCurrentText(setting.interaction_mode.mode)
+        card.interaction_mode_card.frontend_force_window_switch.setChecked(
+            setting.interaction_mode.frontend.force_window
         )
-        self.ui.setting_interaction_backend_screenshot_method_comboBox.setCurrentText(
-            config.user.model_dump()["interaction_mode"]["backend"]["screenshot_method"]
+        card.interaction_mode_card.backend_prevent_sleep_switch.setChecked(
+            setting.interaction_mode.backend.prevent_sleep
         )
-
-        _status = config.user.model_dump().get("interaction_mode").get("frontend").get("force_window")
-        self.ui.setting_interaction_mode_frontend_button.setChecked(_status)
-
-        _status = config.user.model_dump().get("interaction_mode").get("backend").get("prevent_sleep")
-        self.ui.setting_interaction_mode_backend_button.setChecked(_status)
-
-        _status = config.user.model_dump().get("remember_last_choice")
-        self.ui.setting_remember_last_choice_button.setChecked(_status != -1)
-
-        _status = config.user.model_dump().get("win_toast")
-        self.ui.setting_win_toast_button.setChecked(_status)
-
-        _restart_msg = "重启生效"
-        self.ui.setting_language_comboBox.setToolTip(_restart_msg)
-        self.ui.setting_update_comboBox.setToolTip(_restart_msg)
-        self.ui.setting_update_download_comboBox.setToolTip(_restart_msg)
-        self.ui.setting_xuanshangfengyin_comboBox.setToolTip("立即生效")
-        self.ui.setting_window_style_comboBox.setToolTip(_restart_msg)
-
-        self.ui.button_about_homePage.setToolTip("通过浏览器打开")
-        self.ui.button_about_helpDoc.setToolTip("通过浏览器打开")
-        self.ui.button_about_Qgroup.setToolTip("通过浏览器打开")
+        card.interaction_mode_card.backend_screenshot_combobox.setCurrentText(
+            setting.interaction_mode.backend.screenshot_method
+        )
+        card.remember_last_choice_card.switch.setChecked(
+            setting.remember_last_choice != default_config.remember_last_choice
+        )
+        card.shortcut_start_stop_card.combobox.setCurrentText(setting.shortcut_start_stop)
+        card.win_toast_card.switch.setChecked(setting.win_toast)
+        card.group_update.mode_switch.setChecked(setting.auto_update)
+        card.group_update.download_combobox.setCurrentText(setting.update_download)
 
     def _init_signals(self):
         """初始化信号"""
-        ms.main.qmessagbox_update.connect(self.qmessagbox_update_func)
-        ms.main.ui_text_info_update.connect(self.ui_text_info_update_func)
+        ms.main.qmessagbox_update.connect(self.qmessagbox_update_handle)
+        ms.main.ui_text_info_update.connect(self.ui_text_info_update_handle)
         ms.main.is_fighting_update.connect(self.is_fighting)
-        ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_func)
-        ms.main.valid_listWidget_update.connect(self.ui_valid_listWidget_update_handle)
+        ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_handle)
+        ms.main.effective_entry_analysis_list_widget_update.connect(
+            self.ui_effective_entry_analysis_list_widget_update_handle
+        )
         ms.main.sys_exit.connect(self._exit_handle)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
     def _init_events(self):
         """初始化事件"""
-        self.ui.button_game_handle.clicked.connect(self.check_game_handle)
-        self.ui.combo_choice.currentIndexChanged.connect(self.game_function_description)
-        self.ui.button_start.clicked.connect(self.app_running)
+        self.homeInterface.basic_group.func_combobox.currentIndexChanged.connect(self.game_function_description)
+        self.homeInterface.button_status.clicked.connect(self.app_running)
 
-        self.ui.buttonGroup_yuhun_mode.buttonClicked.connect(self.buttonGroup_yuhun_mode_handle)
-        self.ui.buttonGroup_yuhun_driver.buttonClicked.connect(self.buttonGroup_yuhun_driver_handle)
-        self.ui.buttonGroup_jiejietupo_switch.buttonClicked.connect(self.buttonGroup_jiejietupo_switch_handle)
-        self.ui.button_qiling_tancha.checkStateChanged.connect(self.button_qiling_tancha_handle)
-        self.ui.button_qiling_jieqi.checkStateChanged.connect(self.button_qiling_jieqi_handle)
-        self.ui.buttonGroup_yingjieshilian.buttonClicked.connect(self.buttonGroup_yingjieshilian_handle)
-        self.ui.buttonGroup_huijuan_jiejietupo_switch.buttonClicked.connect(
-            self.buttonGroup_huijuan_jiejietupo_switch_handle
+        self.windowManagerInterface.preview_button.clicked.connect(self.preview_window)
+        self.windowManagerInterface.apply_button.clicked.connect(self.apply_selected_window)
+
+        self.effectiveEntryAnalysisInterface.button.clicked.connect(
+            self.effective_entry_analysis_interface_score_handle
         )
 
-        self.ui.tab_window_manager_preview_button.clicked.connect(self.preview_window)
-        self.ui.tab_window_manager_apply_button.clicked.connect(self.apply_selected_window)
-
-        self.ui.valid_pushButton.clicked.connect(self.score_handle)
-
-        self.ui.setting_language_comboBox.currentIndexChanged.connect(self.setting_language_comboBox_handle)
-        self.ui.setting_update_comboBox.currentIndexChanged.connect(self.setting_update_comboBox_handle)
-        self.ui.setting_update_download_comboBox.currentIndexChanged.connect(
-            self.setting_update_download_comboBox_handle
-        )
-        self.ui.setting_xuanshangfengyin_comboBox.currentIndexChanged.connect(
-            self.setting_xuanshangfengyin_comboBox_handle
-        )
-        self.ui.setting_window_style_comboBox.currentIndexChanged.connect(self.setting_window_style_comboBox_hanle)
-        self.ui.setting_shortcut_start_stop_comboBox.currentIndexChanged.connect(
-            self.setting_shortcut_start_stop_comboBox_handle
-        )
-        self.ui.setting_interaction_mode_comboBox.currentIndexChanged.connect(
-            self.setting_interaction_mode_comboBox_handle
-        )
-        self.ui.setting_interaction_backend_screenshot_method_comboBox.currentIndexChanged.connect(
-            self.setting_interaction_backend_screenshot_method_comboBox_handle
-        )
-        self.ui.setting_remember_last_choice_button.clicked.connect(self.setting_remember_last_choice_handle)
-        self.ui.setting_interaction_mode_frontend_button.clicked.connect(self.setting_interaction_mode_frontend_handle)
-        self.ui.setting_interaction_mode_backend_button.clicked.connect(self.setting_interaction_mode_backend_handle)
-        self.ui.setting_win_toast_button.clicked.connect(self.setting_win_toast_handle)
-
-        self.ui.button_about_appRestart.clicked.connect(self.app_restart_handle)
-        self.ui.button_about_updateRecord.clicked.connect(self.show_update_record_window)
-        self.ui.button_about_shortCut.clicked.connect(create_desktop_shortcut)
-        self.ui.button_about_homePage.mousePressEvent = self.open_homepage
-        self.ui.button_about_helpDoc.mousePressEvent = self.open_helpdoc
-        self.ui.button_about_Qgroup.mousePressEvent = self.open_Qgroup
+        self.settingInterface.about_card.short_cut_button.clicked.connect(create_desktop_shortcut)
+        self.settingInterface.about_card.app_restart_button.clicked.connect(self.app_restart_handle)
+        self.settingInterface.about_card.update_record_button.clicked.connect(self.show_update_record_window)
 
     def _shortcut_handle(self, key: str):
         """快捷键处理"""
@@ -260,12 +141,12 @@ class MainWindow(QMainWindow):
 
     @log_function_call
     @run_in_thread
-    def software_init(self) -> None:
+    def software_init(self):
         """程序初始化"""
         logger.info(f"application path: {APP_PATH}")
         logger.info(f"resource path: {config.resource_dir}")
         logger.info(f"[VERSION] {VERSION}")
-        config.log()
+        config.show_log()
         logger.ui_warn("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版")
         logger.ui("程序初始化中，请稍候")
         log_clean_up()
@@ -279,10 +160,10 @@ class MainWindow(QMainWindow):
             return
         logger.ui("初始化成功")
 
-        if not config.user.game_language == "国服":
+        if not config.user.game_language == _game_language_list[0]:
             logger.ui_warn("当前非国服，请注意部分资源可能不兼容")
 
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == _interaction_mode_list[1]:
             logger.ui_warn(
                 "当前为后台交互模式，需要在窗口管理中检查截图是否正常。如果在移动游戏窗口后截图黑屏，可尝试切换后台截图模式解决"
             )
@@ -300,40 +181,42 @@ class MainWindow(QMainWindow):
         global_task.add(XuanShangFengYin().check_task)
         global_task.start()
 
-    def qmessagbox_update_func(self, level: str, msg: str) -> None:
+    def qmessagbox_update_handle(self, level: str, msg: str):
+        # TODO 弹窗类型
+        # TODO 弹窗内容
         if level == "ERROR":
-            QMessageBox.critical(self, level, msg)
+            message_box = MessageBox("错误", msg, self)
+            message_box.yesButton.setText("确定")
+            message_box.hideCancelButton()  # 隐藏取消按钮
+            message_box.exec()
+
         elif level == "question":
             if msg == "强制缩放":
                 logger.error("游戏窗口大小不匹配")
-                if (
-                    QMessageBox.question(
-                        self,
-                        "窗口大小不匹配",
-                        "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材",
-                    )
-                    == QMessageBox.StandardButton.Yes
-                ):
+                title = "窗口大小不匹配"
+                content = "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材"
+                dialog = Dialog(title, content)
+
+                if dialog.exec():
                     logger.info("用户接受强制缩放")
                     window_manager.force_zoom()
                 else:
                     logger.info("用户拒绝强制缩放")
+
             elif msg == "更新重启":
                 logger.info("提示：更新重启")
-                if (
-                    QMessageBox.question(
-                        self,
-                        "检测到更新包",
-                        "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包",
-                    )
-                    == QMessageBox.StandardButton.Yes
-                ):
+                title = "检测到更新包"
+                content = "是否更新重启，如有自己替换的素材，请在取消后手动解压更新包"
+                dialog = Dialog(title, content)
+
+                if dialog.exec():
                     logger.info("用户接受更新重启")
-                    WorkThread(func=upgrade.restart).start()
+                    Thread(target=upgrade.restart, name="upgrade_restart", daemon=True).start()
                 else:
                     logger.info("用户拒绝更新重启")
 
-    def ui_text_info_update_func(self, msg: str, color: str) -> None:
+    # TODO 移动到UI内部
+    def ui_text_info_update_handle(self, msg: str, color: str):
         """输出内容至文本框
 
         WARN | ERROR -> 红色
@@ -343,7 +226,7 @@ class MainWindow(QMainWindow):
         参数:
             msg(str): 文本内容
         """
-        widget = self.ui.text_info
+        widget = self.homeInterface.output_info_group.text_info
         widget.setTextColor(color)
         widget.append(msg)
         # 自动换行
@@ -352,19 +235,13 @@ class MainWindow(QMainWindow):
         widget.moveCursor(QTextCursor.MoveOperation.End)
         widget.setTextColor("black")
 
-    def ui_text_progress_update_func(self, msg: str) -> None:
+    def ui_text_progress_update_handle(self, msg: str):
         """输出内容至文本框`完成情况`
 
         参数:
             msg (str): 文本
         """
-        self.ui.text_progress.setText(msg)
-
-    def ui_spin_times_set_value_func(self, current: int = 1, min: int = 0, max: int = 99):
-        widget = self.ui.spin_times
-        widget.setValue(current)
-        widget.setMinimum(min)
-        widget.setMaximum(max)
+        self.homeInterface.output_info_group.progress_text.setText(msg)
 
     @log_function_call
     def software_selfcheck(self) -> bool:
@@ -402,12 +279,13 @@ class MainWindow(QMainWindow):
 
     def _window_button_enabled_handle(self):
         logger.ui("检测到游戏窗口")
-        self.ui.combo_choice.setEnabled(True)
-        self.ui.spin_times.setEnabled(True)
+        self.homeInterface.basic_group.func_combobox.setEnabled(True)
+        self.homeInterface.basic_group.number_spinbox.setEnabled(True)
 
         # 记忆上次所选功能
-        if config.user.remember_last_choice > 0:
-            self.ui.combo_choice.setCurrentIndex(config.user.remember_last_choice - 1)
+        last_choice = config.user.remember_last_choice
+        if last_choice > 0:
+            self.homeInterface.basic_group.func_combobox.setCurrentIndex(last_choice - 1)
 
     @log_function_call
     def is_resource_directory_complete(self) -> bool:
@@ -436,156 +314,76 @@ class MainWindow(QMainWindow):
         logger.info("资源完整")
         return True
 
-    """设置项变更回调函数"""
-
-    def setting_language_comboBox_handle(self) -> None:
-        """设置-游戏服务器-更改"""
-        text = self.ui.setting_language_comboBox.currentText()
-        logger.info(f"设置项：游戏服务器已更改为 {text}")
-        config.update("game_language", text)
-
-    def setting_update_comboBox_handle(self) -> None:
-        """设置-更新模式-更改"""
-        text = self.ui.setting_update_comboBox.currentText()
-        logger.info(f"设置项：更新模式已更改为 {text}")
-        config.update("update", text)
-
-    def setting_update_download_comboBox_handle(self) -> None:
-        """设置-下载线路-更改"""
-        text = self.ui.setting_update_download_comboBox.currentText()
-        logger.info(f"设置项：下载线路已更改为 {text}")
-        config.update("update_download", text)
-
-    def setting_xuanshangfengyin_comboBox_handle(self) -> None:
-        """设置-悬赏封印-更改"""
-        text = self.ui.setting_xuanshangfengyin_comboBox.currentText()
-        logger.info(f"设置项：悬赏封印已更改为 {text}")
-        config.update("xuanshangfengyin", text)
-
-    def setting_window_style_comboBox_hanle(self) -> None:
-        """设置-界面风格-更改"""
-        text = self.ui.setting_window_style_comboBox.currentText()
-        logger.info(f"设置项：界面风格已更改为 {text}")
-        config.update("window_style", text)
-
-    def setting_shortcut_start_stop_comboBox_handle(self) -> None:
-        """设置-快捷键-开始/停止-更改"""
-        text = self.ui.setting_shortcut_start_stop_comboBox.currentText()
-        logger.info(f"设置项：快捷键-开始/停止已更改为 {text}")
-        config.update("shortcut_start_stop", text)
-
-    def setting_interaction_mode_comboBox_handle(self) -> None:
-        """设置-交互模式-更改"""
-        text = self.ui.setting_interaction_mode_comboBox.currentText()
-        logger.info(f"设置项：交互模式已更改为 {text}")
-        config.update("interaction_mode.mode", text)
-
-    def setting_interaction_backend_screenshot_method_comboBox_handle(self) -> None:
-        """设置-后台运行截图模式-更改"""
-        text = self.ui.setting_interaction_backend_screenshot_method_comboBox.currentText()
-        logger.info(f"设置项：后台运行截图模式已更改为 {text}")
-        config.update("interaction_mode.backend.screenshot_method", text)
-
-    def setting_remember_last_choice_handle(self) -> None:
-        """设置-记忆上次所选功能-更改"""
-        flag = self.ui.setting_remember_last_choice_button.isChecked()
-        if flag:
-            _text = "开启"
-            _status = 0
-        else:
-            _text = "关闭"
-            _status = -1
-        logger.info(f"设置项：记忆上次所选功能已更改为 {_text}")
-        config.update("remember_last_choice", _status)
-
-    def setting_interaction_mode_frontend_handle(self) -> None:
-        """设置-前台运行前置游戏窗口-更改"""
-        status = self.ui.setting_interaction_mode_frontend_button.isChecked()
-        config.update("interaction_mode.frontend.force_window", status)
-
-    def setting_interaction_mode_backend_handle(self) -> None:
-        """设置-后台运行禁止系统休眠-更改"""
-        status = self.ui.setting_interaction_mode_backend_button.isChecked()
-        config.update("interaction_mode.backend.prevent_sleep", status)
-
-    def setting_win_toast_handle(self) -> None:
-        """设置-系统通知-更改"""
-        flag = self.ui.setting_win_toast_button.isChecked()
-        if flag:
-            _text = "开启"
-            _status = True
-        else:
-            _text = "关闭"
-            _status = False
-        logger.info(f"设置项：系统通知已更改为 {_text}")
-        config.update("win_toast", _status)
-
     def check_game_handle(self):
         return window_manager.force_update()
 
     def game_function_description(self):
         """功能描述"""
-        self.game_function_choice = GameFunction(self.ui.combo_choice.currentIndex() + 1)
+
+        def set_stack(index: StackedWidgetIndex):
+            self.homeInterface.advanced_stack.setCurrentIndex(index.value)
+
+        basic_group = self.homeInterface.basic_group
+        advanced_stack = self.homeInterface.advanced_stack
+
+        self.game_function_choice = GameFunction(basic_group.func_combobox.currentIndex() + 1)
         if config.user.remember_last_choice != -1:
             config.update("remember_last_choice", self.game_function_choice.value)
-        self.ui.button_start.setEnabled(True)
-        self.ui.spin_times.setEnabled(True)
-        self.ui_spin_times_set_value_func(1, 1, 999)
-        self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.NONE.value)
+        self.homeInterface.button_status.setEnabled(True)
+        basic_group.number_spinbox.setEnabled(True)
+        basic_group.set_number_spinbox_value(1, 1, 999)
+        set_stack(StackedWidgetIndex.NONE)
 
         match self.game_function_choice:
             case GameFunction.YUHUN:
                 YuHun.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
-                self.ui.button_mode_team.setEnabled(True)
-                self.ui.button_mode_single.setEnabled(True)
-                self.ui.button_mode_team.setChecked(True)
-                self.ui.button_driver_False.setChecked(True)
-                self.ui.button_passengers_2.setEnabled(True)
-                self.ui.button_passengers_3.setEnabled(True)
-                self.ui.button_passengers_2.setChecked(True)
+                set_stack(StackedWidgetIndex.YUHUN)
+                card = advanced_stack.yuhun_card
+                card.mode_team_button.setEnabled(True)
+                card.mode_single_button.setEnabled(True)
+                card.mode_team_button.setChecked(True)
+                card.driver_no_button.setChecked(True)
+                card.passengers_2_button.setEnabled(True)
+                card.passengers_3_button.setEnabled(True)
+                card.passengers_2_button.setChecked(True)
 
             case GameFunction.YONGSHENGZHIHAI:
                 YongShengZhiHai.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
-                self.ui_spin_times_set_value_func(30)
-                self.ui.button_mode_team.setChecked(True)
+                set_stack(StackedWidgetIndex.YUHUN)
+                basic_group.set_number_spinbox_value(30)
+                card = advanced_stack.yuhun_card
+                card.mode_team_button.setChecked(True)
                 # 只有组队，最多2人
-                self.ui.button_mode_team.setEnabled(False)
-                self.ui.button_mode_single.setEnabled(False)
-                self.ui.button_driver_False.setChecked(True)
-                self.ui.button_passengers_2.setChecked(True)
-                self.ui.button_passengers_2.setEnabled(False)
-                self.ui.button_passengers_3.setEnabled(False)
+                card.mode_team_button.setEnabled(False)
+                card.mode_single_button.setEnabled(False)
+                card.driver_no_button.setChecked(True)
+                card.passengers_2_button.setChecked(True)
+                card.passengers_2_button.setEnabled(False)
+                card.passengers_3_button.setEnabled(False)
 
             case GameFunction.YEYUANHUO:
                 YeYuanHuo.description()
 
             case GameFunction.YULING:
                 YuLing.description()
-                self.ui_spin_times_set_value_func(1, 1, 400)  # 桌面版上限300
+                basic_group.set_number_spinbox_value(1, 1, 400)  # 桌面版上限300
 
             case GameFunction.GERENTUPO:
                 JieJieTuPoGeRen.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.JIEJIETUPO.value)
-                self.ui.button_jiejietupo_switch_level.setChecked(True)
-                self.ui.button_jiejietupo_fail.setChecked(True)
-
-                self.ui.button_jiejietupo_refresh_rule_3.setChecked(True)
-                # TODO
-                self.ui.button_jiejietupo_refresh_rule_6.hide()
-                self.ui.button_jiejietupo_refresh_rule_9.hide()
-                self.buttonGroup_jiejietupo_switch_handle()
-                self.ui_spin_times_set_value_func(1, 1, 30)
+                set_stack(StackedWidgetIndex.JIEJIETUPO)
+                basic_group.set_number_spinbox_value(1, 1, 30)
+                card = advanced_stack.jiejietupo_card
+                card.mode_level.setChecked(True)
+                card.fail_checkbox.setChecked(True)
 
             case GameFunction.LIAOTUPO:
                 times = JieJieTuPoYinYangLiao.description()
-                self.ui_spin_times_set_value_func(times, 1, 200)
+                basic_group.set_number_spinbox_value(times, 1, 200)
 
             case GameFunction.DAOGUANTUPO:
                 DaoGuanTuPo.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.DAOGUANTUPO.value)
-                self.ui.spin_times.setEnabled(False)
+                set_stack(StackedWidgetIndex.DAOGUANTUPO)
+                basic_group.number_spinbox.setEnabled(False)
 
             case GameFunction.ZHAOHUAN:
                 ZhaoHuan.description()
@@ -595,33 +393,28 @@ class MainWindow(QMainWindow):
 
             case GameFunction.HUODONG:
                 HuoDong.description()
-                self.ui_spin_times_set_value_func(1, 1, 9999)
+                basic_group.set_number_spinbox_value(1, 1, 9999)
 
             case GameFunction.RILUN:
                 RiLun.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YUHUN.value)
-                self.ui_spin_times_set_value_func(50)
-                self.ui.button_mode_team.setEnabled(True)
-                self.ui.button_mode_single.setEnabled(True)
-                self.ui.button_mode_team.setChecked(True)
-                self.ui.button_driver_False.setChecked(True)
-                self.ui.button_passengers_2.setEnabled(True)
-                self.ui.button_passengers_3.setEnabled(True)
-                self.ui.button_passengers_2.setChecked(True)
+                set_stack(StackedWidgetIndex.YUHUN)
+                basic_group.set_number_spinbox_value(50)
+                card = advanced_stack.yuhun_card
+                card.mode_team_button.setEnabled(True)
+                card.mode_single_button.setEnabled(True)
+                card.mode_team_button.setChecked(True)
+                card.driver_no_button.setChecked(True)
+                card.passengers_2_button.setEnabled(True)
+                card.passengers_3_button.setEnabled(True)
+                card.passengers_2_button.setChecked(True)
 
             case GameFunction.TANSUO:
                 TanSuo.description()
 
             case GameFunction.QILING:
                 QiLing.description()
-                self.ui.spin_times.setEnabled(False)
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.QILING.value)
-                # 只是为了触发事件
-                self.ui.button_qiling_tancha.setChecked(True)
-                self.ui.button_qiling_tancha.setChecked(False)
-                self.ui.button_qiling_jieqi.setChecked(True)
-                self.ui.button_qiling_jieqi.setChecked(False)
-                self.ui.spin_qiling_jieqi_stone.setValue(0)
+                set_stack(StackedWidgetIndex.QILING)
+                basic_group.number_spinbox.setEnabled(False)
 
             case GameFunction.JUEXING:
                 JueXing.description()
@@ -633,97 +426,112 @@ class MainWindow(QMainWindow):
                 DouJi.description()
 
             case GameFunction.YINGJIESHILIAN:
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.YINGJIESHILIAN.value)
-                self.ui.button_yingjieshilian_skill.setChecked(True)
+                set_stack(StackedWidgetIndex.YINGJIESHILIAN)
                 self.buttonGroup_yingjieshilian_handle()
 
             case GameFunction.HUIJUAN:
+                set_stack(StackedWidgetIndex.HUIJUAN)
                 HuiJuan.description()
-                self.ui.stackedWidget.setCurrentIndex(StackedWidgetIndex.HUIJUAN.value)
-                self.ui.button_huijuan_jiejietupo_switch_level.setChecked(True)
-                self.ui.button_huijuan_jiejietupo_fail.setChecked(True)
-                self.ui.button_huijuan_jiejietupo_switch_rule.setChecked(False)
+                # basic_group.number_spinbox.setEnabled(False)
+                card = advanced_stack.huijuan_card
+                card.mode_level.setChecked(True)
+                card.fail_checkbox.setChecked(True)
+                card.mode_refresh.setChecked(False)
 
-    def _app_start(self) -> None:
+    def _app_start(self):
         # 没有选功能前禁止通过快捷键启动程序
-        if self.ui.combo_choice.currentIndex() == -1:
+        if self.homeInterface.basic_group.func_combobox.currentIndex() == -1:
             logger.ui_error("请选择功能")
             return
 
-        n = self.ui.spin_times.value()
-        self.ui.text_progress.clear()
+        selected_number: int = self.homeInterface.basic_group.number_spinbox.value()
+        self.homeInterface.output_info_group.progress_text.clear()
         self.is_fighting(True)
+
+        advanced_stack = self.homeInterface.advanced_stack
 
         match self.game_function_choice:
             case GameFunction.YUHUN:
-                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
-                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
-                    passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
-                    YuHunTeam(n=n, flag_driver=driver, flag_passengers=passengers).task_start()
+                card = advanced_stack.yuhun_card
+                if card.mode_group.checkedButton() == card.mode_team_button:
+                    driver = card.driver_group.checkedButton() == card.driver_yes_button
+                    passengers = int(card.passengers_group.checkedButton().text())
+                    YuHunTeam(
+                        n=selected_number,
+                        flag_driver=driver,
+                        flag_passengers=passengers,
+                    ).task_start()
                 else:
-                    YuHunSingle(n=n).task_start()
+                    YuHunSingle(n=selected_number).task_start()
 
             case GameFunction.YONGSHENGZHIHAI:
-                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
-                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
-                    YongShengZhiHaiTeam(n=n, flag_driver=driver).task_start()
+                card = advanced_stack.yuhun_card
+                if card.mode_group.checkedButton() == card.mode_team_button:
+                    driver = card.driver_group.checkedButton() == card.driver_yes_button
+                    YongShengZhiHaiTeam(n=selected_number, flag_driver=driver).task_start()
 
             case GameFunction.YEYUANHUO:
-                YeYuanHuo(n=n).task_start()
+                YeYuanHuo(n=selected_number).task_start()
 
             case GameFunction.YULING:
-                YuLing(n=n).task_start()
+                YuLing(n=selected_number).task_start()
 
             case GameFunction.GERENTUPO:
                 flag_refresh_need: int = 0
                 current_level = target_level = 57
-                if self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level:
-                    current_level = int(self.ui.comboBox_jiejietupo_current_level.currentText())
-                    target_level = int(self.ui.comboBox_jiejietupo_target_level.currentText())
+                card = advanced_stack.jiejietupo_card
+                if card.mode_group.checkedButton() == card.mode_level:
+                    current_level = int(card.current_combobox.currentText())
+                    target_level = int(card.target_combobox.currentText())
                 else:
-                    # 3胜
-                    flag_refresh_need = int(self.ui.buttonGroup_jiejietupo_refresh_rule.checkedButton().text()[0])
+                    flag_refresh_need = 3  # 3胜
                 JieJieTuPoGeRen(
-                    n=n,
+                    n=selected_number,
                     flag_refresh_rule=flag_refresh_need,
                     flag_current_level=current_level,
                     flag_target_level=target_level,
-                    flag_first_round_failure=self.ui.button_jiejietupo_fail.isChecked(),
+                    flag_first_round_failure=card.fail_checkbox.isChecked(),
                 ).task_start()
 
             case GameFunction.LIAOTUPO:
-                JieJieTuPoYinYangLiao(n=n).task_start()
+                JieJieTuPoYinYangLiao(n=selected_number).task_start()
 
             case GameFunction.DAOGUANTUPO:
-                flag_guanzhan = self.ui.button_guanzhan.isChecked()
+                flag_guanzhan = advanced_stack.daoguantupo_card.checkbox.isChecked()
                 DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
 
             case GameFunction.ZHAOHUAN:
-                ZhaoHuan(n=n).task_start()
+                ZhaoHuan(n=selected_number).task_start()
 
             case GameFunction.BAIGUIYEXING:
-                BaiGuiYeXing(n=n).task_start()
+                BaiGuiYeXing(n=selected_number).task_start()
 
             case GameFunction.HUODONG:
-                HuoDong(n=n).task_start()
+                HuoDong(n=selected_number).task_start()
 
             case GameFunction.RILUN:
-                if self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team:
-                    driver = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
-                    passengers = int(self.ui.buttonGroup_yuhun_passengers.checkedButton().text())
-                    RiLunTeam(n=n, flag_driver=driver, flag_passengers=passengers).task_start()
+                card = advanced_stack.yuhun_card
+                if card.mode_group.checkedButton() == card.mode_team_button:
+                    driver = card.driver_group.checkedButton() == card.driver_yes_button
+                    passengers = int(card.passengers_group.checkedButton().text())
+                    RiLunTeam(
+                        n=selected_number,
+                        flag_driver=driver,
+                        flag_passengers=passengers,
+                    ).task_start()
                 else:
-                    RiLunSingle(n=n).task_start()
+                    RiLunSingle(n=selected_number).task_start()
 
             case GameFunction.TANSUO:
-                TanSuo(n=n).task_start()
+                TanSuo(n=selected_number).task_start()
 
             case GameFunction.QILING:
-                _tancha = self.ui.button_qiling_tancha.isChecked()
-                tancha_times = self.ui.spin_qiling_tancha.value()
-                _jieqi = self.ui.button_qiling_jieqi.isChecked()
-                stone_pokemon = self.ui.combo_qiling_jieqi_stone.currentText()
-                stone_numbers = self.ui.spin_qiling_jieqi_stone.value()
+                card = advanced_stack.qiling_card
+                _tancha = card.tancha_checkbox.isChecked()
+                tancha_times = card.tancha_spinbox.value()
+                _jieqi = card.jieqi_checkbox.isChecked()
+                stone_pokemon = card.jieqi_stone_combobox.currentText()
+                stone_numbers = card.jieqi_stone_spinbox.value()
                 QiLing(
                     n=tancha_times,
                     if_tancha=_tancha,
@@ -733,47 +541,46 @@ class MainWindow(QMainWindow):
                 ).task_start()
 
             case GameFunction.JUEXING:
-                JueXing(n=n).task_start()
+                JueXing(n=selected_number).task_start()
 
             case GameFunction.LIUDAOZHIMEN:
-                LiuDaoZhiMen(n=n).task_start()
+                LiuDaoZhiMen(n=selected_number).task_start()
 
             case GameFunction.DOUJI:
-                DouJi(n=n).task_start()
+                DouJi(n=selected_number).task_start()
 
             case GameFunction.YINGJIESHILIAN:
-                yingjie = self.ui.combo_yingjieshilian.currentText()
-                if self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill:
-                    YingJieShiLianSkill(yingjie, n=n).task_start()
+                card = advanced_stack.yingjieshilian_card
+                yingjie = card.combobox.currentText()
+                if card.button_group.checkedButton() == card.skill_button:
+                    YingJieShiLianSkill(yingjie, n=selected_number).task_start()
                 else:
-                    YingJieShiLianExp(yingjie, n=n).task_start()
+                    YingJieShiLianExp(yingjie, n=selected_number).task_start()
 
             case GameFunction.HUIJUAN:
+                card = advanced_stack.huijuan_card
                 flag_refresh_need: int = 0
                 current_level = target_level = 57
-                if (
-                    self.ui.buttonGroup_huijuan_jiejietupo_switch.checkedButton()
-                    == self.ui.button_huijuan_jiejietupo_switch_level
-                ):
-                    current_level = int(self.ui.comboBox_huijuan_jiejietupo_current_level.currentText())
-                    target_level = int(self.ui.comboBox_huijuan_jiejietupo_target_level.currentText())
+                if card.mode_group.checkedButton() == card.mode_level:
+                    current_level = int(card.current_combobox.currentText())
+                    target_level = int(card.target_combobox.currentText())
                 else:
                     flag_refresh_need = 3
                 HuiJuan(
-                    n=n,
-                    loop_count=self.ui.huijuan_tansuo_spin_times.value(),
+                    n=selected_number,
+                    loop_count=card.tansuo_count_spinbox.value(),
                     flag_refresh_rule=flag_refresh_need,
                     flag_current_level=current_level,
                     flag_target_level=target_level,
-                    flag_first_round_failure=self.ui.button_huijuan_jiejietupo_fail.isChecked(),
+                    flag_first_round_failure=card.fail_checkbox.isChecked(),
                 ).task_start()
 
-    def _app_stop(self) -> None:
+    def _app_stop(self):
         event_thread.set()
         logger.ui("停止中，请稍候")
 
-    def app_running(self) -> None:
-        if self.ui.button_start.text() == "开始":
+    def app_running(self):
+        if not self.homeInterface.button_status.is_start():
             event_thread.clear()
             self._app_start()
         else:
@@ -782,185 +589,113 @@ class MainWindow(QMainWindow):
     def is_fighting(self, flag: bool):
         """程序是否运行中，启用/禁用其他控件"""
         if flag:
-            self.ui.button_start.setText("停止")  # 进行中
+            self.homeInterface.button_status.start()
         else:
-            self.ui.button_start.setText("开始")
-        item: QWidget
-        for item in [
-            # 主界面
-            self.ui.combo_choice,
-            self.ui.spin_times,
-            # 御魂
-            self.ui.button_mode_team,
-            self.ui.button_mode_single,
-            self.ui.button_driver_False,
-            self.ui.button_driver_True,
-            self.ui.button_passengers_2,
-            self.ui.button_passengers_3,
-            # 个人突破
-            self.ui.button_jiejietupo_switch_level,
-            self.ui.button_jiejietupo_switch_rule,
-            self.ui.comboBox_jiejietupo_current_level,
-            self.ui.comboBox_jiejietupo_target_level,
-            self.ui.button_jiejietupo_fail,
-        ]:
-            item.setEnabled(not flag)
-        return
-
-    def buttonGroup_yuhun_mode_handle(self):
-        flag = self.ui.buttonGroup_yuhun_mode.checkedButton() == self.ui.button_mode_team
-        self.ui.button_driver_False.setEnabled(flag)
-        self.ui.button_driver_True.setEnabled(flag)
-        self.ui.button_passengers_2.setEnabled(flag)
-        self.ui.button_passengers_3.setEnabled(flag)
-
-    def buttonGroup_yuhun_driver_handle(self):
-        flag = self.ui.buttonGroup_yuhun_driver.checkedButton() == self.ui.button_driver_True
-        self.ui.button_passengers_2.setEnabled(flag)
-        self.ui.button_passengers_3.setEnabled(flag)
-
-    def buttonGroup_jiejietupo_switch_handle(self):
-        flag = self.ui.buttonGroup_jiejietupo_switch.checkedButton() == self.ui.button_jiejietupo_switch_level
-        self.ui.comboBox_jiejietupo_current_level.setEnabled(flag)
-        self.ui.comboBox_jiejietupo_target_level.setEnabled(flag)
-        self.ui.button_jiejietupo_fail.setEnabled(flag)
-        for widget in self.ui.buttonGroup_jiejietupo_refresh_rule.buttons():
-            widget.setEnabled(not flag)
-
-    def button_qiling_tancha_handle(self):
-        if self.ui.button_qiling_tancha.isChecked():
-            self.ui.spin_qiling_tancha.show()
-        else:
-            self.ui.spin_qiling_tancha.hide()
-
-    def button_qiling_jieqi_handle(self):
-        if self.ui.button_qiling_jieqi.isChecked():
-            self.ui.combo_qiling_jieqi_stone.show()
-            self.ui.spin_qiling_jieqi_stone.show()
-        else:
-            self.ui.combo_qiling_jieqi_stone.hide()
-            self.ui.spin_qiling_jieqi_stone.hide()
+            self.homeInterface.button_status.stop()
 
     def buttonGroup_yingjieshilian_handle(self):
-        flag = self.ui.buttonGroup_yingjieshilian.checkedButton() == self.ui.button_yingjieshilian_skill
+        card = self.homeInterface.advanced_stack.yingjieshilian_card
+        flag = card.button_group.checkedButton() == card.skill_button
         if flag:
-            self.ui_spin_times_set_value_func(50, 0, 999)
+            self.homeInterface.basic_group.set_number_spinbox_value(50, 0, 999)
             YingJieShiLianSkill.description()
         else:
-            self.ui_spin_times_set_value_func(1, 0, 999)
+            self.homeInterface.basic_group.set_number_spinbox_value(1, 0, 999)
             YingJieShiLianExp.description()
 
-    def buttonGroup_huijuan_jiejietupo_switch_handle(self):
-        flag = (
-            self.ui.buttonGroup_huijuan_jiejietupo_switch.checkedButton()
-            == self.ui.button_huijuan_jiejietupo_switch_level
-        )
-        self.ui.comboBox_huijuan_jiejietupo_current_level.setEnabled(flag)
-        self.ui.comboBox_huijuan_jiejietupo_target_level.setEnabled(flag)
-        self.ui.button_huijuan_jiejietupo_fail.setEnabled(flag)
+    def refresh_window_list(self, game_window_list: list[GameWindow]):
+        """刷新窗口列表
 
-    def refresh_window_list(self, handles):
-        self.ui.tab_window_manager_comboBox.clear()
-        if handles:
-            for handle in handles:
-                self.ui.tab_window_manager_comboBox.addItem(f"{handle.title} - {handle.handle}")
-            self.ui.tab_window_manager_comboBox.setCurrentIndex(0)
+        Args:
+            game_window_list (list[GameWindow]): 窗口句柄列表
+        """
+        self.windowManagerInterface.update_label(len(game_window_list))
+        combobox = self.windowManagerInterface.comboBox
+        combobox.clear()
+        if game_window_list:
+            for item in game_window_list:
+                combobox.addItem(f"{item.title} - {item.handle}", userData=item.handle)  # 存储窗口句柄
+            combobox.setCurrentIndex(0)
 
-            logger.info(f"刷新窗口列表，当前窗口数量：{len(handles)}")
+            logger.info(f"刷新窗口列表，当前窗口数量：{len(game_window_list)}")
         else:
             logger.info("刷新窗口列表，当前窗口数量：0")
 
+        self.windowManagerInterface.comboBox.setEnabled(len(game_window_list) > 0)
+        self.windowManagerInterface.preview_button.setEnabled(len(game_window_list) > 0)
+        self.windowManagerInterface.apply_button.setEnabled(len(game_window_list) > 0)
+
     def preview_window(self):
         """预览选中的窗口"""
+        widget = self.windowManagerInterface
+        data = widget.comboBox.currentData()
+        if data and int(data):
+            handle = int(data)
+            logger.info(f"当前窗口：{handle}")
+            image = ScreenShot(handle=handle).get_image()
+            qimage = ImageQt(image)
+            pixmap = QPixmap.fromImage(qimage)
+            # 缩放图像以适应预览区域
+            scaled_pixmap = pixmap.scaled(
+                widget.preview_image.width(),
+                widget.preview_image.height(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
+            )
+            widget.preview_image.setPixmap(scaled_pixmap)
+            widget.update_capture_size_label(f"{image.size[0]} X {image.size[1]}")
+            widget.update_capture_time_label(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}")
 
-        current_text = self.ui.tab_window_manager_comboBox.currentText()
-        if current_text:
-            handle = current_text.split(" - ")[-1]
-            if handle:
-                image = ScreenShot(handle=int(handle)).get_image()
-
-                qimage = ImageQt(image)
-                pixmap = QPixmap.fromImage(qimage)
-
-                # 缩放图像以适应预览区域
-                scaled_pixmap = pixmap.scaled(
-                    self.ui.tab_window_manager_preview_image.width(),
-                    self.ui.tab_window_manager_preview_image.height(),
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation,
-                )
-                self.ui.tab_window_manager_preview_image.setPixmap(scaled_pixmap)
-                self.ui.tab_window_manager_info_label.setText(
-                    f"{image.size[0]}X{image.size[1]}  {datetime.now().strftime('%H:%M:%S.%f')[:-3]}"
-                )
-
-                logger.info(f"预览窗口：{handle}")
-            else:
-                logger.warning("未选中窗口")
-                ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
+            logger.info(f"预览窗口：{handle}")
+        else:
+            logger.warning("未选中窗口")
+            ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
 
     def apply_selected_window(self):
         """应用选中的窗口"""
-        current_text = self.ui.tab_window_manager_comboBox.currentText()
-        if current_text:
-            handle = current_text.split(" - ")[-1]
+        widget = self.windowManagerInterface
+        data = widget.comboBox.currentData()
+        if data and int(data):
+            handle = int(data)
             window_manager.force_update(handle)
             logger.info(f"应用选中的窗口：{handle}")
         else:
             logger.warning("未选中窗口")
             ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
 
-    def ui_valid_listWidget_update_handle(self, func: str, item: str) -> None:
-        """valid_listWidget
+    def ui_effective_entry_analysis_list_widget_update_handle(self, method: Literal["ADD", "CLEAR"], item: str):
+        """更新有效词条分析列表框
 
-        参数:
-            func (str): 方法
+        Args:
+            method (Literal["ADD", "CLEAR"]): 方法
             item (str): 内容
         """
-        if func == "add":
-            self.ui.valid_listWidget.addItem(item)
-        elif func == "clear":
-            self.ui.valid_listWidget.clear()
+        if method == "ADD":
+            self.effectiveEntryAnalysisInterface.add_item(item)
+        elif method == "CLEAR":
+            self.effectiveEntryAnalysisInterface.clear()
 
-    def score_handle(self):
-        from .valid import score_handle
-
-        self.ui.valid_pushButton.setEnabled(False)
+    def effective_entry_analysis_interface_score_handle(self):
+        """有效词条分析界面计算分数"""
+        button = self.effectiveEntryAnalysisInterface.button
+        button.setDisabled(True)
         score_handle()
-        self.ui.valid_pushButton.setEnabled(True)
+        button.setEnabled(True)
 
     def app_restart_handle(self):
         Restart().app_restart()
 
-    def open_homepage(self, *args) -> None:
-        import webbrowser
-
-        logger.info("open homepage address.")
-        webbrowser.open(HOME_PAGE_LINK)
-
-    def open_helpdoc(self, *args) -> None:
-        import webbrowser
-
-        logger.info("open helpdoc address.")
-        webbrowser.open(HELP_DOC_LINK)
-
-    def open_Qgroup(self, *args) -> None:
-        import webbrowser
-
-        logger.info("open Qgroup address.")
-        webbrowser.open(QQ_GROUP_LINK)
-
-    def closeEvent(self, event) -> None:
+    def closeEvent(self, event):
         """关闭程序事件"""
         # 清理线程
         self.key_listener.stop()
         global_task.stop()
 
         # 关闭子窗口
-        if hasattr(self.ui, "update_record_ui"):
-            self.ui.update_record_ui.close()
-        if hasattr(self.ui, "upgrade_new_version_ui"):
-            self.ui.upgrade_new_version_ui.close()
+        if hasattr(self, "update_record_widget"):
+            self.update_record_widget.close()
+        if hasattr(self, "upgrade_new_version_widget"):
+            self.upgrade_new_version_widget.close()
 
         # 删除缓存文件夹
         with suppress(Exception):
@@ -977,9 +712,9 @@ class MainWindow(QMainWindow):
         self.close()
 
     def show_update_record_window(self):
-        self.ui.update_record_ui = UpdateRecordWindow()
-        self.ui.update_record_ui.show()
+        self.update_record_widget = UpdateRecordWindow()
+        self.update_record_widget.show()
 
     def show_upgrade_new_version_window(self):
-        self.ui.upgrade_new_version_ui = UpgradeNewVersionWidget()
-        self.ui.upgrade_new_version_ui.show()
+        self.upgrade_new_version_widget = UpgradeNewVersionWidget()
+        self.upgrade_new_version_widget.show()

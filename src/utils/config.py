@@ -6,14 +6,10 @@ from .log import logger
 
 _game_language_list = ["国服", "日服"]
 """游戏语言"""
-_update_list = ["自动更新", "关闭"]
-"""更新模式"""
-_update_download_list = ["mirror", "GitHub"]
+_update_download_list = ["镜像站", "GitHub"]
 """下载线路"""
 _xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
 """悬赏封印"""
-_window_style_list = ["Fusion", "Windows"]
-"""界面风格"""
 _shortcut_start_stop_list = [
     "无",
     "F1",
@@ -42,53 +38,73 @@ _backend_sub_config = {
 }
 
 
+class FrontendConfig(BaseModel):
+    """前台配置"""
+
+    force_window: bool = True
+
+
+class BackendConfig(BaseModel):
+    """后台配置"""
+
+    prevent_sleep: bool = True
+    screenshot_method: str = "BitBlt"
+
+
+class InteractionModeConfig(BaseModel):
+    """交互模式配置"""
+
+    mode: str = _interaction_mode_list[0]
+    frontend: FrontendConfig = FrontendConfig()
+    backend: BackendConfig = BackendConfig()
+
+
 class DefaultConfig(BaseModel):
     """默认配置，用于UI显示选项"""
 
     game_language: list = _game_language_list
-    update: list = _update_list
+    """游戏服务器"""
+    auto_update: bool = True
+    """自动更新"""
     update_download: list = _update_download_list
+    """下载线路"""
     xuanshangfengyin: list = _xuanshangfengyin_list
-    window_style: list = _window_style_list
+    """悬赏封印"""
     remember_last_choice: int = -1
+    """记住上次选择"""
     shortcut_start_stop: list = _shortcut_start_stop_list
+    """快捷键-开始/停止"""
     win_toast: bool = True
+    """是否启用系统通知"""
     interaction_mode: dict = {
         "mode": _interaction_mode_list,
         "frontend": _frontend_sub_config,
         "backend": _backend_sub_config,
     }
+    """交互模式"""
+
+
+default_config = DefaultConfig()
 
 
 class UserConfig(BaseModel):
     """用户配置"""
 
     game_language: str = _game_language_list[0]
-    """游戏语言"""
-    update: str = _update_list[0]
-    """更新模式"""
+    """游戏服务器"""
+    auto_update: bool = True
+    """自动更新"""
     update_download: str = _update_download_list[0]
     """下载线路"""
     xuanshangfengyin: str = _xuanshangfengyin_list[0]
     """悬赏封印"""
-    window_style: str = _window_style_list[0]
-    """界面风格"""
     remember_last_choice: int = -1
     """记忆上次所选功能 -1:关闭 0:开启 其他:各项功能"""
     shortcut_start_stop: str = _shortcut_start_stop_list[0]
     """快捷键-开始/停止"""
     win_toast: bool = True
     """系统通知"""
-    interaction_mode: dict = {
-        "mode": _interaction_mode_list[0],  # 默认 "前台"
-        "frontend": {
-            "force_window": True,
-        },
-        "backend": {
-            "prevent_sleep": True,
-            "screenshot_method": "BitBlt",
-        },
-    }
+    interaction_mode: InteractionModeConfig = InteractionModeConfig()
     """交互模式"""
 
 
@@ -99,7 +115,6 @@ class Config:
 
     def __init__(self):
         self.user: UserConfig = UserConfig()
-        self.default: DefaultConfig = DefaultConfig()
         self.data_error: int = 0
         self.resource_dir = RESOURCE_DIR_PATH
         self._init()
@@ -136,14 +151,14 @@ class Config:
             return False
         return True
 
-    def log(self):
+    def show_log(self):
         logger.info(f"配置更新完成\n{yaml.dump(self.user.model_dump(), allow_unicode=True, sort_keys=False)}")
 
     def update(self, key: str, value: str) -> None:
         """设置项更新
 
         参数:
-            key (str): 设置项，可以是一级("update")或二级("notifications.sound")或三级("interaction_mode.frontend.force_window")
+            key (str): 设置项，可以是一级("xuanshangfengyin")或二级("notifications.sound")或三级("interaction_mode.frontend.force_window")
             value (str): 属性
 
         示例：
@@ -153,7 +168,7 @@ class Config:
             config.update("interaction_mode.backend.prevent_sleep", False)
         ```
         """
-        logger.info(f"Config setting [{key}] change to [{value}]")
+        logger.info(f"配置项 [{key}] 更新为 [{value}]")
         config_dict = self.user.model_dump()
 
         keys = key.split(".")
@@ -187,7 +202,7 @@ class Config:
             # 其他类型，直接返回
             return value, False
 
-        for key, default_value in self.default.model_dump().items():
+        for key, default_value in default_config.model_dump().items():
             if key not in data:
                 continue
             fixed_value, changed = validate(data[key], default_value)
