@@ -45,7 +45,8 @@ class StackedWidgetIndex(Enum):
     DAOGUANTUPO = 3
     QILING = 4
     YINGJIESHILIAN = 5
-    HUIJUAN = 6
+    TANSUO = 6
+    HUIJUAN = 7
 
 
 class MainWindow(FluentWindow):
@@ -410,6 +411,7 @@ class MainWindow(FluentWindow):
 
             case GameFunction.TANSUO:
                 TanSuo.description()
+                set_stack(StackedWidgetIndex.TANSUO)
 
             case GameFunction.QILING:
                 QiLing.description()
@@ -453,6 +455,7 @@ class MainWindow(FluentWindow):
         match self.game_function_choice:
             case GameFunction.YUHUN:
                 card = advanced_stack.yuhun_card
+                temp_pop = card.temporary_popup_checkbox.isChecked()
                 if card.mode_group.checkedButton() == card.mode_team_button:
                     driver = card.driver_group.checkedButton() == card.driver_yes_button
                     passengers = int(card.passengers_group.checkedButton().text())
@@ -460,9 +463,10 @@ class MainWindow(FluentWindow):
                         n=selected_number,
                         flag_driver=driver,
                         flag_passengers=passengers,
+                        temp_pop=temp_pop,
                     ).task_start()
                 else:
-                    YuHunSingle(n=selected_number).task_start()
+                    YuHunSingle(n=selected_number, temp_pop=temp_pop).task_start()
 
             case GameFunction.YONGSHENGZHIHAI:
                 card = advanced_stack.yuhun_card
@@ -523,7 +527,9 @@ class MainWindow(FluentWindow):
                     RiLunSingle(n=selected_number).task_start()
 
             case GameFunction.TANSUO:
-                TanSuo(n=selected_number).task_start()
+                card = advanced_stack.tansuo_card
+                has_temp_pop = card.temporary_popup_checkbox.isChecked()
+                TanSuo(n=selected_number, temp_pop=has_temp_pop).task_start()
 
             case GameFunction.QILING:
                 card = advanced_stack.qiling_card
@@ -566,6 +572,7 @@ class MainWindow(FluentWindow):
                     target_level = int(card.target_combobox.currentText())
                 else:
                     flag_refresh_need = 3
+                has_temp_pop = card.temporary_popup_checkbox.isChecked()
                 HuiJuan(
                     n=selected_number,
                     loop_count=card.tansuo_count_spinbox.value(),
@@ -573,6 +580,7 @@ class MainWindow(FluentWindow):
                     flag_current_level=current_level,
                     flag_target_level=target_level,
                     flag_first_round_failure=card.fail_checkbox.isChecked(),
+                    has_temp_pop=has_temp_pop,
                 ).task_start()
 
     def _app_stop(self):

@@ -200,11 +200,14 @@ class HomeWidget(QWidget):
                 self.hBoxLayout3.addWidget(self.passengers_2_button)
                 self.hBoxLayout3.addWidget(self.passengers_3_button)
 
+                self.temporary_popup_checkbox = CheckBox("临时弹窗Beta")
+
                 self.vBoxLayout = QVBoxLayout()
                 self.vBoxLayout.setSpacing(20)
                 self.vBoxLayout.addLayout(self.hBoxLayout1)
                 self.vBoxLayout.addLayout(self.hBoxLayout2)
                 self.vBoxLayout.addLayout(self.hBoxLayout3)
+                self.vBoxLayout.addWidget(self.temporary_popup_checkbox)
                 self.vBoxLayout.addStretch()
 
                 self.viewLayout.addLayout(self.vBoxLayout)
@@ -375,6 +378,24 @@ class HomeWidget(QWidget):
 
                 self.viewLayout.addLayout(self.vBoxLayout)
 
+        class AdvancedTanSuoCard(HeaderCardWidget):
+            """高级设置-单人探索"""
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.setTitle("高级设置")
+                self.setBorderRadius(8)
+                self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
+
+                self.temporary_popup_checkbox = CheckBox("临时弹窗Beta")
+
+                self.vBoxLayout = QVBoxLayout()
+                self.vBoxLayout.setSpacing(10)
+                self.vBoxLayout.addWidget(self.temporary_popup_checkbox)
+                self.vBoxLayout.addStretch()
+
+                self.viewLayout.addLayout(self.vBoxLayout)
+
         class AdvancedHuiJuanCard(HeaderCardWidget):
             """高级设置-绘卷"""
 
@@ -407,6 +428,8 @@ class HomeWidget(QWidget):
                 self.tansuo_hBoxLayout.addWidget(self.tansuo_count_spinbox)
                 # self.tansuo_hBoxLayout.addWidget(self.tansuo_interval_label)
                 # self.tansuo_hBoxLayout.addWidget(self.tansuo_interval_spinbox)
+
+                self.temporary_popup_checkbox = CheckBox("临时弹窗Beta")
 
                 self.line = QFrame()
                 self.line.setFrameShape(QFrame.Shape.HLine)
@@ -448,6 +471,7 @@ class HomeWidget(QWidget):
                 self.vBoxLayout = QVBoxLayout()
                 # 不需要间隔
                 self.vBoxLayout.addLayout(self.tansuo_hBoxLayout)
+                self.vBoxLayout.addWidget(self.temporary_popup_checkbox)
                 self.vBoxLayout.addWidget(self.line)
                 self.vBoxLayout.addLayout(self.tupo_groupbox_hBoxLayout1)
                 self.vBoxLayout.addLayout(self.hBoxLayout1)
@@ -477,6 +501,7 @@ class HomeWidget(QWidget):
             self.daoguantupo_card = self.AdvancedDaoGuanTuPoCard()
             self.qiling_card = self.AdvancedQiLingCard()
             self.yingjieshilian_card = self.AdvancedYingJieShiLianCard()
+            self.tansuo_card = self.AdvancedTanSuoCard()
             self.huijuan_card = self.AdvancedHuiJuanCard()
 
             self.addWidget(QWidget())
@@ -485,6 +510,7 @@ class HomeWidget(QWidget):
             self.addWidget(self.daoguantupo_card)
             self.addWidget(self.qiling_card)
             self.addWidget(self.yingjieshilian_card)
+            self.addWidget(self.tansuo_card)
             self.addWidget(self.huijuan_card)
 
             self.setCurrentIndex(0)

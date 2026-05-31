@@ -28,8 +28,11 @@ class TanSuo(BasePackage):
     ]
 
     @log_function_call
-    def __init__(self, n: int = 0) -> None:
+    def __init__(self, n: int = 0, temp_pop: bool = False) -> None:
         super().__init__(n)
+        self.has_temp_pop = temp_pop
+        if self.has_temp_pop:
+            logger.ui("已启用临时弹窗关闭功能")
         self.start_click_count = 0  # 连续点击IMAGE_START的次数
 
     @staticmethod
@@ -80,6 +83,12 @@ class TanSuo(BasePackage):
             if not flag_done and RuleImage(self.IMAGE_FIGHT_LITTLE_MONSTER).match():
                 logger.ui_warn("未进入战斗，重新匹配")
                 return
+            # 如果匹配到临时弹窗，点击关闭
+            if self.has_temp_pop and RuleImage(self.global_assets.IMAGE_TEMP_POP).match():
+                finish_random_left_right()
+                logger.ui("关闭临时弹窗")
+                sleep(2)
+                continue
 
             if check_image_once(
                 [

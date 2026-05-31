@@ -84,6 +84,7 @@ class YuHunTeam(YuHun):
         flag_driver: bool = False,
         flag_passengers: int = 2,
         flag_drop_statistics: bool = False,
+        temp_pop: bool = False,
     ) -> None:
         super().__init__(n)
         """组队御魂副本
@@ -97,6 +98,9 @@ class YuHunTeam(YuHun):
         self.flag_driver: bool = flag_driver  # 是否为司机（默认否）
         self.flag_passengers: int = flag_passengers  # 组队人数
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
+        self.has_temp_pop: bool = temp_pop  # 是否有临时弹窗
+        if self.has_temp_pop:
+            logger.ui("开启临时弹窗关闭功能")
 
     @log_function_call
     def check_fighting(self):
@@ -147,15 +151,16 @@ class YuHunTeam(YuHun):
                 raise GUIStopException
 
             # 检测到任一图像
-            result = check_image_once(
-                [
-                    self.global_assets.IMAGE_SOUL_OVERFLOW,  # 必须优先级最高
-                    self.global_assets.IMAGE_TANCHIGUI,
-                    self.global_assets.IMAGE_FINISH,
-                    self.IMAGE_FINISH_2000,
-                    self.IMAGE_FINISH_DAMAGE_2000,
-                ]
-            )
+            assest_list = [
+                self.global_assets.IMAGE_SOUL_OVERFLOW,  # 必须优先级最高
+                self.global_assets.IMAGE_TANCHIGUI,
+                self.global_assets.IMAGE_FINISH,
+                self.IMAGE_FINISH_2000,
+                self.IMAGE_FINISH_DAMAGE_2000,
+            ]
+            if self.has_temp_pop:
+                assest_list.insert(1, self.global_assets.IMAGE_TEMP_POP)
+            result = check_image_once(assest_list)
 
             # 直到第一次识别到
             if _flag_first and result is None:
@@ -163,6 +168,9 @@ class YuHunTeam(YuHun):
 
             if result:
                 logger.info(f"current scene: {result.name}")
+
+                if result.name == self.global_assets.IMAGE_TEMP_POP.name:
+                    logger.ui("关闭临时弹窗")
 
                 if result.name == self.global_assets.IMAGE_SOUL_OVERFLOW.name:
                     self.soul_overflow_warn_msg()
@@ -234,7 +242,7 @@ class YuHunSingle(YuHun):
     ]
 
     @log_function_call
-    def __init__(self, n: int = 0, flag_drop_statistics: bool = False):
+    def __init__(self, n: int = 0, flag_drop_statistics: bool = False, temp_pop: bool = False):
         super().__init__(n)
         """单人御魂副本
 
@@ -243,6 +251,7 @@ class YuHunSingle(YuHun):
             flag_drop_statistics (bool): 是否开启掉落统计，默认否
         """
         self.flag_drop_statistics: bool = flag_drop_statistics  # 是否开启掉落统计
+        self.has_temp_pop = temp_pop  # 是否开启临时弹窗关闭功能
 
     @log_function_call
     def check_fighting(self):
@@ -280,6 +289,8 @@ class YuHunSingle(YuHun):
             self.global_assets.IMAGE_VICTORY,
             self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
+        if self.has_temp_pop:
+            self.current_asset_list.append(self.global_assets.IMAGE_TEMP_POP)
 
         while self.n < self.max:
             if bool(event_thread):
@@ -312,6 +323,11 @@ class YuHunSingle(YuHun):
                 case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_warn("失败，需要手动处理")
                     break
+
+                case self.global_assets.IMAGE_TEMP_POP.name:
+                    logger.ui("关闭临时弹窗")
+                    finish_random_left_right()
+                    sleep()
 
                 case self.global_assets.IMAGE_VICTORY.name:
                     logger.ui("胜利")

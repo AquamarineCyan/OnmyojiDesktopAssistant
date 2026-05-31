@@ -26,6 +26,7 @@ class HuiJuan(BasePackage):
         flag_current_level: int = 57,
         flag_target_level: int = 57,
         flag_first_round_failure: bool = True,
+        has_temp_pop: bool = True,
     ) -> None:
         """
         Args:
@@ -35,6 +36,7 @@ class HuiJuan(BasePackage):
             flag_current_level (int): 当前等级
             flag_target_level (int): 目标等级
             flag_first_round_failure (bool):  首轮失败标志
+            has_temp_pop (bool): 是否关闭临时弹窗
         """
         super().__init__(n)
         self.loop_count: int = loop_count
@@ -42,6 +44,7 @@ class HuiJuan(BasePackage):
         self.flag_current_level: int = flag_current_level
         self.flag_target_level: int = flag_target_level
         self.flag_first_round_failure: bool = flag_first_round_failure
+        self.has_temp_pop: bool = has_temp_pop
 
     @staticmethod
     def description() -> None:
@@ -100,7 +103,7 @@ class HuiJuan(BasePackage):
 
             tansuo_count = self.loop_count
             logger.ui(f"探索{tansuo_count}次")
-            TanSuo(tansuo_count).run()
+            TanSuo(tansuo_count, temp_pop=self.has_temp_pop).run()
             self.close_tansuo()
 
             sleep(2)

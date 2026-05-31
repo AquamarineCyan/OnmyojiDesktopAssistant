@@ -80,6 +80,13 @@
             "score": "0.7"
         },
         {
+            "name": "temp_pop",
+            "file": "temp_pop.png",
+            "description": "临时弹窗",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
             "name": "victory",
             "file": "victory.png",
             "region": [0, 0, 0, 0],

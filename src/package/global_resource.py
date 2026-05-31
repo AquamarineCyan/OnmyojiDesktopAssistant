@@ -57,6 +57,7 @@ class GlobalResource:
         self.IMAGE_START_TEAM = self.get_image_asset("start_team")
         self.IMAGE_SOUL_OVERFLOW = self.get_image_asset("soul_overflow")
         self.IMAGE_TANCHIGUI = self.get_image_asset("tanchigui")
+        self.IMAGE_TEMP_POP = self.get_image_asset("temp_pop")
         self.IMAGE_VICTORY = self.get_image_asset("victory")
         self.IMAGE_XIEZHANDUIWU = self.get_image_asset("xiezhanduiwu")
 
