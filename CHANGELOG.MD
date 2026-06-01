@@ -2,6 +2,8 @@
 
 ## 最近更新
 
+### v2.1.0 - 2026-06-01
+
 ### 新功能
 
 - 使用 [`PyQt-Fluent-Widgets`](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PySide6) 重构UI
