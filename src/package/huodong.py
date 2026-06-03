@@ -130,7 +130,6 @@ class HuoDong(BasePackage):
                         Mouse.click(_point)
 
                     self.done()
-                    sleep(3)
 
                 case self.global_assets.IMAGE_SOUL_OVERFLOW.name:
                     self.soul_overflow_warn_msg()
