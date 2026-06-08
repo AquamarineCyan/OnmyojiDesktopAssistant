@@ -22,6 +22,12 @@
             "score": "0.7"
         },
         {
+            "name": "quit",
+            "file": "quit.png",
+            "region": [0, 0, 120, 80],
+            "score": "0.7"
+        },
+        {
             "name": "quit_true",
             "file": "quit_true.png",
             "region": [0, 0, 0, 0],

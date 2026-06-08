@@ -1,4 +1,4 @@
-from ..utils.adapter import KeyBoard, Mouse
+from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import DailyLimitException, GUIStopException
@@ -44,6 +44,7 @@ class TanSuo(BasePackage):
         self.IMAGE_CHUZHANXIAOHAO = self.get_image_asset("chuzhanxiaohao")
         self.IMAGE_FIGHT_BOSS = self.get_image_asset("fight_boss")
         self.IMAGE_FIGHT_LITTLE_MONSTER = self.get_image_asset("fight_little_monster")
+        self.IMAGE_QUIT = self.get_image_asset("quit")
         self.IMAGE_QUIT_TRUE = self.get_image_asset("quit_true")
         self.IMAGE_TREASURE_BOX = self.get_image_asset("treasure_box")
         self.IMAGE_TANSUO_28 = self.get_image_asset("tansuo_28")
@@ -127,8 +128,9 @@ class TanSuo(BasePackage):
             # 如果还在探索里，说明有掉落物，直接退出
             if RuleImage(self.IMAGE_CHUZHANXIAOHAO).match():
                 logger.ui("有掉落物，直接退出")
-                KeyBoard.esc(1)
-                self.check_click(self.IMAGE_QUIT_TRUE)
+                self.check_click(self.IMAGE_QUIT, timeout=3)
+                sleep(1)
+                self.check_click(self.IMAGE_QUIT_TRUE, timeout=5)
 
             # 在探索进入的前置界面
             else:
