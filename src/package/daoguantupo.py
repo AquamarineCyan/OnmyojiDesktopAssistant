@@ -33,8 +33,8 @@ class DaoGuanTuPo(BasePackage):
     STATE_FIGHTING = 4  # 进行中
 
     @log_function_call
-    def __init__(self, flag_guanzhan: bool = False) -> None:
-        super().__init__()
+    def __init__(self, n: int = 0, flag_guanzhan: bool = False) -> None:
+        super().__init__(n)
         self.flag_guanzhan = flag_guanzhan  # 是否观战
         self.flag_fighting = False  # 是否进行中
         self.state = self.STATE_IDLE
@@ -147,15 +147,16 @@ class DaoGuanTuPo(BasePackage):
         self.n += 1
         logger.progress(self.n)
 
-    def run(self):
+    def check_and_enter_battle(self):
+        """检查标题并进入战斗场景"""
         self.check_title()
         sleep(2)
         if self.state == self.STATE_WAIT_START:
             self.check_click(self.IMAGE_TIAOZHAN, timeout=3)
-
         sleep(4)  # 等待过场动画
 
-        # 开始
+    def wait_for_battle_ready(self):
+        """等待战斗准备界面并处理"""
         self.current_asset_list = [
             self.global_assets.IMAGE_READY_OLD,
             self.global_assets.IMAGE_READY_NEW,
@@ -184,14 +185,24 @@ class DaoGuanTuPo(BasePackage):
                 case self.global_assets.IMAGE_FINISH.name:
                     sleep()
                     finish_random_left_right()
-                    break
+                    return True
 
                 case self.global_assets.IMAGE_FAIL.name:
                     sleep()
                     finish_random_left_right()
                     logger.ui_warn("失败")
-                    break
+                    return False
 
-        if self.flag_guanzhan:
-            sleep(2)
-            self.guanzhan()
+    def run(self):
+        for i in range(self.max):
+            if bool(event_thread):
+                raise GUIStopException
+
+            logger.ui(f"第{i + 1}次战斗")
+
+            self.check_and_enter_battle()
+            self.wait_for_battle_ready()
+
+            if self.flag_guanzhan:
+                sleep(2)
+                self.guanzhan()

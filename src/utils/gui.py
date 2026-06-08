@@ -384,7 +384,6 @@ class MainWindow(FluentWindow):
             case GameFunction.DAOGUANTUPO:
                 DaoGuanTuPo.description()
                 set_stack(StackedWidgetIndex.DAOGUANTUPO)
-                basic_group.number_spinbox.setEnabled(False)
 
             case GameFunction.ZHAOHUAN:
                 ZhaoHuan.description()
@@ -502,7 +501,7 @@ class MainWindow(FluentWindow):
 
             case GameFunction.DAOGUANTUPO:
                 flag_guanzhan = advanced_stack.daoguantupo_card.checkbox.isChecked()
-                DaoGuanTuPo(flag_guanzhan=flag_guanzhan).task_start()
+                DaoGuanTuPo(n=selected_number, flag_guanzhan=flag_guanzhan).task_start()
 
             case GameFunction.ZHAOHUAN:
                 ZhaoHuan(n=selected_number).task_start()
