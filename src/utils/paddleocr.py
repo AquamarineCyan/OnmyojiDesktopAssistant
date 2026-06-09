@@ -1,10 +1,11 @@
-import json
-import os
+import subprocess
 import time
-from ctypes import *
+from contextlib import contextmanager
 from typing import Literal
 
-from .application import APP_PATH, CACHE_DIR_PATH
+import numpy as np
+from PIL import Image
+
 from .assets import AssetOcr
 from .log import logger
 from .point import Point, Rectangle
@@ -12,189 +13,152 @@ from .screenshot import ScreenShot
 from .window import window_manager
 
 
-class PaddleOCRParameter(Structure):
-    _fields_ = [
-        ("use_gpu", c_bool),
-        ("gpu_id", c_int),
-        ("gpu_mem", c_int),
-        ("cpu_math_library_num_threads", c_int),
-        ("enable_mkldnn", c_bool),
-        ("det", c_bool),
-        ("rec", c_bool),
-        ("cls", c_bool),
-        ("max_side_len", c_int),
-        ("det_db_thresh", c_float),
-        ("det_db_box_thresh", c_float),
-        ("det_db_unclip_ratio", c_float),
-        ("use_dilation", c_bool),
-        ("det_db_score_mode", c_bool),
-        ("visualize", c_bool),
-        ("use_angle_cls", c_bool),
-        ("cls_thresh", c_float),
-        ("cls_batch_num", c_int),
-        ("rec_batch_num", c_int),
-        ("rec_img_h", c_int),
-        ("rec_img_w", c_int),
-        ("show_img_vis", c_bool),
-        ("use_tensorrt", c_bool),
-    ]
+@contextmanager
+def paddle_hide_window_context():
+    """
+    进入该上下文时隐藏所有子进程黑框，离开时（包括发生异常）自动恢复正常控制台行为
+    如果不关闭，会在PaddleOCR初始化时显示黑框，短暂停留后消失，造成闪屏效果
+    """
+    orig_popen = subprocess.Popen
 
-    def __init__(self):
-        self.use_gpu = False
-        self.gpu_id = 0
-        self.gpu_mem = 4000
-        self.cpu_math_library_num_threads = 10
-        self.enable_mkldnn = True
-        self.det = True
-        self.rec = True
-        self.cls = False
-        self.max_side_len = 960
-        self.det_db_thresh = 0.3
-        self.det_db_box_thresh = 0.618
-        self.det_db_unclip_ratio = 1.6
-        self.use_dilation = False
-        self.det_db_score_mode = True
-        self.visualize = False
-        self.use_angle_cls = False
-        self.cls_thresh = 0.9
-        self.cls_batch_num = 1
-        self.rec_batch_num = 6
-        self.rec_img_h = 48
-        self.rec_img_w = 320
-        self.show_img_vis = False
-        self.use_tensorrt = False
+    def _patched_popen(*args, **kwargs):
+        """隐藏 PaddleOCR 进程窗口"""
+        if "startupinfo" not in kwargs:
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = 0  # SW_HIDE
+            kwargs["startupinfo"] = startupinfo
+        else:
+            kwargs["startupinfo"].dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            kwargs["startupinfo"].wShowWindow = 0
 
+        if "creationflags" not in kwargs:
+            kwargs["creationflags"] = subprocess.CREATE_NO_WINDOW
+        else:
+            kwargs["creationflags"] |= subprocess.CREATE_NO_WINDOW
 
-def PaddleOCRParameter2dict(param):
-    return {
-        "use_gpu": param.use_gpu,
-        "gpu_id": param.gpu_id,
-        "gpu_mem": param.gpu_mem,
-        "cpu_math_library_num_threads": param.cpu_math_library_num_threads,
-        "enable_mkldnn": param.enable_mkldnn,
-        "det": param.det,
-        "rec": param.rec,
-        "cls": param.cls,
-        "max_side_len": param.max_side_len,
-        "det_db_thresh": param.det_db_thresh,
-        "det_db_box_thresh": param.det_db_box_thresh,
-        "det_db_unclip_ratio": param.det_db_unclip_ratio,
-        "use_dilation": param.use_dilation,
-        "det_db_score_mode": param.det_db_score_mode,
-        "visualize": param.visualize,
-        "use_angle_cls": param.use_angle_cls,
-        "cls_thresh": param.cls_thresh,
-        "cls_batch_num": param.cls_batch_num,
-        "rec_batch_num": param.rec_batch_num,
-        "rec_img_h": param.rec_img_h,
-        "rec_img_w": param.rec_img_w,
-        "show_img_vis": param.show_img_vis,
-        "use_tensorrt": param.use_tensorrt,
-    }
+        return orig_popen(*args, **kwargs)
+
+    try:
+        subprocess.Popen = _patched_popen
+        logger.info("控制台黑框拦截已开启")
+        yield
+    finally:
+        # 恢复
+        subprocess.Popen = orig_popen
+        logger.info("控制台黑框拦截已关闭")
 
 
 def check_ocr_folder():
-    """检查当前目录下是否存在名为`ocr`的文件夹"""
-    current_dir = os.getcwd()
-    ocr_folder = os.path.join(current_dir, "ocr")
-
-    if not os.path.exists(ocr_folder):
-        return False
-
-    dll_folder = os.path.join(ocr_folder, "dll")
-    model_folder = os.path.join(ocr_folder, "model")
-
-    if not (os.path.exists(dll_folder) and os.path.exists(model_folder)):
-        return False
-
     return True
 
 
 class OCRManager:
-    """OCR管理器，负责OCR的初始化、资源管理和清理"""
+    """OCR 引擎管理器
+
+    负责 PaddleOCR 的初始化、资源管理和检测调用。
+    通过模块级 ocr_manager 实例全局共享，避免重复初始化。
+    """
 
     def __init__(self):
-        self._init: bool = False
-        self.paddleocr = None
-
-    def init(self):
-        """初始化OCR"""
-        if self._init:
-            return
-
-        ocr_path = os.path.join(str(APP_PATH), "ocr")
-        if os.path.exists(ocr_path):
-            logger.info(f"ocr_path:{ocr_path}")
-        else:
-            raise FileNotFoundError(f"OCR文件夹不存在: {ocr_path}")
-
-        dll_path = os.path.join(ocr_path, "dll")
-        model_path = os.path.join(ocr_path, "model")
-        # 添加dll至环境变量，方便相对路径读取，2个操作缺一不可
-        os.environ["path"] += f";{dll_path}"
-        os.add_dll_directory(dll_path)
-
-        # https://gitee.com/raoyutian/PaddleOCRSharp/tree/dev/PaddleOCRDemo/python
-        try:
-            paddleOCR = cdll.LoadLibrary("PaddleOCR.dll")
-            encode = "gbk"
-            cls_infer = os.path.join(model_path, "ch_ppocr_mobile_v2.0_cls_infer")
-            rec_infer = os.path.join(model_path, "ch_PP-OCRv3_rec_infer")
-            det_infer = os.path.join(model_path, "ch_PP-OCRv3_det_infer")
-            ocrkeys = os.path.join(model_path, "ppocr_keys.txt")
-
-            parameter = PaddleOCRParameter()
-            p_cls_infer = cls_infer.encode(encode)
-            p_rec_infer = rec_infer.encode(encode)
-            p_det_infer = det_infer.encode(encode)
-            p_ocrkeys = ocrkeys.encode(encode)
-
-            parameterjson = json.dumps(parameter, default=PaddleOCRParameter2dict)
-            paddleOCR.Initializejson(
-                p_det_infer,
-                p_cls_infer,
-                p_rec_infer,
-                p_ocrkeys,
-                parameterjson.encode(encode),
-            )
-            paddleOCR.Detect.restype = c_wchar_p
-
-            self.paddleocr = paddleOCR
-            self._init = True
-            logger.info("OCR初始化成功")
-
-        except Exception as e:
-            logger.error(f"OCR初始化失败: {e}")
-            self._init = False
-            raise
+        self.paddleocr = None  # PaddleOCR 引擎实例，非 None 表示已初始化
 
     def is_initialized(self) -> bool:
         """检查OCR是否已初始化"""
-        return self._init
+        return self.paddleocr is not None
 
-    def detect(self, image_path: str) -> str:
+    def init(self) -> bool:
+        """初始化OCR
+
+        Returns:
+            bool: 初始化成功/已初始化返回 True
+        """
+        if self.is_initialized():
+            return True
+
+        try:
+            logger.ui("开始初始化 PaddleOCR v3...")
+            from paddleocr import PaddleOCR
+
+            with paddle_hide_window_context():
+                logger.info("正在拦截控制台黑框")
+                self.paddleocr = PaddleOCR(
+                    text_detection_model_name="PP-OCRv3_mobile_det",
+                    text_recognition_model_name="PP-OCRv3_mobile_rec",
+                    use_doc_orientation_classify=False,
+                    use_doc_unwarping=False,
+                    use_textline_orientation=False,
+                    det_db_thresh=0.3,
+                    det_db_box_thresh=0.5,
+                    det_db_unclip_ratio=1.5,
+                )
+
+            logger.info("OCR初始化成功")
+            return True
+
+        except Exception as e:
+            logger.error(f"OCR初始化失败: {e}")
+            raise
+
+    def detect(self, image: Image.Image) -> list:
         """执行OCR检测
 
         Args:
-            image_path: 图像路径
+            image: PIL Image 对象
 
         Returns:
-            str: OCR检测结果（JSON字符串）
+            list: OCR检测结果
         """
-        if not self._init:
-            if not self.init():
-                return ""
+        if not self.is_initialized():
+            logger.ui_error("模型未初始化成功，请重启后再试")
+            return []
 
         try:
-            image = image_path.encode("gbk")
-            return self.paddleocr.Detect(image)
+            t1 = time.perf_counter()
+            img_np = np.array(image)
+            result = self.paddleocr.predict(input=img_np)
+            t2 = time.perf_counter()
+            logger.debug(f"OCR总耗时: {(t2 - t1) * 1000:.2f} ms")
+            return result
         except Exception as e:
             logger.error(f"OCR检测失败: {e}")
-            return ""
+            return []
 
 
-# 全局OCR管理器实例
 ocr_manager = OCRManager()
+"""全局OCR管理器实例"""
+
+
+def get_ocrdata_from_result(raw_result):
+    """从 PaddleOCR 原始结果中提取结构化数据
+
+    将 PaddleOCR predict() 返回的 dict 结构转换为统一的中间格式，
+    便于后续 OcrData 封装。BoxPoints 为矩形四角坐标 [左上, 右上, 右下, 左下]。
+
+    Args:
+        raw_result: PaddleOCR predict() 返回的单帧结果 dict，
+                    包含 rec_texts / rec_scores / rec_boxes
+
+    Returns:
+        list[dict]: 格式化后的结果列表，每项含 Text / Score / BoxPoints
+    """
+    rec_texts = raw_result["rec_texts"]
+    rec_scores = raw_result["rec_scores"]
+    rec_boxes = raw_result["rec_boxes"]
+    result_list = []
+    for text, score, box in zip(rec_texts, rec_scores, rec_boxes):
+        item = {
+            "Text": text,
+            "Score": score,
+            "BoxPoints": [
+                {"X": int(box[0]), "Y": int(box[1])},
+                {"X": int(box[2]), "Y": int(box[1])},
+                {"X": int(box[2]), "Y": int(box[3])},
+                {"X": int(box[0]), "Y": int(box[3])},
+            ],
+        }
+        result_list.append(item)
+    return result_list
 
 
 class OcrData:
@@ -207,18 +171,19 @@ class OcrData:
     center: Point
     """识别区域中心坐标"""
 
-    def __init__(self, item) -> None:
+    def __init__(self, item: dict) -> None:
+        """
+        Args:
+            item: get_ocrdata_from_result 输出的单条识别结果，
+                  dict 结构 {"Text": str, "Score": float, "BoxPoints": list[dict{X, Y}]}
+        """
         self.score: float = round(item["Score"], 2)
         self.text: str = item["Text"]
         _BoxPoints = item["BoxPoints"]
-        for i in range(len(_BoxPoints)):
-            match i:
-                case 0:
-                    self.x1: int = _BoxPoints[i]["X"]
-                    self.y1: int = _BoxPoints[i]["Y"]
-                case 2:
-                    self.x2: int = _BoxPoints[i]["X"]
-                    self.y2: int = _BoxPoints[i]["Y"]
+        self.x1: int = _BoxPoints[0]["X"]
+        self.y1: int = _BoxPoints[0]["Y"]
+        self.x2: int = _BoxPoints[2]["X"]
+        self.y2: int = _BoxPoints[2]["Y"]
         self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
         self.center = self.rect.get_center_point()
 
@@ -227,7 +192,7 @@ class OcrData:
 
 
 class OcrDetector:
-    """OCR检测器，负责执行OCR检测和结果处理"""
+    """OCR检测器，负责截图、OCR调用和结果处理"""
 
     def __init__(self, region: tuple | None = None):
         """
@@ -237,28 +202,29 @@ class OcrDetector:
         self.region = region or window_manager.current.client_rect
 
     def get_raw_result(self) -> list[OcrData]:
-        """获取原始OCR检测结果
+        """执行截图 + OCR 识别，返回结构化结果
+
+        流程：截图 → PaddleOCR 检测 → 格式转换 → 过滤无效数据
 
         Returns:
-            list[OcrData]: OCR检测结果列表
+            list[OcrData]: 过滤后的 OCR 识别结果列表
         """
         start_time = time.time()
-        file = os.path.join(str(CACHE_DIR_PATH), "ocr_screenshot.png")
-        ScreenShot(rect=self.region).save(file)
+        screenshot = ScreenShot(rect=self.region)
+        image = screenshot.get_image()
 
-        ocr_result = ocr_manager.detect(file)
+        ocr_result = ocr_manager.detect(image)
         data_result: list[OcrData] = []
         try:
-            ocr_result = json.loads(ocr_result)
-            if not isinstance(ocr_result, list):
-                logger.error(f"OCR result is not a list: {ocr_result}")
-                return data_result
+            formatted_result = []
+            for res in ocr_result:
+                formatted_result.extend(get_ocrdata_from_result(res))
         except Exception as e:
             logger.error(f"Failed to parse OCR result: {str(e)}")
             logger.error(f"Raw OCR result: {ocr_result}")
             return data_result
 
-        for item in ocr_result:
+        for item in formatted_result:
             # 过滤无效数据
             if not isinstance(item, dict):
                 logger.warning(f"OCR item is not a dict: {item}")
@@ -268,7 +234,7 @@ class OcrDetector:
             if item.get("Text", "") == "":
                 continue
             ocr_data = OcrData(item)
-            logger.info(f"ocr result: {ocr_data}")
+            logger.info(f"result: {ocr_data}")
             data_result.append(ocr_data)
 
         end_time = time.time()
@@ -289,9 +255,10 @@ class RuleOcr:
 
     用法2：
     ```python
-    detector = OcrDetector()
-    result = detector.get_raw_result()
+    result = RuleOcr().get_raw_result()
     for item in result:
+        if target_text == item.text:
+            do something
         if target_text in item.text:
             do something
 
@@ -361,9 +328,11 @@ class RuleOcr:
         Returns:
             OcrData | None: 匹配结果
         """
-        # 确保OCR已初始化
         if not ocr_manager.is_initialized():
             ocr_manager.init()
+
+        # 重置匹配结果
+        self.match_result = None
 
         if ocr_result is None:
             ocr_result = self.get_raw_result()
@@ -389,13 +358,16 @@ class RuleOcr:
 
 
 def ocr_match_once(asset_list: list[AssetOcr]) -> RuleOcr | None:
-    """文字匹配
+    """批量文字匹配（一次截图，多次匹配）
 
-    参数:
-        asset_list (list[AssetOcr]): 关键字列表
+    对同一次截图结果执行多个关键词匹配，避免重复截图开销。
+    返回第一个匹配成功的 RuleOcr 实例，调用者通过 .match_result 获取匹配结果。
 
-    返回:
-        AssetOcr | None: 识别结果
+    Args:
+        asset_list (list[AssetOcr]): AssetOcr 列表，每个元素定义一组匹配规则（关键词、阈值、匹配方式）
+
+    Returns:
+        RuleOcr | None: 第一个匹配成功的 RuleOcr 实例，全部未匹配返回 None
     """
     # 使用OcrDetector获取一次OCR结果，避免重复截图
     detector = OcrDetector()
