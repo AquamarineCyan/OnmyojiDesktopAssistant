@@ -14,6 +14,9 @@ class EffectiveEntryAnalysisWidget(QWidget):
         self.list_widget.setFixedSize(400, 350)
         self.list_widget.setStyleSheet("border: 1px solid #d0d0d0; QListWidget::item { height: 24px; }")
 
+        warning_label = BodyLabel("该功能将在2026年8月31日后弃用，请优先使用系统内置的有效词条分析功能。")
+        warning_label.setStyleSheet("color: #dc3545;")
+
         self.button = PushButton("分析")
         self.button.setFixedWidth(80)
 
@@ -27,6 +30,7 @@ class EffectiveEntryAnalysisWidget(QWidget):
         self.vBoxLayout.setSpacing(10)
         self.vBoxLayout.addWidget(SubtitleLabel("有效词条分析"))
         self.vBoxLayout.addWidget(BodyLabel("使用方法：式神录 -> 御魂方案 -> 新增御魂方案 -> 选择御魂"))
+        self.vBoxLayout.addWidget(warning_label)
         self.vBoxLayout.addLayout(self.hBoxLayout)
 
         self.vBoxLayout.addStretch()
