@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'poetry'
+      
+      - name: Run Pytest
+        run: |
+          poetry install
+          cd tests
+          poetry run pytest -s
+      
+      - name: Build
+        run: |
+            poetry run pyinstaller main.spec --clean --noconfirm --distpath .
+      
+      - name: Package
+        run: |
+            mkdir output\resource
+            xcopy src\resource output\resource /s /e /v /q /y
+            mkdir output\resource_ja
+            xcopy src\resource_ja output\resource_ja /s /e /v /q /y
+            Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-debug.zip"
+      
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: OnmyojiDesktopAssistant
+          path: OnmyojiDesktopAssistant-debug.zip
+          retention-days: 7
