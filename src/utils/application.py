@@ -41,6 +41,11 @@ ROOT_CACHE_DIR_PATH: Path = USER_DATA_DIR_PATH / "cache"
 if not ROOT_CACHE_DIR_PATH.exists():
     ROOT_CACHE_DIR_PATH.mkdir(parents=True)
 
+MODEL_DIR_PATH: Path = APP_PATH / "models"
+"""模型文件夹路径"""
+if not MODEL_DIR_PATH.exists():
+    MODEL_DIR_PATH.mkdir(parents=True)
+
 
 UUID_FOLDER = str(uuid.uuid4())[:8]  # 使用uuid4的前8个字符作为文件夹名
 CACHE_DIR_PATH: Path = ROOT_CACHE_DIR_PATH / UUID_FOLDER

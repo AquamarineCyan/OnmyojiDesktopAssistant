@@ -1,3 +1,4 @@
+import os
 import subprocess
 import time
 from contextlib import contextmanager
@@ -6,11 +7,15 @@ from typing import Literal
 import numpy as np
 from PIL import Image
 
+from .application import MODEL_DIR_PATH
 from .assets import AssetOcr
 from .log import logger
+from .paddle_model import PaddleModel
 from .point import Point, Rectangle
 from .screenshot import ScreenShot
 from .window import window_manager
+
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"  # 禁用 Paddle 模型源校验，避免不必要的网络请求
 
 
 @contextmanager
@@ -50,7 +55,8 @@ def paddle_hide_window_context():
 
 
 def check_ocr_folder():
-    return True
+    """检查OCR资源是否存在，不存在则自动下载"""
+    return PaddleModel.auto_download(3)
 
 
 class OCRManager:
@@ -67,8 +73,11 @@ class OCRManager:
         """检查OCR是否已初始化"""
         return self.paddleocr is not None
 
-    def init(self) -> bool:
+    def init(self, version: int = 3) -> bool:
         """初始化OCR
+
+        Args:
+            version: OCR模型版本号，默认 3
 
         Returns:
             bool: 初始化成功/已初始化返回 True
@@ -77,14 +86,21 @@ class OCRManager:
             return True
 
         try:
-            logger.ui("开始初始化 PaddleOCR v3...")
+            logger.ui(f"开始初始化 PaddleOCR v{version}...")
             from paddleocr import PaddleOCR
+
+            det_class, rec_class = PaddleModel._get_model_classes(version)
+            if not det_class or not rec_class:
+                logger.ui_error(f"未找到版本 {version} 的模型定义")
+                return False
 
             with paddle_hide_window_context():
                 logger.info("正在拦截控制台黑框")
                 self.paddleocr = PaddleOCR(
-                    text_detection_model_name="PP-OCRv3_mobile_det",
-                    text_recognition_model_name="PP-OCRv3_mobile_rec",
+                    text_detection_model_name=det_class.name,
+                    text_detection_model_dir=str(MODEL_DIR_PATH / det_class.model_dir_name),
+                    text_recognition_model_name=rec_class.name,
+                    text_recognition_model_dir=str(MODEL_DIR_PATH / rec_class.model_dir_name),
                     use_doc_orientation_classify=False,
                     use_doc_unwarping=False,
                     use_textline_orientation=False,
@@ -93,7 +109,7 @@ class OCRManager:
                     det_db_unclip_ratio=1.5,
                 )
 
-            logger.info("OCR初始化成功")
+            logger.info(f"OCR(v{version})初始化成功")
             return True
 
         except Exception as e:
