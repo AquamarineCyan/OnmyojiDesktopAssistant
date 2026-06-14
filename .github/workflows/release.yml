@@ -1,0 +1,77 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install poetry
+        run: pipx install poetry
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: 'poetry'
+      
+      - name: Run Pytest
+        run: |
+          poetry install
+          cd tests
+          poetry run pytest -s
+      
+      - name: Build
+        run: |
+            poetry run pyinstaller main.spec --distpath .
+
+      - name: Package
+        run: |
+            mkdir output\resource
+            xcopy src\resource output\resource /s /e /v /q /y
+            mkdir output\resource_ja
+            xcopy src\resource_ja output\resource_ja /s /e /v /q /y
+            
+            $version = "${{ github.ref_name }}" -replace "^v", ""
+            Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-$version.zip"
+      
+      - name: Upload build
+        uses: actions/upload-artifact@v7
+        with:
+          name: OnmyojiDesktopAssistant
+          path: OnmyojiDesktopAssistant-*.zip
+          retention-days: 7
+
+  release:
+    name: Release
+    runs-on: windows-latest
+    needs: build
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+
+      - name: Check files
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: OnmyojiDesktopAssistant-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
