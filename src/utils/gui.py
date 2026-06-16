@@ -177,6 +177,7 @@ class MainWindow(FluentWindow):
         window_manager.set_gui_button_callback(self._window_button_enabled_handle)
         window_manager.set_gui_window_manager_list_callback(self.refresh_window_list)
         window_manager.screen_init()
+        self._update_screen_resolution_handle()
 
         global_task.add(window_manager.update_window_task)
         global_task.add(XuanShangFengYin().check_task)
@@ -616,7 +617,6 @@ class MainWindow(FluentWindow):
         Args:
             game_window_list (list[GameWindow]): 窗口句柄列表
         """
-        self.windowManagerInterface.update_label(len(game_window_list))
         combobox = self.windowManagerInterface.comboBox
         combobox.clear()
         if game_window_list:
@@ -631,6 +631,12 @@ class MainWindow(FluentWindow):
         self.windowManagerInterface.comboBox.setEnabled(len(game_window_list) > 0)
         self.windowManagerInterface.preview_button.setEnabled(len(game_window_list) > 0)
         self.windowManagerInterface.apply_button.setEnabled(len(game_window_list) > 0)
+
+    def _update_screen_resolution_handle(self):
+        """更新屏幕分辨率显示"""
+        resolution = window_manager.current_window_resolution
+        if resolution:
+            self.windowManagerInterface.update_screen_resolution(resolution.screen_size[0], resolution.screen_size[1])
 
     def preview_window(self):
         """预览选中的窗口"""
