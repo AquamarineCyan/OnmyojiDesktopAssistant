@@ -166,17 +166,17 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         self.frontend_force_window_switch.setOnText("")
         self.frontend_force_window_switch.setOffText("")
         self.frontend_force_window_switch.setChecked(default_config.interaction_mode["frontend"]["force_window"][0])
-        self.frontend_force_window_switch.checkedChanged.connect(self._config_update)
+        self.frontend_force_window_switch.checkedChanged.connect(self._config_update_frontend_force_window)
 
         self.backend_prevent_sleep_switch = SwitchButton()
         self.backend_prevent_sleep_switch.setOnText("")
         self.backend_prevent_sleep_switch.setOffText("")
         self.backend_prevent_sleep_switch.setChecked(default_config.interaction_mode["backend"]["prevent_sleep"][0])
-        self.backend_prevent_sleep_switch.checkedChanged.connect(self._config_update)
+        self.backend_prevent_sleep_switch.checkedChanged.connect(self._config_update_backend_prevent_sleep)
 
         self.backend_screenshot_combobox = ComboBox()
         self.backend_screenshot_combobox.addItems(default_config.interaction_mode["backend"]["screenshot_method"])
-        self.backend_screenshot_combobox.currentIndexChanged.connect(self._config_update)
+        self.backend_screenshot_combobox.currentIndexChanged.connect(self._config_update_backend_screenshot_method)
 
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
@@ -208,14 +208,17 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         if text != config.user.interaction_mode.mode:
             config.update("interaction_mode.mode", text)
 
+    def _config_update_frontend_force_window(self):
         status = self.frontend_force_window_switch.isChecked()
         if status != config.user.interaction_mode.frontend.force_window:
             config.update("interaction_mode.frontend.force_window", status)
 
+    def _config_update_backend_prevent_sleep(self):
         status = self.backend_prevent_sleep_switch.isChecked()
         if status != config.user.interaction_mode.backend.prevent_sleep:
             config.update("interaction_mode.backend.prevent_sleep", status)
 
+    def _config_update_backend_screenshot_method(self):
         text = self.backend_screenshot_combobox.currentText()
         if text != config.user.interaction_mode.backend.screenshot_method:
             config.update("interaction_mode.backend.screenshot_method", text)
