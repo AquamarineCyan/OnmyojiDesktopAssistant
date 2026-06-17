@@ -26,20 +26,23 @@ jobs:
           poetry install
           cd tests
           poetry run pytest -s
-      
+
       - name: Build
+        if: github.event_name == 'workflow_dispatch'
         run: |
             poetry run pyinstaller main.spec --clean --noconfirm --distpath .
-      
+
       - name: Package
+        if: github.event_name == 'workflow_dispatch'
         run: |
             mkdir output\resource
             xcopy src\resource output\resource /s /e /v /q /y
             mkdir output\resource_ja
             xcopy src\resource_ja output\resource_ja /s /e /v /q /y
             Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-debug.zip"
-      
+
       - name: Upload build
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
           name: OnmyojiDesktopAssistant
