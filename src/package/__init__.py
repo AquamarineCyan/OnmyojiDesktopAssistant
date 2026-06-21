@@ -7,6 +7,7 @@ from .huodong import HuoDong
 from .jiejietupo import JieJieTuPo, JieJieTuPoGeRen, JieJieTuPoYinYangLiao
 from .juexing import JueXing
 from .liudaozhimen import LiuDaoZhiMen
+from .miwen import MiWen
 from .qiling import QiLing
 from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
@@ -29,6 +30,7 @@ __all__ = [
     "JieJieTuPoYinYangLiao",
     "JueXing",
     "LiuDaoZhiMen",
+    "MiWen",
     "QiLing",
     "RiLun",
     "RiLunSingle",
@@ -62,6 +64,7 @@ def get_package_resource_list():
         JieJieTuPoYinYangLiao,
         JueXing,
         LiuDaoZhiMen,
+        MiWen,
         QiLing,
         RiLun,
         RiLunSingle,

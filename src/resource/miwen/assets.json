@@ -1,0 +1,29 @@
+{
+    "current_path": "miwen",
+    "image_data": [
+        {
+            "name": "paiming",
+            "file": "paiming.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"    
+        },
+        {
+            "name": "start",
+            "file": "start.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"    
+        },
+        {
+            "name": "title",
+            "file": "title.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"    
+        },
+        {
+            "name": "tongguanzhenrong",
+            "file": "tongguanzhenrong.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"    
+        }
+    ]
+}

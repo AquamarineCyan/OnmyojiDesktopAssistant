@@ -440,6 +440,9 @@ class MainWindow(FluentWindow):
                 card.fail_checkbox.setChecked(True)
                 card.mode_refresh.setChecked(False)
 
+            case GameFunction.MIWEN:
+                MiWen.description()
+
     def _app_start(self):
         # 没有选功能前禁止通过快捷键启动程序
         if self.homeInterface.basic_group.func_combobox.currentIndex() == -1:
@@ -582,6 +585,9 @@ class MainWindow(FluentWindow):
                     flag_first_round_failure=card.fail_checkbox.isChecked(),
                     has_temp_pop=has_temp_pop,
                 ).task_start()
+
+            case GameFunction.MIWEN:
+                MiWen(n=selected_number).task_start()
 
     def _app_stop(self):
         event_thread.set()

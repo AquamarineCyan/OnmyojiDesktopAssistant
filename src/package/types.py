@@ -22,6 +22,7 @@ class GameFunction(Enum):
     DOUJI = 16  # 斗技自动上阵
     YINGJIESHILIAN = 17  # 英杰试炼
     HUIJUAN = 18  # 绘卷刷分
+    MIWEN = 19  # 每周秘闻
 
 
 class QiLing(StrEnum):
