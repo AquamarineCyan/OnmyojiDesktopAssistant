@@ -31,6 +31,7 @@ class DouJi(BasePackage):
     def load_asset(self):
         self.OCR_TITLE = self.get_ocr_asset("title")
         self.OCR_FIGHT = self.get_ocr_asset("fight")
+        self.OCR_AUTO = self.get_ocr_asset("auto")
         self.OCR_UPDATE_TEAM = self.get_ocr_asset("update_team")
         self.OCR_INTENTIONAL = self.get_ocr_asset("intentional")
         self.OCR_VICTORY = self.get_ocr_asset("victory")
@@ -63,6 +64,7 @@ class DouJi(BasePackage):
         self.current_asset_list = [
             self.OCR_TITLE,
             self.OCR_FIGHT,
+            self.OCR_AUTO,
             self.OCR_UPDATE_TEAM,
             self.OCR_INTENTIONAL,
             self.OCR_VICTORY,
@@ -101,6 +103,23 @@ class DouJi(BasePackage):
                     Mouse.click(result.match_result.center)
                     _flag = True
                     self.current_asset_list.remove(self.OCR_FIGHT)
+
+                case self.OCR_AUTO.name:
+                    asset_region = self.OCR_AUTO.region
+                    ocr_rect = result.match_result.rect
+                    if (
+                        asset_region
+                        and ocr_rect.x1 >= asset_region[0]
+                        and ocr_rect.y1 >= asset_region[1]
+                        and ocr_rect.x2 <= asset_region[0] + asset_region[2]
+                        and ocr_rect.y2 <= asset_region[1] + asset_region[3]
+                    ):
+                        logger.ui("自动")
+                        Mouse.click(result.match_result.center)
+                        sleep(4)
+                    else:
+                        logger.warning("非准备阶段的识别结果，跳过")
+                        continue
 
                 case self.OCR_UPDATE_TEAM.name:
                     logger.ui("自动上阵")

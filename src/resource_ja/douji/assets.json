@@ -16,6 +16,13 @@
             "method": "PERFACT"
         },
         {
+            "name" : "auto",
+            "keyword" : "自动",
+            "region": [0, 80, 100, 100],
+            "score": "0.7",
+            "method": "PERFACT"
+        },
+        {
             "name": "update_team",
             "keyword": "上阵",
             "region": [0, 0, 0, 0],
@@ -33,7 +40,7 @@
             "name": "victory",
             "keyword": "胜利",
             "region": [0, 0, 0, 0],
-            "score": "0.7",
+            "score": "0.5",
             "method": "PERFACT"
         },
         {
