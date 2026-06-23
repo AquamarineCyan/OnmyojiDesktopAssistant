@@ -12,7 +12,7 @@ from PySide6.QtGui import QPixmap, QTextCursor
 from qfluentwidgets import Dialog, MessageBox
 
 from ..package import *  # noqa: F403
-from ..package.types import GameFunction
+from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.fluent import Window as FluentWindow
 from ..ui.update_record_widget import UpdateRecordWindow
@@ -443,6 +443,7 @@ class MainWindow(FluentWindow):
 
             case GameFunction.MIWEN:
                 set_stack(StackedWidgetIndex.MIWEN)
+                basic_group.set_number_spinbox_value(10, 1, 10)
                 MiWen.description()
 
     def _app_start(self):
@@ -590,7 +591,7 @@ class MainWindow(FluentWindow):
 
             case GameFunction.MIWEN:
                 card = advanced_stack.miwen_card
-                mode = card.combobox.currentText()
+                mode = MiWenMode(card.combobox.currentText())
                 MiWen(n=selected_number, mode=mode).task_start()
 
     def _app_stop(self):
