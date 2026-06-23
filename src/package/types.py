@@ -43,3 +43,10 @@ class Yingjie(StrEnum):
 
     YUAN_LAI_GUANG = "源赖光"
     TENG_YUAN_DAO_CHANG = "藤原道长"
+
+
+class MiWenMode(StrEnum):
+    """秘闻模式"""
+
+    BAI_ZHAN = "百战"
+    JING_SU = "竞速"

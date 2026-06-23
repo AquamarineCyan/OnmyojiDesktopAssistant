@@ -47,6 +47,7 @@ class StackedWidgetIndex(Enum):
     YINGJIESHILIAN = 5
     TANSUO = 6
     HUIJUAN = 7
+    MIWEN = 8
 
 
 class MainWindow(FluentWindow):
@@ -441,6 +442,7 @@ class MainWindow(FluentWindow):
                 card.mode_refresh.setChecked(False)
 
             case GameFunction.MIWEN:
+                set_stack(StackedWidgetIndex.MIWEN)
                 MiWen.description()
 
     def _app_start(self):
@@ -587,7 +589,9 @@ class MainWindow(FluentWindow):
                 ).task_start()
 
             case GameFunction.MIWEN:
-                MiWen(n=selected_number).task_start()
+                card = advanced_stack.miwen_card
+                mode = card.combobox.currentText()
+                MiWen(n=selected_number, mode=mode).task_start()
 
     def _app_stop(self):
         event_thread.set()

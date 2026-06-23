@@ -20,7 +20,7 @@ from qfluentwidgets import (
     TextBrowser,
 )
 
-from ..package.types import QiLing, Yingjie
+from ..package.types import MiWenMode, QiLing, Yingjie
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
@@ -379,6 +379,25 @@ class HomeWidget(QWidget):
 
                 self.viewLayout.addLayout(self.vBoxLayout)
 
+        class AdvancedMiWenCard(HeaderCardWidget):
+            """高级设置-每周秘闻"""
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.setTitle("高级设置")
+                self.setBorderRadius(8)
+                self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
+
+                self.combobox = ComboBox()
+                self.combobox.addItems([item.value for item in MiWenMode])
+
+                self.vBoxLayout = QVBoxLayout()
+                self.vBoxLayout.setSpacing(10)
+                self.vBoxLayout.addWidget(self.combobox)
+                self.vBoxLayout.addStretch()
+
+                self.viewLayout.addLayout(self.vBoxLayout)
+
         class AdvancedTanSuoCard(HeaderCardWidget):
             """高级设置-单人探索"""
 
@@ -504,6 +523,7 @@ class HomeWidget(QWidget):
             self.yingjieshilian_card = self.AdvancedYingJieShiLianCard()
             self.tansuo_card = self.AdvancedTanSuoCard()
             self.huijuan_card = self.AdvancedHuiJuanCard()
+            self.miwen_card = self.AdvancedMiWenCard()
 
             self.addWidget(QWidget())
             self.addWidget(self.yuhun_card)
@@ -513,6 +533,7 @@ class HomeWidget(QWidget):
             self.addWidget(self.yingjieshilian_card)
             self.addWidget(self.tansuo_card)
             self.addWidget(self.huijuan_card)
+            self.addWidget(self.miwen_card)
 
             self.setCurrentIndex(0)
 
