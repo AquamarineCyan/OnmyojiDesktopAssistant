@@ -82,6 +82,8 @@ class DefaultConfig(BaseModel):
         "backend": _backend_sub_config,
     }
     """交互模式"""
+    function_order: list = []
+    """功能排序默认值"""
 
 
 default_config = DefaultConfig()
@@ -106,6 +108,8 @@ class UserConfig(BaseModel):
     """系统通知"""
     interaction_mode: InteractionModeConfig = InteractionModeConfig()
     """交互模式"""
+    function_order: list[str] = []
+    """功能排序，可通过GameFunctionSelectorWidget修改"""
 
 
 class Config:
@@ -204,6 +208,9 @@ class Config:
 
         for key, default_value in default_config.model_dump().items():
             if key not in data:
+                continue
+            # function_order 是列表类型，不走候选值校验逻辑
+            if key == "function_order":
                 continue
             fixed_value, changed = validate(data[key], default_value)
             if changed:

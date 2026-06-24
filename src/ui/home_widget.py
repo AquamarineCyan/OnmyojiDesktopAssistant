@@ -1,3 +1,5 @@
+from enum import Enum
+
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -20,31 +22,24 @@ from qfluentwidgets import (
     TextBrowser,
 )
 
-from ..package.types import MiWenMode, QiLing, Yingjie
+from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
+from ..utils.config import config
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
-_list_function = [  # 功能列表
-    "1.御魂副本",
-    "2.永生之海副本",
-    "3.业原火副本",
-    "4.御灵副本",
-    "5.个人突破",
-    "6.寮突破",
-    "7.道馆突破",
-    "8.普通召唤",
-    "9.百鬼夜行",
-    "10.限时活动",
-    "11.日轮副本",
-    "12.单人探索",
-    "13.契灵之境",
-    "14.觉醒副本",
-    "15.六道之门速刷",
-    "16.斗技自动上阵",
-    "17.英杰试炼",
-    "18.绘卷刷分",
-    "19.每周秘闻",
-]
+
+class StackedWidgetIndex(Enum):
+    """高级设置窗口索引"""
+
+    NONE = 0
+    YUHUN = 1
+    JIEJIETUPO = 2
+    DAOGUANTUPO = 3
+    QILING = 4
+    YINGJIESHILIAN = 5
+    TANSUO = 6
+    HUIJUAN = 7
+    MIWEN = 8
 
 
 class HomeWidget(QWidget):
@@ -117,9 +112,6 @@ class HomeWidget(QWidget):
             self.func_label.setFixedWidth(60)
 
             self.func_combobox = ComboBox()
-            self.func_combobox.addItems(_list_function)
-            self.func_combobox.setCurrentIndex(-1)
-
             self.number_label = BodyLabel("选择次数")
             self.number_label.setFixedWidth(60)
 
@@ -142,6 +134,20 @@ class HomeWidget(QWidget):
 
             self.viewLayout.addLayout(self.vBoxLayout)
 
+            self.rebuild_combobox()
+
+        def rebuild_combobox(self):
+            """根据当前配置重建下拉框"""
+            self.func_combobox.blockSignals(True)  # 防止信号触发
+            self.func_combobox.clear()
+            func_map = {f.name: f for f in GameFunction}
+            order = config.user.function_order or [func.name for func in GameFunction]
+            for i, name in enumerate(order, 1):
+                func = func_map[name]
+                self.func_combobox.addItem(f"{i}.{func.value}", userData=func)
+            self.func_combobox.setCurrentIndex(-1)
+            self.func_combobox.blockSignals(False)
+
         def set_number_spinbox_value(self, current: int = 1, min: int = 0, max: int = 99):
             self.number_spinbox.setValue(current)
             self.number_spinbox.setMinimum(min)
@@ -152,6 +158,8 @@ class HomeWidget(QWidget):
 
         class AdvancedYuHunCard(HeaderCardWidget):
             """高级设置-御魂副本"""
+
+            id = StackedWidgetIndex.YUHUN.value
 
             def __init__(self, parent=None):
                 super().__init__(parent)
@@ -216,6 +224,8 @@ class HomeWidget(QWidget):
         class AdvancedJieJieTuPoCard(HeaderCardWidget):
             """高级设置-结界突破"""
 
+            id = StackedWidgetIndex.JIEJIETUPO.value
+
             def __init__(self, parent=None):
                 super().__init__(parent)
                 self.setTitle("高级设置")
@@ -276,6 +286,8 @@ class HomeWidget(QWidget):
         class AdvancedDaoGuanTuPoCard(HeaderCardWidget):
             """高级设置-道馆突破"""
 
+            id = StackedWidgetIndex.DAOGUANTUPO.value
+
             def __init__(self, parent=None):
                 super().__init__(parent)
                 self.setTitle("高级设置")
@@ -293,6 +305,8 @@ class HomeWidget(QWidget):
 
         class AdvancedQiLingCard(HeaderCardWidget):
             """高级设置-契灵"""
+
+            id = StackedWidgetIndex.QILING.value
 
             def __init__(self, parent=None):
                 super().__init__(parent)
@@ -354,6 +368,8 @@ class HomeWidget(QWidget):
         class AdvancedYingJieShiLianCard(HeaderCardWidget):
             """高级设置-英杰试炼"""
 
+            id = StackedWidgetIndex.YINGJIESHILIAN.value
+
             def __init__(self, parent=None):
                 super().__init__(parent)
                 self.setTitle("高级设置")
@@ -382,6 +398,8 @@ class HomeWidget(QWidget):
         class AdvancedMiWenCard(HeaderCardWidget):
             """高级设置-每周秘闻"""
 
+            id = StackedWidgetIndex.MIWEN.value
+
             def __init__(self, parent=None):
                 super().__init__(parent)
                 self.setTitle("高级设置")
@@ -401,6 +419,8 @@ class HomeWidget(QWidget):
         class AdvancedTanSuoCard(HeaderCardWidget):
             """高级设置-单人探索"""
 
+            id = StackedWidgetIndex.TANSUO.value
+
             def __init__(self, parent=None):
                 super().__init__(parent)
                 self.setTitle("高级设置")
@@ -418,6 +438,8 @@ class HomeWidget(QWidget):
 
         class AdvancedHuiJuanCard(HeaderCardWidget):
             """高级设置-绘卷"""
+
+            id = StackedWidgetIndex.HUIJUAN.value
 
             def __init__(self, parent=None):
                 super().__init__(parent)
@@ -526,14 +548,20 @@ class HomeWidget(QWidget):
             self.miwen_card = self.AdvancedMiWenCard()
 
             self.addWidget(QWidget())
-            self.addWidget(self.yuhun_card)
-            self.addWidget(self.jiejietupo_card)
-            self.addWidget(self.daoguantupo_card)
-            self.addWidget(self.qiling_card)
-            self.addWidget(self.yingjieshilian_card)
-            self.addWidget(self.tansuo_card)
-            self.addWidget(self.huijuan_card)
-            self.addWidget(self.miwen_card)
+
+            card_instances = [
+                self.yuhun_card,
+                self.jiejietupo_card,
+                self.daoguantupo_card,
+                self.qiling_card,
+                self.yingjieshilian_card,
+                self.tansuo_card,
+                self.huijuan_card,
+                self.miwen_card,
+            ]
+
+            for card in sorted(card_instances, key=lambda x: type(x).id):
+                self.addWidget(card)
 
             self.setCurrentIndex(0)
 
@@ -610,3 +638,18 @@ class HomeWidget(QWidget):
         self.hBoxLayout.addWidget(self.leftWidget, 4)
         self.hBoxLayout.addWidget(self.rightWidget, 6)
         self.hBoxLayout.setSpacing(20)
+
+    def refresh_function_list(self):
+        """应用功能排序后重置首页状态"""
+        # 刷新功能选择
+        self.basic_group.rebuild_combobox()
+
+        # 重置高级设置
+        self.advanced_stack.setCurrentIndex(0)
+
+        # 禁用状态按钮
+        self.button_status.setEnabled(False)
+        self.button_status.stop()
+
+        # 次数清零
+        self.basic_group.number_spinbox.setValue(0)

@@ -23,6 +23,7 @@ from ..utils.application import (
     QQ_GROUP_LINK,
 )
 from ..utils.config import config, default_config
+from .game_function_selector_widget import GameFunctionSelectorWidget
 
 
 class AppCard(CardWidget):
@@ -257,6 +258,29 @@ class SettingUpdateCard(ExpandGroupSettingCard):
             config.update("update_download", text)
 
 
+class SettingFunctionSelectorCard(AppCard):
+    """设置项-功能排序"""
+
+    def __init__(self, parent=None):
+        super().__init__(FluentIcon.VIEW, "功能排序", "功能太多找不到？点击按钮配置常用功能", parent)
+
+        self.open_button = PushButton("配置")
+        self.open_button.clicked.connect(self._open_function_selector)
+
+        self.hBoxLayout.addWidget(self.open_button)
+
+    def _open_function_selector(self):
+        self.game_function_selector = GameFunctionSelectorWidget()
+        self.game_function_selector.applied.connect(self._on_function_order_applied)
+        self.game_function_selector.show()
+
+    def _on_function_order_applied(self):
+        """功能排序应用后，刷新首页的下拉框与高级设置"""
+        window = self.window()
+        if hasattr(window, "homeInterface"):
+            window.homeInterface.refresh_function_list()
+
+
 class SettingAboutCard(QWidget):
     """设置项-关于"""
 
@@ -306,6 +330,7 @@ class SettingWidget(QWidget):
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
         self.interaction_mode_card = SettingInteractionModeCard()
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
+        self.function_selector_card = SettingFunctionSelectorCard()
         self.shortcut_start_stop_card = SettingShortcutStartStopCard()
         self.win_toast_card = SettingWinToastCard()
         self.group_update = SettingUpdateCard()
@@ -323,6 +348,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.xuanshangfengyin_card)
         self._layout.addWidget(self.interaction_mode_card)
         self._layout.addWidget(self.remember_last_choice_card)
+        self._layout.addWidget(self.function_selector_card)
         self._layout.addWidget(self.shortcut_start_stop_card)
         self._layout.addWidget(self.win_toast_card)
         self._layout.addWidget(self.group_update)

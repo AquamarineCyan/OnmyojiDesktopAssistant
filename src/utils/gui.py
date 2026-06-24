@@ -1,7 +1,6 @@
 import shutil
 from contextlib import suppress
 from datetime import datetime
-from enum import Enum
 from pathlib import Path
 from threading import Thread
 from typing import Literal
@@ -15,6 +14,7 @@ from ..package import *  # noqa: F403
 from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.fluent import Window as FluentWindow
+from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
 from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, VERSION
@@ -34,20 +34,6 @@ from .update import get_update_info
 from .upgrade import upgrade
 from .valid import score_handle
 from .window import GameWindow, window_manager
-
-
-class StackedWidgetIndex(Enum):
-    """高级设置窗口索引"""
-
-    NONE = 0
-    YUHUN = 1
-    JIEJIETUPO = 2
-    DAOGUANTUPO = 3
-    QILING = 4
-    YINGJIESHILIAN = 5
-    TANSUO = 6
-    HUIJUAN = 7
-    MIWEN = 8
 
 
 class MainWindow(FluentWindow):
@@ -329,7 +315,7 @@ class MainWindow(FluentWindow):
         basic_group = self.homeInterface.basic_group
         advanced_stack = self.homeInterface.advanced_stack
 
-        self.game_function_choice = GameFunction(basic_group.func_combobox.currentIndex() + 1)
+        self.game_function_choice = basic_group.func_combobox.currentData()
         if config.user.remember_last_choice != -1:
             config.update("remember_last_choice", self.game_function_choice.value)
         self.homeInterface.button_status.setEnabled(True)
