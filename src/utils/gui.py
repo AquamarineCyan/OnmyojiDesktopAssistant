@@ -18,7 +18,7 @@ from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
 from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, VERSION
-from .config import _game_language_list, _interaction_mode_list, config, default_config
+from .config import _game_language_list, _interaction_mode_list, config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
@@ -80,9 +80,7 @@ class MainWindow(FluentWindow):
         card.interaction_mode_card.backend_screenshot_combobox.setCurrentText(
             setting.interaction_mode.backend.screenshot_method
         )
-        card.remember_last_choice_card.switch.setChecked(
-            setting.remember_last_choice != default_config.remember_last_choice
-        )
+        card.remember_last_choice_card.switch.setChecked(setting.remember_last_choice)
         card.shortcut_start_stop_card.combobox.setCurrentText(setting.shortcut_start_stop)
         card.win_toast_card.switch.setChecked(setting.win_toast)
         card.group_update.mode_switch.setChecked(setting.auto_update)
@@ -272,9 +270,13 @@ class MainWindow(FluentWindow):
         self.homeInterface.basic_group.number_spinbox.setEnabled(True)
 
         # 记忆上次所选功能
-        last_choice = config.user.remember_last_choice
-        if last_choice > 0:
-            self.homeInterface.basic_group.func_combobox.setCurrentIndex(last_choice - 1)
+        if config.user.remember_last_choice and config.user.last_function:
+            combo = self.homeInterface.basic_group.func_combobox
+            for i in range(combo.count()):
+                item_data = combo.itemData(i)
+                if item_data is not None and item_data.name == config.user.last_function:
+                    combo.setCurrentIndex(i)
+                    break
 
     @log_function_call
     def is_resource_directory_complete(self) -> bool:
@@ -316,8 +318,8 @@ class MainWindow(FluentWindow):
         advanced_stack = self.homeInterface.advanced_stack
 
         self.game_function_choice = basic_group.func_combobox.currentData()
-        if config.user.remember_last_choice != -1:
-            config.update("remember_last_choice", self.game_function_choice.value)
+        if config.user.remember_last_choice:
+            config.update("last_function", self.game_function_choice.name)
         self.homeInterface.button_status.setEnabled(True)
         basic_group.number_spinbox.setEnabled(True)
         basic_group.set_number_spinbox_value(1, 1, 999)

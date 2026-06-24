@@ -107,8 +107,7 @@ class SettingRememberLastChoiceCard(AppCard):
         self.hBoxLayout.addWidget(self.switch)
 
     def _config_update(self):
-        status = self.switch.isChecked()
-        choice = 0 if status else -1
+        choice = self.switch.isChecked()
         if choice != config.user.remember_last_choice:
             config.update("remember_last_choice", choice)
 

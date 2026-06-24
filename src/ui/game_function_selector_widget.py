@@ -135,9 +135,9 @@ class FunctionListCard(CardWidget):
     def _create_function_list(self):
         """创建功能列表项"""
         saved_order = config.user.function_order
-        saved_set = set(saved_order)
+        saved_set = set(saved_order or [])
         # 已保存的功能按原顺序在前，未保存的按 GameFunction 定义顺序在后
-        ordered_names = list(saved_order) + [func.name for func in GameFunction if func.name not in saved_set]
+        ordered_names = list(saved_order or []) + [func.name for func in GameFunction if func.name not in saved_set]
         func_list = [func for func in GameFunction if func.name in ordered_names]
         func_list.sort(key=lambda f: ordered_names.index(f.name))
 
