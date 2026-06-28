@@ -101,6 +101,7 @@ class MainWindow(FluentWindow):
     def _init_events(self):
         """初始化事件"""
         self.homeInterface.basic_group.func_combobox.currentIndexChanged.connect(self.game_function_description)
+        self.homeInterface.basic_group.force_detect_window_button.clicked.connect(self.force_detect_window_handle)
         self.homeInterface.button_status.clicked.connect(self.app_running)
 
         self.windowManagerInterface.preview_button.clicked.connect(self.preview_window)
@@ -305,7 +306,7 @@ class MainWindow(FluentWindow):
         logger.info("资源完整")
         return True
 
-    def check_game_handle(self):
+    def force_detect_window_handle(self):
         return window_manager.force_update()
 
     def game_function_description(self):

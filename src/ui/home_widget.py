@@ -20,6 +20,8 @@ from qfluentwidgets import (
     RadioButton,
     SpinBox,
     TextBrowser,
+    ToolTipFilter,
+    ToolTipPosition,
 )
 
 from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
@@ -111,13 +113,25 @@ class HomeWidget(QWidget):
             self.func_label = BodyLabel("选择功能")
             self.func_label.setFixedWidth(60)
 
-            self.func_combobox = ComboBox()
+            self.func_combobox = ComboBox()  # 下拉框
+
             self.number_label = BodyLabel("选择次数")
             self.number_label.setFixedWidth(60)
 
             self.number_spinbox = SpinBox()
             self.number_spinbox.setRange(0, 100)
             self.number_spinbox.setValue(0)
+
+            self.force_detect_window_button = PushButton("检测前置游戏窗口")
+            self.force_detect_window_button.setToolTip("优先检测最顶上的游戏窗口")
+            self.force_detect_window_button.setToolTipDuration(5000)
+            self.force_detect_window_button.installEventFilter(
+                ToolTipFilter(
+                    self.force_detect_window_button,
+                    showDelay=300,
+                    position=ToolTipPosition.TOP,
+                )
+            )
 
             self.hBoxLayout1 = QHBoxLayout()
             self.hBoxLayout1.addWidget(self.func_label)
@@ -127,11 +141,16 @@ class HomeWidget(QWidget):
             self.hBoxLayout2.addWidget(self.number_label)
             self.hBoxLayout2.addWidget(self.number_spinbox)
 
+            self.hBoxLayout3 = QHBoxLayout()
+            self.hBoxLayout3.addWidget(self.force_detect_window_button)
+
             self.vBoxLayout = QVBoxLayout()
-            self.vBoxLayout.setSpacing(20)
+            self.vBoxLayout.setSpacing(15)
             self.vBoxLayout.addLayout(self.hBoxLayout1)
             self.vBoxLayout.addLayout(self.hBoxLayout2)
+            self.vBoxLayout.addLayout(self.hBoxLayout3)
 
+            self.viewLayout.setContentsMargins(24, 10, 24, 24)
             self.viewLayout.addLayout(self.vBoxLayout)
 
             self.rebuild_combobox()
