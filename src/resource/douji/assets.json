@@ -23,10 +23,10 @@
             "method": "PERFACT"
         },
         {
-            "name": "update_team",
-            "keyword": "上阵",
+            "name": "cancel",
+            "keyword": "取消",
             "region": [0, 0, 0, 0],
-            "score": "0.6",
+            "score": "0.7",
             "method": "PERFACT"
         },
         {

@@ -32,7 +32,7 @@ class DouJi(BasePackage):
         self.OCR_TITLE = self.get_ocr_asset("title")
         self.OCR_FIGHT = self.get_ocr_asset("fight")
         self.OCR_AUTO = self.get_ocr_asset("auto")
-        self.OCR_UPDATE_TEAM = self.get_ocr_asset("update_team")
+        self.OCR_CANCEL = self.get_ocr_asset("cancel")
         self.OCR_INTENTIONAL = self.get_ocr_asset("intentional")
         self.OCR_VICTORY = self.get_ocr_asset("victory")
         self.OCR_FAIL = self.get_ocr_asset("fail")
@@ -64,8 +64,8 @@ class DouJi(BasePackage):
         self.current_asset_list = [
             self.OCR_TITLE,
             self.OCR_FIGHT,
+            self.OCR_CANCEL,  # `取消`比`自动`先识别
             self.OCR_AUTO,
-            self.OCR_UPDATE_TEAM,
             self.OCR_INTENTIONAL,
             self.OCR_VICTORY,
             self.OCR_FAIL,
@@ -114,20 +114,19 @@ class DouJi(BasePackage):
                         and ocr_rect.x2 <= asset_region[0] + asset_region[2]
                         and ocr_rect.y2 <= asset_region[1] + asset_region[3]
                     ):
-                        logger.ui("自动")
+                        logger.ui("自动上阵")
                         Mouse.click(result.match_result.center)
                         sleep(4)
                     else:
                         logger.warning("非准备阶段的识别结果，跳过")
-                        continue
 
-                case self.OCR_UPDATE_TEAM.name:
-                    logger.ui("自动上阵")
-                    Mouse.click(result.match_result.center)
-                    sleep(4)
+                case self.OCR_CANCEL.name:
+                    logger.info("取消上阵，跳过")
+                    sleep(2)
+                    continue
 
                 case self.OCR_INTENTIONAL.name:
-                    logger.ui("手动技能")
+                    logger.ui("自动施放技能")
                     Mouse.click(result.match_result.center)
                     sleep(4)
 
