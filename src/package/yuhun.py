@@ -44,6 +44,7 @@ class YuHun(BasePackage):
         logger.ui("已适配组队/单人 魂十、魂土、神罚副本")
         logger.ui("司机请在组队界面等待")
         logger.ui_warn("第一次战斗结束会有邀请队友弹窗，需手动勾选“默认邀请队友”")
+        logger.ui("取消勾选游戏内设置-交互-战斗结算个性化")
 
     def load_asset(self):
         self.IMAGE_FINISH_2000 = self.get_image_asset("finish_2000")
