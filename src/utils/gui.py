@@ -1,4 +1,3 @@
-import shutil
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
@@ -17,7 +16,7 @@ from ..ui.fluent import Window as FluentWindow
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, CACHE_DIR_PATH, VERSION
+from .application import APP_NAME, APP_PATH, VERSION
 from .config import _game_language_list, _interaction_mode_list, config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -709,12 +708,6 @@ class MainWindow(FluentWindow):
             self.update_record_widget.close()
         if hasattr(self, "upgrade_new_version_widget"):
             self.upgrade_new_version_widget.close()
-
-        # 删除缓存文件夹
-        with suppress(Exception):
-            if CACHE_DIR_PATH.exists():
-                shutil.rmtree(CACHE_DIR_PATH)
-                logger.info(f"已删除缓存文件夹: {CACHE_DIR_PATH}")
 
         with suppress(Exception):
             logger.info("[EXIT]")
