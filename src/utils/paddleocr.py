@@ -46,12 +46,12 @@ def paddle_hide_window_context():
 
     try:
         subprocess.Popen = _patched_popen
-        logger.info("控制台黑框拦截已开启")
+        logger.info("正在拦截控制台黑框")
         yield
     finally:
         # 恢复
         subprocess.Popen = orig_popen
-        logger.info("控制台黑框拦截已关闭")
+        logger.info("控制台黑框拦截已恢复")
 
 
 def check_ocr_folder():
@@ -86,16 +86,16 @@ class OCRManager:
             return True
 
         try:
-            logger.ui(f"开始初始化 PaddleOCR v{version}...")
+            logger.ui(f"开始初始化文字识别模型[PaddleOCR v{version}]")
+            t_start = time.perf_counter()
             from paddleocr import PaddleOCR
 
             det_class, rec_class = PaddleModel._get_model_classes(version)
             if not det_class or not rec_class:
-                logger.ui_error(f"未找到版本 {version} 的模型定义")
+                logger.ui_error(f"未找到版本[PaddleOCR v{version}]的模型定义")
                 return False
 
             with paddle_hide_window_context():
-                logger.info("正在拦截控制台黑框")
                 self.paddleocr = PaddleOCR(
                     text_detection_model_name=det_class.name,
                     text_detection_model_dir=str(MODEL_DIR_PATH / det_class.model_dir_name),
@@ -109,11 +109,12 @@ class OCRManager:
                     det_db_unclip_ratio=1.5,
                 )
 
-            logger.info(f"OCR(v{version})初始化成功")
+            t_end = time.perf_counter()
+            logger.ui(f"模型[PaddleOCR v{version}]初始化成功，用时 {(t_end - t_start):.2f} 秒")
             return True
 
         except Exception as e:
-            logger.error(f"OCR初始化失败: {e}")
+            logger.error(f"模型[PaddleOCR v{version}]初始化失败: {e}")
             raise
 
     def detect(self, image: Image.Image) -> list:
