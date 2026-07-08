@@ -1,9 +1,9 @@
 import functools
 import inspect
 import os
+from threading import Thread
 
 from .log import logger
-from .mythread import WorkThread
 
 
 def log_function_call(func):
@@ -24,9 +24,7 @@ def log_function_call(func):
 def run_in_thread(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        t = WorkThread(func=func, args=args, kwargs=kwargs)
-        t.start()
-        return t.get_result()
+        Thread(target=func, name=func.__qualname__, args=args, kwargs=kwargs, daemon=True).start()
 
     return wrapper
 

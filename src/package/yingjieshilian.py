@@ -1,10 +1,11 @@
+from threading import Timer
+
 from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from ..utils.mythread import WorkTimer
 from .base_package import BasePackage
 from .types import Yingjie
 
@@ -117,7 +118,8 @@ class YingJieShiLianExp(YingJieShiLian):
                     _flag_title_msg = False
                     self.start()
                     sleep()
-                    _timer = WorkTimer(3, self.timer_check_start)
+                    _timer = Timer(3, self.timer_check_start)
+                    _timer.daemon = True
                     _timer.start()
                 case "fail":
                     if _timer:
