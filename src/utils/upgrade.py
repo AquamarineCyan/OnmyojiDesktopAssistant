@@ -7,9 +7,9 @@ from pathlib import Path
 
 import httpx
 
-from .application import APP_EXE_NAME, APP_NAME, APP_PATH, VERSION, Connect
+from .application import APP_NAME, APP_PATH, VERSION, Connect
 from .config import _update_download_list, config
-from .decorator import log_function_call, run_in_thread
+from .decorator import run_in_thread
 from .log import logger
 from .mysignal import global_ms as ms
 from .restart import Restart
@@ -21,14 +21,13 @@ class StatusCode(Enum):
     NEW_VERSION = 2
     CONNECT_ERROR = 3
     RELEASES_ERROR = 4
-    ASSETS_ERROR = 5
-    ZIP_ERROR = 6
+    ZIP_ERROR = 5
 
 
 class Upgrade(Connect):
     """更新升级"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self.new_version: str = None
         """新版本版本号"""
         self.new_version_info: str = None
@@ -81,39 +80,51 @@ class Upgrade(Connect):
             return StatusCode.CONNECT_ERROR
 
         response_dict = json.loads(response.text)
-        if "v" not in response_dict["tag_name"]:
-            # 由Releases决定，一般不可能
+        _tag_name = response_dict.get("tag_name")
+        if _tag_name is None or "v" not in _tag_name:
             return StatusCode.RELEASES_ERROR
 
-        self.new_version = response_dict["tag_name"][1:]
+        self.new_version = _tag_name[1:]
         logger.info(f"new_version:{self.new_version}")
+
+        _assets_list = response_dict.get("assets", [])
+        if len(_assets_list) == 0:
+            # 新版本tag已创建但更新包尚未上传，视为无可用更新
+            logger.info("新版本tag已创建，但更新包尚未上传")
+            return StatusCode.LATEST
+
         if self.compare_versions(self.new_version, VERSION) <= 0:
             return StatusCode.LATEST
 
-        _info: str = response_dict["body"]
+        _info: str = response_dict.get("body", "")
         logger.info(_info)
-        self.new_version_info = _info[: _info.find("**Full Changelog**")].rstrip("\n")
-        if len(response_dict["assets"]) == 0:
-            return StatusCode.ASSETS_ERROR
+        _changelog_marker = "**Full Changelog**"
+        if _changelog_marker in _info:
+            self.new_version_info = _info[: _info.find(_changelog_marker)].rstrip("\n")
+        else:
+            self.new_version_info = _info
 
-        for item in response_dict["assets"]:
+        for item in _assets_list:
             logger.info(item)
             if item.get("name") == f"{APP_NAME}-{self.new_version}.zip":
-                self.browser_download_url = item["browser_download_url"]
-                logger.info(f"browser_download_url:{self.browser_download_url}")
+                self.browser_download_url = item.get("browser_download_url")
+                if self.browser_download_url is None:
+                    logger.ui_error("更新包下载链接丢失")
+                    return StatusCode.ZIP_ERROR
+                logger.info(f"更新包下载链接: {self.browser_download_url}")
                 self.file = self.browser_download_url.split("/")[-1]
                 logger.info(f"file:{self.file}")
-                self.file_size = item["size"]
+                self.file_size = item.get("size")
+                if self.file_size is None:
+                    logger.ui_error("更新包大小缺失")
+                    return StatusCode.ZIP_ERROR
                 logger.info(f"file_size:{self.file_size}")
                 return StatusCode.NEW_VERSION
 
         return StatusCode.ZIP_ERROR
 
-    def get_mirror_station_url(self) -> str:
-        return f"{self.mirror_station}{self.browser_download_url}"
-
-    def _check_local_file(self, file: str, size: int) -> bool:
-        return bool(os.path.exists(file) and os.stat(file).st_size == size)
+    def _check_local_file(self, file: str, expected_size: int) -> bool:
+        return bool(os.path.exists(file) and os.stat(file).st_size == expected_size)
 
     def _check_download_zip(self):
         if self._check_local_file(self.file, self.file_size):
@@ -157,7 +168,7 @@ class Upgrade(Connect):
         return _result
 
     @run_in_thread
-    def ui_update_func(self):
+    def ui_update_handle(self):
         if self._check_download_zip() and self._check_local_file(self.file, self.file_size):
             ms.main.qmessagbox_update.emit("question", "更新重启")
         else:
@@ -165,8 +176,9 @@ class Upgrade(Connect):
         ms.upgrade_new_version.close_ui.emit()
 
     @run_in_thread
-    def ui_download_func(self):
-        self._check_download_zip()
+    def ui_download_handle(self):
+        if not self._check_download_zip():
+            logger.ui_error("下载失败")
         ms.upgrade_new_version.close_ui.emit()
 
     def download_upgrade_zip(self, download_url: str) -> bool:
@@ -178,7 +190,11 @@ class Upgrade(Connect):
                     logger.ui_error(f"下载链接异常，url: {download_url}")
                     return False
 
-                _bytes_total = int(r.headers["Content-length"])
+                _content_length = r.headers.get("content-length")
+                if _content_length is None:
+                    logger.ui_error("无法获取更新包大小")
+                    return False
+                _bytes_total = int(_content_length)
                 logger.ui(f"更新包大小:{hum_convert(_bytes_total)}")
                 download_zip_percentage_update(self.file, _bytes_total)
                 with open(self.file, "wb") as f:
@@ -199,10 +215,10 @@ class Upgrade(Connect):
             logger.ui_warn(f"访问下载链接失败{e}")
             return False
 
-    @log_function_call
     @run_in_thread
-    def check_latest(self) -> None:
+    def check_latest(self):
         """检查更新"""
+        logger.info("检查更新")
         if not config.user.auto_update:
             logger.info("跳过更新")
             return
@@ -219,42 +235,42 @@ class Upgrade(Connect):
                 logger.ui_warn("访问更新地址失败")
             case StatusCode.RELEASES_ERROR:
                 logger.ui_warn("获取发布信息失败")
-            case StatusCode.ASSETS_ERROR:
-                logger.ui_warn("更新包尚未发布，稍后重试")
             case StatusCode.ZIP_ERROR:
                 logger.ui_warn("更新包异常")
             case _:
                 logger.ui_warn("UPDATE ERROR")
 
-    @log_function_call
-    def _unzip_func(self) -> bool:
+    def _unzip_handle(self) -> bool:
+        """解压更新包"""
+        logger.info("解压更新包")
         self.zip_path = self.file
         logger.info(f"更新包路径: {self.zip_path}")
         self.zip_files_path: Path = APP_PATH / "zip_files"
         logger.info(f"解压路径: {self.zip_files_path}")
         if not zipfile.is_zipfile(self.zip_path):
-            logger.ui_warn("更新包异常")
+            logger.ui_error("更新包异常")
             return False
 
         try:
-            _result = False
             logger.ui("开始解压...")
+            self.zip_files_path.mkdir(parents=True, exist_ok=True)
+            _file_count = 0
             with zipfile.ZipFile(self.zip_path, "r") as f_zip:
-                f_zip.extractall(self.zip_files_path)
-                # 保留提取文件修改日期
                 for info in f_zip.infolist():
                     info.filename = info.filename.encode("cp437").decode("gbk")  # 解决中文文件名乱码问题
                     f_zip.extract(info, self.zip_files_path)
                     timestamp = time.mktime(info.date_time + (0, 0, -1))
+                    # 保留文件修改日期
                     os.utime(
-                        os.path.join(self.zip_files_path.__str__(), info.filename),
+                        os.path.join(str(self.zip_files_path), info.filename),
                         (timestamp, timestamp),
                     )
+                    _file_count += 1
 
-            logger.ui("解压结束")
+            logger.ui(f"解压结束，共解压 {_file_count} 个文件")
             Path(self.zip_path).unlink()
             logger.ui("删除更新包")
-            _result = True
+            return True
 
         except zipfile.BadZipFile:
             logger.ui_error("文件异常，请检查文件是否损坏")
@@ -262,30 +278,21 @@ class Upgrade(Connect):
         except Exception as e:
             logger.ui_error(f"解压失败：{e}")
 
-        return _result
+        return False
 
-    def _move_files_recursive(self, source_folder: Path, target_folder: Path) -> None:
-        """递归移动文件"""
-        for item_path in source_folder.iterdir():
-            target_path = target_folder / item_path.name
-            if item_path.is_file() and item_path.name != APP_EXE_NAME:  # 排除exe
-                item_path.replace(target_path)
-                self.move_n += 1
-            elif item_path.is_dir():
-                target_path.mkdir(exist_ok=True)
-                self._move_files_recursive(item_path, target_path)
-
-    @log_function_call
     @run_in_thread
-    def restart(self) -> None:
+    def restart(self):
         """解压更新包并重启应用程序"""
-        if not self._unzip_func():
+        logger.info("开始解压更新包")
+        if not self._unzip_handle():
             return
-        # self.move_n: int = 0
-        # self._move_files_recursive(self.zip_files_path, APP_PATH)
-        # logger.info(f"finish moving {self.move_n} files.")
+
+        # 使用脚本重启
+        logger.info("开始重启应用程序")
         _restart = Restart()
+        logger.info("编写更新重启脚本")
         _restart.write_upgrage_restart_bat(self.zip_files_path.name)
+        logger.info("重启应用程序")
         _restart.app_restart(is_upgrade=True)
 
 
@@ -304,7 +311,7 @@ def hum_convert(value):
 
 
 @run_in_thread
-def download_zip_percentage_update(file, max: int):
+def download_zip_percentage_update(file, total_size: int):
     """
     下载进度条
 
@@ -325,26 +332,19 @@ def download_zip_percentage_update(file, max: int):
             speed = size_diff / time_diff / (1024 * 1024)  # 转换为MB/s
 
         # 更新显示文本：大小 + 速度
-        display_text = f"{hum_convert(curr)}/{hum_convert(max)} (速度: {speed:.2f} MB/s)"
+        display_text = f"{hum_convert(curr)}/{hum_convert(total_size)} (速度: {speed:.2f} MB/s)"
         ms.upgrade_new_version.progress_text_update.emit(display_text)
 
         progress = 0
-        if max > 0:
-            progress = min(100, int(100 * (curr / max)))
+        if total_size > 0:
+            progress = min(100, int(100 * (curr / total_size)))
         ms.upgrade_new_version.progressBar_update.emit(progress)
 
         # 更新上一次记录
         last_time = current_time
         last_size = curr
 
-        time.sleep(0.1)
-        if curr >= max:
+        # 每隔500ms更新一次进度条
+        time.sleep(0.5)
+        if curr >= total_size:
             break
-
-
-def list_change_first(_list: list = None, _index: int = None):
-    """提取元素置于列表首位"""
-    _value = _list[_index]
-    copy_list = _list.copy()
-    copy_list.remove(_value)
-    return [_value, *copy_list]
