@@ -123,7 +123,7 @@ class HomeWidget(QWidget):
             self.number_spinbox.setValue(0)
 
             self.force_detect_window_button = PushButton("检测前置游戏窗口")
-            self.force_detect_window_button.setToolTip("优先检测最顶上的游戏窗口")
+            self.force_detect_window_button.setToolTip("优先检测最上层的游戏窗口")
             self.force_detect_window_button.setToolTipDuration(5000)
             self.force_detect_window_button.installEventFilter(
                 ToolTipFilter(

@@ -306,8 +306,6 @@ class GameWindowManager:
             logger.info("检测到游戏窗口变化")
             self._update(new_window)
 
-        if hasattr(self, "gui_window_manager_list_current_callback"):
-            self.gui_window_manager_list_current_callback(self.current)
         self._emit_window_update()
 
     def force_update(self, handle: int = None):

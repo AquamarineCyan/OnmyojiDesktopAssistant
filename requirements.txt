@@ -1,9 +1,8 @@
-chardet<7
 httpx>=0.23.0
-numpy==2.4.6
+numpy>=2.0.0,<2.4.0
 opencv-python==4.13.0.92
-paddleocr==3.4.0
-paddlepaddle==3.2.0
+paddleocr==3.7.0
+paddlepaddle==3.2.2
 pillow==12.2.0
 PyAutoGUI
 pydantic>=2.1.0

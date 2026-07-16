@@ -89,11 +89,11 @@ class UpgradeNewVersionWidget(QWidget):
 
     def _update_button_handle(self):
         self._progress_bar_show_handle()
-        upgrade.ui_update_func()
+        upgrade.ui_update_handle()
 
     def _download_button_handle(self):
         self._progress_bar_show_handle()
-        Thread(target=upgrade.ui_download_func, name="upgrade.ui_download_func", daemon=True).start()
+        Thread(target=upgrade.ui_download_handle, name="upgrade.ui_download_func", daemon=True).start()
 
     def downgrade_headings(self, text: str):
         """
