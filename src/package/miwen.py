@@ -1,3 +1,5 @@
+import time
+
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
@@ -24,7 +26,7 @@ class MiWen(BasePackage):
     @staticmethod
     def description():
         logger.ui("每周秘闻，请锁定阵容，并打开金币加成。战斗胜利后游戏会自动跳转下一层。")
-        logger.ui("百战模式等待测试。")
+        logger.ui_error("百战模式等待测试。")
 
     def load_asset(self):
         self.IMAGE_PAIMING = self.get_image_asset("paiming")
@@ -33,12 +35,28 @@ class MiWen(BasePackage):
         self.IMAGE_TONGGUANZHENRONG = self.get_image_asset("tongguanzhenrong")
 
     def start(self):
+        logger.ui("挑战")
         self.check_click(self.IMAGE_START)
+
+    def ready(self):
+        start_time = time.time()
+        timeout = 10  # 累计超时10秒
+        while time.time() - start_time < timeout:
+            if bool(event_thread):
+                raise GUIStopException
+            if self.check_click(self.global_assets.IMAGE_READY_OLD, timeout=1):
+                logger.ui("准备（怀旧主题）")
+                return
+            if self.check_click(self.global_assets.IMAGE_READY_NEW, timeout=1):
+                logger.ui("准备（简约主题）")
+                return
+            sleep(0.5)
+        logger.warning("未找到准备按钮")
 
     def run(self):
         self.current_asset_list = [
             self.IMAGE_TITLE,
-            self.IMAGE_START,
+            # self.IMAGE_START,
             # self.IMAGE_PAIMING,
             # self.IMAGE_TONGGUANZHENRONG,
             self.global_assets.IMAGE_FINISH,
@@ -61,8 +79,10 @@ class MiWen(BasePackage):
                     logger.scene(self.scene_name)
                     msg_title = False
                     self.start()
-                case self.IMAGE_START.name:
-                    Mouse.click(result.center_point())
+                    sleep(2)
+                    self.ready()
+                # case self.IMAGE_START.name:
+                #     Mouse.click(result.center_point())
                 case self.global_assets.IMAGE_FAIL.name:
                     logger.ui_error("失败，需要手动处理")
                     break

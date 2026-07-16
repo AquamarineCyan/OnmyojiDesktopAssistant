@@ -48,5 +48,5 @@ class Yingjie(StrEnum):
 class MiWenMode(StrEnum):
     """秘闻模式"""
 
-    BAI_ZHAN = "百战"
     JING_SU = "竞速"
+    BAI_ZHAN = "百战"
