@@ -1,43 +1,35 @@
-[tool.poetry]
+[project]
 name = "OnmyojiDesktopAssistant"
-version = "2.1.1"
+version = "2.1.2"
 description = "适配网易阴阳师桌面版的辅助程序"
-authors = ["AquamarineCyan <1057424730@qq.com>"]
+authors = [{name = "AquamarineCyan", email = "1057424730@qq.com"}]
 readme = "README.md"
 repository = "https://github.com/AquamarineCyan/OnmyojiDesktopAssistant"
 packages = [{include = "src"}]
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.1",
+    "numpy>=2.0.0,<2.4.0",
+    "opencv-python==4.13.0.92",
+    "paddleocr==3.7.0",
+    "paddlepaddle==3.2.2",
+    "pillow==12.2.0",
+    "pyautogui>=0.9.54",
+    "pydantic>=2.13.4",
+    "pynput>=1.8.2",
+    "pyside6==6.10.1",
+    "pyside6-fluent-widgets>=1.11.2",
+    "pywin32==312",
+    "pyyaml==6.0.2",
+    "win11toast==0.35",
+    "winshell==0.6",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.12"
-httpx = "^0.28.1"
-numpy = ">=2.0.0,<2.4.0"
-opencv-python = "4.13.0.92"
-paddleocr = "3.7.0"
-paddlepaddle = "3.2.2"
-pillow = "12.2.0"
-pyautogui = "^0.9.54"
-pydantic = "^2.13.4"
-pynput = "^1.8.2"
-pyside6 = "^6.10.1"
-pyside6-fluent-widgets = "^1.11.2"
-pywin32 = "^311"
-pyyaml = "6.0.2"
-win11toast = "^0.35"
-winshell = "^0.6"
-
-
-[tool.poetry.group.dev.dependencies]
-pyinstaller = "^6.21.0"
-pytest = "^9.1.1"
+[dependency-groups]
+dev = [
+    "pyinstaller>=6.21.0",
+    "pytest>=9.1.1",
+]
 
 [tool.ruff]
 line-length = 120
-
-[[tool.poetry.source]]
-name = "mirrors"
-url = "https://mirrors.aliyun.com/pypi/simple/"
-priority = "primary"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

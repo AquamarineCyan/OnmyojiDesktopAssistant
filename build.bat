@@ -6,8 +6,14 @@ if not exist main.spec (
     exit /b 1
 )
 
+if not exist .venv\Scripts\pyinstaller.exe (
+    echo Error: pyinstaller not found in .venv
+    pause
+    exit /b 1
+)
+
 echo Building with main.spec...
-poetry run pyinstaller main.spec --clean --noconfirm --distpath .
+.venv\Scripts\pyinstaller.exe main.spec --clean --noconfirm --distpath .
 
 
 if not exist output (

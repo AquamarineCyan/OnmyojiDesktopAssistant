@@ -12,25 +12,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Install poetry
-        run: pipx install poetry
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v8.2.0
         with:
+          enable-cache: true
           python-version: "3.11"
-          cache: 'poetry'
-      
+
+      - name: Install dependencies
+        run: uv sync
+
       - name: Run Pytest
-        run: |
-          poetry install
-          cd tests
-          poetry run pytest -s
+        run: uv run pytest tests -s
 
       - name: Build
         if: github.event_name == 'workflow_dispatch'
-        run: |
-            poetry run pyinstaller main.spec --clean --noconfirm --distpath .
+        run: uv run pyinstaller main.spec --clean --noconfirm --distpath .
 
       - name: Package
         if: github.event_name == 'workflow_dispatch'

@@ -57,6 +57,8 @@
     - 经验本/技能本
 18. 绘卷刷分
     - 采用单人探索+个人突破的组合方式
+19. 每周秘闻
+    - 自动准备
 ---
 
 - [x] 全局悬赏封印
@@ -96,10 +98,11 @@
     ```
 
 2. 安装依赖 
-    - venv 方式  
-    `pip install -r requestments.txt`
-    - poetry 方式  
-    `poetry install`
+    - pip 方式  
+    `pip install -r requirements.txt`
+    - uv 方式（推荐）  
+    安装 uv：[uv 官方文档](https://docs.astral.sh/uv/getting-started/installation/)  
+    `uv sync`
 
 3. 添加文字识别依赖库
 
@@ -109,11 +112,11 @@
 
     - 使用管理员程序启动你的IDE，如 `PyCharm`、`VSCode` 。
     - 如果使用 `VSCode` 调试，已经提供了对应的调试文件，选择 `Project` 调试模式启动。
-    - 其他IDE：终端运行 `python main.py` 。
+    - 其他IDE：pip 方式运行 `python main.py`，uv 方式运行 `uv run python main.py` 。
 
 5. 打包
 
-    打包配置保存在 `main.spec` ，使用 `pyinstaller main.spec` 命令，会在根目录下生成 `output` 文件夹。
+    打包配置保存在 `main.spec` ，pip 方式使用 `pyinstaller main.spec`，uv 方式使用 `uv run pyinstaller main.spec` 命令，会在根目录下生成 `output` 文件夹。
 
 </details>
 
@@ -128,8 +131,9 @@
       |- update_info.json # 更新记录
    |- lib # 运行库
    |- log # 日志
-   |- ocr # 文字识别库
+   |- models # 文字识别模型库
    |- resource # 素材文件
+   |- resource_ja # 日服素材文件（可选）
    |- OnmyojiDesktopAssistant.exe # 主程序
 ```
 
@@ -163,11 +167,12 @@
 
 ## 日服
 
-1. 下载下方 `Assets` 的 `resource_ja.zip`
-2. 解压后，复制到软件根目录，与自带的 `resource` 文件夹同级
-3. 软件设置 - `游戏服务器`  改为 `日服` ，重启
-4. 无报错信息即可使用
-5. 目前仅适配 `单人御魂副本` ，资源及测试由 [@huahua1125](https://github.com/huahua1125) 提供
+**素材迭代速度赶不上游戏UI迭代速度，欢迎提供最新版本的素材。**
+
+1. 日服资源文件随压缩包一同提供，由 `GitHub Actions` 自动合并。
+2. 软件设置 - `游戏服务器`  改为 `日服` ，重启。
+3. 无报错信息即可使用。
+4. 目前仅适配 `单人御魂副本` ，资源及测试由 [@huahua1125](https://github.com/huahua1125) 提供。
 
 ## 注意事项
 
@@ -196,8 +201,9 @@
 
 ## 感谢
 
-[raoyutian/PaddleOCRSharp](https://gitee.com/raoyutian/PaddleOCRSharp) 基于paddle的本地离线OCR v3识别库
-[zhiyiYo/PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PySide6) 基于 PySide6 的 Fluent Design 风格组件库 
+[PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 文字识别库
+[zhiyiYo/PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PySide6) 基于 PySide6 的 Fluent Design 风格组件库
+[打包PaddleOCR项目](https://www.paddleocr.ai/latest/version3.x/inference_deployment/others/packaging.html) Paddle官方打包demo
 
 ## 更新记录
 
