@@ -16,7 +16,7 @@ from ..ui.fluent import Window as FluentWindow
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, VERSION
+from .application import APP_NAME, APP_PATH, VERSION, DEBUG_VERSION
 from .config import _game_language_list, _interaction_mode_list, config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -38,10 +38,10 @@ from .window import GameWindow, window_manager
 class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
-        if config.user.game_language == "国服":
-            title = f"{APP_NAME} - v{VERSION}"
-        else:
-            title = f"{APP_NAME} - v{VERSION} - {config.user.game_language}"
+        language = config.user.game_language
+        suffix = '' if language == _game_language_list[0] else f' - {language}'
+        debug_suffix = f'.{DEBUG_VERSION}' if DEBUG_VERSION and DEBUG_VERSION != "0" else ''
+        title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}"
         self.setWindowTitle(title)
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度

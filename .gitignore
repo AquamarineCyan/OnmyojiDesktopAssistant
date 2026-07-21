@@ -2,6 +2,7 @@
 *.pyc
 *.xml
 *.exe
+src/utils/debug_version.py
 
 # dir
 build
