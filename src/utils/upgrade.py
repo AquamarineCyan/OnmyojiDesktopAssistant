@@ -6,6 +6,7 @@ from enum import Enum
 from pathlib import Path
 
 import httpx
+from packaging.version import Version
 
 from .application import APP_NAME, APP_PATH, VERSION, Connect
 from .config import _update_download_list, config
@@ -24,6 +25,14 @@ class StatusCode(Enum):
     ZIP_ERROR = 5
 
 
+def compare_versions(new_version: str, current_version: str) -> bool:
+    try:
+        return Version(new_version) > Version(current_version)
+    except Exception:
+        logger.ui_warn(f"版本号格式异常: {new_version} vs {current_version}")
+        return False
+
+
 class Upgrade(Connect):
     """更新升级"""
 
@@ -40,26 +49,6 @@ class Upgrade(Connect):
         """下载文件大小"""
         self.zip_path: str = None
         """更新包路径"""
-
-    def compare_versions(self, new_version, current_version):
-        # 将版本号分割成部分并转换为整数
-        v1_parts = list(map(int, new_version.split(".")))
-        v2_parts = list(map(int, current_version.split(".")))
-
-        # 比较每个部分
-        for v1, v2 in zip(v1_parts, v2_parts):
-            if v1 < v2:
-                return -1
-            elif v1 > v2:
-                return 1
-
-        # 如果部分相同，比较长度
-        if len(v1_parts) < len(v2_parts):
-            return -1  #
-        elif len(v1_parts) > len(v2_parts):
-            return 1
-
-        return 0  # 两个版本号相等
 
     def get_browser_download_url(self) -> StatusCode:
         """获取更新包地址
@@ -93,7 +82,7 @@ class Upgrade(Connect):
             logger.info("新版本tag已创建，但更新包尚未上传")
             return StatusCode.LATEST
 
-        if self.compare_versions(self.new_version, VERSION) <= 0:
+        if not compare_versions(self.new_version, VERSION):
             return StatusCode.LATEST
 
         _info: str = response_dict.get("body", "")
