@@ -1,9 +1,10 @@
-from typing import Iterable, Literal
+from typing import Iterable
 
 import win32api
 import win32con
 import win32gui
 
+from .config import GameLanguage
 from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
@@ -158,10 +159,10 @@ class GameWindowManager:
         else:
             self.current_window_resolution = WindowResolutionDefault()
 
-    def set_window_title(self, language: str = Literal["国服", "日服"]):
-        if language == "国服":
+    def set_window_title(self, language: GameLanguage):
+        if language == GameLanguage.CN:
             self._window_title = self.window_title_zh
-        elif language == "日服":
+        elif language == GameLanguage.JA:
             self._window_title = self.window_title_ja
 
     def set_gui_button_callback(self, callback):

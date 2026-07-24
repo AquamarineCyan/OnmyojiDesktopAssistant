@@ -1,3 +1,4 @@
+from ..utils.config import XuanShangFengYin as XuanShangFengYinMode
 from ..utils.config import config
 from ..utils.event import event_xuanshang
 from ..utils.image import RuleImage
@@ -37,7 +38,7 @@ class XuanShangFengYin(BasePackage):
         if not window_manager.is_alive:
             return
 
-        if config.user.xuanshangfengyin == "关闭":
+        if config.user.xuanshangfengyin == XuanShangFengYinMode.CLOSE:
             return
 
         image = RuleImage(self.IMAGE_TITLE)
@@ -56,13 +57,13 @@ class XuanShangFengYin(BasePackage):
         toast("悬赏封印", "检测到悬赏封印")
         self._flag_msg = True
         match config.user.xuanshangfengyin:
-            case "接受":
+            case XuanShangFengYinMode.ACCEPT:
                 _msg = "接受协作"
                 _asset = self.IMAGE_ACCEPT
-            case "拒绝":
+            case XuanShangFengYinMode.REJECT:
                 _msg = "拒绝协作"
                 _asset = self.IMAGE_REFUSE
-            case "忽略":
+            case XuanShangFengYinMode.IGNORE:
                 _msg = "忽略协作"
                 _asset = self.IMAGE_IGNORE
             case _:

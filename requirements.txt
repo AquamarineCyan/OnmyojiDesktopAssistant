@@ -4,7 +4,7 @@ opencv-python==4.13.0.92
 packaging>=22.0
 paddleocr==3.7.0
 paddlepaddle==3.2.2
-pillow==12.2.0
+pillow>=12.3.0
 PyAutoGUI
 pydantic>=2.1.0
 pynput

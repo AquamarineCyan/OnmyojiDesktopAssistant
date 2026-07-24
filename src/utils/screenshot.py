@@ -1,13 +1,12 @@
 import time
 from ctypes import windll
-from typing import Literal
 
 import win32con
 import win32gui
 import win32ui
 from PIL import Image, ImageGrab
 
-from .config import config
+from .config import ScreenshotMethod, config
 from .log import logger
 from .window import GameWindow, window_manager
 
@@ -92,13 +91,13 @@ class ScreenShot:
     def _screenshot_backend(
         self,
         client_rect: tuple[int, int, int, int],
-        method: Literal["BitBlt", "PrintWindow"],
+        method: ScreenshotMethod,
     ) -> Image.Image:
         """后台截图
 
         Args:
             client_rect (tuple[int, int, int, int]): 客户区尺寸
-            method (Literal["BitBlt", "PrintWindow"]): 截图模式
+            method (ScreenshotMethod): 截图模式
 
         Returns:
             Image.Image: 截取图像
@@ -115,16 +114,16 @@ class ScreenShot:
         client_rect_full = self.gamewindow.client_rect
 
         # 为bitmap开辟存储空间
-        if method == "BitBlt":
+        if method == ScreenshotMethod.BITBLT:
             saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect[2], client_rect[3])
-        elif method == "PrintWindow":
+        elif method == ScreenshotMethod.PRINTWINDOW:
             saveBitMap.CreateCompatibleBitmap(mfcDC, client_rect_full[2], client_rect_full[3])
 
         # 将截图保存到saveBitMap中
         saveDC.SelectObject(saveBitMap)
 
         # 保存bitmap到内存设备描述表
-        if method == "BitBlt":
+        if method == ScreenshotMethod.BITBLT:
             saveDC.BitBlt(
                 (0, 0),
                 (client_rect[2], client_rect[3]),
@@ -132,10 +131,10 @@ class ScreenShot:
                 (client_rect[0], client_rect[1]),
                 win32con.SRCCOPY,
             )
-        elif method == "PrintWindow":
+        elif method == ScreenshotMethod.PRINTWINDOW:
             windll.user32.PrintWindow(self.hwnd, saveDC.GetSafeHdc(), 3)
         else:
-            raise ValueError("method must be 'BitBlt' or 'PrintWindow'")
+            raise ValueError("method must be ScreenshotMethod.BITBLT or ScreenshotMethod.PRINTWINDOW")
 
         # 获取位图信息
         bmpinfo = saveBitMap.GetInfo()
@@ -151,7 +150,7 @@ class ScreenShot:
             1,
         ).convert("RGB")
 
-        if method == "PrintWindow":
+        if method == ScreenshotMethod.PRINTWINDOW:
             image = image.crop(
                 (
                     client_rect[0],

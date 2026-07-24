@@ -1,5 +1,5 @@
 from ..utils.adapter import Mouse
-from ..utils.config import config
+from ..utils.config import GameLanguage, config
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -32,9 +32,9 @@ class YuHun(BasePackage):
     @log_function_call
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
-        if config.user.game_language == "国服":
+        if config.user.game_language == GameLanguage.CN:
             self.ocr_auto = "自动"
-        elif config.user.game_language == "日服":
+        elif config.user.game_language == GameLanguage.JA:
             self.ocr_auto = "自動"
         logger.info(f"当前游戏语言: {config.user.game_language}")
         logger.info(f"当前OCR自动战斗关键字: {self.ocr_auto}")

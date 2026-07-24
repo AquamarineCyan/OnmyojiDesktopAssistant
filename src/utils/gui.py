@@ -16,8 +16,8 @@ from ..ui.fluent import Window as FluentWindow
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
-from .application import APP_NAME, APP_PATH, VERSION, DEBUG_VERSION
-from .config import _game_language_list, _interaction_mode_list, config
+from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION
+from .config import GameLanguage, InteractionMode, config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
@@ -39,8 +39,8 @@ class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
         language = config.user.game_language
-        suffix = '' if language == _game_language_list[0] else f' - {language}'
-        debug_suffix = f'.{DEBUG_VERSION}' if DEBUG_VERSION and DEBUG_VERSION != "0" else ''
+        suffix = "" if language == GameLanguage.CN else f" - {language}"
+        debug_suffix = f".{DEBUG_VERSION} - 测试版" if DEBUG_VERSION and DEBUG_VERSION != "0" else ""
         title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}"
         self.setWindowTitle(title)
 
@@ -146,10 +146,10 @@ class MainWindow(FluentWindow):
             return
         logger.ui("初始化成功")
 
-        if not config.user.game_language == _game_language_list[0]:
+        if config.user.game_language != GameLanguage.CN:
             logger.ui_warn("当前非国服，请注意部分资源可能不兼容")
 
-        if config.user.interaction_mode.mode == _interaction_mode_list[1]:
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             logger.ui_warn(
                 "当前为后台交互模式，需要在窗口管理中检查截图是否正常。如果在移动游戏窗口后截图黑屏，可尝试切换后台截图模式解决"
             )

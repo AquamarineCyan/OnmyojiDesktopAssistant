@@ -1,14 +1,59 @@
+from enum import StrEnum
+
 import yaml
 from pydantic import BaseModel
 
 from .application import RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
 
-_game_language_list = ["国服", "日服"]
+
+class GameLanguage(StrEnum):
+    """游戏语言"""
+
+    CN = "国服"
+    JA = "日服"
+
+
+class UpdateDownload(StrEnum):
+    """下载线路"""
+
+    MIRROR = "镜像站"
+    GITHUB = "GitHub"
+
+
+class XuanShangFengYin(StrEnum):
+    """悬赏封印处理方式"""
+
+    ACCEPT = "接受"
+    REJECT = "拒绝"
+    IGNORE = "忽略"
+    CLOSE = "关闭"
+
+
+class ScreenshotMethod(StrEnum):
+    """截图方法"""
+
+    BITBLT = "BitBlt"
+    PRINTWINDOW = "PrintWindow"
+
+
+class InteractionMode(StrEnum):
+    """交互模式"""
+
+    FRONTEND = "前台"
+    BACKEND = "后台"
+
+
+_game_language_list = [GameLanguage.CN, GameLanguage.JA]
 """游戏语言"""
-_update_download_list = ["镜像站", "GitHub"]
+_update_download_list = [UpdateDownload.MIRROR, UpdateDownload.GITHUB]
 """下载线路"""
-_xuanshangfengyin_list = ["接受", "拒绝", "忽略", "关闭"]
+_xuanshangfengyin_list = [
+    XuanShangFengYin.ACCEPT,
+    XuanShangFengYin.REJECT,
+    XuanShangFengYin.IGNORE,
+    XuanShangFengYin.CLOSE,
+]
 """悬赏封印"""
 _shortcut_start_stop_list = [
     "无",
@@ -26,7 +71,7 @@ _shortcut_start_stop_list = [
     "F12",
 ]
 """快捷键-开始/停止"""
-_interaction_mode_list = ["前台", "后台"]
+_interaction_mode_list = [InteractionMode.FRONTEND, InteractionMode.BACKEND]
 """交互模式"""
 # 前台/后台的子配置
 _frontend_sub_config = {
@@ -34,7 +79,7 @@ _frontend_sub_config = {
 }
 _backend_sub_config = {
     "prevent_sleep": [True, False],
-    "screenshot_method": ["BitBlt", "PrintWindow"],
+    "screenshot_method": [ScreenshotMethod.BITBLT, ScreenshotMethod.PRINTWINDOW],
 }
 
 
@@ -144,7 +189,7 @@ class Config:
             self._save(self.user)
             logger.ui("create file config.yaml success.")
 
-        if self.user.game_language == "日服":
+        if self.user.game_language == GameLanguage.JA:
             self.resource_dir = RESOURCE_JA_DIR_PATH
 
     def _read(self) -> dict:
@@ -153,7 +198,7 @@ class Config:
 
     def _save(self, data) -> bool:
         if isinstance(data, UserConfig):
-            data = data.model_dump()
+            data = data.model_dump(mode="json")
         if isinstance(data, dict):
             with open(self.config_path, "w", encoding="utf-8") as f:
                 yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
@@ -163,7 +208,9 @@ class Config:
         return True
 
     def show_log(self):
-        logger.info(f"配置更新完成\n{yaml.dump(self.user.model_dump(), allow_unicode=True, sort_keys=False)}")
+        logger.info(
+            f"配置更新完成\n{yaml.dump(self.user.model_dump(mode='json'), allow_unicode=True, sort_keys=False)}"
+        )
 
     def update(self, key: str, value: str) -> None:
         """设置项更新
@@ -180,7 +227,7 @@ class Config:
         ```
         """
         logger.info(f"配置项 [{key}] 更新为 [{value}]")
-        config_dict = self.user.model_dump()
+        config_dict = self.user.model_dump(mode="json")
 
         keys = key.split(".")
         target = config_dict
@@ -189,7 +236,7 @@ class Config:
         target[keys[-1]] = value
 
         self.user = UserConfig.model_validate(config_dict)
-        self._save(self.user.model_dump())
+        self._save(self.user)
 
     def _check_outdated(self, data: dict) -> dict:
         """仅检查不符合配置项的部分，不存在的设置项可以通过UserConfig的model_dump()方法获取默认值"""

@@ -22,7 +22,7 @@ from ..utils.application import (
     HOME_PAGE_LINK,
     QQ_GROUP_LINK,
 )
-from ..utils.config import config, default_config
+from ..utils.config import InteractionMode, config, default_config
 from .game_function_selector_widget import GameFunctionSelectorWidget
 
 
@@ -194,14 +194,14 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         self.setExpand(True)
 
         text = self.mode_combobox.currentText()
-        disabled = True if text == "前台" else False
+        disabled = True if text == InteractionMode.FRONTEND else False
         self.frontend_force_window_switch.setDisabled(not disabled)
         self.backend_prevent_sleep_switch.setDisabled(disabled)
         self.backend_screenshot_combobox.setDisabled(disabled)
 
     def _config_update(self):
         text = self.mode_combobox.currentText()
-        disabled = True if text == "前台" else False
+        disabled = True if text == InteractionMode.FRONTEND else False
         self.frontend_force_window_switch.setDisabled(not disabled)
         self.backend_prevent_sleep_switch.setDisabled(disabled)
         self.backend_screenshot_combobox.setDisabled(disabled)

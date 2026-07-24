@@ -4,7 +4,7 @@ from typing import Literal
 from ..utils.adapter import Mouse
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
-from ..utils.config import config
+from ..utils.config import InteractionMode, config
 from ..utils.decorator import log_function_call, run_in_thread
 from ..utils.event import event_thread
 from ..utils.exception import CustomException, GUIStopException
@@ -346,12 +346,11 @@ class BasePackage:
         xuanshangfengyin_count.reset()
 
         need_prevent_sleep: bool = False  # 是否需要防止休眠
-        interaction_mode = config.user.model_dump().get("interaction_mode")
-        if interaction_mode.get("mode") == "前台":
-            if interaction_mode.get("frontend").get("force_window"):
+        if config.user.interaction_mode.mode == InteractionMode.FRONTEND:
+            if config.user.interaction_mode.frontend.force_window:
                 window_manager.set_foreground()
         else:
-            if interaction_mode.get("backend").get("prevent_sleep"):
+            if config.user.interaction_mode.backend.prevent_sleep:
                 if prevent_sleep(True):
                     need_prevent_sleep = True
 
@@ -371,9 +370,9 @@ class BasePackage:
         self._format_time_cost(int(_end - _start))
 
         self.task_finish_info()
-        if xuanshangfengyin_count.get():
-            logger.ui_warn(f"接到 {xuanshangfengyin_count.get()} 个悬赏封印")
-            xuanshangfengyin_count.reset()
+        if config.runtime.xuanshangfengyin.get():
+            logger.scene(f"收到 {config.runtime.xuanshangfengyin.get()} 个悬赏封印")
+            config.runtime.xuanshangfengyin.reset()
 
         # 启用按钮
         ms.main.is_fighting_update.emit(False)
