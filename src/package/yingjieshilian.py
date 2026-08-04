@@ -88,10 +88,11 @@ class YingJieShiLianExp(YingJieShiLian):
             self.IMAGE_START,
             # self.IMAGE_RESULT,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_FAIL,
-            self.global_assets.IMAGE_VICTORY,
-            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.append(self.global_assets.IMAGE_SOUL_OVERFLOW)
+
         _flag_title_msg: bool = True
         self.log_current_asset_list()
         _count: int = 0  # 结算计数器，防止没御魂
@@ -121,15 +122,15 @@ class YingJieShiLianExp(YingJieShiLian):
                     _timer = Timer(3, self.timer_check_start)
                     _timer.daemon = True
                     _timer.start()
-                case "fail":
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
                     if _timer:
                         _timer.cancel()
-                    logger.ui_error("失败")
+                    logger.ui_error(f"失败{('（' + result.description + '）') if result.description else ''}")
                     break
-                case "victory":
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
                     if _timer:
                         _timer.cancel()
-                    logger.ui("胜利")
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                     _count += 1
                     if _count >= 5:
                         logger.ui_warn("未检测到御魂，自动退出")

@@ -91,14 +91,16 @@ class TanSuo(BasePackage):
                 sleep(2)
                 continue
 
-            if check_image_once(
+            _result = check_image_once(
                 [
                     # self.global_image.IMAGE_VICTORY,
                     self.global_assets.IMAGE_FINISH,
-                    self.global_assets.IMAGE_FAIL,
+                    *self.global_assets.ALL_FAIL_IMAGES,
                 ]
-            ):
+            )
+            if _result:
                 flag_done = True
+                logger.ui_warn(f"战斗结束{('（' + _result.description + '）') if _result.description else ''}")
                 if point is None:
                     point = finish_random_left_right()
                 else:

@@ -71,12 +71,14 @@ class RuleImage:
         if assetimage:
             _file = assetimage.file
             self.name = assetimage.name
+            self.description = assetimage.description
             self.region = assetimage.region
             self.score = assetimage.score
             self.method = assetimage.method
         else:
             _file = file
             self.name = name
+            self.description = ""
             self.region = region
             self.score = score
             self.method = method

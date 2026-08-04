@@ -6,7 +6,7 @@ import win32gui
 import win32ui
 from PIL import Image, ImageGrab
 
-from .config import ScreenshotMethod, config
+from .config import InteractionMode, ScreenshotMethod, config
 from .log import logger
 from .window import GameWindow, window_manager
 
@@ -54,7 +54,7 @@ class ScreenShot:
                 return
 
             try:
-                if config.user.interaction_mode.mode == "后台":
+                if config.user.interaction_mode.mode == InteractionMode.BACKEND:
                     self._screenshot_backend(
                         self.rect,
                         config.user.interaction_mode.backend.screenshot_method,

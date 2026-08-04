@@ -24,7 +24,7 @@ class YeYuanHuo(BasePackage):
 
     @staticmethod
     def description() -> None:
-        logger.ui("默认为“痴”，可在/data/myresource/yeyuanhuo路径下添加自定义素材")
+        logger.ui("默认为“痴”")
 
     def load_asset(self):
         self.IMAGE_TITLE = self.get_image_asset("title")
@@ -35,8 +35,10 @@ class YeYuanHuo(BasePackage):
             self.IMAGE_TITLE,
             self.IMAGE_START,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_VICTORY,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
+
         msg_title: bool = True
         self.log_current_asset_list()
 
@@ -60,12 +62,14 @@ class YeYuanHuo(BasePackage):
                     Mouse.click(result.random_point())
                     sleep()
 
-                case self.global_assets.IMAGE_FAIL.name:
-                    logger.ui_warn("失败，需要手动处理")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_warn(
+                        f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"
+                    )
                     break
 
-                case self.global_assets.IMAGE_VICTORY.name:
-                    logger.ui("胜利")
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                     sleep()
 
                 case self.global_assets.IMAGE_FINISH.name:

@@ -57,10 +57,11 @@ class HuoDong(BasePackage):
             self.IMAGE_RESULT,
             self.IMAGE_SNAKE_PURPLE,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_FAIL,
-            self.global_assets.IMAGE_VICTORY,
-            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.append(self.global_assets.IMAGE_SOUL_OVERFLOW)
+
         _flag_title_msg: bool = True
         _flag_result_click: bool = False  # 部分活动会有“获得奖励”弹窗
         self.log_current_asset_list()
@@ -86,12 +87,12 @@ class HuoDong(BasePackage):
                     _flag_result_click = True
                     sleep(0.4, 0.8)
 
-                case self.global_assets.IMAGE_FAIL.name:
-                    logger.ui_error("失败")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_error(f"失败{('（' + result.description + '）') if result.description else ''}")
                     break
 
-                case self.global_assets.IMAGE_VICTORY.name:
-                    logger.ui("胜利")
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                     if _flag_result_click:
                         Mouse.click()
                         if not _flag_done:

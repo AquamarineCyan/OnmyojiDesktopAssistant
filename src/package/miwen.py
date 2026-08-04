@@ -60,9 +60,9 @@ class MiWen(BasePackage):
             # self.IMAGE_PAIMING,
             # self.IMAGE_TONGGUANZHENRONG,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_FAIL,
-            self.global_assets.IMAGE_VICTORY,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
         msg_title: bool = True
         self.log_current_asset_list()
 
@@ -83,11 +83,13 @@ class MiWen(BasePackage):
                     self.ready()
                 # case self.IMAGE_START.name:
                 #     Mouse.click(result.center_point())
-                case self.global_assets.IMAGE_FAIL.name:
-                    logger.ui_error("失败，需要手动处理")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_error(
+                        f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"
+                    )
                     break
-                case self.global_assets.IMAGE_VICTORY.name:
-                    logger.ui("胜利")
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                     sleep(3)
                     if self.mode == MiWenMode.JING_SU:
                         Mouse.click(result.center_point())

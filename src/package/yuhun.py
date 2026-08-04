@@ -285,11 +285,12 @@ class YuHunSingle(YuHun):
             self.IMAGE_TITLE_12,
             self.IMAGE_FINISH_2000,
             self.global_assets.IMAGE_START_SINGLE,
-            self.global_assets.IMAGE_FAIL,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_VICTORY,
-            self.global_assets.IMAGE_SOUL_OVERFLOW,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
+        self.current_asset_list.append(self.global_assets.IMAGE_SOUL_OVERFLOW)
+
         if self.has_temp_pop:
             self.current_asset_list.append(self.global_assets.IMAGE_TEMP_POP)
 
@@ -321,8 +322,10 @@ class YuHunSingle(YuHun):
                     Mouse.click(result.center_point())
                     self.msg_title = False
 
-                case self.global_assets.IMAGE_FAIL.name:
-                    logger.ui_warn("失败，需要手动处理")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_warn(
+                        f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"
+                    )
                     break
 
                 case self.global_assets.IMAGE_TEMP_POP.name:
@@ -330,8 +333,8 @@ class YuHunSingle(YuHun):
                     finish_random_left_right()
                     sleep()
 
-                case self.global_assets.IMAGE_VICTORY.name:
-                    logger.ui("胜利")
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                     sleep()  # 等待结算
 
                 case self.global_assets.IMAGE_FINISH.name | self.IMAGE_FINISH_2000.name:

@@ -99,7 +99,7 @@ class BackendConfig(BaseModel):
 class InteractionModeConfig(BaseModel):
     """交互模式配置"""
 
-    mode: str = _interaction_mode_list[0]
+    mode: str = InteractionMode.FRONTEND
     frontend: FrontendConfig = FrontendConfig()
     backend: BackendConfig = BackendConfig()
 
@@ -129,6 +129,8 @@ class DefaultConfig(BaseModel):
     """交互模式"""
     function_order: list = []
     """功能排序默认值"""
+    battle_theme_recognition: bool = False
+    """战斗主题识别（识别特殊胜利/失败画面）"""
 
 
 default_config = DefaultConfig()
@@ -137,13 +139,13 @@ default_config = DefaultConfig()
 class UserConfig(BaseModel):
     """用户配置"""
 
-    game_language: str = _game_language_list[0]
+    game_language: str = GameLanguage.CN
     """游戏服务器"""
     auto_update: bool = True
     """自动更新"""
-    update_download: str = _update_download_list[0]
+    update_download: str = UpdateDownload.MIRROR
     """下载线路"""
-    xuanshangfengyin: str = _xuanshangfengyin_list[0]
+    xuanshangfengyin: str = XuanShangFengYin.ACCEPT
     """悬赏封印"""
     remember_last_choice: bool = False
     """记忆上次所选功能"""
@@ -157,6 +159,8 @@ class UserConfig(BaseModel):
     """交互模式"""
     function_order: list[str] = []
     """功能排序，可通过GameFunctionSelectorWidget修改"""
+    battle_theme_recognition: bool = False
+    """战斗主题识别（识别特殊胜利/失败画面）"""
 
 
 class Config:

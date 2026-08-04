@@ -1,4 +1,5 @@
 from ..utils.assets import AssetOcr
+from ..utils.config import config
 from ..utils.image import AssetImage
 from ..utils.log import logger
 from .utils import get_image_asset, get_ocr_asset, load_asset
@@ -47,6 +48,11 @@ class GlobalResource:
         self.IMAGE_ACCEPT_INVITATION = self.get_image_asset("accept_invitation")
         self.IMAGE_CLOSE = self.get_image_asset("close")
         self.IMAGE_FAIL = self.get_image_asset("fail")
+        if config.user.battle_theme_recognition:
+            self.IMAGE_FAIL_DENGYUNWENCUI = self.get_image_asset("fail_dengyunwencui")
+            self.IMAGE_FAIL_RONGCIYUEONG = self.get_image_asset("fail_rongciyuedong")
+            self.IMAGE_FAIL_ZANGJINTAIGE = self.get_image_asset("fail_zangjintaige")
+            self.IMAGE_FAIL_ZHAOCAINAFU = self.get_image_asset("fail_zhaocainafu")
         self.IMAGE_FINISH = self.get_image_asset("finish")
         self.IMAGE_PASSENGER_2 = self.get_image_asset("passenger_2")
         self.IMAGE_PASSENGER_3 = self.get_image_asset("passenger_3")
@@ -59,6 +65,11 @@ class GlobalResource:
         self.IMAGE_TANCHIGUI = self.get_image_asset("tanchigui")
         self.IMAGE_TEMP_POP = self.get_image_asset("temp_pop")
         self.IMAGE_VICTORY = self.get_image_asset("victory")
+        if config.user.battle_theme_recognition:
+            self.IMAGE_VICTORY_DENGYUNWENCUI = self.get_image_asset("victory_dengyunwencui")
+            self.IMAGE_VICTORY_RONGCIYUEONG = self.get_image_asset("victory_rongciyuedong")
+            self.IMAGE_VICTORY_ZANGJINTAIGE = self.get_image_asset("victory_zangjintaige")
+            self.IMAGE_VICTORY_ZHAOCAINAFU = self.get_image_asset("victory_zhaocainafu")
         self.IMAGE_XIEZHANDUIWU = self.get_image_asset("xiezhanduiwu")
 
         self.OCR_AUTO_FIGHT = self.get_ocr_asset("auto_fight")
@@ -66,3 +77,35 @@ class GlobalResource:
         self.OCR_CONFIRM = self.get_ocr_asset("confirm")
         self.OCR_CLICK_AND_CONTINUE = self.get_ocr_asset("click_and_continue")
         self.OCR_START = self.get_ocr_asset("start")
+
+    @property
+    def ALL_VICTORY_IMAGES(self) -> list:
+        if not config.user.battle_theme_recognition:
+            return [self.IMAGE_VICTORY]
+        return [
+            self.IMAGE_VICTORY,
+            self.IMAGE_VICTORY_DENGYUNWENCUI,
+            self.IMAGE_VICTORY_RONGCIYUEONG,
+            self.IMAGE_VICTORY_ZANGJINTAIGE,
+            self.IMAGE_VICTORY_ZHAOCAINAFU,
+        ]
+
+    @property
+    def ALL_FAIL_IMAGES(self) -> list:
+        if not config.user.battle_theme_recognition:
+            return [self.IMAGE_FAIL]
+        return [
+            self.IMAGE_FAIL,
+            self.IMAGE_FAIL_DENGYUNWENCUI,
+            self.IMAGE_FAIL_RONGCIYUEONG,
+            self.IMAGE_FAIL_ZANGJINTAIGE,
+            self.IMAGE_FAIL_ZHAOCAINAFU,
+        ]
+
+    @property
+    def ALL_VICTORY_NAMES(self) -> set:
+        return {img.name for img in self.ALL_VICTORY_IMAGES}
+
+    @property
+    def ALL_FAIL_NAMES(self) -> set:
+        return {img.name for img in self.ALL_FAIL_IMAGES}

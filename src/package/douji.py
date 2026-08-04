@@ -79,12 +79,13 @@ class DouJi(BasePackage):
             sleep()
             result = ocr_match_once(self.current_asset_list)
             if result is None:
-                ruleimage = RuleImage(self.global_assets.IMAGE_FAIL)
-                if ruleimage.match():
-                    logger.ui_warn("失败")
-                    Mouse.click(ruleimage.center_point())
-                    self.done()
-                    return
+                for fail_img in self.global_assets.ALL_FAIL_IMAGES:
+                    ruleimage = RuleImage(fail_img)
+                    if ruleimage.match():
+                        logger.ui_warn(f"失败{('（' + ruleimage.description + '）') if ruleimage.description else ''}")
+                        Mouse.click(ruleimage.center_point())
+                        self.done()
+                        return
                 continue
 
             logger.info(f"current result name: {result.name}")
@@ -123,7 +124,6 @@ class DouJi(BasePackage):
                 case self.OCR_CANCEL.name:
                     logger.info("取消上阵，跳过")
                     sleep(2)
-                    continue
 
                 case self.OCR_INTENTIONAL.name:
                     logger.ui("自动施放技能")

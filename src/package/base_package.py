@@ -22,9 +22,9 @@ from .utils import get_image_asset, get_ocr_asset, load_asset
 
 
 class BasePackage:
-    scene_name: str = None
+    scene_name: str = ""
     """名称"""
-    resource_path: str = None
+    resource_path: str = ""
     """路径"""
     resource_list: list = []
     """资源列表"""
@@ -37,11 +37,11 @@ class BasePackage:
         """当前次数"""
         self.max: int = n
         """总次数"""
-        self.current_resource_list: list = None
+        self.current_resource_list: list = []
         """当前使用的资源列表"""
-        self.current_asset_list: list = None
+        self.current_asset_list: list = []
         """当前使用的资源列表"""
-        self.current_scene: str = None
+        self.current_scene: str = ""
         """当前场景"""
 
         self.global_assets = GlobalResource()
@@ -78,8 +78,8 @@ class BasePackage:
     def soul_overflow_warn_msg(self):
         logger.ui_warn("御魂上限提醒")
 
-    def scene_handle(self, scene: str = None) -> str:
-        if scene is None:
+    def scene_handle(self, scene: str = "") -> str:
+        if not scene:
             scene = self.current_scene
         logger.info(f"current scene: {scene}.png")
         if "/" in scene:
@@ -87,9 +87,9 @@ class BasePackage:
         self.current_scene = scene
         return scene
 
-    def log_current_asset_list(self) -> None:
+    def log_current_asset_list(self):
         """记录当前匹配的资源列表"""
-        if self.current_asset_list is None:
+        if not self.current_asset_list:
             return
         logger.info(f"current_image_list: {len(self.current_asset_list)}")
         for item in self.current_asset_list:
@@ -102,14 +102,12 @@ class BasePackage:
         asset = None
 
         # 判断标题采用何种识别方法
-        try:
+        if hasattr(self, "OCR_TITLE"):
             asset = self.OCR_TITLE
-        except AttributeError:
-            logger.warning("no OCR_TITLE")
-        try:
+        elif hasattr(self, "IMAGE_TITLE"):
             asset = self.IMAGE_TITLE
-        except AttributeError:
-            logger.warning("no IMAGE_TITLE")
+        else:
+            logger.error("no title asset defined")
 
         while True:
             if bool(event_thread):
@@ -133,7 +131,7 @@ class BasePackage:
 
     def check_click(
         self,
-        asset: AssetImage | AssetOcr = None,
+        asset: AssetImage | AssetOcr | None = None,
         timeout: float = 0,
         point_type: Literal["random", "center"] = "random",
         *args,
@@ -168,7 +166,7 @@ class BasePackage:
 
     def check_scene(
         self,
-        asset: AssetImage | AssetOcr = None,
+        asset: AssetImage | AssetOcr | None = None,
         timeout: float = 0,
     ) -> bool:
         if timeout:
@@ -234,14 +232,17 @@ class BasePackage:
     def check_result(self) -> bool:
         """结果判断
 
-        返回:
-            bool: Success or Fail
+        Returns:
+            bool: 返回结果
+                 - True: 胜利/结束
+                 - False: 失败
         """
         while True:
             if bool(event_thread):
                 raise GUIStopException
 
             _screenshot = ScreenShot()
+
             if RuleImage(self.global_assets.IMAGE_VICTORY).match(_screenshot):
                 logger.ui("战斗胜利")
                 return True
@@ -252,21 +253,64 @@ class BasePackage:
                 logger.ui_warn("战斗失败")
                 return False
 
-    @log_function_call
-    def check_finish(self, timeout: int = None) -> bool:
-        """结束/掉落判断
+            if config.user.battle_theme_recognition:
+                # 特殊战斗主题-胜利
+                rule = RuleImage(self.global_assets.IMAGE_VICTORY_DENGYUNWENCUI)
+                if rule.match(_screenshot):
+                    logger.ui(f"战斗胜利（{rule.description}）")
+                    return True
+                rule = RuleImage(self.global_assets.IMAGE_VICTORY_RONGCIYUEONG)
+                if rule.match(_screenshot):
+                    logger.ui(f"战斗胜利（{rule.description}）")
+                    return True
+                rule = RuleImage(self.global_assets.IMAGE_VICTORY_ZANGJINTAIGE)
+                if rule.match(_screenshot):
+                    logger.ui(f"战斗胜利（{rule.description}）")
+                    return True
+                rule = RuleImage(self.global_assets.IMAGE_VICTORY_ZHAOCAINAFU)
+                if rule.match(_screenshot):
+                    logger.ui(f"战斗胜利（{rule.description}）")
+                    return True
 
-        返回:
-            bool: Success or Fail
+                # 特殊战斗主题-失败
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_DENGYUNWENCUI)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_RONGCIYUEONG)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_ZANGJINTAIGE)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_ZHAOCAINAFU)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+
+    @log_function_call
+    def check_finish(self, timeout: int = 0) -> bool:
+        """结束判断（不判断胜利）
+
+        Args:
+            timeout (int): 超时时间，单位秒。
+
+        Returns:
+            bool: 返回结果
+                 - True: 结束
+                 - False: 失败
         """
         if timeout:
             _start = time.time()
+
         while True:
             if bool(event_thread):
                 raise GUIStopException
 
             if timeout and (time.time() - _start > timeout):
-                logger.error("check_finish timeout")
+                logger.error(f"结束判断超时，超时{timeout}秒")
                 return False
 
             _screenshot = ScreenShot()
@@ -276,6 +320,25 @@ class BasePackage:
             if RuleImage(self.global_assets.IMAGE_FAIL).match(_screenshot):
                 logger.ui_warn("战斗失败")
                 return False
+
+            if config.user.battle_theme_recognition:
+                # 特殊战斗主题-失败
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_DENGYUNWENCUI)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_RONGCIYUEONG)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_ZANGJINTAIGE)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
+                rule = RuleImage(self.global_assets.IMAGE_FAIL_ZHAOCAINAFU)
+                if rule.match(_screenshot):
+                    logger.ui_warn(f"战斗失败（{rule.description}）")
+                    return False
 
     @log_function_call
     def ensure_finish(self):

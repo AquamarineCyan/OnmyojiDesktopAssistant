@@ -151,6 +151,26 @@ class SettingWinToastCard(AppCard):
             config.update("win_toast", status)
 
 
+class SettingBattleThemeCard(AppCard):
+    """设置项-战斗主题识别"""
+
+    def __init__(self, parent=None):
+        super().__init__(FluentIcon.APPLICATION, "战斗主题识别Beta", "识别特殊战斗主题的胜利/失败画面（登云问翠、茸茨跃动等），开启此功能会延长识别时间", parent)
+
+        self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.switch.setOnText("启用")
+        self.switch.setOffText("禁用")
+        self.switch.setChecked(config.user.battle_theme_recognition)
+        self.switch.checkedChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.switch)
+
+    def _config_update(self):
+        status = self.switch.isChecked()
+        if status != config.user.battle_theme_recognition:
+            config.update("battle_theme_recognition", status)
+
+
 class SettingInteractionModeCard(ExpandGroupSettingCard):
     """设置项-交互模式"""
 
@@ -327,6 +347,7 @@ class SettingWidget(QWidget):
 
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
+        self.battle_theme_card = SettingBattleThemeCard()
         self.interaction_mode_card = SettingInteractionModeCard()
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
         self.function_selector_card = SettingFunctionSelectorCard()
@@ -345,6 +366,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.setting_label)
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
+        self._layout.addWidget(self.battle_theme_card)
         self._layout.addWidget(self.interaction_mode_card)
         self._layout.addWidget(self.remember_last_choice_card)
         self._layout.addWidget(self.function_selector_card)

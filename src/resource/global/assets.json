@@ -20,6 +20,34 @@
             "score": "0.7"    
         },
         {
+            "name": "fail_dengyunwencui",
+            "file": "fail_dengyunwencui.png",
+            "description": "登云问翠",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "fail_rongciyuedong",
+            "file": "fail_rongciyuedong.png",
+            "description": "茸茨跃动",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "fail_zangjintaige",
+            "file": "fail_zangjintaige.png",
+            "description": "藏金台阁",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "fail_zhaocainafu",
+            "file": "fail_zhaocainafu.png",
+            "description": "招财纳福",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
             "name": "finish",
             "file": "finish.png",
             "region": [0, 0, 0, 0],
@@ -89,6 +117,34 @@
         {
             "name": "victory",
             "file": "victory.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "victory_dengyunwencui",
+            "file": "victory_dengyunwencui.png",
+            "description": "登云问翠",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "victory_rongciyuedong",
+            "file": "victory_rongciyuedong.png",
+            "description": "茸茨跃动",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "victory_zangjintaige",
+            "file": "victory_zangjintaige.png",
+            "description": "藏金台阁",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "victory_zhaocainafu",
+            "file": "victory_zhaocainafu.png",
+            "description": "招财纳福",
             "region": [0, 0, 0, 0],
             "score": "0.7"
         },

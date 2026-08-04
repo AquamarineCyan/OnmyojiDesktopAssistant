@@ -38,9 +38,9 @@ class JueXing(BasePackage):
             self.IMAGE_TITLE,
             self.global_assets.IMAGE_START_SINGLE,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_FAIL,
-            self.global_assets.IMAGE_VICTORY,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
         msg_title: bool = True
         self.log_current_asset_list()
 
@@ -59,11 +59,13 @@ class JueXing(BasePackage):
                     self.start()
                 case "start_single":
                     Mouse.click(result.center_point())
-                case "fail":
-                    logger.ui_warn("失败，需要手动处理")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_warn(
+                        f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"
+                    )
                     break
-                case "victory":
-                    logger.ui("胜利")
+                case name if name in self.global_assets.ALL_VICTORY_NAMES:
+                    logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
                 case "finish":
                     finish_random_left_right()
                     self.done()
