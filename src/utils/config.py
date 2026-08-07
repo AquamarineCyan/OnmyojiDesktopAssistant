@@ -170,6 +170,7 @@ class Config:
 
     def __init__(self):
         self.user: UserConfig = UserConfig()
+        self.is_first_run: bool = False  # 是否首次运行
         self.data_error: int = 0
         self.resource_dir = RESOURCE_DIR_PATH
         self._init()
@@ -190,6 +191,7 @@ class Config:
                 self._save(self.user)
         else:
             logger.ui_warn("Cannot find config file.")
+            self.is_first_run = True
             self._save(self.user)
             logger.ui("create file config.yaml success.")
 

@@ -12,6 +12,7 @@ from qfluentwidgets import Dialog, MessageBox
 from ..package import *  # noqa: F403
 from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
+from ..ui.first_use_widget import FirstUseMessageBox
 from ..ui.fluent import Window as FluentWindow
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
@@ -61,6 +62,18 @@ class MainWindow(FluentWindow):
         self.key_listener = KeyListenerThread()
         ms.main.key_pressed.connect(self._shortcut_handle)
         self.key_listener.start()
+
+        # 首次启动提示弹窗
+        if config.is_first_run:
+            QTimer.singleShot(0, self._show_first_run_dialog)
+
+    def _show_first_run_dialog(self):
+        """首次启动提示弹窗"""
+        if not config.is_first_run:
+            return
+        config.is_first_run = False  # 防止重复弹出
+        first_use_box = FirstUseMessageBox(self)
+        first_use_box.exec()
 
     def _init_settings(self):
         """初始化设置"""
@@ -133,7 +146,6 @@ class MainWindow(FluentWindow):
         logger.info(f"resource path: {config.resource_dir}")
         logger.info(f"[VERSION] {VERSION}")
         config.show_log()
-        logger.ui_warn("未正确使用所产生的一切后果自负，保持您的肝度与日常无较大差距，本程序目前仅兼容桌面版")
         logger.ui("程序初始化中，请稍候")
         log_clean_up()
 
