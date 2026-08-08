@@ -1,6 +1,7 @@
 from enum import Enum
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QUrl
+from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -25,6 +26,7 @@ from qfluentwidgets import (
 )
 
 from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
+from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
@@ -42,6 +44,7 @@ class StackedWidgetIndex(Enum):
     TANSUO = 6
     HUIJUAN = 7
     MIWEN = 8
+    BAIGUIYEXING = 9
 
 
 class HomeWidget(QWidget):
@@ -554,6 +557,39 @@ class HomeWidget(QWidget):
                         self.current_combobox.setDisabled(True)
                         self.target_combobox.setDisabled(True)
 
+        class AdvancedBaiGuiYeXingCard(HeaderCardWidget):
+            """高级设置-百鬼夜行"""
+
+            id = StackedWidgetIndex.BAIGUIYEXING.value
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.setTitle("高级设置")
+                self.setBorderRadius(8)
+                self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
+
+                self.screenshot_checkbox = CheckBox("保存「百鬼契约书」截图")
+                self.open_screenshot_button = PushButton("打开截图文件夹")
+                self.open_screenshot_button.setVisible(False)
+                self.open_screenshot_button.clicked.connect(self._open_screenshot_folder)
+                self.screenshot_checkbox.stateChanged.connect(
+                    lambda state: self.open_screenshot_button.setVisible(bool(state))
+                )
+
+                self.vBoxLayout = QVBoxLayout()
+                self.vBoxLayout.setSpacing(10)
+                self.vBoxLayout.addWidget(self.screenshot_checkbox)
+                self.vBoxLayout.addWidget(self.open_screenshot_button)
+                self.vBoxLayout.addStretch()
+
+                self.viewLayout.addLayout(self.vBoxLayout)
+
+            def _open_screenshot_folder(self):
+                screenshot_dir = SCREENSHOT_DIR_PATH / "baiguiyexing"
+                if not screenshot_dir.exists():
+                    screenshot_dir.mkdir(parents=True)
+                QDesktopServices.openUrl(QUrl.fromLocalFile(str(screenshot_dir)))
+
         def __init__(self, parent=None):
             super().__init__(parent=parent)
 
@@ -565,6 +601,7 @@ class HomeWidget(QWidget):
             self.tansuo_card = self.AdvancedTanSuoCard()
             self.huijuan_card = self.AdvancedHuiJuanCard()
             self.miwen_card = self.AdvancedMiWenCard()
+            self.baiguiyexing_card = self.AdvancedBaiGuiYeXingCard()
 
             self.addWidget(QWidget())
 
@@ -577,6 +614,7 @@ class HomeWidget(QWidget):
                 self.tansuo_card,
                 self.huijuan_card,
                 self.miwen_card,
+                self.baiguiyexing_card,
             ]
 
             for card in sorted(card_instances, key=lambda x: type(x).id):

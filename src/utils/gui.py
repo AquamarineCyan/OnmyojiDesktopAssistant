@@ -5,7 +5,7 @@ from threading import Thread
 from typing import Literal
 
 from PIL.ImageQt import ImageQt
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QTextCursor
 from qfluentwidgets import Dialog, MessageBox
 
@@ -514,7 +514,11 @@ class MainWindow(FluentWindow):
                 ZhaoHuan(n=selected_number).task_start()
 
             case GameFunction.BAIGUIYEXING:
-                BaiGuiYeXing(n=selected_number).task_start()
+                card = advanced_stack.baiguiyexing_card
+                BaiGuiYeXing(
+                    n=selected_number,
+                    flag_screenshot=card.screenshot_checkbox.isChecked(),
+                ).task_start()
 
             case GameFunction.HUODONG:
                 HuoDong(n=selected_number).task_start()

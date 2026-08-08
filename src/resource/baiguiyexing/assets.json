@@ -30,6 +30,24 @@
             "file": "choose.png",
             "region": [0, 0, 0, 0],
             "score": "0.7"
+        },
+        {
+            "name": "xingchongju_refresh",
+            "file": "xingchongju_refresh.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "yaoqing",
+            "file": "yaoqing.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "yaoqing_prompt",
+            "file": "yaoqing_prompt.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
         }
     ]
 }
