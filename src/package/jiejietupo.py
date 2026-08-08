@@ -582,8 +582,11 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
 
             # 当前页结界全部失效
             if i > 8:
+                logger.ui_warn("当前页全部失效")
+                sleep()
                 self.page_down(4)
                 i = 1
+
             x = self.tupo_yinyangliao_x[(i + 1) % 2 + 1]
             y = self.tupo_yinyangliao_y[(i + 1) // 2]
             region = (x, y - 40, 185 + 40, 90)
@@ -600,6 +603,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     logger.ui_warn("当前结界已被攻破")
                     i += 1
                     KeyBoard.esc()
+                    sleep(2)
                     continue
                 flag = 1 if self.check_finish() else 0
                 sleep()
