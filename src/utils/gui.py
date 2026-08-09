@@ -14,6 +14,7 @@ from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.first_use_widget import FirstUseMessageBox
 from ..ui.fluent import Window as FluentWindow
+from ..ui.force_zoom_dialog import ForceZoomDialog
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
@@ -192,10 +193,8 @@ class MainWindow(FluentWindow):
         elif level == "question":
             if msg == "强制缩放":
                 logger.error("游戏窗口大小不匹配")
-                title = "窗口大小不匹配"
-                content = "是否强制缩放，如不缩放，请自行靠近1136*640，或者参考 README.MD 在data/myresource文件夹中添加对应素材"
-                dialog = Dialog(title, content)
 
+                dialog = ForceZoomDialog()
                 if dialog.exec():
                     logger.info("用户接受强制缩放")
                     window_manager.force_zoom()

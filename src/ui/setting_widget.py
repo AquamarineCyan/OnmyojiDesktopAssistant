@@ -58,7 +58,12 @@ class SettingLanguageCard(AppCard):
     """设置项-游戏服务器"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.LANGUAGE, "游戏服务器", "重启后生效", parent)
+        super().__init__(
+            FluentIcon.LANGUAGE,
+            "游戏服务器",
+            "重启后生效",
+            parent,
+        )
 
         self.combobox = ComboBox()
         self.combobox.addItems(default_config.game_language)
@@ -77,7 +82,12 @@ class SettingXuanshangfengyinCard(AppCard):
     """设置项-悬赏封印"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.GAME, "悬赏封印", "长时间运行时可切换至忽略状态", parent)
+        super().__init__(
+            FluentIcon.GAME,
+            "悬赏封印",
+            "长时间运行时可切换至忽略状态",
+            parent,
+        )
 
         self.combobox = ComboBox()
         self.combobox.addItems(default_config.xuanshangfengyin)
@@ -96,7 +106,12 @@ class SettingRememberLastChoiceCard(AppCard):
     """设置项-记住上次选择的功能"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.APPLICATION, "记住上次选择的功能", "每次启动软件后自动选择上次选择的功能", parent)
+        super().__init__(
+            FluentIcon.APPLICATION,
+            "记住上次选择的功能",
+            "每次启动软件后自动选择上次选择的功能",
+            parent,
+        )
 
         self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)  # 文本在左侧
         self.switch.setOnText("启用")
@@ -116,7 +131,12 @@ class SettingShortcutStartStopCard(AppCard):
     """设置项-快捷键"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.APPLICATION, "快捷键", "启动/停止快捷键", parent)
+        super().__init__(
+            FluentIcon.APPLICATION,
+            "快捷键",
+            "启动/停止快捷键",
+            parent,
+        )
 
         self.combobox = ComboBox()
         self.combobox.addItems(default_config.shortcut_start_stop)
@@ -135,7 +155,12 @@ class SettingWinToastCard(AppCard):
     """设置项-系统通知"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.RINGER, "系统通知", "使用Windows系统通知推送关键事件", parent)
+        super().__init__(
+            FluentIcon.RINGER,
+            "系统通知",
+            "使用Windows系统通知推送关键事件",
+            parent,
+        )
 
         self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)  # 文本在左侧
         self.switch.setOnText("启用")
@@ -155,7 +180,12 @@ class SettingBattleThemeCard(AppCard):
     """设置项-战斗主题识别"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.APPLICATION, "战斗主题识别Beta", "识别特殊战斗主题的胜利/失败画面（登云问翠、茸茨跃动等），开启此功能会延长识别时间", parent)
+        super().__init__(
+            FluentIcon.APPLICATION,
+            "战斗主题识别Beta",
+            "识别特殊战斗主题的胜利/失败画面（登云问翠、茸茨跃动等），开启此功能会延长识别时间",
+            parent,
+        )
 
         self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
         self.switch.setOnText("启用")
@@ -171,11 +201,66 @@ class SettingBattleThemeCard(AppCard):
             config.update("battle_theme_recognition", status)
 
 
+class SettingRememberForceZoomCard(AppCard):
+    """设置项-强制缩放不再提醒"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.APPLICATION,
+            "强制缩放不再提醒",
+            "勾选后不再弹出强制缩放提示，并按上次的选择自动处理",
+            parent,
+        )
+
+        self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.switch.setOnText("启用")
+        self.switch.setOffText("禁用")
+        self.switch.setChecked(config.user.remember_force_zoom_choice)
+        self.switch.checkedChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.switch)
+
+    def _config_update(self):
+        status = self.switch.isChecked()
+        if status != config.user.remember_force_zoom_choice:
+            config.update("remember_force_zoom_choice", status)
+
+
+class SettingForceZoomAcceptedCard(AppCard):
+    """设置项-强制缩放方式（启用“不再提醒”后按此选择自动处理）"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.ZOOM,
+            "强制缩放方式",
+            "启用“强制缩放不再提醒”后，按此选择自动处理",
+            parent,
+        )
+
+        self.combobox = ComboBox()
+        self.combobox.addItems(["接受缩放", "拒绝缩放"])
+        self.combobox.setCurrentIndex(0 if config.user.force_zoom_accepted else 1)
+        self.combobox.setFixedWidth(120)
+        self.combobox.currentIndexChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.combobox)
+
+    def _config_update(self):
+        accepted = self.combobox.currentIndex() == 0
+        if accepted != config.user.force_zoom_accepted:
+            config.update("force_zoom_accepted", accepted)
+
+
 class SettingInteractionModeCard(ExpandGroupSettingCard):
     """设置项-交互模式"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.APPLICATION, "交互模式", "", parent)
+        super().__init__(
+            FluentIcon.APPLICATION,
+            "交互模式",
+            "",
+            parent,
+        )
 
         self.mode_combobox = ComboBox()
         self.mode_combobox.addItems(default_config.interaction_mode["mode"])
@@ -248,7 +333,12 @@ class SettingUpdateCard(ExpandGroupSettingCard):
     """设置项-软件更新"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.UPDATE, "软件更新", "", parent)
+        super().__init__(
+            FluentIcon.UPDATE,
+            "软件更新",
+            "",
+            parent,
+        )
 
         self.mode_switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)  # 文本在左侧
         self.mode_switch.setOnText("自动更新")
@@ -281,7 +371,12 @@ class SettingFunctionSelectorCard(AppCard):
     """设置项-功能排序"""
 
     def __init__(self, parent=None):
-        super().__init__(FluentIcon.VIEW, "功能排序", "功能太多找不到？点击按钮配置常用功能", parent)
+        super().__init__(
+            FluentIcon.VIEW,
+            "功能排序",
+            "功能太多找不到？点击按钮配置常用功能",
+            parent,
+        )
 
         self.open_button = PushButton("配置")
         self.open_button.clicked.connect(self._open_function_selector)
@@ -348,6 +443,8 @@ class SettingWidget(QWidget):
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
         self.battle_theme_card = SettingBattleThemeCard()
+        self.remember_force_zoom_card = SettingRememberForceZoomCard()
+        self.force_zoom_accepted_card = SettingForceZoomAcceptedCard()
         self.interaction_mode_card = SettingInteractionModeCard()
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
         self.function_selector_card = SettingFunctionSelectorCard()
@@ -367,6 +464,8 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
         self._layout.addWidget(self.battle_theme_card)
+        self._layout.addWidget(self.remember_force_zoom_card)
+        self._layout.addWidget(self.force_zoom_accepted_card)
         self._layout.addWidget(self.interaction_mode_card)
         self._layout.addWidget(self.remember_last_choice_card)
         self._layout.addWidget(self.function_selector_card)

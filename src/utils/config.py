@@ -131,6 +131,8 @@ class DefaultConfig(BaseModel):
     """功能排序默认值"""
     battle_theme_recognition: bool = False
     """战斗主题识别（识别特殊胜利/失败画面）"""
+    remember_force_zoom_choice: bool = False
+    """记住强制缩放的选择（不再弹窗提醒）"""
 
 
 default_config = DefaultConfig()
@@ -161,6 +163,10 @@ class UserConfig(BaseModel):
     """功能排序，可通过GameFunctionSelectorWidget修改"""
     battle_theme_recognition: bool = False
     """战斗主题识别（识别特殊胜利/失败画面）"""
+    remember_force_zoom_choice: bool = False
+    """记住强制缩放的选择（不再弹窗提醒）"""
+    force_zoom_accepted: bool = True
+    """记住的强制缩放选择：True=接受缩放，False=拒绝"""
 
 
 class Config:
