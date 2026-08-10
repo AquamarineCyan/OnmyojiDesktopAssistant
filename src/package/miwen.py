@@ -1,6 +1,5 @@
 import time
 
-from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -25,17 +24,14 @@ class MiWen(BasePackage):
 
     @staticmethod
     def description():
-        logger.ui("每周秘闻，请锁定阵容，并打开金币加成。战斗胜利后游戏会自动跳转下一层。")
-        logger.ui_error("百战模式等待测试。")
+        logger.ui("每周秘闻，请手动打开金币加成。战斗胜利后游戏会自动跳转下一层。")
 
     def load_asset(self):
-        self.IMAGE_PAIMING = self.get_image_asset("paiming")
         self.IMAGE_START = self.get_image_asset("start")
         self.IMAGE_TITLE = self.get_image_asset("title")
-        self.IMAGE_TONGGUANZHENRONG = self.get_image_asset("tongguanzhenrong")
 
     def start(self):
-        logger.ui("挑战")
+        logger.ui("开始挑战")
         self.check_click(self.IMAGE_START)
 
     def ready(self):
@@ -56,9 +52,6 @@ class MiWen(BasePackage):
     def run(self):
         self.current_asset_list = [
             self.IMAGE_TITLE,
-            # self.IMAGE_START,
-            # self.IMAGE_PAIMING,
-            # self.IMAGE_TONGGUANZHENRONG,
             self.global_assets.IMAGE_FINISH,
         ]
         self.current_asset_list.extend(self.global_assets.ALL_VICTORY_IMAGES)
@@ -78,11 +71,10 @@ class MiWen(BasePackage):
                 case self.IMAGE_TITLE.name:
                     logger.scene(self.scene_name)
                     msg_title = False
+                    sleep(2)
                     self.start()
                     sleep(2)
                     self.ready()
-                # case self.IMAGE_START.name:
-                #     Mouse.click(result.center_point())
                 case name if name in self.global_assets.ALL_FAIL_NAMES:
                     logger.ui_error(
                         f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"
@@ -90,24 +82,18 @@ class MiWen(BasePackage):
                     break
                 case name if name in self.global_assets.ALL_VICTORY_NAMES:
                     logger.ui(f"胜利{('（' + result.description + '）') if result.description else ''}")
-                    sleep(3)
-                    if self.mode == MiWenMode.JING_SU:
-                        Mouse.click(result.center_point())
+                    sleep(3)  # 百战前九层的「胜利」标志会自动消失
+                    # 默认「胜利」标志
+                    if self.check_click(self.global_assets.IMAGE_VICTORY, timeout=1):
                         self.done()
                 case self.global_assets.IMAGE_FINISH.name:
                     logger.ui("结算中")
                     sleep(2)  # 等待掉落物动画
-                    finish_random_left_right()
+                    finish_random_left_right(is_multiple_drops_x=True)
                     self.done()
-                # case self.IMAGE_PAIMING.name | self.IMAGE_TONGGUANZHENRONG.name:
-                #     logger.info(f"最后一层：{result.name}")
-                #     logger.scene("已通关本周秘闻，请手动前往分享。")
-                #     self.done()
-                #     break  # 强制退出
                 case _:
                     if msg_title:
                         self.title_error_msg()
-
                         msg_title = False
             sleep()
 
