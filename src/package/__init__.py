@@ -12,6 +12,7 @@ from .qiling import QiLing
 from .rilun import RiLun, RiLunSingle, RiLunTeam
 from .tansuo import TanSuo
 from .utils import check_assets
+from .wudaodahui import WuDaoDaHui
 from .xuanshangfengyin import XuanShangFengYin
 from .yeyuanhuo import YeYuanHuo
 from .yingjieshilian import YingJieShiLianExp, YingJieShiLianSkill
@@ -36,6 +37,7 @@ __all__ = [
     "RiLunSingle",
     "RiLunTeam",
     "TanSuo",
+    "WuDaoDaHui",
     "XuanShangFengYin",
     "YeYuanHuo",
     "YingJieShiLianExp",
@@ -70,6 +72,7 @@ def get_package_resource_list():
         RiLunSingle,
         RiLunTeam,
         TanSuo,
+        WuDaoDaHui,
         XuanShangFengYin,
         YeYuanHuo,
         YingJieShiLianExp,

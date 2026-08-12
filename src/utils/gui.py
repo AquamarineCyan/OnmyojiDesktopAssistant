@@ -464,6 +464,9 @@ class MainWindow(FluentWindow):
                 basic_group.set_number_spinbox_value(10, 1, 10)
                 MiWen.description()
 
+            case GameFunction.WUDAODAHUI:
+                WuDaoDaHui.description()
+
     def _app_start(self):
         # 没有选功能前禁止通过快捷键启动程序
         if self.homeInterface.basic_group.func_combobox.currentIndex() == -1:
@@ -615,6 +618,9 @@ class MainWindow(FluentWindow):
                 card = advanced_stack.miwen_card
                 mode = MiWenMode(card.combobox.currentText())
                 MiWen(n=selected_number, mode=mode).task_start()
+
+            case GameFunction.WUDAODAHUI:
+                WuDaoDaHui(n=selected_number).task_start()
 
     def _app_stop(self):
         event_thread.set()

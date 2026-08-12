@@ -16,7 +16,6 @@ from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.toast import toast
 from ..utils.window import window_manager
-from .global_parameter import xuanshangfengyin_count
 from .global_resource import GlobalResource
 from .utils import get_image_asset, get_ocr_asset, load_asset
 
@@ -406,7 +405,7 @@ class BasePackage:
         else:
             logger.progress(0)
 
-        xuanshangfengyin_count.reset()
+        config.runtime.xuanshangfengyin.reset()
 
         need_prevent_sleep: bool = False  # 是否需要防止休眠
         if config.user.interaction_mode.mode == InteractionMode.FRONTEND:

@@ -23,6 +23,7 @@ class GameFunction(Enum):
     YINGJIESHILIAN = "英杰试炼"
     HUIJUAN = "绘卷刷分"
     MIWEN = "每周秘闻"
+    WUDAODAHUI = "武道大会"
 
 
 class QiLing(StrEnum):
