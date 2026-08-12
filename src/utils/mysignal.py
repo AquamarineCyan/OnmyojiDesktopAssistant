@@ -48,6 +48,13 @@ class MySignals(QObject):
         """更新有效词条分析列表框"""
         window_update = Signal(int, str)
         """窗口状态更新（窗口数量, 当前窗口描述文本）"""
+        ui_xuanshangfengyin_update = Signal(str, str)
+        """悬赏封印通知
+
+        Args:
+            title (str): 标题
+            content (str): 内容
+        """
         sys_exit = Signal()
         """退出程序"""
 

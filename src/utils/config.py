@@ -169,6 +169,29 @@ class UserConfig(BaseModel):
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
 
 
+class XuanShangFengYinState:
+    """悬赏封印运行时状态"""
+
+    def __init__(self):
+        self.count: int = 0
+
+    def add(self):
+        self.count += 1
+
+    def reset(self):
+        self.count = 0
+
+    def get(self):
+        return self.count
+
+
+class RuntimeState:
+    """运行时状态，不序列化保存"""
+
+    def __init__(self):
+        self.xuanshangfengyin: XuanShangFengYinState = XuanShangFengYinState()
+
+
 class Config:
     """配置"""
 
@@ -179,9 +202,10 @@ class Config:
         self.is_first_run: bool = False  # 是否首次运行
         self.data_error: int = 0
         self.resource_dir = RESOURCE_DIR_PATH
+        self.runtime = RuntimeState()
         self._init()
 
-    def _init(self) -> None:
+    def _init(self):
         """初始化"""
         if self.config_path.is_file():
             logger.info("Find config file.")
@@ -224,7 +248,7 @@ class Config:
             f"配置更新完成\n{yaml.dump(self.user.model_dump(mode='json'), allow_unicode=True, sort_keys=False)}"
         )
 
-    def update(self, key: str, value: str) -> None:
+    def update(self, key: str, value: str):
         """设置项更新
 
         参数:

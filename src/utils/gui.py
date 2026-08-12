@@ -7,9 +7,9 @@ from typing import Literal
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap, QTextCursor
-from qfluentwidgets import Dialog, MessageBox
+from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
 
-from ..package import *  # noqa: F403
+from ..package import *
 from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.first_use_widget import FirstUseMessageBox
@@ -108,6 +108,7 @@ class MainWindow(FluentWindow):
         ms.main.effective_entry_analysis_list_widget_update.connect(
             self.ui_effective_entry_analysis_list_widget_update_handle
         )
+        ms.main.ui_xuanshangfengyin_update.connect(self.ui_xuanshangfengyin_update_handle)
         ms.main.sys_exit.connect(self._exit_handle)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
@@ -240,6 +241,23 @@ class MainWindow(FluentWindow):
             msg (str): 文本
         """
         self.homeInterface.output_info_group.progress_text.setText(msg)
+
+    def ui_xuanshangfengyin_update_handle(self, title: str, content: str):
+        """悬赏封印通知（右上角 InfoBar）
+
+        Args:
+            title (str): 标题
+            content (str): 内容
+        """
+        InfoBar.info(
+            title=title,
+            content=content,
+            orient=Qt.Horizontal,
+            isClosable=True,
+            duration=-1,
+            position=InfoBarPosition.TOP_RIGHT,
+            parent=self,
+        )
 
     @log_function_call
     def software_selfcheck(self) -> bool:
@@ -391,6 +409,7 @@ class MainWindow(FluentWindow):
 
             case GameFunction.BAIGUIYEXING:
                 BaiGuiYeXing.description()
+                set_stack(StackedWidgetIndex.BAIGUIYEXING)
 
             case GameFunction.HUODONG:
                 HuoDong.description()
