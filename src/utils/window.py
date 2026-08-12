@@ -4,7 +4,7 @@ import win32api
 import win32con
 import win32gui
 
-from .config import GameLanguage
+from .config import GameLanguage, config
 from .decorator import log_function_call
 from .log import logger
 from .mysignal import global_ms as ms
@@ -248,6 +248,13 @@ class GameWindowManager:
             self.current_window_resolution.window_standard_width,
             self.current_window_resolution.window_standard_height,
         ):
+            if config.user.remember_force_zoom_choice:
+                if config.user.force_zoom_accepted:
+                    self.force_zoom()
+                else:
+                    logger.info("用户此前已选择不强制缩放，不再提醒")
+                return True
+
             ms.main.qmessagbox_update.emit("question", "强制缩放")
             logger.info("尝试强制缩放")
             self._force_zoom_flag = True

@@ -168,6 +168,8 @@ class MainWindow(FluentWindow):
                 "当前为后台交互模式，需要在窗口管理中检查截图是否正常。如果在移动游戏窗口后截图黑屏，可尝试切换后台截图模式解决"
             )
 
+        logger.ui_warn("有过自定义功能排序的，需要手动在设置中启用“武道大会”功能。")
+
         self._global_task_init()
 
     def _global_task_init(self):
@@ -196,7 +198,9 @@ class MainWindow(FluentWindow):
                 logger.error("游戏窗口大小不匹配")
 
                 dialog = ForceZoomDialog()
-                if dialog.exec():
+                result = dialog.exec()
+                self.settingInterface.refresh_force_zoom()
+                if result:
                     logger.info("用户接受强制缩放")
                     window_manager.force_zoom()
                 else:

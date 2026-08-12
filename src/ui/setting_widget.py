@@ -481,3 +481,8 @@ class SettingWidget(QWidget):
 
         layout = QVBoxLayout(self)
         layout.addWidget(self.scroll_area)
+
+    def refresh_force_zoom(self):
+        """刷新强制缩放相关设置卡片，使其与当前配置同步"""
+        self.remember_force_zoom_card.switch.setChecked(config.user.remember_force_zoom_choice)
+        self.force_zoom_accepted_card.combobox.setCurrentIndex(0 if config.user.force_zoom_accepted else 1)
