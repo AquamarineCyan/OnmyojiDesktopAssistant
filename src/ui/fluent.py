@@ -5,7 +5,6 @@ from qfluentwidgets import FluentIcon, NavigationInterface, NavigationItemPositi
 from qframelesswindow import FramelessWindow, StandardTitleBar
 
 from ..utils.application import ICO_RESOURCE_PATH
-from .effective_entry_analysis_widget import EffectiveEntryAnalysisWidget
 from .home_widget import HomeWidget
 from .setting_widget import SettingWidget
 from .window_manager_widget import WindowManagerWidget
@@ -22,7 +21,6 @@ class Window(FramelessWindow):
 
         self.homeInterface = HomeWidget(self)
         self.windowManagerInterface = WindowManagerWidget(self)
-        self.effectiveEntryAnalysisInterface = EffectiveEntryAnalysisWidget(self)
 
         self.settingInterface = SettingWidget(self)
 
@@ -40,7 +38,6 @@ class Window(FramelessWindow):
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FluentIcon.HOME, "首页")
         self.addSubInterface(self.windowManagerInterface, FluentIcon.ZOOM, "窗口管理")
-        self.addSubInterface(self.effectiveEntryAnalysisInterface, FluentIcon.ZOOM_IN, "有效词条分析")
 
         # 底部顶格
         self.addSubInterface(self.settingInterface, FluentIcon.SETTING, "设置", NavigationItemPosition.BOTTOM)

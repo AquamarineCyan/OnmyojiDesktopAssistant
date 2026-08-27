@@ -2,7 +2,6 @@ from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
 from threading import Thread
-from typing import Literal
 
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
@@ -33,7 +32,6 @@ from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut
 from .update import get_update_info
 from .upgrade import upgrade
-from .valid import score_handle
 from .window import GameWindow, window_manager
 
 
@@ -105,9 +103,6 @@ class MainWindow(FluentWindow):
         ms.main.ui_text_info_update.connect(self.ui_text_info_update_handle)
         ms.main.is_fighting_update.connect(self.is_fighting)
         ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_handle)
-        ms.main.effective_entry_analysis_list_widget_update.connect(
-            self.ui_effective_entry_analysis_list_widget_update_handle
-        )
         ms.main.ui_xuanshangfengyin_update.connect(self.ui_xuanshangfengyin_update_handle)
         ms.main.sys_exit.connect(self._exit_handle)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
@@ -120,10 +115,6 @@ class MainWindow(FluentWindow):
 
         self.windowManagerInterface.preview_button.clicked.connect(self.preview_window)
         self.windowManagerInterface.apply_button.clicked.connect(self.apply_selected_window)
-
-        self.effectiveEntryAnalysisInterface.button.clicked.connect(
-            self.effective_entry_analysis_interface_score_handle
-        )
 
         self.settingInterface.about_card.short_cut_button.clicked.connect(create_desktop_shortcut)
         self.settingInterface.about_card.app_restart_button.clicked.connect(self.app_restart_handle)
@@ -718,25 +709,6 @@ class MainWindow(FluentWindow):
         else:
             logger.warning("未选中窗口")
             ms.main.qmessagbox_update.emit("ERROR", "未选中窗口")
-
-    def ui_effective_entry_analysis_list_widget_update_handle(self, method: Literal["ADD", "CLEAR"], item: str):
-        """更新有效词条分析列表框
-
-        Args:
-            method (Literal["ADD", "CLEAR"]): 方法
-            item (str): 内容
-        """
-        if method == "ADD":
-            self.effectiveEntryAnalysisInterface.add_item(item)
-        elif method == "CLEAR":
-            self.effectiveEntryAnalysisInterface.clear()
-
-    def effective_entry_analysis_interface_score_handle(self):
-        """有效词条分析界面计算分数"""
-        button = self.effectiveEntryAnalysisInterface.button
-        button.setDisabled(True)
-        score_handle()
-        button.setEnabled(True)
 
     def app_restart_handle(self):
         Restart().app_restart()

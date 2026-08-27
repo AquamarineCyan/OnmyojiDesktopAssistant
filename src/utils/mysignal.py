@@ -44,8 +44,6 @@ class MySignals(QObject):
         """完成情况更新"""
         key_pressed = Signal(str)
         """按键按下"""
-        effective_entry_analysis_list_widget_update = Signal(str, str)
-        """更新有效词条分析列表框"""
         window_update = Signal(int, str)
         """窗口状态更新（窗口数量, 当前窗口描述文本）"""
         ui_xuanshangfengyin_update = Signal(str, str)
