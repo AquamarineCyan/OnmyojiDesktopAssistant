@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .version import VERSION, DEBUG_VERSION  # noqa: F401
+from .version import DEBUG_VERSION, VERSION  # noqa: F401
 
 APP_NAME: str = "OnmyojiDesktopAssistant"
 """程序名称"""
@@ -52,9 +52,10 @@ class Connect:
     }
     mirror_station = [
         "https://ghfast.top/",
-        "https://ghproxy.net/",
+        "https://gh.nxnow.top/",
         "https://gh-proxy.com/",
         "https://free.cn.eu.org/",
+        "https://ghp.keleyaa.com/",
     ]
 
 
