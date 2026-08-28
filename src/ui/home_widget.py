@@ -165,7 +165,9 @@ class HomeWidget(QWidget):
             func_map = {f.name: f for f in GameFunction}
             order = config.user.function_order or [func.name for func in GameFunction]
             for i, name in enumerate(order, 1):
-                func = func_map[name]
+                func = func_map.get(name)  # 跳过已移除的功能
+                if func is None:
+                    continue
                 self.func_combobox.addItem(f"{i}.{func.value}", userData=func)
             self.func_combobox.setCurrentIndex(-1)
             self.func_combobox.blockSignals(False)
