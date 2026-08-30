@@ -10,7 +10,7 @@ MIRROR_URLS = [
     "https://gh.nxnow.top/",
     "https://gh-proxy.com/",
     "https://free.cn.eu.org/",
-    "https://ghp.keleyaa.com/",
+    "https://gh.slw.im/",
 ]
 
 
