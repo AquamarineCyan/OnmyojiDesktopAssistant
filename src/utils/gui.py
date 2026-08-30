@@ -5,7 +5,7 @@ from threading import Thread
 
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QPixmap, QTextCursor
+from PySide6.QtGui import QPixmap
 from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
 
 from ..package import *
@@ -100,7 +100,7 @@ class MainWindow(FluentWindow):
     def _init_signals(self):
         """初始化信号"""
         ms.main.qmessagbox_update.connect(self.qmessagbox_update_handle)
-        ms.main.ui_text_info_update.connect(self.ui_text_info_update_handle)
+        ms.main.ui_text_info_update.connect(self.homeInterface.ui_text_info_update_handle)
         ms.main.is_fighting_update.connect(self.is_fighting)
         ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_handle)
         ms.main.ui_xuanshangfengyin_update.connect(self.ui_xuanshangfengyin_update_handle)
@@ -206,26 +206,6 @@ class MainWindow(FluentWindow):
                     Thread(target=upgrade.restart, name="upgrade_restart", daemon=True).start()
                 else:
                     logger.info("用户拒绝更新重启")
-
-    # TODO 移动到UI内部
-    def ui_text_info_update_handle(self, msg: str, color: str):
-        """输出内容至文本框
-
-        WARN | ERROR -> 红色
-
-        SCENE -> 绿色
-
-        参数:
-            msg(str): 文本内容
-        """
-        widget = self.homeInterface.output_info_group.text_info
-        widget.setTextColor(color)
-        widget.append(msg)
-        # 自动换行
-        widget.ensureCursorVisible()
-        # 自动滑动到底
-        widget.moveCursor(QTextCursor.MoveOperation.End)
-        widget.setTextColor("black")
 
     def ui_text_progress_update_handle(self, msg: str):
         """输出内容至文本框`完成情况`

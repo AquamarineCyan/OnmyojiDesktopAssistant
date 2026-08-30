@@ -145,7 +145,7 @@ class RiLunTeam(RiLun):
 
             match result.name:
                 case self.global_assets.IMAGE_XIEZHANDUIWU.name:
-                    logger.scene("组队界面准备中")
+                    logger.ui_hint("组队界面准备中")
                     if self.flag_driver:
                         self.wait_passengers_on_position(self.flag_passengers)
                         sleep(1.5)
@@ -230,10 +230,10 @@ class RiLunSingle(RiLun):
                 case self.IMAGE_TITLE_3.name | self.IMAGE_TITLE_4.name:
                     match result.name:
                         case self.IMAGE_TITLE_3.name:
-                            logger.scene("日轮叁层")
+                            logger.ui_hint("日轮叁层")
                             self.level = 3
                         case self.IMAGE_TITLE_4.name:
-                            logger.scene("日轮日蚀")
+                            logger.ui_hint("日轮日蚀")
                             self.level = 4
                     logger.info(f"当前层数：{self.level}")
                     self.start()

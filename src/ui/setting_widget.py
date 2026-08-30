@@ -1,10 +1,13 @@
+from typing import ClassVar
+
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget
+from PySide6.QtGui import QFont, QIcon
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     CaptionLabel,
     CardWidget,
+    ColorDialog,
     ComboBox,
     ExpandGroupSettingCard,
     FluentIcon,
@@ -12,6 +15,7 @@ from qfluentwidgets import (
     IconWidget,
     IndicatorPosition,
     PushButton,
+    QColor,
     ScrollArea,
     SubtitleLabel,
     SwitchButton,
@@ -22,7 +26,7 @@ from ..utils.application import (
     HOME_PAGE_LINK,
     QQ_GROUP_LINK,
 )
-from ..utils.config import InteractionMode, config, default_config
+from ..utils.config import DEFAULT_LOG_COLORS, InteractionMode, LogColorLevel, config, default_config
 from .game_function_selector_widget import GameFunctionSelectorWidget
 
 
@@ -149,6 +153,124 @@ class SettingShortcutStartStopCard(AppCard):
         text = self.combobox.currentText()
         if text != config.user.shortcut_start_stop:
             config.update("shortcut_start_stop", text)
+
+
+class ColorSettingRow(QWidget):
+    """颜色设置项卡片"""
+
+    _DIALOG_TRANSLATIONS: ClassVar[dict[str, str]] = {
+        "yesButton": "确定",
+        "cancelButton": "取消",
+        "editLabel": "编辑颜色",
+        "redLabel": "红",
+        "greenLabel": "绿",
+        "blueLabel": "蓝",
+        "opacityLabel": "不透明度",
+    }
+
+    def __init__(self, config_key: str, dialog_title: str, parent=None):
+        super().__init__(parent)
+        self._config_key = config_key
+        self._dialog_title = dialog_title
+
+        self.preview = self._create_color_preview(self._read_color())
+        self.open_button = PushButton("选择颜色")
+        self.open_button.clicked.connect(self._open_color_dialog)
+        self.reset_button = PushButton("重置")
+        self.reset_button.clicked.connect(self._reset_color)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+        layout.addWidget(self.preview, 0, Qt.AlignVCenter)
+        layout.addWidget(self.open_button)
+        layout.addWidget(self.reset_button)
+
+    def _read_color(self) -> str:
+        """按点分路径读取当前配置颜色"""
+        value = config.user
+        for key in self._config_key.split("."):
+            value = getattr(value, key)
+        return value
+
+    def _open_color_dialog(self):
+        w = self._localize_dialog(
+            ColorDialog(
+                QColor(self._read_color()),
+                self._dialog_title,
+                self.window(),
+                enableAlpha=False,
+            )
+        )
+        if w.exec():
+            color = w.color.name()
+            config.update(self._config_key, color)
+            self._update_preview_color(color)
+
+    @staticmethod
+    def _localize_dialog(w: ColorDialog) -> ColorDialog:
+        """强制将颜色选择框内的英文界面文本替换为中文"""
+        for attr, text in ColorSettingRow._DIALOG_TRANSLATIONS.items():
+            getattr(w, attr).setText(text)
+        return w
+
+    @staticmethod
+    def _color_preview_style(color: str) -> str:
+        """颜色预览块样式"""
+        return f"background-color: {color};border: 1px solid rgba(0, 0, 0, 0.25);border-radius: 4px;"
+
+    @classmethod
+    def _create_color_preview(cls, color: str) -> QLabel:
+        """创建颜色预览块"""
+        preview = QLabel()
+        preview.setFixedSize(36, 24)
+        preview.setStyleSheet(cls._color_preview_style(color))
+        return preview
+
+    def _update_preview_color(self, color: str):
+        """更新颜色预览块颜色"""
+        self.preview.setStyleSheet(self._color_preview_style(color))
+
+    def set_color(self, color: str):
+        """写入指定颜色并同步配置与预览"""
+        config.update(self._config_key, color)
+        self._update_preview_color(color)
+
+    def _reset_color(self):
+        """将当前行日志颜色重置为默认值"""
+        self.set_color(DEFAULT_LOG_COLORS[LogColorLevel(self._config_key.rsplit(".", 1)[-1])])
+
+
+class SettingLoggerColorCard(ExpandGroupSettingCard):
+    """设置项-日志颜色"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.PALETTE,
+            "日志颜色",
+            "自定义普通、提示、警告、错误日志在界面显示的颜色",
+            parent,
+        )
+
+        self._color_rows = {}
+        for config_key, title in (
+            ("log_color.info", "普通信息"),
+            ("log_color.hint", "提示信息"),
+            ("log_color.warn", "警告信息"),
+            ("log_color.error", "错误信息"),
+        ):
+            row = ColorSettingRow(config_key, f"选择{title}的颜色")
+            self._color_rows[config_key] = row
+            self.addGroup(QIcon(), title, "", row)
+
+        self.reset_button = PushButton("重置")
+        self.reset_button.clicked.connect(self.reset_colors)
+        self.card.addWidget(self.reset_button)
+
+    def reset_colors(self):
+        """重置所有日志颜色为默认值"""
+        for config_key, row in self._color_rows.items():
+            row.set_color(DEFAULT_LOG_COLORS[LogColorLevel(config_key.rsplit(".", 1)[-1])])
 
 
 class SettingWinToastCard(AppCard):
@@ -449,6 +571,7 @@ class SettingWidget(QWidget):
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
         self.function_selector_card = SettingFunctionSelectorCard()
         self.shortcut_start_stop_card = SettingShortcutStartStopCard()
+        self.logger_color_card = SettingLoggerColorCard()
         self.win_toast_card = SettingWinToastCard()
         self.group_update = SettingUpdateCard()
 
@@ -470,6 +593,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.remember_last_choice_card)
         self._layout.addWidget(self.function_selector_card)
         self._layout.addWidget(self.shortcut_start_stop_card)
+        self._layout.addWidget(self.logger_color_card)
         self._layout.addWidget(self.win_toast_card)
         self._layout.addWidget(self.group_update)
         self._layout.addWidget(self.about_label)

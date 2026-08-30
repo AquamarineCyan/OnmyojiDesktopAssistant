@@ -1,10 +1,11 @@
 from enum import StrEnum
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from .application import RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
+from .log_color import DEFAULT_LOG_COLORS, LogColorLevel, normalize_color
 
 
 class GameLanguage(StrEnum):
@@ -104,6 +105,25 @@ class InteractionModeConfig(BaseModel):
     backend: BackendConfig = BackendConfig()
 
 
+class LogColorConfig(BaseModel):
+    """日志颜色配置"""
+
+    info: str = DEFAULT_LOG_COLORS[LogColorLevel.INFO]
+    """普通信息颜色"""
+    hint: str = DEFAULT_LOG_COLORS[LogColorLevel.HINT]
+    """提示信息颜色"""
+    warn: str = DEFAULT_LOG_COLORS[LogColorLevel.WARN]
+    """警告信息颜色"""
+    error: str = DEFAULT_LOG_COLORS[LogColorLevel.ERROR]
+    """错误信息颜色"""
+
+    @field_validator("info", "hint", "warn", "error")
+    @classmethod
+    def _normalize_color(cls, v: str, info) -> str:
+        """非法颜色回退默认值，并归一化为 #RRGGBB 格式"""
+        return normalize_color(v, DEFAULT_LOG_COLORS[LogColorLevel(info.field_name)])
+
+
 class DefaultConfig(BaseModel):
     """默认配置，用于UI显示选项"""
 
@@ -133,6 +153,8 @@ class DefaultConfig(BaseModel):
     """战斗主题识别（识别特殊胜利/失败画面）"""
     remember_force_zoom_choice: bool = False
     """记住强制缩放的选择（不再弹窗提醒）"""
+    log_color: dict = LogColorConfig().model_dump()
+    """日志颜色配置"""
 
 
 default_config = DefaultConfig()
@@ -167,6 +189,8 @@ class UserConfig(BaseModel):
     """记住强制缩放的选择（不再弹窗提醒）"""
     force_zoom_accepted: bool = True
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
+    log_color: LogColorConfig = LogColorConfig()
+    """日志颜色配置"""
 
 
 class XuanShangFengYinState:
@@ -228,6 +252,15 @@ class Config:
         if self.user.game_language == GameLanguage.JA:
             self.resource_dir = RESOURCE_JA_DIR_PATH
 
+        from .log_color import update_log_colors
+
+        update_log_colors(
+            self.user.log_color.info,
+            self.user.log_color.hint,
+            self.user.log_color.warn,
+            self.user.log_color.error,
+        )
+
     def _read(self) -> dict:
         with open(self.config_path, encoding="utf-8") as f:
             return yaml.safe_load(f)
@@ -273,6 +306,16 @@ class Config:
 
         self.user = UserConfig.model_validate(config_dict)
         self._save(self.user)
+
+        if key.startswith("log_color."):
+            from .log_color import update_log_colors
+
+            update_log_colors(
+                self.user.log_color.info,
+                self.user.log_color.hint,
+                self.user.log_color.warn,
+                self.user.log_color.error,
+            )
 
     def _check_outdated(self, data: dict) -> dict:
         """仅检查不符合配置项的部分，不存在的设置项可以通过UserConfig的model_dump()方法获取默认值"""

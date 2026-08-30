@@ -1,7 +1,7 @@
 from enum import Enum
 
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices
+from PySide6.QtGui import QDesktopServices, QTextCursor
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -28,6 +28,7 @@ from qfluentwidgets import (
 from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
+from ..utils.log_color import LogColorLevel, log_color
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
@@ -712,3 +713,17 @@ class HomeWidget(QWidget):
 
         # 次数清零
         self.basic_group.number_spinbox.setValue(0)
+
+    def ui_text_info_update_handle(self, msg: str, color: str):
+        """输出内容至文本框
+
+        Args:
+            msg (str): 文本内容
+            color (str): 文本颜色
+        """
+        widget = self.output_info_group.text_info
+        widget.setTextColor(color)
+        widget.append(msg)
+        widget.ensureCursorVisible()
+        widget.moveCursor(QTextCursor.MoveOperation.End)
+        widget.setTextColor(log_color(LogColorLevel.INFO))

@@ -69,7 +69,7 @@ class DaoGuanTuPo(BasePackage):
             result = RuleOcr().get_raw_result()
             for item in result:
                 if self.OCR_TITLE.keyword == item.text:
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
 
                 if self.OCR_DAOJISHI.keyword in item.text:
                     self.state = self.STATE_WAIT_AUTO_ENTER

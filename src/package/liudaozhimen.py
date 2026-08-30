@@ -103,7 +103,7 @@ class LiuDaoZhiMen(BasePackage):
         result = RuleOcr().get_raw_result()
         for item in result:
             if item.score > self.ocr_score and item.text in list:
-                logger.scene(item.text)
+                logger.ui_hint(item.text)
                 return item
         return None
 
@@ -111,7 +111,7 @@ class LiuDaoZhiMen(BasePackage):
         """判断当前场景为六道-月之海"""
         # 如果在六道之门主界面
         if RuleOcr(name="liudaozhimen", keyword="六道之门", score=0.6).match():
-            logger.scene("六道之门")
+            logger.ui_hint("六道之门")
             while True:
                 if bool(event_thread):
                     raise GUIStopException
@@ -143,10 +143,10 @@ class LiuDaoZhiMen(BasePackage):
             if item.score < self.ocr_score:
                 continue
             if "回合后迎战月读" in item.text:
-                logger.scene("战斗进行中")
+                logger.ui_hint("战斗进行中")
                 self.state = State.RUNNING
             if item.text == "六道之门":
-                logger.scene("六道之门主界面")
+                logger.ui_hint("六道之门主界面")
                 self.state = State.START
 
     def choose_initial_skill(self, skill_need_index: int = 1):
@@ -201,7 +201,7 @@ class LiuDaoZhiMen(BasePackage):
 
     def _fight_map_choose_handle(self):
         """点击并验证地图节点"""
-        logger.scene("地图")
+        logger.ui_hint("地图")
 
         map_nodes: dict[int, Point] = {
             1: Point(585, 390),  # 1个关卡的中间
@@ -230,11 +230,11 @@ class LiuDaoZhiMen(BasePackage):
 
     def _fight_hundunzhiyu_handle(self, result: list[OcrData]):
         """混沌之屿"""
-        logger.scene("混沌之屿")
+        logger.ui_hint("混沌之屿")
         flag_has_skill: bool = False
         for item in result:
             if "幸运" in item.text:
-                logger.scene("幸运宝匣")
+                logger.ui_hint("幸运宝匣")
                 Mouse.click(item.center)
                 sleep(2)
                 self.check_click(self.IMAGE_OPEN, timeout=3)
@@ -247,22 +247,22 @@ class LiuDaoZhiMen(BasePackage):
             self.check_click(self.IMAGE_FIGHT, timeout=3)
 
     def _fight_luzhanzhiyu_handle(self):
-        logger.scene("鏖战之屿")
+        logger.ui_hint("鏖战之屿")
         Mouse.click(Point(650, 270))  # 右侧怪 - 技能
         sleep(2)
         self.check_click(self.IMAGE_FIGHT, timeout=3)
 
     def _fight_xingzhiyu_handle(self):
-        logger.scene("星之屿")
+        logger.ui_hint("星之屿")
         Mouse.click(Point(380, 270))  # 左侧怪
         sleep(2)
         self.check_click(self.IMAGE_FIGHT, timeout=3)
 
     def _fight_shenmizhiyu_handle(self, result: list[OcrData]):
-        logger.scene("神秘之屿")
+        logger.ui_hint("神秘之屿")
         for item in result:
             if item.text == "背包仿造":
-                logger.scene("背包仿造")
+                logger.ui_hint("背包仿造")
                 #  遍历所有技能
                 Mouse.click(Point(760, 210))
                 flag_max_skill = True
@@ -289,13 +289,13 @@ class LiuDaoZhiMen(BasePackage):
                 break
 
             elif item.text == "技能转换":
-                logger.scene("技能转换")
+                logger.ui_hint("技能转换")
                 logger.ui("跳过")
                 self.check_click(self.IMAGE_QUIT, timeout=3)
                 break
 
     def _fight_ningxizhiyu_handle(self, result: list[OcrData]):
-        logger.scene("宁息之屿")
+        logger.ui_hint("宁息之屿")
 
         def leave():
             logger.ui("离开商店")
@@ -326,7 +326,7 @@ class LiuDaoZhiMen(BasePackage):
             # 选择技能
             for item in result:
                 if item.text == self.basic_skill_name:
-                    logger.scene(f"选择技能「{self.basic_skill_name}」")
+                    logger.ui_hint(f"选择技能「{self.basic_skill_name}」")
                     Mouse.click(item.center)
                     KeyBoard.enter(1)
                     self.skill_level_count.add()
@@ -385,7 +385,7 @@ class LiuDaoZhiMen(BasePackage):
             sleep(2)
 
     def _fight_finish(self):
-        logger.scene("结算")
+        logger.ui_hint("结算")
         logger.ui("等待万相赐福")
         sleep(4)
 
@@ -393,7 +393,7 @@ class LiuDaoZhiMen(BasePackage):
         result = RuleOcr().get_raw_result()
         for item in result:
             if "万相赐福" in item.text:
-                logger.scene("万相赐福")
+                logger.ui_hint("万相赐福")
                 for item in result:
                     if item.text == "使用":
                         logger.ui("使用万相赐福")
@@ -459,7 +459,7 @@ class LiuDaoZhiMen(BasePackage):
 
             # BOSS战
             elif item.text == "奖励预览":
-                logger.scene("BOSS战")
+                logger.ui_hint("BOSS战")
                 self.check_click(self.IMAGE_FIGHT, timeout=3)
                 sleep(2)
 

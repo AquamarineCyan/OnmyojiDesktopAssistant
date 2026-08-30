@@ -54,7 +54,7 @@ class JueXing(BasePackage):
 
             match result.name:
                 case "title":
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     msg_title = False
                     self.start()
                 case "start_single":

@@ -54,7 +54,7 @@ class XuanShangFengYin(BasePackage):
 
         # 检测到悬赏封印
         event_xuanshang.clear()
-        logger.scene(self.scene_name)
+        logger.ui_hint(self.scene_name)
         logger.ui_warn("已暂停后台线程，等待处理")
         toast("悬赏封印", "检测到悬赏封印")
         if not self._flag_notify:

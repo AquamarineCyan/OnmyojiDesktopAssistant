@@ -32,11 +32,9 @@ class MySignals(QObject):
         ui_text_info_update = Signal(str, str)
         """更新文本
 
-        参数：
-
-        (str): 文本内容
-        
-        (str): 文本颜色
+        Args:
+            msg (str): 文本内容
+            color (str): 文本颜色
         """
         is_fighting_update = Signal(bool)
         """运行状态更新"""

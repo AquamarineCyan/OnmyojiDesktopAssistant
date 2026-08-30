@@ -91,7 +91,7 @@ class DouJi(BasePackage):
             logger.info(f"current result name: {result.name}")
             match result.name:
                 case self.OCR_TITLE.name:
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     msg_title = False
                     self.current_asset_list.remove(self.OCR_TITLE)
 

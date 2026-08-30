@@ -69,7 +69,7 @@ class MiWen(BasePackage):
 
             match result.name:
                 case self.IMAGE_TITLE.name:
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     msg_title = False
                     sleep(2)
                     self.start()
@@ -97,4 +97,4 @@ class MiWen(BasePackage):
                         msg_title = False
             sleep()
 
-        logger.scene("已通关本周秘闻，请手动前往分享。")
+        logger.ui_hint("已通关本周秘闻，请手动前往分享。")

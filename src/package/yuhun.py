@@ -213,7 +213,7 @@ class YuHunTeam(YuHun):
 
             match result.name:
                 case self.global_assets.IMAGE_XIEZHANDUIWU.name:
-                    logger.scene("组队界面准备中")
+                    logger.ui_hint("组队界面准备中")
                     if self.flag_driver:
                         self.wait_passengers_on_position(self.flag_passengers)
                         sleep(1.5)
@@ -308,11 +308,11 @@ class YuHunSingle(YuHun):
                 case self.IMAGE_TITLE_10.name | self.IMAGE_TITLE_11.name | self.IMAGE_TITLE_12.name:
                     match result.name:
                         case self.IMAGE_TITLE_10.name:
-                            logger.scene("御魂拾层")
+                            logger.ui_hint("御魂拾层")
                         case self.IMAGE_TITLE_11.name:
-                            logger.scene("御魂悲鸣")
+                            logger.ui_hint("御魂悲鸣")
                         case self.IMAGE_TITLE_12.name:
-                            logger.scene("御魂神罚")
+                            logger.ui_hint("御魂神罚")
                     self.start()
                     self.msg_title = False
                     sleep(2)

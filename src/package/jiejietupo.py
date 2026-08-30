@@ -97,7 +97,7 @@ class JieJieTuPo(BasePackage):
                 raise GUIStopException
 
             if RuleImage(self.IMAGE_TITLE).match(logger_lever="ERROR"):
-                logger.scene(JieJieTuPo.scene_name)
+                logger.ui_hint(JieJieTuPo.scene_name)
                 if isinstance(self, JieJieTuPoGeRen):
                     file_1 = self.IMAGE_FANGSHOUJILU
                     file_2 = self.IMAGE_GEREN
@@ -106,7 +106,7 @@ class JieJieTuPo(BasePackage):
                     file_2 = self.IMAGE_YINYANGLIAO
                 while True:
                     if RuleImage(file_1).match():
-                        logger.scene(self.scene_name)
+                        logger.ui_hint(self.scene_name)
                         return
                     sleep(0.4, 0.8)
                     self.check_click(file_2)

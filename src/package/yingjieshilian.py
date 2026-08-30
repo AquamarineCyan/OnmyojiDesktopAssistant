@@ -40,7 +40,7 @@ class YingJieShiLian(BasePackage):
         if not RuleImage(self.IMAGE_MAIN_TITLE).match():
             return
 
-        logger.scene(self.main_name)
+        logger.ui_hint(self.main_name)
 
         if isinstance(self, YingJieShiLianExp) and self.check_click(self.IMAGE_GOTO_EXP, timeout=3):
             logger.ui(f"正在进入[{self.scene_name}]")
@@ -115,7 +115,7 @@ class YingJieShiLianExp(YingJieShiLian):
             logger.info(f"current result name: {result.name}")
             match result.name:
                 case "yuan_exp_title" | "teng_exp_title":
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     _flag_title_msg = False
                     self.start()
                     sleep()
@@ -219,7 +219,7 @@ class YingJieShiLianSkill(YingJieShiLian):
                 raise GUIStopException
 
             if RuleImage(self.IMAGE_TITLE).match():
-                logger.scene(self.scene_name)
+                logger.ui_hint(self.scene_name)
                 break
 
             sleep()

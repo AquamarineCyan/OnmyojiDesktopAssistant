@@ -114,11 +114,11 @@ class BasePackage:
 
             if isinstance(asset, AssetOcr):
                 if RuleOcr(asset).match():
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     return
             elif isinstance(asset, AssetImage):
                 if RuleImage(asset).match():
-                    logger.scene(self.scene_name)
+                    logger.ui_hint(self.scene_name)
                     return
             else:
                 logger.error("no title asset")
@@ -433,7 +433,7 @@ class BasePackage:
 
         self.task_finish_info()
         if config.runtime.xuanshangfengyin.get():
-            logger.scene(f"收到 {config.runtime.xuanshangfengyin.get()} 个悬赏封印")
+            logger.ui_hint(f"收到 {config.runtime.xuanshangfengyin.get()} 个悬赏封印")
             config.runtime.xuanshangfengyin.reset()
 
         # 启用按钮

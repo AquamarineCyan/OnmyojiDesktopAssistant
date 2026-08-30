@@ -4,33 +4,40 @@ from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
 from .application import APP_NAME, LOG_DIR_PATH
+from .log_color import LogColorLevel, log_color
 from .mysignal import global_ms as ms
 
 LOG_LEVEL_GUI: int = 25
 logging.addLevelName(LOG_LEVEL_GUI, "GUI")
 
 
-def send_gui_msg(msg: str = "", color: str = "black"):
+def send_gui_msg(msg: str = "", level: LogColorLevel = LogColorLevel.INFO):
+    """发送消息到GUI日志文本框
+
+    Args:
+        msg (str): 消息内容
+        level (LogColorLevel): 日志颜色等级
+    """
     _now = datetime.now().strftime("%H:%M:%S")
-    ms.main.ui_text_info_update.emit(f"{_now} {msg}", color)
+    ms.main.ui_text_info_update.emit(f"{_now} {msg}", log_color(level))
 
 
 class CustomLogger(logging.Logger):
     def ui(self, msg, *args, **kwargs):
-        send_gui_msg(msg, "black")
+        send_gui_msg(msg, LogColorLevel.INFO)
         super()._log(LOG_LEVEL_GUI, msg, args, **kwargs, stacklevel=2)
 
+    def ui_hint(self, msg, *args, **kwargs):
+        send_gui_msg(msg, LogColorLevel.HINT)
+        super()._log(logging.INFO, msg, args, **kwargs, stacklevel=2)
+
     def ui_warn(self, msg, *args, **kwargs):
-        send_gui_msg(f"[警告] {msg}", "red")
+        send_gui_msg(msg, LogColorLevel.WARN)
         super()._log(logging.WARNING, msg, args, **kwargs, stacklevel=2)
 
     def ui_error(self, msg, *args, **kwargs):
-        send_gui_msg(f"[错误] {msg}", "red")
+        send_gui_msg(msg, LogColorLevel.ERROR)
         super()._log(logging.ERROR, msg, args, **kwargs, stacklevel=2)
-
-    def scene(self, msg, *args, **kwargs):
-        send_gui_msg(msg, "green")
-        super()._log(logging.INFO, f"current scene: {msg}", args, **kwargs, stacklevel=2)
 
     def progress(self, msg, *args, **kwargs):
         ms.main.ui_text_progress_update.emit(str(msg))  # 输出至完成情况UI界面
