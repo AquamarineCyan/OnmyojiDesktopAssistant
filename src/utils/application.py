@@ -68,3 +68,8 @@ QQ_GROUP_LINK = "https://qm.qq.com/q/T5pnZ5tGAs"
 
 ICO_RESOURCE_PATH: str = ":/icon/buzhihuo.jpg"
 """图标路径（Qt资源）"""
+
+ANNOUNCEMENT_URL = f"https://raw.githubusercontent.com/{Connect.owner}/{Connect.repo}/main/announcements.json"
+"""公告文件地址"""
+ANNOUNCEMENT_CACHE_FILE = USER_DATA_DIR_PATH / "announcements.json"
+"""公告本地缓存文件"""

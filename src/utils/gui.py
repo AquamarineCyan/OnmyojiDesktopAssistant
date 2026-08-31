@@ -11,12 +11,14 @@ from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
 from ..package import *
 from ..package.types import GameFunction, MiWenMode
 from ..ui import icon_rc  # noqa: F401
+from ..ui.announcement_widget import AnnouncementWindow
 from ..ui.first_use_widget import FirstUseMessageBox
 from ..ui.fluent import Window as FluentWindow
 from ..ui.force_zoom_dialog import ForceZoomDialog
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
+from .announcement import check_announcements, show_all_announcements
 from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION
 from .config import GameLanguage, InteractionMode, config
 from .decorator import log_function_call, run_in_thread
@@ -105,6 +107,7 @@ class MainWindow(FluentWindow):
         ms.main.ui_text_progress_update.connect(self.ui_text_progress_update_handle)
         ms.main.ui_xuanshangfengyin_update.connect(self.ui_xuanshangfengyin_update_handle)
         ms.main.sys_exit.connect(self._exit_handle)
+        ms.announcement.show_ui.connect(self.show_announcement_window)
         ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
 
     def _init_events(self):
@@ -119,6 +122,7 @@ class MainWindow(FluentWindow):
         self.settingInterface.about_card.short_cut_button.clicked.connect(create_desktop_shortcut)
         self.settingInterface.about_card.app_restart_button.clicked.connect(self.app_restart_handle)
         self.settingInterface.about_card.update_record_button.clicked.connect(self.show_update_record_window)
+        self.settingInterface.about_card.announcement_button.clicked.connect(show_all_announcements)
 
     def _shortcut_handle(self, key: str):
         """快捷键处理"""
@@ -145,6 +149,7 @@ class MainWindow(FluentWindow):
         # 优先在新线程中检查更新
         upgrade.check_latest()
         get_update_info()
+        check_announcements()
 
         if not self.software_selfcheck():
             logger.ui_error("初始化失败")
@@ -704,6 +709,10 @@ class MainWindow(FluentWindow):
 
     def _exit_handle(self):
         self.close()
+
+    def show_announcement_window(self, announcements: list[dict]):
+        self.announcement_window = AnnouncementWindow(announcements)
+        self.announcement_window.show()
 
     def show_update_record_window(self):
         self.update_record_widget = UpdateRecordWindow()

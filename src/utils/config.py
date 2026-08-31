@@ -191,6 +191,8 @@ class UserConfig(BaseModel):
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
     log_color: LogColorConfig = LogColorConfig()
     """日志颜色配置"""
+    announcement_id: int = 19700101
+    """已读公告的最新 id"""
 
 
 class XuanShangFengYinState:

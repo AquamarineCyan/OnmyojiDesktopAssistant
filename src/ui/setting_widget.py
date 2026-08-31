@@ -532,12 +532,14 @@ class SettingAboutCard(QWidget):
         self.short_cut_button = PushButton("创建快捷方式")
         self.app_restart_button = PushButton("重启应用程序")
         self.update_record_button = PushButton("查看更新记录")
+        self.announcement_button = PushButton("查看公告")
 
         self.hBoxLayout1 = QHBoxLayout()
         self.hBoxLayout1.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.hBoxLayout1.addWidget(self.short_cut_button)
         self.hBoxLayout1.addWidget(self.app_restart_button)
         self.hBoxLayout1.addWidget(self.update_record_button)
+        self.hBoxLayout1.addWidget(self.announcement_button)
 
         self.hBoxLayout2 = QHBoxLayout()
         self.hBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignCenter)

@@ -12,6 +12,7 @@ class MySignals(QObject):
 
     def __init__(self) -> None:
         self.main = self.Main()
+        self.announcement = self.Announcement()
         self.upgrade_new_version = self.UpgradeNewVersion()
         self.update_record = self.UpdateRecord()
 
@@ -53,6 +54,16 @@ class MySignals(QObject):
         """
         sys_exit = Signal()
         """退出程序"""
+
+    class Announcement(QObject):
+        """公告"""
+
+        show_ui = Signal(list)
+        """显示公告窗口
+
+        Args:
+            announcements (list): 公告列表
+        """
 
     class UpdateRecord(QObject):
         """更新记录"""
