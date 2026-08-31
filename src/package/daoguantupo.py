@@ -155,6 +155,48 @@ class DaoGuanTuPo(BasePackage):
             self.check_click(self.IMAGE_TIAOZHAN, timeout=3)
         sleep(4)  # 等待过场动画
 
+    def click_ready(self, timeout: float = 5) -> bool:
+        """点击准备按钮直到消失
+
+        Args:
+            timeout (float): 总超时时间，单位秒，默认5秒。
+
+        Returns:
+            bool: 准备成功返回 True，超时返回 False
+        """
+        start_time = time.time()
+        ready_images = [
+            self.global_assets.IMAGE_READY_OLD,
+            self.global_assets.IMAGE_READY_NEW,
+        ]
+        rule = None  # 首次检测到的准备按钮，后续只检测该按钮
+        while time.time() - start_time < timeout:
+            if bool(event_thread):
+                raise GUIStopException
+
+            if rule is None:
+                # 首次检测全部准备按钮
+                for image in ready_images:
+                    _rule = RuleImage(image)
+                    if _rule.match():
+                        rule = _rule
+                        break
+                if rule is None:
+                    # 未检测到准备按钮，视为准备完成
+                    logger.ui("准备完成")
+                    return True
+
+            Mouse.click(rule.center_point())
+            sleep(0.1)  # 点击后等待100毫秒再次检测
+
+            if not rule.match():
+                # 该按钮已消失，准备完成
+                logger.ui("准备完成")
+                return True
+
+        logger.warning("准备超时")
+        return False
+
     def wait_for_battle_ready(self):
         """等待战斗准备界面并处理"""
         self.current_asset_list = [
@@ -177,10 +219,8 @@ class DaoGuanTuPo(BasePackage):
             match result.name:
                 case self.global_assets.IMAGE_READY_OLD.name | self.global_assets.IMAGE_READY_NEW.name:
                     logger.ui("准备")
-                    sleep()
-                    Mouse.click(result.center_point())
+                    self.click_ready()
                     self.done()
-                    sleep(5)  # 避免间隔过短影响绿标
 
                 case self.global_assets.IMAGE_FINISH.name:
                     sleep()
