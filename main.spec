@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import importlib.metadata
 from PyInstaller.utils.hooks import collect_data_files
 from PyInstaller.utils.hooks import collect_dynamic_libs
 from PyInstaller.utils.hooks import copy_metadata
@@ -6,33 +7,30 @@ from PyInstaller.utils.hooks import copy_metadata
 datas = []
 binaries = []
 
+try:
+    import paddlex
+    from paddlex.utils.deps import BASE_DEP_SPECS
+    deps_all = list(BASE_DEP_SPECS.keys())
+except ImportError:
+    raise RuntimeError("paddlex not installed or BASE_DEP_SPECS not found. Please install paddlex first.")
+
+deps_need = deps_all
+for dep in deps_need:
+    try:
+        datas += copy_metadata(dep)
+    except Exception as e:
+        print(f"Warning: Failed to copy metadata for '{dep}': {e}")
+
 datas += collect_data_files('paddlex')
-datas += copy_metadata('aistudio-sdk')
-datas += copy_metadata('chardet')
-datas += copy_metadata('colorlog')
-datas += copy_metadata('filelock')
-datas += copy_metadata('imagesize')
-datas += copy_metadata('modelscope')
-datas += copy_metadata('numpy')
-datas += copy_metadata('opencv-contrib-python')
-datas += copy_metadata('packaging')
-datas += copy_metadata('pandas')
-datas += copy_metadata('pillow')
-datas += copy_metadata('prettytable')
-datas += copy_metadata('pyclipper')
-datas += copy_metadata('pydantic')
-datas += copy_metadata('pypdfium2')
-datas += copy_metadata('python-bidi')
-datas += copy_metadata('PyYAML')
-datas += copy_metadata('py-cpuinfo')
-datas += copy_metadata('requests')
-datas += copy_metadata('ruamel.yaml')
-datas += copy_metadata('safetensors')
-datas += copy_metadata('shapely')
-datas += copy_metadata('tqdm')
-datas += copy_metadata('ujson')
 
 binaries += collect_dynamic_libs('paddle')
+
+# GPU
+try:
+    importlib.metadata.version("paddlepaddle-gpu")
+    binaries += collect_dynamic_libs('nvidia')
+except Exception:
+    pass
 
 a = Analysis(
     ['main.py'],

@@ -1,3 +1,4 @@
+import importlib.metadata as importlib_metadata
 from enum import StrEnum
 
 import yaml
@@ -229,7 +230,12 @@ class Config:
         self.data_error: int = 0
         self.resource_dir = RESOURCE_DIR_PATH
         self.runtime = RuntimeState()
+        self._is_gpu: bool = self._detect_gpu_mode()  # GPU 模式
         self._init()
+
+    @property
+    def is_gpu(self) -> bool:
+        return self._is_gpu
 
     def _init(self):
         """初始化"""
@@ -277,6 +283,18 @@ class Config:
             logger.ui_error("file config.yaml save failed.")
             return False
         return True
+
+    @staticmethod
+    def _detect_gpu_mode() -> bool:
+        """检查是否GPU版本PaddlePaddle"""
+        try:
+            importlib_metadata.version("paddlepaddle-gpu")
+            return True
+        except importlib_metadata.PackageNotFoundError:
+            return False
+        except Exception as e:
+            logger.warning(f"GPU metadata detection failed: {e}")
+            return False
 
     def show_log(self):
         logger.info(

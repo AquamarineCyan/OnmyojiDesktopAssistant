@@ -90,33 +90,70 @@
 
 ### 3. 源码编译运行（不推荐）
 
-<details><summary> 需要自行安装Python环境 </summary>
+<details><summary> 需要自行安装 Python 环境 </summary>
 
 1. 下载源码  
+
     ```bash
     git clone https://github.com/AquamarineCyan/OnmyojiDesktopAssistant.git
     ```
 
-2. 安装依赖 
-    - pip 方式  
-    `pip install -r requirements.txt`
-    - uv 方式（推荐）  
-    安装 uv：[uv 官方文档](https://docs.astral.sh/uv/getting-started/installation/)  
-    `uv sync`
+2. 安装依赖
 
-3. 添加文字识别依赖库
+    安装 uv：[uv 官方文档](https://docs.astral.sh/uv/getting-started/installation/)
 
-    从 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载 `OnmyojiDesktopAssistant-2.x.x.zip`， 解压后找到`ocr`文件夹放在项目根目录下
+    ```bash
+    # 使用 uv 安装依赖
+    uv sync
 
-4. 运行/调试
+    # 使用 pip 安装依赖
+    pip install -r requirements.txt
+    ```
 
-    - 使用管理员程序启动你的IDE，如 `PyCharm`、`VSCode` 。
+    可选：GPU 安装（手动，非默认）
+
+    如果需要使用 GPU 加速，请在安装前先卸载 CPU 版 Paddle（如果已安装）：
+
+    ```bash
+    # 使用 uv 卸载 CPU 版本
+    uv pip uninstall -y paddlepaddle
+
+    # 使用 pip 卸载 CPU 版本
+    pip uninstall -y paddlepaddle
+    ```
+
+    根据你的 CUDA 版本安装 paddlepaddle-gpu（以 cu129 为例），更多信息请参考 PaddleOCR 官方文档：https://www.paddleocr.ai/latest/quick_start.html#1
+
+    ```bash
+    # 使用 uv 安装 gpu 依赖
+    uv pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+
+    # 使用 pip 安装 gpu 依赖
+    pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+    ```
+
+    建议在独立虚拟环境中安装 GPU 版本，避免与 CPU 版本冲突。
+
+3. 运行/调试
+
+    - 使用 **管理员权限** 启动IDE，如 `VSCode` 或者 `PyCharm` 。
+
     - 如果使用 `VSCode` 调试，已经提供了对应的调试文件，选择 `Project` 调试模式启动。
-    - 其他IDE：pip 方式运行 `python main.py`，uv 方式运行 `uv run python main.py` 。
 
-5. 打包
+    - 其他方式启动：
+      ```bash
+      # 使用 uv 运行
+      uv run python main.py
 
-    打包配置保存在 `main.spec` ，pip 方式使用 `pyinstaller main.spec`，uv 方式使用 `uv run pyinstaller main.spec` 命令，会在根目录下生成 `output` 文件夹。
+      # 使用 pip 运行
+      python main.py
+      ```
+
+4. 打包
+
+    打包配置保存在 `main.spec` ，打包时会根据构建环境是否已安装 `paddlepaddle-gpu` 自动收集对应的 GPU 动态库。
+
+    使用 `build.bat` 打包。打包完成会在当前目录下生成 `output` 文件夹。
 
 </details>
 
@@ -202,7 +239,9 @@
 ## 感谢
 
 [PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 文字识别库
+
 [zhiyiYo/PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PySide6) 基于 PySide6 的 Fluent Design 风格组件库
+
 [打包PaddleOCR项目](https://www.paddleocr.ai/latest/version3.x/inference_deployment/others/packaging.html) Paddle官方打包demo
 
 ## 更新记录

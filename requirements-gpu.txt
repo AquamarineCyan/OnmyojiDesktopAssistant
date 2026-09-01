@@ -1,0 +1,36 @@
+# GPU variant requirements
+# This requirements file adds the Paddle GPU package and provides a suitable index.
+# Recommended usage:
+#  - Use a fresh virtual environment (recommended): python -m venv .venv-gpu && .venv-gpu\Scripts\activate
+#  - Uninstall CPU paddle if already present:
+#      pip uninstall -y paddlepaddle
+#      # or if installed via uv
+#      uv pip uninstall -y paddlepaddle
+#  - Install packages using pip and the extra index for Paddle GPU (cu129 example):
+#      pip install -r requirements-gpu.txt --extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
+#  - Or using uv:
+#      uv pip install -r requirements-gpu.txt -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+
+# Add Paddle GPU index as an extra index URL so pip will still consult PyPI
+--extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
+
+httpx>=0.23.0
+numpy>=2.0.0,<2.4.0
+opencv-python==4.13.0.92
+packaging>=22.0
+paddleocr==3.7.0
+paddlepaddle-gpu==3.3.1
+pillow>=12.3.0
+PyAutoGUI
+pydantic>=2.1.0
+pynput
+PySide6>=6.10.1
+pyside6-fluent-widgets
+pywin32
+PyYAML==6.0.2
+win11toast
+winshell
+
+# Dev/test tools (optional)
+pyinstaller
+pytest

@@ -24,7 +24,7 @@ if not exist output (
 
 rmdir /s /q "lib"
 xcopy output . /s /e /v /q /y
-rmdir /s /q "build" "output"
+rmdir /s /q "output"
 
 echo Build completed successfully!
 

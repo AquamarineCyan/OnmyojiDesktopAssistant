@@ -40,10 +40,12 @@ from .window import GameWindow, window_manager
 class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
+
         language = config.user.game_language
         suffix = "" if language == GameLanguage.CN else f" - {language}"
         debug_suffix = f".{DEBUG_VERSION} - 测试版" if DEBUG_VERSION and DEBUG_VERSION != "0" else ""
-        title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}"
+        gpu_suffix = " - GPU" if config.is_gpu else ""
+        title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}{gpu_suffix}"
         self.setWindowTitle(title)
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
@@ -144,10 +146,12 @@ class MainWindow(FluentWindow):
         logger.info(f"[VERSION] {VERSION}")
         config.show_log()
         logger.ui("程序初始化中，请稍候")
+        if config.is_gpu:
+            logger.ui_warn("当前为GPU版本，请勿与正式版混合使用，不支持自动下载更新包。")
         log_clean_up()
 
-        # 优先在新线程中检查更新
-        upgrade.check_latest()
+        if not config.is_gpu:
+            upgrade.check_latest()
         get_update_info()
         check_announcements()
 
