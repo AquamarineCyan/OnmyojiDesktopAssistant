@@ -109,10 +109,15 @@ class QiLing(BasePackage):
             if bool(event_thread):
                 raise GUIStopException
 
-            result = self.check_jieqi_ready()
-            if result is False:
-                return
-            elif result is None:
+            for i in range(4):
+                result = self.check_jieqi_ready()
+                if result is True:
+                    break
+
+                if result is False:
+                    logger.ui_warn(f"结契准备就绪失败，重试第{i + 1}次")
+                    sleep(1)
+                    continue
                 continue
 
             self.check_click(self.global_assets.OCR_START, timeout=3)
@@ -174,7 +179,7 @@ class QiLing(BasePackage):
                     raise Exception("鸣契石数量为0，跳过鸣契召唤")
                 self.choose_stone(self.stone_numbers)
                 if need_click:
-                    sleep(7)
+                    sleep(7)  # 等待动画
                     Mouse.click(point)
                 return False
 
