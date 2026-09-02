@@ -109,8 +109,8 @@ class DaoGuanTuPo(BasePackage):
             self.IMAGE_ZHUWEI,
             self.IMAGE_ZHUWEI_GRAY,
             self.global_assets.IMAGE_FINISH,
-            self.global_assets.IMAGE_FAIL,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
         _flag_zhuwei_disable = False  # 是否能够助威
 
         while True:
@@ -136,8 +136,8 @@ class DaoGuanTuPo(BasePackage):
                 case self.global_assets.IMAGE_FINISH.name:
                     self.ensure_finish()
 
-                case self.global_assets.IMAGE_FAIL.name:
-                    logger.ui_warn("失败")
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
+                    logger.ui_warn(f"失败{('（' + result.description + '）') if result.description else ''}")
                     sleep(0.4, 0.8)
                     finish_random_left_right()
 
@@ -203,9 +203,9 @@ class DaoGuanTuPo(BasePackage):
             self.global_assets.IMAGE_READY_OLD,
             self.global_assets.IMAGE_READY_NEW,
             # self.global_image.IMAGE_VICTORY,
-            self.global_assets.IMAGE_FAIL,
             self.global_assets.IMAGE_FINISH,
         ]
+        self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
 
         while True:
             if bool(event_thread):
@@ -227,10 +227,10 @@ class DaoGuanTuPo(BasePackage):
                     finish_random_left_right()
                     return True
 
-                case self.global_assets.IMAGE_FAIL.name:
+                case name if name in self.global_assets.ALL_FAIL_NAMES:
                     sleep()
                     finish_random_left_right()
-                    logger.ui_warn("失败")
+                    logger.ui_warn(f"失败{('（' + result.description + '）') if result.description else ''}")
                     return False
 
     def run(self):
