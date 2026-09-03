@@ -1,10 +1,9 @@
-import importlib.metadata as importlib_metadata
 from enum import StrEnum
 
 import yaml
 from pydantic import BaseModel, field_validator
 
-from .application import RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
+from .application import APP_PATH, RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
 from .log_color import DEFAULT_LOG_COLORS, LogColorLevel, normalize_color
 
@@ -286,15 +285,11 @@ class Config:
 
     @staticmethod
     def _detect_gpu_mode() -> bool:
-        """检查是否GPU版本PaddlePaddle"""
-        try:
-            importlib_metadata.version("paddlepaddle-gpu")
-            return True
-        except importlib_metadata.PackageNotFoundError:
-            return False
-        except Exception as e:
-            logger.warning(f"GPU metadata detection failed: {e}")
-            return False
+        """检查是否为 GPU 版本。
+
+        GPU 版本打包后会包含 lib/nvidia 目录，通过检查该目录是否存在来判断。
+        """
+        return (APP_PATH / "lib" / "nvidia").is_dir()
 
     def show_log(self):
         logger.info(
