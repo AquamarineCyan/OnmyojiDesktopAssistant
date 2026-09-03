@@ -1,6 +1,6 @@
 [project]
 name = "OnmyojiDesktopAssistant"
-version = "2.1.3"
+version = "2.1.4"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = [{name = "AquamarineCyan", email = "1057424730@qq.com"}]
 readme = "README.md"
@@ -28,7 +28,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "pyinstaller>=6.21.0",
+    "pyinstaller>=6.22.2",
     "pytest>=9.1.1",
 ]
 

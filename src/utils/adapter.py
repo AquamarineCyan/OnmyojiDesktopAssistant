@@ -104,22 +104,23 @@ class Mouse:
     def _move_backend(
         cls,
         dst_point: Point | None = None,
-        x: float = None,
-        y: float = None,
-        xOffset: float = None,
-        yOffset: float = None,
+        x: float | None = None,
+        y: float | None = None,
+        xOffset: float | None = None,
+        yOffset: float | None = None,
     ):
         global _back_click_point
 
         # 使用客户区坐标作为目标位置
-        if dst_point:
-            dst_point = dst_point
-        elif x is not None and y is not None:
-            dst_point = Point(x, y)
-        else:
-            return
+        if dst_point is None:
+            if x is not None and y is not None:
+                dst_point = Point(x, y)
+            else:
+                return
 
-        hwnd = window_manager.current.handle
+        hwnd = window_manager.get_current_handle()
+        if hwnd is None:
+            return
         current_point = _back_click_point
 
         # 计算移动的步数
@@ -192,7 +193,9 @@ class Mouse:
         else:
             dst_point = point
 
-        hwnd = window_manager.current.handle
+        hwnd = window_manager.get_current_handle()
+        if hwnd is None:
+            return
         current_point = _back_click_point
 
         # 计算移动的步数
@@ -264,7 +267,9 @@ class Mouse:
     def _drag_backend(cls, x_offset: int = None, y_offset: int = None):
         global _back_click_point
 
-        hwnd = window_manager.current.handle
+        hwnd = window_manager.get_current_handle()
+        if hwnd is None:
+            return
         temp_point = copy.copy(_back_click_point)
         # 计算移动的步数
         steps = max(abs(x_offset), abs(y_offset)) // 10
@@ -312,7 +317,9 @@ class Mouse:
 
     @classmethod
     def _scroll_backend(cls, distance: int):
-        hwnd = window_manager.current.handle
+        hwnd = window_manager.get_current_handle()
+        if hwnd is None:
+            return
         temp_point = copy.copy(_back_click_point)
         lParam = win32api.MAKELONG(int(temp_point.client_x), int(temp_point.client_y))
         cls._win_scroll(hwnd, distance, lParam)
@@ -353,7 +360,9 @@ class KeyBoard:
         if not vk_code:
             raise ValueError(f"Unsupported key: {key}")
 
-        hwnd = window_manager.current.handle
+        hwnd = window_manager.get_current_handle()
+        if hwnd is None:
+            return
         win32api.PostMessage(hwnd, win32con.WM_KEYDOWN, vk_code, 0)
         win32api.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 1)
 

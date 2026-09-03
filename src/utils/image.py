@@ -102,7 +102,7 @@ class RuleImage:
         return str(self.file.absolute())
 
     def load_image(self) -> None:
-        if self._image:
+        if self._image is not None:
             return
         if self.method == "COLOR":
             _method = cv2.IMREAD_COLOR

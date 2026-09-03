@@ -80,7 +80,11 @@ def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
 
 
 @log_caller
-def random_sleep(caller_name, minimum: int | float = 1.0, maximum: int | float | None = None) -> None:
+def random_sleep(
+    caller_name: str = "",
+    minimum: int | float = 1.0,
+    maximum: int | float | None = None,
+):
     """随机延时（秒）
 
     参数:
@@ -252,12 +256,15 @@ def get_asset_data(resource_path) -> tuple[Path | dict]:
     return (assets_file, merge_dict(data_default, data_user))
 
 
-def prevent_sleep(enable: bool):
+def prevent_sleep(enable: bool) -> bool:
     """
     阻止或允许系统休眠
 
-    参数：
-        enable (bool): True：阻止休眠, False：允许休眠
+    Args:
+        enable (bool): True: 阻止休眠, False: 允许休眠
+
+    Returns:
+        bool: 操作是否成功
     """
     # 常量定义
     ES_CONTINUOUS = 0x80000000
@@ -279,5 +286,7 @@ def prevent_sleep(enable: bool):
     result = SetThreadExecutionState(state)
     if result != 0:
         logger.info(f"防休眠模式 {'启用' if enable else '关闭'}")
+        return True
     else:
         logger.ui_error(f"防休眠模式 {'启用' if enable else '关闭'}失败")
+        return False

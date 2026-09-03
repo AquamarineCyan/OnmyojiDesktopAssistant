@@ -1,3 +1,5 @@
+import time
+
 from ..utils.adapter import Mouse
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
@@ -202,7 +204,6 @@ class DaoGuanTuPo(BasePackage):
         self.current_asset_list = [
             self.global_assets.IMAGE_READY_OLD,
             self.global_assets.IMAGE_READY_NEW,
-            # self.global_image.IMAGE_VICTORY,
             self.global_assets.IMAGE_FINISH,
         ]
         self.current_asset_list.extend(self.global_assets.ALL_FAIL_IMAGES)
