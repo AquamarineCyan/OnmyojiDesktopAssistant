@@ -67,10 +67,10 @@ class BaiGuiYeXing(BasePackage):
         Mouse.click(rule_image.center_point())
         sleep(2)
 
-        # 在好友列表中选择好友
+        # 好友列表
         friend_slots = [
-            Point(300, 250),  # 第一个
-            Point(650, 250),  # 第二个
+            Point(430, 240),  # 第一个
+            Point(660, 240),  # 第二个
         ]
 
         # 邀请星重聚对象
@@ -91,9 +91,22 @@ class BaiGuiYeXing(BasePackage):
             Mouse.click(target_point)
             sleep(1)
         else:
+            logger.ui_warn("未发现星重聚对象，尝试邀请好友")
             for i, slot in enumerate(friend_slots):
                 logger.ui(f"尝试邀请第 {i + 1} 个位置的好友")
                 Mouse.click(slot)
+                sleep(2)
+
+                # 检查是否邀请成功
+                _image = RuleImage(self.IMAGE_YAOQING)
+                if _image.match():
+                    Mouse.click(_image.center_point())
+                    sleep(2)
+                else:
+                    logger.ui("已邀请好友")
+                    break
+            else:
+                logger.ui_warn("当前所有好友邀请失败")
 
     @log_function_call
     def choose(self):
