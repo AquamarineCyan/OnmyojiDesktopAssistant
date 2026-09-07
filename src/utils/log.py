@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 from datetime import date, datetime
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
@@ -60,7 +62,9 @@ file_handler = TimedRotatingFileHandler(
 file_handler.setLevel(logging.INFO)
 
 # 创建屏幕处理程序
-stream_handler = logging.StreamHandler()
+# 无控制台打包时 sys.stderr 为 None，兜底到空设备，避免每次输出触发异常
+_stream = sys.stderr if sys.stderr is not None else open(os.devnull, "w", encoding="utf-8")
+stream_handler = logging.StreamHandler(_stream)
 stream_handler.setLevel(logging.DEBUG)
 
 # 创建日志格式
@@ -74,6 +78,40 @@ stream_handler.setFormatter(formatter)
 # 将处理程序添加到日志记录器
 logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
+
+
+class _LogRedirectStream:
+    """将第三方库通过 print / sys.stdout.write 输出的文本转发到日志文件"""
+
+    def __init__(self, name: str, level: int = logging.INFO):
+        self._name = name
+        self._level = level
+        self._buffer = ""
+
+    def write(self, text: str):
+        if not text:
+            return
+        self._buffer += text
+        while "\n" in self._buffer:
+            line, self._buffer = self._buffer.split("\n", 1)
+            if line.strip():
+                logger.log(self._level, f"[{self._name}] {line}")
+
+    def flush(self):
+        if self._buffer.strip():
+            logger.log(self._level, f"[{self._name}] {self._buffer}")
+            self._buffer = ""
+
+    def isatty(self) -> bool:
+        return False
+
+
+def redirect_third_party_output():
+    """在 sys.stdout / sys.stderr 为空（无控制台打包）时，将其重定向到日志文件"""
+    if sys.stdout is None:
+        sys.stdout = _LogRedirectStream("stdout")
+    if sys.stderr is None:
+        sys.stderr = _LogRedirectStream("stderr")
 
 
 def log_clean_up() -> bool:

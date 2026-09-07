@@ -5,6 +5,10 @@ from PySide6.QtWidgets import QApplication
 
 from src.utils.config import config  # noqa: F401
 from src.utils.gui import MainWindow
+from src.utils.log import redirect_third_party_output
+
+# 重定向到日志并记录第三方输出
+redirect_third_party_output()
 
 if __name__ == "__main__":
     # 管理员启动
