@@ -418,6 +418,7 @@ class MainWindow(FluentWindow):
                 QiLing.description()
                 set_stack(StackedWidgetIndex.QILING)
                 basic_group.number_spinbox.setEnabled(False)
+                advanced_stack.qiling_card.tancha_spinbox.setMaximum(999)
 
             case GameFunction.JUEXING:
                 JueXing.description()
