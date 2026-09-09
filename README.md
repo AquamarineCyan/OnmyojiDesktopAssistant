@@ -248,6 +248,8 @@
 
 - 收费商家：闲鱼用户 [小段爱玩阴阳师](https://www.goofish.com/personal?userId=3933099288)
 
+    ![小段爱玩阴阳师](docs/id小段爱玩阴阳师.jpg)
+
 ## 更新记录
 
 [CHANGELOG.MD](CHANGELOG.MD)
