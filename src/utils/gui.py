@@ -6,6 +6,7 @@ from threading import Thread
 from PIL.ImageQt import ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QWidget
 from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
 
 from ..package import *
@@ -48,9 +49,24 @@ class MainWindow(FluentWindow):
         title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}{gpu_suffix}"
         self.setWindowTitle(title)
 
+        self.sub_windows: list[QWidget] = []  # 子窗口列表
+
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
         self.software_init()
+
+    def open_sub_window(self, window: QWidget) -> QWidget:
+        """注册并打开独立子弹窗，统一管理以便关闭软件时一起关闭
+
+        Args:
+            window (QWidget): 要打开的弹窗
+
+        Returns:
+            QWidget: 传入的弹窗实例
+        """
+        self.sub_windows.append(window)
+        window.show()
+        return window
 
     def ui_init(self):
         """初始化UI"""
@@ -702,10 +718,11 @@ class MainWindow(FluentWindow):
         global_task.stop()
 
         # 关闭子窗口
-        if hasattr(self, "update_record_widget"):
-            self.update_record_widget.close()
-        if hasattr(self, "upgrade_new_version_widget"):
-            self.upgrade_new_version_widget.close()
+        for child in self.sub_windows:
+            with suppress(RuntimeError):
+                if child is not None and child.isVisible():
+                    child.close()
+        self.sub_windows.clear()
 
         with suppress(Exception):
             logger.info("[EXIT]")
@@ -716,13 +733,10 @@ class MainWindow(FluentWindow):
         self.close()
 
     def show_announcement_window(self, announcements: list[dict]):
-        self.announcement_window = AnnouncementWindow(announcements)
-        self.announcement_window.show()
+        self.open_sub_window(AnnouncementWindow(announcements))
 
     def show_update_record_window(self):
-        self.update_record_widget = UpdateRecordWindow()
-        self.update_record_widget.show()
+        self.open_sub_window(UpdateRecordWindow())
 
     def show_upgrade_new_version_window(self):
-        self.upgrade_new_version_widget = UpgradeNewVersionWidget()
-        self.upgrade_new_version_widget.show()
+        self.open_sub_window(UpgradeNewVersionWidget())
