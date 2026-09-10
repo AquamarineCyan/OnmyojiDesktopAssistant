@@ -1,8 +1,14 @@
+<div align="center">
+<img alt="OnmyojiDesktopAssistant" src="./docs/logo.jpg" width="200" height="200" />
+
 # OnmyojiDesktopAssistant
 
-![Python](https://img.shields.io/badge/python-3.11+-blue)
+<div>
+    <img alt="Python" src="https://img.shields.io/badge/python-3.11+-blue">
+    <a href="https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest"><img alt="GitHub release" src="https://img.shields.io/github/v/release/AquamarineCyan/OnmyojiDesktopAssistant"></a>
+</div>
 
-[![GitHub release (with filter)](https://img.shields.io/github/v/release/AquamarineCyan/OnmyojiDesktopAssistant)](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
+</div>
 
 ## 简介
 
@@ -176,7 +182,7 @@
 
 ## 主界面
 
-![效果图](docs/效果图.png)
+<img src="docs/效果图.png" alt="效果图" width="500" />
 
 ## 后台交互模式
 
@@ -188,7 +194,7 @@
 3. 切换到 `窗口管理` 页签，点击 `预览` 按钮，能够显示游戏窗口截图，表明可以正常使用后台交互模式。
 4. 如果游戏窗口截图为黑屏，在 `设置` 页签切换 `后台截图模式` 后重试。如果所有的截图模式都显示黑屏，请改为 `前台交互模式`。
 
-![后台交互模式](docs/后台交互模式.png)
+<img src="docs/后台交互模式.png" alt="后台交互模式" width="500" />
 
 
 ## 多开
@@ -199,7 +205,7 @@
 2. 启动多个本软件，按照 `后台交互模式` 配置后台功能，并确保后台正常使用。
 2. 切换到 `窗口管理` 页签，点击 `预览` 按钮，选择对应窗口，确认每个软件检测到对应的游戏，并点击 `应用` 按钮。
 
-![多开示意图](docs/多开示意图.png)
+<img src="docs/多开示意图.png" alt="多开示意图" width="500" />
 
 
 ## 日服
@@ -248,7 +254,7 @@
 
 - 收费商家：闲鱼用户 [小段爱玩阴阳师](https://www.goofish.com/personal?userId=3933099288)
 
-    ![小段爱玩阴阳师](docs/id小段爱玩阴阳师.jpg)
+    <img src="docs/id小段爱玩阴阳师.jpg" alt="小段爱玩阴阳师" width="300" />
 
 ## 更新记录
 
