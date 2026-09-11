@@ -2,6 +2,11 @@
 
 ## 最近更新
 
+### 新功能
+
+- 重构`更新下载`功能，支持 [Mirror酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 高速下载
+- 检测到新版本界面支持查看最近几次的更新信息
+
 ### 优化
 
 - 提升`契灵之境`的`探查次数`上限为999次

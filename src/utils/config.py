@@ -18,8 +18,9 @@ class GameLanguage(StrEnum):
 class UpdateDownload(StrEnum):
     """下载线路"""
 
-    MIRROR = "镜像站"
     GITHUB = "GitHub"
+    MIRRORCHYAN = "Mirror酱"
+    MIRROR = "镜像站"
 
 
 class XuanShangFengYin(StrEnum):
@@ -47,7 +48,7 @@ class InteractionMode(StrEnum):
 
 _game_language_list = [GameLanguage.CN, GameLanguage.JA]
 """游戏语言"""
-_update_download_list = [UpdateDownload.MIRROR, UpdateDownload.GITHUB]
+_update_download_list = [UpdateDownload.GITHUB, UpdateDownload.MIRRORCHYAN, UpdateDownload.MIRROR]
 """下载线路"""
 _xuanshangfengyin_list = [
     XuanShangFengYin.ACCEPT,
@@ -169,6 +170,8 @@ class UserConfig(BaseModel):
     """自动更新"""
     update_download: str = UpdateDownload.MIRROR
     """下载线路"""
+    mirrorchyan_cdk: str = ""
+    """Mirror酱 CDK（选择 Mirror酱 线路时使用的卡密）"""
     xuanshangfengyin: str = XuanShangFengYin.ACCEPT
     """悬赏封印"""
     remember_last_choice: bool = False
@@ -292,9 +295,10 @@ class Config:
         return (APP_PATH / "lib" / "nvidia").is_dir()
 
     def show_log(self):
-        logger.info(
-            f"配置更新完成\n{yaml.dump(self.user.model_dump(mode='json'), allow_unicode=True, sort_keys=False)}"
-        )
+        _dump = yaml.dump(self.user.model_dump(mode="json"), allow_unicode=True, sort_keys=False)
+        if self.user.mirrorchyan_cdk:
+            _dump = _dump.replace(self.user.mirrorchyan_cdk, "***")
+        logger.info(f"配置更新完成\n{_dump}")
 
     def update(self, key: str, value: str):
         """设置项更新
@@ -310,7 +314,9 @@ class Config:
             config.update("interaction_mode.backend.prevent_sleep", False)
         ```
         """
-        logger.info(f"配置项 [{key}] 更新为 [{value}]")
+        # CDK 属于敏感信息，日志中不输出明文
+        _show_value = "***" if key == "mirrorchyan_cdk" and value else value
+        logger.info(f"配置项 [{key}] 更新为 [{_show_value}]")
         config_dict = self.user.model_dump(mode="json")
 
         keys = key.split(".")

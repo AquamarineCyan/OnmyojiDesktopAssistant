@@ -4,7 +4,8 @@ from qfluentwidgets import TextBrowser
 
 from ..utils.application import ICO_RESOURCE_PATH
 from ..utils.log import logger
-from ..utils.update import get_local_update_record
+from ..utils.markdown import autolink_urls, downgrade_headings
+from ..utils.update import update_manager
 
 
 class UpdateRecordWindow(QWidget):
@@ -14,43 +15,20 @@ class UpdateRecordWindow(QWidget):
         super().__init__()
         self.setWindowIcon(QIcon(ICO_RESOURCE_PATH))
         self.setWindowTitle("更新记录")
-        self.resize(600, 450)
+        self.resize(600, 500)
 
         self.text_browser = TextBrowser(self)
         self.text_browser.setOpenLinks(False)  # 禁用内部链接处理
-        self.text_browser.anchorClicked.connect(self._open_external_browser)
+        self.text_browser.anchorClicked.connect(QDesktopServices.openUrl)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.addWidget(self.text_browser)
 
-        update_info = get_local_update_record()
+        update_info = update_manager.get_local_update_record()
         text = self.convert_to_markdown(update_info)
         self.text_browser.setMarkdown(text)
         logger.info(f"[update record]\n{text}")
-
-    def _open_external_browser(self, url):
-        QDesktopServices.openUrl(url)
-
-    def downgrade_headings(self, text: str):
-        """
-        将Markdown文本中的所有标题降一级（如# 标题 → ## 标题）
-        最多处理到六级标题，超过六级保持不变
-        """
-        lines = text.split("\n")
-        processed_lines = []
-        for line in lines:
-            stripped = line.lstrip("#")
-            # 计算原标题级别
-            level = len(line) - len(stripped)
-
-            if level > 0 and stripped.startswith(" "):
-                # 降级处理（但不超过6级）
-                new_level = min(level + 1, 6)
-                processed_lines.append("#" * new_level + stripped)
-            else:
-                processed_lines.append(line)
-        return "\n".join(processed_lines)
 
     def convert_to_markdown(self, update_info: list[dict]):
         # 按版本号降序排序（最新版本在前）
@@ -72,9 +50,11 @@ class UpdateRecordWindow(QWidget):
             body = body.replace("\r\n", "\n")
             # 移除行尾空白
             body = body.strip()
+            # 将裸 URL 转为超链接，与 GitHub 渲染一致
+            body = autolink_urls(body)
 
             # 对内容中的所有标题进行降级处理
-            processed_body = self.downgrade_headings(body)
+            processed_body = downgrade_headings(body)
 
             # 添加到Markdown内容
             markdown_lines.append(processed_body)

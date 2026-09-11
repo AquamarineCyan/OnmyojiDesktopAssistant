@@ -86,15 +86,18 @@
    - [【阴阳师】幼教级新桌面版安装及多开教程](https://www.bilibili.com/video/BV1rEUiBdEL6)
  - 新版与旧版仅窗口名称区别，其余功能一致。
 
+### 2. 下载
+   - 通过 [GitHub Releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载最新版本 `OnmyojiDesktopAssistant-2.x.x.zip`。
+   - 通过 [Mirror 酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 下载最新版本。国内访问更稳定更快速。
 
-###  2. 运行本软件
+   > [!NOTE]
+   > `Mirror酱` 是独立的第三方下载加速服务，需要付费使用，而非本软件收费。其运营成本由订阅收入支撑，部分收益将回馈项目开发者。欢迎订阅 CDK 享受高速下载，同时支持项目持续开发。
 
-  1. 前往 [releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest)
-  2. 下载最新压缩包 `OnmyojiDesktopAssistant-2.x.x.zip`
-  3. 解压到英文路径，双击 `OnmyojiDesktopAssistant.exe` 运行。
+### 3. 启动
 
+解压到英文路径，双击 `OnmyojiDesktopAssistant.exe` 运行。
 
-### 3. 源码编译运行（不推荐）
+### 4. 源码编译运行（不推荐）
 
 <details><summary> 需要自行安装 Python 环境 </summary>
 

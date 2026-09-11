@@ -16,15 +16,15 @@ class Restart:
         with open(self.bat_path, "w", encoding="ANSI") as f:
             f.write(bat_text)
 
-    def app_restart(self, is_upgrade: bool = False) -> None:
+    def app_restart(self, is_update: bool = False) -> None:
         """程序重启
 
         参数:
-            is_upgrade (bool): 是否更新重启，默认否
+            is_update (bool): 是否更新重启，默认否
         """
         logger.info("restarting...")
         # 更新重启有独立的脚本
-        if not is_upgrade:
+        if not is_update:
             self.write_restart_bat()
         # 启动.bat文件
         Popen([self.bat_path])
@@ -57,7 +57,7 @@ del %0
 """
         self.save(bat_text)
 
-    def write_upgrage_restart_bat(self, unzip_path: str = "zip_files") -> None:
+    def write_update_restart_bat(self, unzip_path: str = "zip_files") -> None:
         """编写更新重启脚本
 
         参数:

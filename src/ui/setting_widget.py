@@ -14,6 +14,7 @@ from qfluentwidgets import (
     HyperlinkLabel,
     IconWidget,
     IndicatorPosition,
+    LineEdit,
     PushButton,
     QColor,
     ScrollArea,
@@ -25,8 +26,16 @@ from ..utils.application import (
     HELP_DOC_LINK,
     HOME_PAGE_LINK,
     QQ_GROUP_LINK,
+    Connect,
 )
-from ..utils.config import DEFAULT_LOG_COLORS, InteractionMode, LogColorLevel, config, default_config
+from ..utils.config import (
+    DEFAULT_LOG_COLORS,
+    InteractionMode,
+    LogColorLevel,
+    UpdateDownload,
+    config,
+    default_config,
+)
 from .game_function_selector_widget import GameFunctionSelectorWidget
 
 
@@ -471,13 +480,19 @@ class SettingUpdateCard(ExpandGroupSettingCard):
         self.download_combobox = ComboBox()
         self.download_combobox.addItems(default_config.update_download)
         self.download_combobox.setFixedWidth(135)
+        self.download_combobox.setCurrentText(config.user.update_download)
         self.download_combobox.currentIndexChanged.connect(self._config_update)
+
+        # Mirror酱 CDK 分组
+        self.cdk_group = None
+        self.cdk_edit: LineEdit = None
 
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
 
         self.addGroup(FluentIcon.UPDATE, "自动更新", "在应用程序启动时检查更新", self.mode_switch)
         self.addGroup(FluentIcon.DOWNLOAD, "下载站点", "使用镜像源可加快下载速度", self.download_combobox)
+        self._sync_mirrorchyan_group()
 
     def _config_update(self):
         status = self.mode_switch.isChecked()
@@ -487,6 +502,46 @@ class SettingUpdateCard(ExpandGroupSettingCard):
         text = self.download_combobox.currentText()
         if text != config.user.update_download:
             config.update("update_download", text)
+
+        self._sync_mirrorchyan_group()
+
+    def _sync_mirrorchyan_group(self):
+        """按当前线路增删 Mirror酱 CDK 分组"""
+        if config.user.update_download == UpdateDownload.MIRRORCHYAN and self.cdk_group is None:
+            self.cdk_edit = LineEdit()
+            self.cdk_edit.setPlaceholderText("请输入Mirror酱CDK")
+            self.cdk_edit.setFixedWidth(200)
+            self.cdk_edit.setText(config.user.mirrorchyan_cdk)
+            self.cdk_edit.editingFinished.connect(self._config_update_cdk)
+
+            self.get_cdk_link = HyperlinkLabel("获取CDK")
+            self.get_cdk_link.setUrl(Connect.MirrorChyan.home)
+            self.get_cdk_link.setToolTip(Connect.MirrorChyan.home)
+
+            self.cdk_box = QWidget()
+            cdk_layout = QHBoxLayout(self.cdk_box)
+            cdk_layout.setContentsMargins(0, 0, 0, 0)
+            cdk_layout.setSpacing(12)
+            cdk_layout.addWidget(self.cdk_edit)
+            cdk_layout.addWidget(self.get_cdk_link, alignment=Qt.AlignmentFlag.AlignVCenter)
+            cdk_layout.addStretch(1)
+
+            self.cdk_group = self.addGroup(
+                FluentIcon.PIN,
+                "Mirror酱 CDK",
+                "选择 Mirror酱 线路下载时使用的卡密",
+                self.cdk_box,
+            )
+
+        elif config.user.update_download != UpdateDownload.MIRRORCHYAN and self.cdk_group is not None:
+            self.removeGroupWidget(self.cdk_group)
+            self.cdk_group = None
+            self.cdk_edit = None
+
+    def _config_update_cdk(self):
+        text = self.cdk_edit.text().strip()
+        if text != config.user.mirrorchyan_cdk:
+            config.update("mirrorchyan_cdk", text)
 
 
 class SettingFunctionSelectorCard(AppCard):

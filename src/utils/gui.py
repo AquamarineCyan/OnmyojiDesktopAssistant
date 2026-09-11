@@ -17,8 +17,8 @@ from ..ui.first_use_widget import FirstUseMessageBox
 from ..ui.fluent import Window as FluentWindow
 from ..ui.force_zoom_dialog import ForceZoomDialog
 from ..ui.home_widget import StackedWidgetIndex
+from ..ui.update_new_version_widget import UpdateNewVersionWidget
 from ..ui.update_record_widget import UpdateRecordWindow
-from ..ui.upgrade_new_version_widget import UpgradeNewVersionWidget
 from .announcement import check_announcements, show_all_announcements
 from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION
 from .config import GameLanguage, InteractionMode, config
@@ -33,8 +33,7 @@ from .paddleocr import check_ocr_folder, ocr_manager
 from .restart import Restart
 from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut
-from .update import get_update_info
-from .upgrade import upgrade
+from .update import update_manager
 from .window import GameWindow, window_manager
 
 
@@ -126,7 +125,7 @@ class MainWindow(FluentWindow):
         ms.main.ui_xuanshangfengyin_update.connect(self.ui_xuanshangfengyin_update_handle)
         ms.main.sys_exit.connect(self._exit_handle)
         ms.announcement.show_ui.connect(self.show_announcement_window)
-        ms.upgrade_new_version.show_ui.connect(self.show_upgrade_new_version_window)
+        ms.update_new_version.show_ui.connect(self.show_update_new_version_window)
 
     def _init_events(self):
         """初始化事件"""
@@ -167,8 +166,7 @@ class MainWindow(FluentWindow):
         log_clean_up()
 
         if not config.is_gpu:
-            upgrade.check_latest()
-        get_update_info()
+            update_manager.check_latest()
         check_announcements()
 
         if not self.software_selfcheck():
@@ -738,5 +736,5 @@ class MainWindow(FluentWindow):
     def show_update_record_window(self):
         self.open_sub_window(UpdateRecordWindow())
 
-    def show_upgrade_new_version_window(self):
-        self.open_sub_window(UpgradeNewVersionWidget())
+    def show_update_new_version_window(self):
+        self.open_sub_window(UpdateNewVersionWidget())

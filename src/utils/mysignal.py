@@ -13,7 +13,7 @@ class MySignals(QObject):
     def __init__(self) -> None:
         self.main = self.Main()
         self.announcement = self.Announcement()
-        self.upgrade_new_version = self.UpgradeNewVersion()
+        self.update_new_version = self.UpdateNewVersion()
         self.update_record = self.UpdateRecord()
 
     class Main(QObject):
@@ -73,7 +73,7 @@ class MySignals(QObject):
         text_markdown_update = Signal(str)
         """更新`MarkDown`文本"""
 
-    class UpgradeNewVersion(QObject):
+    class UpdateNewVersion(QObject):
         """更新新版本"""
 
         progress_text_update = Signal(str)

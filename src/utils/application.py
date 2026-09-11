@@ -46,7 +46,6 @@ class Connect:
     repo = APP_NAME
     homepage = f"https://github.com/{owner}/{repo}"
     releases_api = f"https://api.github.com/repos/{owner}/{repo}/releases"
-    releases_latest_api = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
     }
@@ -57,6 +56,21 @@ class Connect:
         "https://free.cn.eu.org/",
         "https://gh.slw.im/",
     ]
+
+    class MirrorChyan:
+        """Mirror酱（MirrorChyan）镜像分发站配置
+
+        官方文档: https://github.com/MirrorChyan/docs
+        """
+
+        resource = APP_NAME
+        """资源ID"""
+        home = "https://mirrorchyan.com/zh/get-start"
+        """主页链接"""
+        api = "https://mirrorchyan.com/api/resources"
+        """接口基础地址"""
+        user_agent = "ODAGUI"
+        """客户端标识"""
 
 
 HOME_PAGE_LINK = Connect.homepage
@@ -69,7 +83,9 @@ QQ_GROUP_LINK = "https://qm.qq.com/q/T5pnZ5tGAs"
 ICO_RESOURCE_PATH: str = ":/icon/buzhihuo.jpg"
 """图标路径（Qt资源）"""
 
-ANNOUNCEMENT_URL = f"https://raw.githubusercontent.com/{Connect.owner}/{Connect.repo}/main/announcements.json"
+UPDATE_INFO_FILE: Path = USER_DATA_DIR_PATH / "update_info.json"
+"""更新记录文件"""
+ANNOUNCEMENT_URL: str = f"https://raw.githubusercontent.com/{Connect.owner}/{Connect.repo}/main/announcements.json"
 """公告文件地址"""
-ANNOUNCEMENT_CACHE_FILE = USER_DATA_DIR_PATH / "announcements.json"
+ANNOUNCEMENT_CACHE_FILE: Path = USER_DATA_DIR_PATH / "announcements.json"
 """公告本地缓存文件"""
