@@ -1,11 +1,10 @@
-import subprocess
-
 from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QDesktopServices
 from qfluentwidgets import CheckBox, MessageBox, PushButton
 
-from ..utils.application import APP_NAME, HELP_DOC_LINK, LOG_DIR_PATH
+from ..utils.application import HELP_DOC_LINK
 from ..utils.log import logger
+from .ui_utils import open_log_folder
 
 
 class FirstUseMessageBox(MessageBox):
@@ -19,7 +18,7 @@ class FirstUseMessageBox(MessageBox):
         )
 
         self.log_btn = PushButton("打开日志文件夹")
-        self.log_btn.clicked.connect(self._open_log_folder)
+        self.log_btn.clicked.connect(open_log_folder)
         self.help_btn = PushButton("帮助文档")
         self.help_btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(HELP_DOC_LINK)))
         self.exit_btn = PushButton("退出")
@@ -48,15 +47,6 @@ class FirstUseMessageBox(MessageBox):
         )
 
         self.yesButton.clicked.connect(lambda: logger.info("用户确认温馨提示，关闭首次启动提示弹窗"))
-
-    def _open_log_folder(self):
-        """打开日志文件夹并选中当前日志文件（Windows 资源管理器）"""
-        log_file = LOG_DIR_PATH / f"{APP_NAME}.log"
-        if log_file.is_file():
-            # 打开文件夹并高亮选中当前使用的日志文件
-            subprocess.Popen(f'explorer.exe /select,"{log_file}"')
-        else:
-            QDesktopServices.openUrl(QUrl.fromLocalFile(str(LOG_DIR_PATH)))
 
     def _exit_app(self):
         """退出程序"""

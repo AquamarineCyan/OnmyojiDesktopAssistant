@@ -11,21 +11,26 @@ from qfluentwidgets import (
     ComboBox,
     ExpandGroupSettingCard,
     FluentIcon,
+    HyperlinkCard,
     HyperlinkLabel,
     IconWidget,
     IndicatorPosition,
     LineEdit,
     PushButton,
+    PushSettingCard,
     QColor,
     ScrollArea,
+    SettingCard,
     SubtitleLabel,
     SwitchButton,
 )
 
 from ..utils.application import (
+    APP_NAME,
     HELP_DOC_LINK,
     HOME_PAGE_LINK,
     QQ_GROUP_LINK,
+    VERSION,
     Connect,
 )
 from ..utils.config import (
@@ -37,6 +42,7 @@ from ..utils.config import (
     default_config,
 )
 from .game_function_selector_widget import GameFunctionSelectorWidget
+from .ui_utils import open_log_folder
 
 
 class AppCard(CardWidget):
@@ -305,6 +311,23 @@ class SettingWinToastCard(AppCard):
         status = self.switch.isChecked()
         if status != config.user.win_toast:
             config.update("win_toast", status)
+
+
+class SettingLogFolderCard(AppCard):
+    """设置项-日志文件夹"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.FOLDER,
+            "日志文件夹",
+            "打开日志文件夹，反馈问题时请附上日志",
+            parent,
+        )
+
+        self.open_button = PushButton("打开日志文件夹")
+        self.open_button.clicked.connect(open_log_folder)
+
+        self.hBoxLayout.addWidget(self.open_button)
 
 
 class SettingBattleThemeCard(AppCard):
@@ -577,12 +600,30 @@ class SettingAboutCard(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.home_page_label = HyperlinkLabel("项目主页")
-        self.home_page_label.setUrl(HOME_PAGE_LINK)
-        self.help_doc_label = HyperlinkLabel("帮助文档")
-        self.help_doc_label.setUrl(HELP_DOC_LINK)
-        self.qq_group_label = HyperlinkLabel("QQ群")
-        self.qq_group_label.setUrl(QQ_GROUP_LINK)
+
+        self.version_card = PushSettingCard(
+            f"当前版本: v{VERSION}",
+            FluentIcon.INFO,
+            APP_NAME,
+            f"作者: {Connect.owner}",
+            self,
+        )
+
+        self.github_card = HyperlinkCard(
+            HOME_PAGE_LINK,
+            "前往 GitHub",
+            FluentIcon.GITHUB,
+            "GitHub 仓库",
+            "如果您觉得本软件对您有帮助，在 GitHub 给个 star 支持一下！",
+            self,
+        )
+
+        self.disclaimer_card = SettingCard(
+            FluentIcon.INFO,
+            "免责声明",
+            "本软件完全免费，严禁私自倒卖，收费，用于任何商业用途。",
+            self,
+        )
 
         self.short_cut_button = PushButton("创建快捷方式")
         self.app_restart_button = PushButton("重启应用程序")
@@ -596,6 +637,13 @@ class SettingAboutCard(QWidget):
         self.hBoxLayout1.addWidget(self.update_record_button)
         self.hBoxLayout1.addWidget(self.announcement_button)
 
+        self.home_page_label = HyperlinkLabel("项目主页")
+        self.home_page_label.setUrl(HOME_PAGE_LINK)
+        self.help_doc_label = HyperlinkLabel("帮助文档")
+        self.help_doc_label.setUrl(HELP_DOC_LINK)
+        self.qq_group_label = HyperlinkLabel("QQ群")
+        self.qq_group_label.setUrl(QQ_GROUP_LINK)
+
         self.hBoxLayout2 = QHBoxLayout()
         self.hBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.hBoxLayout2.addWidget(self.home_page_label)
@@ -605,6 +653,9 @@ class SettingAboutCard(QWidget):
         self.hBoxLayout2.addWidget(self.qq_group_label)
 
         self.vBoxLayout = QVBoxLayout(self)
+        self.vBoxLayout.addWidget(self.version_card)
+        self.vBoxLayout.addWidget(self.github_card)
+        self.vBoxLayout.addWidget(self.disclaimer_card)
         self.vBoxLayout.addLayout(self.hBoxLayout1)
         self.vBoxLayout.addLayout(self.hBoxLayout2)
 
@@ -614,10 +665,11 @@ class SettingWidget(QWidget):
         super().__init__(parent=parent)
         self.setObjectName("Setting")
 
-        self.setting_label = SubtitleLabel("设置")
-        font = self.setting_label.font()
+        # 游戏设置
+        self.game_setting_label = SubtitleLabel("游戏设置")
+        font = self.game_setting_label.font()
         font.setWeight(QFont.Weight.Normal)  # 字体不加粗
-        self.setting_label.setFont(font)
+        self.game_setting_label.setFont(font)
 
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
@@ -625,10 +677,18 @@ class SettingWidget(QWidget):
         self.remember_force_zoom_card = SettingRememberForceZoomCard()
         self.force_zoom_accepted_card = SettingForceZoomAcceptedCard()
         self.interaction_mode_card = SettingInteractionModeCard()
+
+        # 软件设置
+        self.software_setting_label = SubtitleLabel("软件设置")
+        font = self.software_setting_label.font()
+        font.setWeight(QFont.Weight.Normal)  # 字体不加粗
+        self.software_setting_label.setFont(font)
+
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
         self.function_selector_card = SettingFunctionSelectorCard()
         self.shortcut_start_stop_card = SettingShortcutStartStopCard()
         self.logger_color_card = SettingLoggerColorCard()
+        self.log_folder_card = SettingLogFolderCard()
         self.win_toast_card = SettingWinToastCard()
         self.group_update = SettingUpdateCard()
 
@@ -640,19 +700,23 @@ class SettingWidget(QWidget):
 
         self._widget = QWidget()
         self._layout = QVBoxLayout(self._widget)
-        self._layout.addWidget(self.setting_label)
+        self._layout.addWidget(self.game_setting_label)
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
         self._layout.addWidget(self.battle_theme_card)
         self._layout.addWidget(self.remember_force_zoom_card)
         self._layout.addWidget(self.force_zoom_accepted_card)
         self._layout.addWidget(self.interaction_mode_card)
+        self._layout.addSpacing(24)
+        self._layout.addWidget(self.software_setting_label)
         self._layout.addWidget(self.remember_last_choice_card)
         self._layout.addWidget(self.function_selector_card)
         self._layout.addWidget(self.shortcut_start_stop_card)
         self._layout.addWidget(self.logger_color_card)
+        self._layout.addWidget(self.log_folder_card)
         self._layout.addWidget(self.win_toast_card)
         self._layout.addWidget(self.group_update)
+        self._layout.addSpacing(24)
         self._layout.addWidget(self.about_label)
         self._layout.addWidget(self.about_card)
 

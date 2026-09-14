@@ -6,6 +6,7 @@
 
 - 重构`更新下载`功能，支持 [Mirror酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 高速下载
 - 检测到新版本界面支持查看最近几次的更新信息
+- 设置页面新增`打开日志文件夹`按钮
 
 ### 优化
 
