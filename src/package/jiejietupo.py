@@ -196,7 +196,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
     def description():
         msg = """默认卡级（退4打9）。
 按以下步骤调整游戏内设置：
-1. 佩戴御魂
+1. 应用队伍预设
 2. 停留在个人突破界面
 3. 解锁⌈阵容锁定⌋按钮"""
         logger.ui(msg)
@@ -545,8 +545,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
                         break
                     else:
                         self.check_click(self.IMAGE_FIGHT_AGAIN)
-                        sleep()
+                        sleep(2)
                         KeyBoard.enter()
+                        sleep(2)
+                        self.auto_ready()
 
                 sleep(4)
                 if self.tupo_victory in [3, 6, 9]:

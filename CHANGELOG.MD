@@ -2,6 +2,8 @@
 
 ## 最近更新
 
+## v2.1.5 - 2026-09-19
+
 ### 新功能
 
 - 重构`更新下载`功能，支持 [Mirror酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 高速下载
