@@ -27,7 +27,7 @@ from .event import event_thread
 from .function import is_Chinese_Path
 from .global_task import global_task
 from .keyboard_listener import KeyListenerThread
-from .log import log_clean_up, logger
+from .log import logger
 from .mysignal import global_ms as ms
 from .paddleocr import check_ocr_folder, ocr_manager
 from .restart import Restart
@@ -163,7 +163,6 @@ class MainWindow(FluentWindow):
         logger.ui("程序初始化中，请稍候")
         if config.is_gpu:
             logger.ui_warn("当前为GPU版本，请勿与正式版混合使用，不支持自动下载更新包。")
-        log_clean_up()
 
         if not config.is_gpu:
             update_manager.check_latest()

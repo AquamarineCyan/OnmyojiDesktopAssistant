@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from datetime import date, datetime
+from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
 
@@ -20,7 +20,7 @@ def send_gui_msg(msg: str = "", level: LogColorLevel = LogColorLevel.INFO):
         msg (str): 消息内容
         level (LogColorLevel): 日志颜色等级
     """
-    _now = datetime.now().strftime("%H:%M:%S")
+    _now = datetime.now().astimezone().strftime("%H:%M:%S")
     ms.main.ui_text_info_update.emit(f"{_now} {msg}", log_color(level))
 
 
@@ -112,29 +112,3 @@ def redirect_third_party_output():
         sys.stdout = _LogRedirectStream("stdout")
     if sys.stderr is None:
         sys.stderr = _LogRedirectStream("stderr")
-
-
-def log_clean_up() -> bool:
-    """日志清理"""
-    # TODO v2.1.0后移除
-    logger.info("log clean up...")
-    today = date.today()
-    n = 0
-    if not LOG_DIR_PATH.is_dir():
-        logger.error("Not found log dir.")
-        return False
-    for item in LOG_DIR_PATH.iterdir():
-        try:
-            log_date = date(int(item.stem[-8:-4]), int(item.stem[-4:-2]), int(item.stem[-2:]))
-            # 自动清理
-            if (today - log_date).days > 30:
-                try:
-                    item.unlink()
-                    n += 1
-                    logger.info(f"Remove file: {item.absolute()} successfully.")
-                except Exception:
-                    logger.error(f"Remove file: {item.absolute()} failed.")
-        except Exception:
-            continue
-    logger.info(f"Clean up {n} log files in total.")
-    return True
