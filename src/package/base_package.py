@@ -163,28 +163,6 @@ class BasePackage:
                     Mouse.click(result.center, *args, **kwargs)
                     return True
 
-    def check_scene(
-        self,
-        asset: AssetImage | AssetOcr | None = None,
-        timeout: float = 0,
-    ) -> bool:
-        if timeout:
-            _start = time.time()
-        while True:
-            if bool(event_thread):
-                raise GUIStopException
-
-            if timeout and (time.time() - _start > timeout):
-                logger.error("check_scene timeout")
-                return False
-
-            if isinstance(asset, AssetImage):
-                if RuleImage(asset).match():
-                    return True
-            elif isinstance(asset, AssetOcr):
-                if RuleOcr(asset).match():
-                    return True
-
     @log_function_call
     def wait_passengers_on_position(self, passengers: int = 2):
         """等待队员就位，需要在组队界面，
@@ -210,6 +188,47 @@ class BasePackage:
         # coor = random_coor(1067 - 50, 1067 + 50, 602 - 50, 602 + 50)
         # click(coor, sleeptime=sleeptime)
         self.check_click(self.IMAGE_START, *args, **kwargs)
+
+    def auto_ready(self, timeout: float = 10):
+        """自动准备
+
+        准备按钮刚出现时可能是灰色不可点击状态，此时点击无效，
+        因此点击后需确认按钮已消失，未消失则继续等待重试。
+
+        Args:
+            timeout (float): 超时时间，默认10秒
+        """
+        start_time = time.time()
+        flag_detected: bool = False
+        while time.time() - start_time < timeout:
+            if bool(event_thread):
+                raise GUIStopException
+
+            for asset, theme in (
+                (self.global_assets.IMAGE_READY_OLD, "怀旧主题"),
+                (self.global_assets.IMAGE_READY_NEW, "简约主题"),
+            ):
+                image = RuleImage(asset)
+                if not image.match(logger_lever="ERROR"):
+                    continue
+
+                flag_detected = True
+                Mouse.click(image.random_point())
+                sleep(1)  # 等待界面响应
+                # 按钮仍在说明点击未生效（按钮处于灰色不可点击状态）
+                if RuleImage(asset).match(logger_lever="NONE"):
+                    logger.info(f"准备按钮暂不可点击，等待重试（{theme}）")
+                    continue
+
+                logger.ui(f"准备（{theme}）")
+                return
+
+            sleep(0.5)
+
+        if flag_detected:
+            logger.ui_warn("准备按钮不可点击，等待超时")
+        else:
+            logger.ui_warn("未找到准备按钮")
 
     def screenshot(self) -> None:
         """截图，保存在当前功能的名称截图目录"""

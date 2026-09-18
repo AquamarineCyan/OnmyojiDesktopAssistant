@@ -1,5 +1,3 @@
-import time
-
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -34,21 +32,6 @@ class MiWen(BasePackage):
         logger.ui("开始挑战")
         self.check_click(self.IMAGE_START)
 
-    def ready(self):
-        start_time = time.time()
-        timeout = 10  # 累计超时10秒
-        while time.time() - start_time < timeout:
-            if bool(event_thread):
-                raise GUIStopException
-            if self.check_click(self.global_assets.IMAGE_READY_OLD, timeout=1):
-                logger.ui("准备（怀旧主题）")
-                return
-            if self.check_click(self.global_assets.IMAGE_READY_NEW, timeout=1):
-                logger.ui("准备（简约主题）")
-                return
-            sleep(0.5)
-        logger.warning("未找到准备按钮")
-
     def run(self):
         self.current_asset_list = [
             self.IMAGE_TITLE,
@@ -74,7 +57,7 @@ class MiWen(BasePackage):
                     sleep(2)
                     self.start()
                     sleep(2)
-                    self.ready()
+                    self.auto_ready()
                 case name if name in self.global_assets.ALL_FAIL_NAMES:
                     logger.ui_error(
                         f"失败{('（' + result.description + '）') if result.description else ''}，需要手动处理"

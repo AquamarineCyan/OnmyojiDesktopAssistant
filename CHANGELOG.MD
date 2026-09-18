@@ -7,6 +7,7 @@
 - 重构`更新下载`功能，支持 [Mirror酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 高速下载
 - 检测到新版本界面支持查看最近几次的更新信息
 - 设置页面新增`打开日志文件夹`按钮
+- 新增`个人突破`的自动准备功能，降低其对阵容锁定状态的依赖，现在默认提示 **解锁阵容**
 
 ### 优化
 

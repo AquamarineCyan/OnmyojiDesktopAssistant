@@ -194,7 +194,12 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
     @staticmethod
     def description():
-        logger.ui("默认3胜刷新，保级第一轮将会刷新，请注意当前的胜利次数")
+        msg = """默认卡级（退4打9）。
+按以下步骤调整游戏内设置：
+1. 佩戴御魂
+2. 停留在个人突破界面
+3. 解锁⌈阵容锁定⌋按钮"""
+        logger.ui(msg)
 
     def load_asset(self):
         super().load_asset()
@@ -321,6 +326,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     continue
 
                 self.fighting_into(x, y)
+                self.auto_ready()
 
                 if self.check_finish():
                     flag_victory = True
@@ -349,9 +355,9 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     return
 
     def fighting_proactive_failure(self, count_max) -> None:
-        """主动失败
+        """主动失败，默认解锁阵容
 
-        参数:
+        Args:
             count_max (int): 次数
         """
         count = 0
@@ -364,6 +370,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
         sleep()
 
         self.list_xunzhang = self.list_num_xunzhang(only_victory=True)
+        # 不存在9个结界全部已攻破的情况，循环必然能找到可进攻的结界
         for i in range(1, len(self.list_xunzhang)):
             if self.list_xunzhang[i] != -1:
                 logger.ui(f"{i} 可进攻")
@@ -372,36 +379,51 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.fighting_into(self.tupo_geren_x[(i + 2) % 3 + 1], self.tupo_geren_y[(i + 2) // 3])
 
         sleep(2)
+        ready_start_time = time.perf_counter()
+        flag_ready_start_wait_timeout: bool = False
         while True:
             if bool(event_thread):
                 raise GUIStopException
 
-            if (not self.check_scene(self.global_assets.IMAGE_READY_NEW)) and (
-                not self.check_scene(self.global_assets.IMAGE_READY_OLD)
+            # 非阻塞检测是否已进入准备界面
+            if not (
+                RuleImage(self.global_assets.IMAGE_READY_NEW).match(logger_lever="ERROR")
+                or RuleImage(self.global_assets.IMAGE_READY_OLD).match(logger_lever="ERROR")
             ):
+                if time.perf_counter() - ready_start_time > 10 and not flag_ready_start_wait_timeout:
+                    logger.ui_warn("等待进入准备界面超过10秒")
+                    flag_ready_start_wait_timeout = True  # 已提示，避免重复刷屏
+                sleep()
                 continue
 
+            ready_start_time = time.perf_counter()
+            flag_ready_start_wait_timeout = False
             sleep(3)
             self.fighting_proactive_failure_once()
             count += 1
             logger.ui(f"失败次数: {count}")
             sleep(2)
             if count >= count_max:
-                if self.check_scene(self.IMAGE_FIGHT_AGAIN):
+                # 轮询等待「再挑战」按钮，超时则跳过结算点击
+                flag_fight_again = False
+                _start = time.perf_counter()
+                while time.perf_counter() - _start < 10:
+                    if bool(event_thread):
+                        raise GUIStopException
+
+                    if RuleImage(self.IMAGE_FIGHT_AGAIN).match(logger_lever="ERROR"):
+                        flag_fight_again = True
+                        break
+                    sleep()
+                if flag_fight_again:
                     finish_random_left_right()
+                else:
+                    logger.ui_warn("等待再挑战按钮超时")
                 break
 
             self.check_click(self.IMAGE_FIGHT_AGAIN, timeout=5)
             sleep()
             KeyBoard.enter()
-
-        sleep(2)
-        self.check_scene(self.IMAGE_FANGSHOUJILU)
-        state, point = self.get_lineup_state()
-        sleep()
-        Mouse.click(point)
-        logger.ui("已锁定阵容")
-        sleep()
 
     def refresh(self) -> None:
         """刷新"""
@@ -489,12 +511,25 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 if self.list_xunzhang[i] == -1:
                     continue
 
-                self.check_scene(self.IMAGE_FANGSHOUJILU)
+                # 等待回到个人突破界面
+                flag_back = False
+                _start = time.perf_counter()
+                while time.perf_counter() - _start < 10:
+                    if bool(event_thread):
+                        raise GUIStopException
+
+                    if RuleImage(self.IMAGE_FANGSHOUJILU).match(logger_lever="ERROR"):
+                        flag_back = True
+                        break
+                    sleep()
+                if not flag_back:
+                    logger.ui_warn("等待个人突破界面超时")
                 logger.ui(f"{i} 可进攻")
                 self.fighting_into(
                     self.tupo_geren_x[(i + 2) % 3 + 1],
                     self.tupo_geren_y[(i + 2) // 3],
                 )
+                self.auto_ready()
 
                 # 只有成功才会退出
                 while True:
