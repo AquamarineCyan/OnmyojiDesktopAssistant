@@ -1,7 +1,7 @@
 from enum import Enum
 
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QDesktopServices, QTextCursor
+from PySide6.QtGui import QColor, QDesktopServices, QTextBlockFormat, QTextCursor
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -28,7 +28,6 @@ from qfluentwidgets import (
 from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
-from ..utils.log_color import LogColorLevel, log_color
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
@@ -642,6 +641,8 @@ class HomeWidget(QWidget):
 
             self.text_info = TextBrowser()
             self.text_info.setReadOnly(True)
+            # 时间戳对齐缩进（像素）：基于初始化时的控件字体实测
+            self.text_info_indent = self.text_info.fontMetrics().horizontalAdvance("00:00:00 ")
 
             self.vBoxLayout = QVBoxLayout()
             self.hBoxLayout = QHBoxLayout()
@@ -721,9 +722,29 @@ class HomeWidget(QWidget):
             msg (str): 文本内容
             color (str): 文本颜色
         """
+        if not msg:
+            return
         widget = self.output_info_group.text_info
-        widget.setTextColor(color)
-        widget.append(msg)
+
+        # 统一通过 cursor 插入并显式指定块格式，避免续行的左缩进被后续消息继承
+        lines = msg.splitlines()
+        cursor = widget.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        # movePosition 会把字符格式重置为文档中该位置的格式，颜色必须在移动之后再设置
+        char_fmt = cursor.charFormat()
+        char_fmt.setForeground(QColor(color))
+        cursor.setCharFormat(char_fmt)
+
+        if not widget.document().isEmpty():
+            cursor.insertBlock(QTextBlockFormat(), char_fmt)
+        cursor.insertText(lines[0])
+        if len(lines) > 1:
+            # 续行按时间戳的实际像素宽度左缩进，与首行内容起始位置对齐
+            block_fmt = QTextBlockFormat()
+            block_fmt.setLeftMargin(self.output_info_group.text_info_indent)
+            for line in lines[1:]:
+                cursor.insertBlock(block_fmt, char_fmt)
+                cursor.insertText(line)
+
         widget.ensureCursorVisible()
         widget.moveCursor(QTextCursor.MoveOperation.End)
-        widget.setTextColor(log_color(LogColorLevel.INFO))
