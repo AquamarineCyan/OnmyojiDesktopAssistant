@@ -41,6 +41,8 @@ from ..utils.config import (
     config,
     default_config,
 )
+from ..utils.emulator.mumu_handle import is_valid_mumu_folder
+from ..utils.log import logger
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .ui_utils import open_log_folder
 
@@ -450,6 +452,25 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
             self.backend_screenshot_combobox,
         )
 
+        self.backend_mumu_folder_edit = LineEdit()
+        self.backend_mumu_folder_edit.setPlaceholderText("留空自动探测，或手动填写")
+        self.backend_mumu_folder_edit.setFixedWidth(220)
+        self.backend_mumu_folder_edit.setText(config.user.interaction_mode.backend.mumu_folder)
+        self.backend_mumu_folder_edit.editingFinished.connect(self._config_update_backend_mumu_folder)
+
+        self.backend_detect_button = PushButton("自动探测")
+        self.backend_detect_button.clicked.connect(self._detect_mumu_folder_clicked)
+
+        self.backend_mumu_box = QWidget()
+        mumu_layout = QHBoxLayout(self.backend_mumu_box)
+        mumu_layout.setContentsMargins(0, 0, 0, 0)
+        mumu_layout.setSpacing(8)
+        mumu_layout.addWidget(self.backend_mumu_folder_edit)
+        mumu_layout.addWidget(self.backend_detect_button)
+        mumu_layout.addStretch(1)
+
+        self.addGroup(FluentIcon.APPLICATION, "MuMu 安装目录", "可手动修改；自动探测按钮优先用进程 exe 反推", self.backend_mumu_box)
+
         self.setExpand(True)
 
         text = self.mode_combobox.currentText()
@@ -481,6 +502,23 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         text = self.backend_screenshot_combobox.currentText()
         if text != config.user.interaction_mode.backend.screenshot_method:
             config.update("interaction_mode.backend.screenshot_method", text)
+
+    def _config_update_backend_mumu_folder(self):
+        text = self.backend_mumu_folder_edit.text().strip()
+        if text != config.user.interaction_mode.backend.mumu_folder:
+            config.update("interaction_mode.backend.mumu_folder", text)
+        if text and not is_valid_mumu_folder(text):
+            logger.ui_warn(f"MuMu 安装目录无效（未找到 {text}\\nx_main\\mumu-cli.exe），已保留该值")
+
+    def _detect_mumu_folder_clicked(self):
+        from ..utils.emulator.mumu_handle import detect_mumu_folder
+        folder = detect_mumu_folder(config.user.interaction_mode.backend.mumu_folder)
+        if folder:
+            self.backend_mumu_folder_edit.setText(folder)
+            config.update("interaction_mode.backend.mumu_folder", folder)
+            logger.ui(f"自动探测到 MuMu 安装目录：{folder}")
+        else:
+            logger.ui_warn("自动探测失败：请确认 MuMu 已安装/实例已运行，或手动填写路径")
 
 
 class SettingUpdateCard(ExpandGroupSettingCard):
