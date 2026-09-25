@@ -13,3 +13,11 @@ lib
 log
 models
 releases
+# SDD 工作区/未来 worktree（忽略）
+.superpowers/
+.worktrees/
+
+.venv/
+
+.idea/
+.codegraph/
