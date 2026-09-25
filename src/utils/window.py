@@ -55,8 +55,23 @@ class GameWindow:
     client_rect: tuple[int, int, int, int] = (0, 0, 0, 0)
     """客户区矩形坐标 (left, top, right, bottom)"""
 
-    def __init__(self, handle: int):
+    family: str = "pc"
+    """窗口家族：'pc'（桌面版）/'mumu'（MuMu 模拟器）"""
+    shot_hwnd: int = 0
+    control_hwnds: list[int] = []
+    scale_rate: float = 1.0
+    instance_index: int = 0
+
+    @property
+    def label(self) -> str:
+        n = self.instance_index + 1
+        if self.family == "mumu":
+            return f"模拟器 · 实例{n} · {self.title}"
+        return f"桌面版 · 实例{n} · {self.title}"
+
+    def __init__(self, handle: int, family: str | None = None, instance_index: int = 0):
         self.handle = int(handle)
+        self.instance_index = int(instance_index)
         self.title = win32gui.GetWindowText(self.handle)
 
         # 偏移量见类初始定义
@@ -76,6 +91,35 @@ class GameWindow:
         self.client_top_left = win32gui.ClientToScreen(handle, (0, 0))
         self.client_left: int = self.client_top_left[0]
         self.client_top: int = self.client_top_left[1]
+
+        # 家族判定：调用方（进程发现）已给出 family 时直接采用，不再探测；
+        # 未给出时按句柄树自动判定（适配 Qt/nemuwin 树），失败即 pc。
+        # 不再依赖 emulator_type 开关与窗口标题。
+        if family in ("mumu", "pc"):
+            self.family = family
+            if family == "pc":
+                return
+        else:
+            self.family = "pc"
+        try:
+            from .emulator.mumu_handle import build_handle, detect_mumu_folder
+        except Exception:
+            return
+        try:
+            folder = detect_mumu_folder(config.user.interaction_mode.backend.mumu_folder)
+        except Exception:
+            folder = ""
+        if not folder:
+            return
+        try:
+            h = build_handle(self.handle, mumu_folder=folder, wait_tries=1)
+        except Exception:
+            self.family = "pc"
+            return
+        self.family = "mumu"
+        self.shot_hwnd = h.shot_hwnd
+        self.control_hwnds = h.control_hwnds
+        self.scale_rate = h.scale_rate
 
     def display(self):
         s = "游戏窗口信息\n"
@@ -195,9 +239,42 @@ class GameWindowManager:
         """
         return old_rect == new_rect
 
+    def discover(self) -> list[GameWindow]:
+        """发现窗口：进程优先（桌面版在前、模拟器在后，各自按序编号），零发现才回落标题兜底。"""
+        from .client_discovery import build_client_items, discover_process_clients
+        out: list[GameWindow] = []
+        seen: set[int] = set()
+        try:
+            clients = discover_process_clients(config.user.interaction_mode.backend.mumu_folder)
+        except Exception:
+            clients = []
+        for label, client in build_client_items(clients, fallback_titles=list(self._titles_to_search())):
+            if client is None:
+                for hwnd in get_all_target_window([label]):
+                    if hwnd in seen:
+                        continue
+                    try:
+                        out.append(GameWindow(hwnd))
+                    except Exception:
+                        continue
+                    seen.add(hwnd)
+                continue
+            if int(client.hwnd) in seen:
+                continue
+            try:
+                w = GameWindow(int(client.hwnd), family=client.kind == "emulator" and "mumu" or "pc",
+                               instance_index=(client.index or 1) - 1)
+            except Exception:
+                continue
+            out.append(w)
+            seen.add(int(client.hwnd))
+        return out
+
     def _update(self, window: GameWindow):
         self.current = window
         self.current.display()
+        if self.current.family == "mumu":
+            return  # 模拟器最小化是常态，跳过"前置窗口"与"强制缩放"
         if not self._check_background():
             self._check_force_zoom()
 
@@ -276,18 +353,17 @@ class GameWindowManager:
 
     def update_window_task(self):
         """更新游戏窗口信息"""
-        target_handles = get_all_target_window(self._titles_to_search())
+        game_windows = self.discover()
+        target_handles = [w.handle for w in game_windows]
+        old_handles = [w.handle for w in self.handles]
 
-        if target_handles != self.handles:
+        if target_handles != old_handles:
             logger.info(f"检测到游戏窗口变化，当前窗口数量：{len(target_handles)}")
-            self.handles = target_handles
-            game_window_list = []
-            for handle in target_handles:
-                game_window_list.append(GameWindow(handle))
+            self.handles = game_windows
             if hasattr(self, "gui_window_manager_list_callback"):
-                self.gui_window_manager_list_callback(game_window_list)
+                self.gui_window_manager_list_callback(game_windows)
 
-        if not target_handles:
+        if not game_windows:
             self.current = None  # 未找到游戏窗口
             if self._initialized and not self._close_window_flag:
                 logger.info("游戏窗口已关闭")
@@ -302,9 +378,9 @@ class GameWindowManager:
         # 统一处理逻辑
         if self.current is None or self.current.handle not in target_handles:
             # 首次获取或原窗口消失
-            new_handle = target_handles[0]
+            new_window = game_windows[0]
             logger.info("更新游戏窗口" if self.current else "首次获取游戏窗口")
-            self._update(GameWindow(new_handle))
+            self._update(new_window)
             self._emit_window_update()
             return
 
@@ -325,11 +401,11 @@ class GameWindowManager:
         if handle:
             self._update(GameWindow(handle))
         else:
-            target_handles = get_all_target_window(self._titles_to_search())
-            if not target_handles:
+            wins = self.discover()
+            if not wins:
                 logger.ui_error("未找到游戏窗口")
                 return
-            self._update(GameWindow(target_handles[0]))
+            self._update(wins[0])
         self._emit_window_update()
 
     def set_foreground(self) -> bool:
