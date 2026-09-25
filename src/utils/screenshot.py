@@ -1,6 +1,7 @@
 import time
 from ctypes import windll
 
+import cv2
 import win32con
 import win32gui
 import win32ui
@@ -55,10 +56,13 @@ class ScreenShot:
 
             try:
                 if config.user.interaction_mode.mode == InteractionMode.BACKEND:
-                    self._screenshot_backend(
-                        self.rect,
-                        config.user.interaction_mode.backend.screenshot_method,
-                    )
+                    if self.gamewindow.family == "mumu":
+                        self._screenshot_mumu()
+                    else:
+                        self._screenshot_backend(
+                            self.rect,
+                            config.user.interaction_mode.backend.screenshot_method,
+                        )
                 else:
                     window_rect = (
                         self.gamewindow.client_left + self.rect[0],
@@ -87,6 +91,36 @@ class ScreenShot:
             image.show()
         self._image = image
         return image
+
+    def _screenshot_mumu(self) -> None:
+        """mumu 后台截图：走 MumuBackend（PrintWindow→IPC→BitBlt，最小化走 IPC 不黑屏）。"""
+        from .emulator import get_backend
+        _start = time.perf_counter()
+        backend = get_backend(
+            self.hwnd, self.gamewindow.instance_index,
+            config.user.interaction_mode.backend.mumu_folder,
+            config.user.interaction_mode.backend.ipc_dll_override,
+        )
+        if backend is None:
+            raise RuntimeError("mumu backend unavailable")
+        img = backend.screenshot()
+        if img is None:
+            raise RuntimeError("mumu screenshot black/unavailable")
+        # 帧即 shot 客户区：先按 rect（客户区相对 (l, t, w, h)）裁剪到帧边界，
+        # 再 BGR→RGB —— 与 _screenshot_backend 的裁剪语义一致（image.py 按 region 原点偏移坐标）
+        frame_h, frame_w = img.shape[:2]
+        l = max(0, int(self.rect[0]))
+        t = max(0, int(self.rect[1]))
+        r = min(frame_w, l + int(self.rect[2]))
+        b = min(frame_h, t + int(self.rect[3]))
+        if r <= l or b <= t:
+            raise RuntimeError(f"mumu screenshot rect outside frame: {self.rect}")
+        img = img[t:b, l:r]
+        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        self._image = Image.fromarray(rgb)
+        self.time_cost = round((time.perf_counter() - _start) * 1000, 2)
+        if self._log:
+            logger.info(f"screenshot mumu cost {self.time_cost} ms, {self.rect}")
 
     def _screenshot_backend(
         self,

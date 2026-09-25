@@ -37,6 +37,7 @@ class ScreenshotMethod(StrEnum):
 
     BITBLT = "BitBlt"
     PRINTWINDOW = "PrintWindow"
+    NEMU_IPC = "NemuIPC"
 
 
 class InteractionMode(StrEnum):
@@ -81,7 +82,14 @@ _frontend_sub_config = {
 }
 _backend_sub_config = {
     "prevent_sleep": [True, False],
-    "screenshot_method": [ScreenshotMethod.BITBLT, ScreenshotMethod.PRINTWINDOW],
+    "screenshot_method": [
+        ScreenshotMethod.BITBLT,
+        ScreenshotMethod.PRINTWINDOW,
+        ScreenshotMethod.NEMU_IPC,
+    ],
+    # 自由文本（非候选值）：_check_outdated 不做枚举校验，见 validate() 的 list 分支
+    "mumu_folder": "",
+    "ipc_dll_override": "",
 }
 
 
@@ -96,6 +104,10 @@ class BackendConfig(BaseModel):
 
     prevent_sleep: bool = True
     screenshot_method: str = "BitBlt"
+    # 已废弃：模拟器类型开关（保留字段以兼容存量 config.yaml，不再使用）
+    emulator_type: str = ""
+    mumu_folder: str = ""
+    ipc_dll_override: str = ""
 
 
 class InteractionModeConfig(BaseModel):
