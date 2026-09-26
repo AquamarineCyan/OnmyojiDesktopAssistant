@@ -225,7 +225,7 @@ class MainWindow(FluentWindow):
 
                 if dialog.exec():
                     logger.info("用户接受更新重启")
-                    Thread(target=upgrade.restart, name="upgrade_restart", daemon=True).start()
+                    Thread(target=update_manager.restart, name="update_manager_restart", daemon=True).start()
                 else:
                     logger.info("用户拒绝更新重启")
 
