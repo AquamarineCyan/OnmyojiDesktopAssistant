@@ -100,7 +100,7 @@ class TanSuo(BasePackage):
             )
             if _result:
                 flag_done = True
-                logger.ui_warn(f"战斗结束{('（' + _result.description + '）') if _result.description else ''}")
+                logger.ui(f"战斗结束{('（' + _result.description + '）') if _result.description else ''}")
                 if point is None:
                     point = finish_random_left_right()
                 else:
@@ -141,11 +141,15 @@ class TanSuo(BasePackage):
                 if image_start.match():
                     logger.ui("探索结束")
                 # 宝箱
-                elif image_treasure_box.match():
+                elif image_treasure_box.match(logger_lever="ERROR"):
                     Mouse.click(image_treasure_box.center_point())
                     logger.info("获得宝箱")
                     Mouse.click(wait=2)
+                else:
+                    logger.ui_warn("未发现宝箱")
+
                 # 不管有没有宝箱，都退出这次探索
+                logger.ui("本轮探索结束")
                 return
 
     def run(self):
