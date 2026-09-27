@@ -18,7 +18,7 @@ from ..utils.application import ICO_RESOURCE_PATH, VERSION
 from ..utils.config import config, default_config
 from ..utils.log import logger
 from ..utils.markdown import autolink_urls, downgrade_headings
-from ..utils.mysignal import global_ms as ms
+from ..utils.signals import signal_manager
 from ..utils.update import compare_versions, update_manager
 
 
@@ -121,9 +121,9 @@ class UpdateNewVersionWidget(QWidget):
         self.download_button.clicked.connect(self._download_button_handle)
         self.cancel_button.clicked.connect(self.close)
 
-        ms.update_new_version.progress_text_update.connect(self._download_info_update_handle)
-        ms.update_new_version.progressBar_update.connect(self._progress_update_handle)
-        ms.update_new_version.close_ui.connect(self.close)
+        signal_manager.update_new_version.progress_text_changed.connect(self._download_info_update_handle)
+        signal_manager.update_new_version.progress_bar_changed.connect(self._progress_update_handle)
+        signal_manager.update_new_version.close_ui.connect(self.close)
 
         # 主内容区：最新版本默认展开 + 其余版本折叠卡片
         _markdown = self._build_shown_markdown()

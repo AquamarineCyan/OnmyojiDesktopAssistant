@@ -715,7 +715,7 @@ class HomeWidget(QWidget):
         # 次数清零
         self.basic_group.number_spinbox.setValue(0)
 
-    def ui_text_info_update_handle(self, msg: str, color: str):
+    def ui_text_info_appended_handle(self, msg: str, color: str):
         """输出内容至文本框
 
         Args:

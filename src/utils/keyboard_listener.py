@@ -3,7 +3,7 @@ import threading
 from pynput import keyboard
 
 from .log import logger
-from .mysignal import global_ms as ms
+from .signals import signal_manager
 
 
 class KeyListenerThread(threading.Thread):
@@ -44,9 +44,9 @@ class KeyListenerThread(threading.Thread):
         def on_key_press(key):
             try:
                 if key in self.function_keys:
-                    ms.main.key_pressed.emit(key.name)
+                    signal_manager.main.key_pressed.emit(key.name)
             except AttributeError:
-                ms.main.key_pressed.emit(f"Key pressed: {key}")
+                signal_manager.main.key_pressed.emit(f"Key pressed: {key}")
 
         self._listener = keyboard.Listener(on_press=on_key_press)
         self._listener.start()
