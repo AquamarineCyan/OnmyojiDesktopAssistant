@@ -9,6 +9,7 @@ import win32api
 import win32con
 
 from .config import config
+from .coordinate import get_scale, to_actual, to_reference
 from .event import event_thread, event_xuanshang
 from .exception import GUIStopException
 from .log import logger
@@ -38,7 +39,8 @@ class Mouse:
     @classmethod
     def position(cls) -> Point:
         abs_x, abs_y = pyautogui.position()
-        return Point.from_screen(abs_x, abs_y)
+        point = Point.from_screen(abs_x, abs_y)
+        return Point(*to_reference(point.client_x, point.client_y))
 
     @staticmethod
     def random_tween():
@@ -182,6 +184,11 @@ class Mouse:
         duration: float = 0,
         tween=linear,
     ):
+        # 业务侧坐标是基准空间；xOffset/yOffset 是相对位移，不做换算
+        if point is not None:
+            point = Point(*to_actual(point.client_x, point.client_y))
+        elif x is not None and y is not None:
+            x, y = to_actual(x, y)
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._move_backend(point, x, y, xOffset, yOffset)
         else:
@@ -279,6 +286,10 @@ class Mouse:
         if wait:
             time.sleep(wait)
 
+        if point is not None:
+            # 业务侧坐标是基准空间 → 实际客户区
+            point = Point(*to_actual(point.client_x, point.client_y))
+
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             # logger.info(f"backend click {point.x},{point.y}")
             cls._click_backend(point)
@@ -340,6 +351,10 @@ class Mouse:
             y_offset (int): 纵轴拖动量
             duration (float): 持续时间
         """
+        if x_offset is not None and y_offset is not None:
+            # 业务侧拖动量是基准空间位移 → 实际客户区
+            fx, fy = get_scale()
+            x_offset, y_offset = x_offset * fx, y_offset * fy
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._drag_backend(x_offset, y_offset)
         else:

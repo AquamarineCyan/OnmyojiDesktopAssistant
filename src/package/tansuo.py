@@ -1,4 +1,5 @@
 from ..utils.adapter import Mouse
+from ..utils.coordinate import reference_size
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import DailyLimitException, GUIStopException
@@ -6,7 +7,6 @@ from ..utils.function import finish_random_left_right, random_normal, random_num
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
 from ..utils.point import Point
-from ..utils.window import window_manager
 from .base_package import BasePackage
 
 
@@ -204,8 +204,8 @@ class TanSuo(BasePackage):
                             sleep()
                             y1 = 300
                             y2 = 550
-                            x_middle = window_manager.current.window_width // 2
-                            x_right = int(window_manager.current.window_width * 0.9)
+                            x_middle = reference_size()[0] // 2
+                            x_right = int(reference_size()[0] * 0.9)
                             x = random_normal(x_middle, x_right)
                             # 移动到窗口中心线右侧
                             Mouse.move(

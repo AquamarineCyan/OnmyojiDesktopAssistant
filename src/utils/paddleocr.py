@@ -9,6 +9,7 @@ from PIL import Image
 
 from .application import MODEL_DIR_PATH
 from .assets import AssetOcr
+from .coordinate import get_scale, scale_region
 from .log import logger
 from .paddle_model import PaddleModel
 from .point import Point, Rectangle
@@ -204,6 +205,14 @@ class OcrData:
         self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
         self.center = self.rect.get_center_point()
 
+    def to_reference(self) -> None:
+        """实际客户区坐标 → 基准空间坐标（业务侧统一使用基准空间）"""
+        fx, fy = get_scale()
+        self.x1, self.y1 = self.x1 / fx, self.y1 / fy
+        self.x2, self.y2 = self.x2 / fx, self.y2 / fy
+        self.rect = Rectangle(self.x1, self.y1, x2=self.x2, y2=self.y2)
+        self.center = self.rect.get_center_point()
+
     def __repr__(self) -> str:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
 
@@ -226,6 +235,9 @@ class OcrDetector:
         Returns:
             list[OcrData]: 过滤后的 OCR 识别结果列表
         """
+        if not ocr_manager.is_initialized():
+            ocr_manager.init()
+
         start_time = time.time()
         screenshot = ScreenShot(rect=self.region)
         image = screenshot.get_image()
@@ -251,6 +263,7 @@ class OcrDetector:
             if item.get("Text", "") == "":
                 continue
             ocr_data = OcrData(item)
+            ocr_data.to_reference()  # 截图坐标 → 基准空间坐标
             logger.info(f"result: {ocr_data}")
             data_result.append(ocr_data)
 
@@ -315,6 +328,9 @@ class RuleOcr:
 
         if self.region is None or self.region == (0, 0, 0, 0):
             self.region = window_manager.current.client_rect
+        else:
+            # 素材/显式 region 是基准空间坐标 → 实际客户区
+            self.region = scale_region(self.region)
 
         self.match_result: OcrData = None
         self.detector = OcrDetector(self.region)

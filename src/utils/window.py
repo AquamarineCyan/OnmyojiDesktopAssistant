@@ -87,6 +87,11 @@ class GameWindow:
         self.client_width = self.client_rect[2] - self.client_rect[0]
         self.client_height = self.client_rect[3] - self.client_rect[1]
 
+        # 内容（帧）尺寸：pc 与客户区一致；mumu 探针成功后改写为 shot(nemudisplay) 客户区，
+        # 因为后台截图帧正是 shot 尺寸（模板缩放必须以此为准，root 客户区含播放器工具条）。
+        self.content_width = self.client_width
+        self.content_height = self.client_height
+
         # 计算客户区在屏幕中的左上角位置
         self.client_top_left = win32gui.ClientToScreen(handle, (0, 0))
         self.client_left: int = self.client_top_left[0]
@@ -120,6 +125,13 @@ class GameWindow:
         self.shot_hwnd = h.shot_hwnd
         self.control_hwnds = h.control_hwnds
         self.scale_rate = h.scale_rate
+        try:
+            cr = win32gui.GetClientRect(self.shot_hwnd)
+            w, hh = cr[2] - cr[0], cr[3] - cr[1]
+            if w > 0 and hh > 0:
+                self.content_width, self.content_height = w, hh
+        except Exception:
+            pass
 
     def display(self):
         s = "游戏窗口信息\n"

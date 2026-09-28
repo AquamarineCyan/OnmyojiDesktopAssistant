@@ -10,6 +10,7 @@ import time
 from typing import Optional
 
 import win32con
+import win32gui
 from win32api import PostMessage, SendMessage
 
 from .mumu_handle import MumuHandle
@@ -61,6 +62,22 @@ class MumuInput:
         hwnds = self.handle.control_hwnds
         return hwnds[1] if len(hwnds) > 1 else hwnds[0]
 
+    def _client_size(self) -> tuple[int, int]:
+        """截图目标窗口客户区实时尺寸；读取失败回退 build_handle 时的快照。
+
+        窗口运行中可被拖动/强制缩放改变大小，截图侧每次实时读取，输入换算必须用
+        同一实时尺寸，否则改大小后 IPC 点击会按旧比例系统性偏移（无任何日志）。"""
+        hwnd = getattr(self.handle, "shot_hwnd", 0)
+        try:
+            cr = win32gui.GetClientRect(hwnd)
+            w, h = int(cr[2]) - int(cr[0]), int(cr[3]) - int(cr[1])
+            if w > 0 and h > 0:
+                return w, h
+        except Exception:
+            pass
+        return (int(getattr(self.handle, "client_w", 0) or 0),
+                int(getattr(self.handle, "client_h", 0) or 0))
+
     def _to_ipc(self, x: float, y: float) -> tuple[int, int]:
         """客户区坐标 → IPC 原生坐标（窗口缩放时按比例换算）。"""
         try:
@@ -70,8 +87,7 @@ class MumuInput:
                 self.ipc.get_resolution()
                 iw = int(getattr(self.ipc, "width", 0) or 0)
                 ih = int(getattr(self.ipc, "height", 0) or 0)
-            cw = int(getattr(self.handle, "client_w", 0) or 0)
-            ch = int(getattr(self.handle, "client_h", 0) or 0)
+            cw, ch = self._client_size()
             if iw > 0 and ih > 0 and cw > 0 and ch > 0 and (cw != iw or ch != ih):
                 return (int(round(float(x) * iw / cw)), int(round(float(y) * ih / ch)))
         except Exception:
