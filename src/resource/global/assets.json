@@ -178,6 +178,13 @@
             "method": "PERFACT"
         },
         {
+            "name": "confirm2",
+            "keyword": "确认",
+            "region": [0, 0, 0, 0],
+            "score": "0.7",
+            "method": "PERFACT"
+        },
+        {
             "name": "click_and_continue",
             "keyword": "点击屏幕继续",
             "region": [0, 0, 0, 0],

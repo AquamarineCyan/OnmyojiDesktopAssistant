@@ -448,6 +448,11 @@ class GameWindowManager:
             return False
         return True
 
+    @property
+    def is_emulator(self) -> bool:
+        """当前是否为模拟器窗口（family 为 mumu）"""
+        return self.current is not None and getattr(self.current, "family", "pc") == "mumu"
+
     def get_current_handle(self) -> int | None:
         """获取当前游戏窗口句柄，窗口未初始化时返回 None"""
         if self.current is None:

@@ -68,6 +68,10 @@ class NemuIpc:
         lib.nemu_input_event_finger_touch_down.restype = ctypes.c_int
         lib.nemu_input_event_finger_touch_up.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
         lib.nemu_input_event_finger_touch_up.restype = ctypes.c_int
+        lib.nemu_input_event_key_down.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        lib.nemu_input_event_key_down.restype = ctypes.c_int
+        lib.nemu_input_event_key_up.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        lib.nemu_input_event_key_up.restype = ctypes.c_int
         lib.nemu_get_display_id.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int]
         lib.nemu_get_display_id.restype = ctypes.c_int
         self.instance_id = int(instance_id)
@@ -152,3 +156,25 @@ class NemuIpc:
             self.connect_id, self.display_id, int(contact) + 1)
         if ret > 0:
             raise NemuIpcError("nemu_input_event_finger_touch_up failed")
+
+    def key_down(self, key_code: int) -> None:
+        """按下按键
+
+        Args:
+            key_code (int): Linux input-event-codes 键值（见 KEY_BACK / KEY_ENTER 等常量）
+        """
+        if not self.connect_id:
+            self.connect()
+        ret = self.lib.nemu_input_event_key_down(
+            self.connect_id, self.display_id, int(key_code))
+        if ret > 0:
+            raise NemuIpcError("nemu_input_event_key_down failed")
+
+    def key_up(self, key_code: int) -> None:
+        """抬起按键（键值同上）"""
+        if not self.connect_id:
+            self.connect()
+        ret = self.lib.nemu_input_event_key_up(
+            self.connect_id, self.display_id, int(key_code))
+        if ret > 0:
+            raise NemuIpcError("nemu_input_event_key_up failed")

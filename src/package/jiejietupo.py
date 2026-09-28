@@ -142,9 +142,9 @@ class JieJieTuPo(BasePackage):
 
     def fighting_proactive_failure_once(self):
         """主动失败一次"""
-        KeyBoard.esc()
+        KeyBoard.esc()  # 桌面版=ESC，模拟器=鼠标侧键返回
         sleep()
-        KeyBoard.enter()
+        self.confirm(timeout=3)  # 桌面版=回车，模拟器=OCR 点击「确认」
         logger.ui("手动退出")
 
 
@@ -423,7 +423,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
             self.check_click(self.IMAGE_FIGHT_AGAIN, timeout=5)
             sleep()
-            KeyBoard.enter()
+            self.confirm()
 
     def refresh(self) -> None:
         """刷新"""
@@ -546,7 +546,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     else:
                         self.check_click(self.IMAGE_FIGHT_AGAIN)
                         sleep(2)
-                        KeyBoard.enter()
+                        self.confirm()
                         sleep(2)
                         self.auto_ready()
 
@@ -639,7 +639,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 if RuleImage(self.IMAGE_JINGONG).match():
                     logger.ui_warn("当前结界已被攻破")
                     i += 1
-                    KeyBoard.esc()
+                    KeyBoard.esc()  # 取消选中：桌面版=ESC，模拟器=鼠标侧键返回
                     sleep(2)
                     continue
                 flag = 1 if self.check_finish() else 0

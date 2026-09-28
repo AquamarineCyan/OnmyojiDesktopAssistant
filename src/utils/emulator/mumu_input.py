@@ -24,6 +24,15 @@ def _post(hwnd: int, msg: int, w: int, l: int) -> None:
     PostMessage(hwnd, msg, w, l)
 
 
+WM_XBUTTONDOWN = 0x020B
+WM_XBUTTONUP = 0x020C
+XBUTTON1 = 0x0001
+"""鼠标后退侧键：MuMu 默认识别为安卓返回，等价 esc。"""
+
+KEY_BACK = 158
+"""Linux KEY_BACK（input-event-codes）：安卓返回，与鼠标后退侧键产生的按键事件相同。"""
+
+
 def _sleep(s: float) -> None:
     time.sleep(max(0.0, s))
 
@@ -110,6 +119,23 @@ class MumuInput:
         _send(t, win32con.WM_LBUTTONDOWN, 0, lp)
         _sleep(random.uniform(0.1, 0.2))
         _send(t, win32con.WM_LBUTTONUP, 0, lp)
+
+    def press_back(self) -> None:
+        """模拟器返回（等价 esc）
+
+        优先走 IPC 注入 KEY_BACK —— 与物理鼠标后退侧键是同一个安卓按键事件；
+        无 IPC 时退回窗口消息版鼠标后退侧键（部分环境 MuMu 不处理合成消息）。
+        """
+        if self.ipc is not None:
+            self.ipc.key_down(KEY_BACK)
+            _sleep(random.uniform(0.05, 0.12))
+            self.ipc.key_up(KEY_BACK)
+            return
+        w = XBUTTON1 << 16  # MAKEWPARAM(0, XBUTTON1)
+        t = self._target()
+        _post(t, WM_XBUTTONDOWN, w, 0)
+        _sleep(random.uniform(0.05, 0.12))
+        _post(t, WM_XBUTTONUP, w, 0)
 
     def down(self, x: int, y: int) -> None:
         """按下：IPC 走 down；无 IPC 打 control 子句柄（深层）的 WM_LBUTTONDOWN。"""

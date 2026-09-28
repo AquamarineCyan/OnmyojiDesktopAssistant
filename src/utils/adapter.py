@@ -423,6 +423,14 @@ class KeyBoard:
         win32api.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 1)
 
     @classmethod
+    def _dispatch(cls, key: str) -> None:
+        """按交互模式分发按键"""
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+            cls._backend_operation(key)
+        else:
+            cls._front_operation(key)
+
+    @classmethod
     def send(cls, key: str, delay: float = 0) -> None:
         """发送按键事件"""
         if delay:
@@ -430,18 +438,33 @@ class KeyBoard:
 
         event_xuanshang.wait()
         logger.info(f"Sending key: {key.upper()}")
-
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
-            cls._backend_operation(key)
-        else:
-            cls._front_operation(key)
+        cls._dispatch(key)
 
     @classmethod
     def enter(cls, delay: float = 0) -> None:
-        """发送回车键"""
+        """发送回车键
+
+        注意：模拟器里回车无法确认弹窗（游戏不响应），确认请改用 `BasePackage.confirm()`。
+        """
+        if Mouse._mumu_backend() is not None:
+            logger.ui_warn("模拟器下回车无法确认弹窗，请改用 BasePackage.confirm()")
         cls.send("enter", delay)
 
     @classmethod
-    def esc(cls, delay: float = 0):
-        """发送ESC键"""
-        cls.send("esc", delay)
+    def esc(cls, delay: float = 0) -> None:
+        """发送「返回」键
+
+        模拟器改用鼠标后退侧键（XBUTTON1）——模拟器后端不转发键盘输入，
+        但鼠标后退侧键会被识别为安卓返回，效果等价 esc；桌面版行为不变。
+        """
+        if delay:
+            time.sleep(delay)
+
+        event_xuanshang.wait()
+        backend = Mouse._mumu_backend()
+        if backend is not None:
+            logger.info("Sending back button: mouse XBUTTON1")
+            backend.press_back()
+            return
+        logger.info("Sending key: ESC (back)")
+        cls._dispatch("esc")

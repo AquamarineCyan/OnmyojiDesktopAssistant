@@ -1,6 +1,6 @@
 from enum import Enum
 
-from ..utils.adapter import KeyBoard, Mouse
+from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
@@ -274,7 +274,7 @@ class LiuDaoZhiMen(BasePackage):
                         continue
                     if item.text == self.basic_skill_name:
                         self.check_click(self.IMAGE_IMITATION, timeout=3)
-                        KeyBoard.enter(2)
+                        self.confirm(delay=2)
                         self.skill_level_count.add()
                         sleep(4)
                         Mouse.click()
@@ -328,7 +328,7 @@ class LiuDaoZhiMen(BasePackage):
                 if item.text == self.basic_skill_name:
                     logger.ui_hint(f"选择技能「{self.basic_skill_name}」")
                     Mouse.click(item.center)
-                    KeyBoard.enter(1)
+                    self.confirm(delay=1)
                     self.skill_level_count.add()
                     break
 
@@ -336,7 +336,7 @@ class LiuDaoZhiMen(BasePackage):
             sleep(2)
             logger.ui(f"刷新商店 第{i + 1}次")
             self.check_click(self.IMAGE_SHOP_REFRESH)
-            KeyBoard.enter(1)  # 可能没有「不再提示」
+            self.confirm(delay=1, timeout=0)  # 可能没有「不再提示」
 
         leave()
 
@@ -468,7 +468,7 @@ class LiuDaoZhiMen(BasePackage):
                 for item in result:
                     if item.text == "放弃前行":
                         Mouse.click(item.center)
-                        KeyBoard.enter(1)
+                        self.confirm(delay=1)
                         break
 
             # 结算

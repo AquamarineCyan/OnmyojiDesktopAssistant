@@ -125,6 +125,10 @@ class MumuBackend(EmulatorBackend):
     def click(self, x: int, y: int) -> None:
         self._input.click(int(x), int(y))
 
+    def press_back(self) -> None:
+        """鼠标后退侧键（模拟器返回）。"""
+        self._input.press_back()
+
     def down(self, x: int, y: int) -> None:
         """拖拽按下（同步器链路用）."""
         self._input.down(int(x), int(y))
