@@ -168,32 +168,37 @@ def build_client_items(
     return items
 
 
-def discover_process_clients(mumu_folder: str = "") -> list[ClientInfo]:
-    """进程枚举：桌面版在前、模拟器在后，各自按 pid/实例序编 1-based 实例号。"""
+def discover_process_clients(mumu_folder: str = "", enable_emulator: bool = True) -> list[ClientInfo]:
+    """进程枚举：桌面版在前、模拟器在后，各自按 pid/实例序编 1-based 实例号。
+
+    enable_emulator=False（决策 A 开关关闭）时完全不查 cli、不枚举模拟器进程，
+    仅保留桌面版发现路径。
+    """
     pcs: list[ClientInfo] = []
     emus: list[ClientInfo] = []
     used: set[int] = set()
 
-    for hwnd, iid, name in query_cli_windows(mumu_folder or ""):
-        try:
-            import win32gui as _g
+    if enable_emulator:
+        for hwnd, iid, name in query_cli_windows(mumu_folder or ""):
+            try:
+                import win32gui as _g
 
-            if not _g.IsWindow(int(hwnd)):
+                if not _g.IsWindow(int(hwnd)):
+                    continue
+                title = _g.GetWindowText(int(hwnd)) or name or ""
+            except Exception:
+                title = name or ""
+            try:
+                pid = _pid_of_window(int(hwnd))
+            except Exception:
+                pid = 0
+            if int(hwnd) in used:
                 continue
-            title = _g.GetWindowText(int(hwnd)) or name or ""
-        except Exception:
-            title = name or ""
-        try:
-            pid = _pid_of_window(int(hwnd))
-        except Exception:
-            pid = 0
-        if int(hwnd) in used:
-            continue
-        used.add(int(hwnd))
-        emus.append(
-            ClientInfo(kind="emulator", pid=pid, hwnd=int(hwnd), title=title,
-                       index=int(iid) + 1, detail=name or title)
-        )
+            used.add(int(hwnd))
+            emus.append(
+                ClientInfo(kind="emulator", pid=pid, hwnd=int(hwnd), title=title,
+                           index=int(iid) + 1, detail=name or title)
+            )
 
     try:
         procs = list(_iter_procs())
@@ -207,6 +212,8 @@ def discover_process_clients(mumu_folder: str = "") -> list[ClientInfo]:
         except (ValueError, TypeError):
             continue
         if not name or not pid or name not in EMULATOR_PROC_NAMES:
+            continue
+        if not enable_emulator:
             continue
         for hwnd, _t in _rank_windows(pid):
             if hwnd in used:

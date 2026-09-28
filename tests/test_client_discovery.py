@@ -81,3 +81,18 @@ def test_title_fallback_only_when_empty(monkeypatch):
     fake = [types.SimpleNamespace(kind="pc", pid=10, hwnd=101, title="t101", index=1, detail="t101")]
     items = cd.build_client_items(fake, fallback_titles=["阴阳师-网易游戏"])
     assert len(items) == 1 and items[0][1] is fake[0]
+
+
+def test_discover_skips_emulator_when_disabled(monkeypatch):
+    """决策 A：enable_mumu=False 时不查 cli、不枚举模拟器（PC 行为与旧版一致）。"""
+    cd = pytest.importorskip("src.utils.client_discovery")
+
+    calls = []
+    monkeypatch.setattr(
+        cd, "query_cli_windows", lambda folder="": calls.append(folder) or [(123, 1, "MuMu")]
+    )
+    monkeypatch.setattr(cd, "_iter_procs", lambda: [])
+    _make_win(monkeypatch, {})
+
+    assert cd.discover_process_clients(enable_emulator=False) == []
+    assert calls == []  # cli 完全未被查询

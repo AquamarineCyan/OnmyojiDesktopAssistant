@@ -9,6 +9,7 @@ def test_screenshot_method_has_nemu_ipc():
 def test_backend_config_defaults():
     b = BackendConfig()
     assert b.emulator_type == "" and b.mumu_folder == "" and b.ipc_dll_override == ""
+    assert b.enable_mumu is True
 
 
 def test_config_update_roundtrip():

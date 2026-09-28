@@ -106,6 +106,11 @@ class GameWindow:
                 return
         else:
             self.family = "pc"
+
+        # 决策 A：开关关闭时一律按桌面版处理，且不做任何模拟器探测
+        if not config.user.interaction_mode.backend.enable_mumu:
+            self.family = "pc"
+            return
         try:
             from .emulator.mumu_handle import build_handle, detect_mumu_folder
         except Exception:
@@ -257,7 +262,10 @@ class GameWindowManager:
         out: list[GameWindow] = []
         seen: set[int] = set()
         try:
-            clients = discover_process_clients(config.user.interaction_mode.backend.mumu_folder)
+            clients = discover_process_clients(
+                config.user.interaction_mode.backend.mumu_folder,
+                enable_emulator=bool(config.user.interaction_mode.backend.enable_mumu),
+            )
         except Exception:
             clients = []
         for label, client in build_client_items(clients, fallback_titles=list(self._titles_to_search())):

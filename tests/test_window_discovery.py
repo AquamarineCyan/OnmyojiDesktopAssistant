@@ -18,6 +18,7 @@ def _win32(monkeypatch):
 @pytest.fixture()
 def _enable(monkeypatch):
     monkeypatch.setattr(config.user.interaction_mode.backend, "mumu_folder", "E:\\MuMuPlayer")
+    monkeypatch.setattr(config.user.interaction_mode.backend, "enable_mumu", True)
 
 
 def _h(hwnd):
@@ -76,7 +77,7 @@ def test_discover_desktop_first_then_mumu(monkeypatch, _win32, _enable):
     mu1 = types.SimpleNamespace(kind="emulator", pid=20, hwnd=111, title="t111", index=1, detail="MuMu安卓设备")
     mu2 = types.SimpleNamespace(kind="emulator", pid=21, hwnd=222, title="t222", index=2, detail="MuMu安卓设备-1")
     monkeypatch.setattr(CD, "discover_process_clients",
-                        lambda folder="": [pc1, pc2, mu1, mu2])
+                        lambda folder="", enable_emulator=True: [pc1, pc2, mu1, mu2])
     monkeypatch.setattr(CD, "build_client_items",
                         lambda clients, fallback_titles=None: [(f"x{c.hwnd}", c) for c in clients])
 
@@ -106,7 +107,7 @@ def test_discover_title_fallback_only_when_empty(monkeypatch, _win32):
     import src.utils.client_discovery as CD
     import src.utils.window as W
 
-    monkeypatch.setattr(CD, "discover_process_clients", lambda folder="": [])
+    monkeypatch.setattr(CD, "discover_process_clients", lambda folder="", enable_emulator=True: [])
     monkeypatch.setattr(CD, "build_client_items",
                         lambda clients, fallback_titles=None: [("阴阳师-网易游戏", None)])
     monkeypatch.setattr(W, "get_all_target_window", lambda titles: [555])
