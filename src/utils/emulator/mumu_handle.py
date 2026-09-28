@@ -86,6 +86,24 @@ def is_valid_mumu_folder(root: str) -> bool:
     return _valid_root(root)
 
 
+def mumu_root_from_dll(dll_path: str) -> str:
+    """由 external_renderer_ipc.dll 路径反推安装根（nx_main/… 或 nx_device/… 的父目录）。
+
+    仅配 ipc_dll_override、未填安装目录时使用；反推不到返回 ""。
+    """
+    try:
+        p = os.path.abspath(dll_path or "")
+    except Exception:
+        return ""
+    while True:
+        parent = os.path.dirname(p)
+        if parent == p:
+            return ""
+        if os.path.basename(parent) in ("nx_main", "nx_device"):
+            return os.path.dirname(parent)
+        p = parent
+
+
 def _running_mumu_exes() -> list[str]:
     out: list[str] = []
     for proc in psutil.process_iter(["name", "exe"]):

@@ -200,3 +200,14 @@ def test_cli_json_cached_recompute_when_function_changed(monkeypatch):
     monkeypatch.setattr(mh, "_mumu_cli_json", _counted_cli(calls, []))  # 换一个函数对象
     assert mh._mumu_cli_json_cached("E:\\MuMuPlayer") == []
     assert len(calls) == 2
+
+
+def test_mumu_root_from_dll():
+    """C2: 由 external_renderer_ipc.dll 路径反推安装根（覆盖 nx_main / nx_device 两种布局）。"""
+    assert mh.mumu_root_from_dll(
+        r"D:\Apps\MuMuPlayer\nx_main\sdk\external_renderer_ipc.dll"
+    ) == r"D:\Apps\MuMuPlayer"
+    assert mh.mumu_root_from_dll(
+        r"C:\Program Files\MuMuPlayer\nx_device\15.0\shell\sdk\x.dll"
+    ) == r"C:\Program Files\MuMuPlayer"
+    assert mh.mumu_root_from_dll(r"C:\somewhere\else\x.dll") == ""

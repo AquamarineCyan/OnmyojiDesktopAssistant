@@ -57,6 +57,8 @@ class MumuCapture:
     def __init__(self, handle: MumuHandle, ipc: Optional[NemuIpc] = None):
         self.handle = handle
         self.ipc = ipc
+        self.last_source: str = ""
+        """最近一次成功捕获的通道：ipc / printwindow / bitblt"""
 
     def _target_size(self) -> tuple[int, int]:
         """目标帧尺寸 = 渲染子窗口客户区实时尺寸（模板以此尺度制作）。"""
@@ -75,15 +77,20 @@ class MumuCapture:
         return REF_W, REF_H
 
     def capture(self) -> Optional[np.ndarray]:
-        # 通道顺序：PrintWindow 原生像素（模板保真最高）→ IPC（最小化/遮挡兜底）→ BitBlt
-        img = self._via_printwindow()
-        if img is not None:
-            return normalize_to(img, *self._target_size())
+        # 通道顺序：IPC（模拟器权威帧，始终与画面一致）→ PrintWindow（原生像素无重采样，
+        # 但实测会拿到窗口陈旧 backing store，画面与屏幕不符）→ BitBlt
+        self.last_source = ""
         img = self._via_ipc() if self.ipc is not None else None
         if img is not None:
+            self.last_source = "ipc"
+            return normalize_to(img, *self._target_size())
+        img = self._via_printwindow()
+        if img is not None:
+            self.last_source = "printwindow"
             return normalize_to(img, *self._target_size())
         img = self._via_bitblt()
         if img is not None:
+            self.last_source = "bitblt"
             return normalize_to(img, *self._target_size())
         return None
 
