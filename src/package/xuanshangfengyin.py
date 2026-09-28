@@ -3,8 +3,8 @@ from ..utils.config import config
 from ..utils.event import event_xuanshang
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.mysignal import global_ms as ms
 from ..utils.screenshot import ScreenShot
+from ..utils.signals import signal_manager
 from ..utils.toast import toast
 from ..utils.window import window_manager
 from .base_package import BasePackage
@@ -59,7 +59,7 @@ class XuanShangFengYin(BasePackage):
         toast("悬赏封印", "检测到悬赏封印")
         if not self._flag_notify:
             self._flag_notify = True
-            ms.main.ui_xuanshangfengyin_update.emit("悬赏封印", "检测到悬赏封印，请及时处理")
+            signal_manager.main.xuanshangfengyin_detected.emit("悬赏封印", "检测到悬赏封印，请及时处理")
         self._flag_msg = True
         match config.user.xuanshangfengyin:
             case XuanShangFengYinMode.ACCEPT:

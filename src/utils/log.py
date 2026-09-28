@@ -7,7 +7,7 @@ from pathlib import Path
 
 from .application import APP_NAME, LOG_DIR_PATH
 from .log_color import LogColorLevel, log_color
-from .mysignal import global_ms as ms
+from .signals import signal_manager
 
 LOG_LEVEL_GUI: int = 25
 logging.addLevelName(LOG_LEVEL_GUI, "GUI")
@@ -21,7 +21,7 @@ def send_gui_msg(msg: str = "", level: LogColorLevel = LogColorLevel.INFO):
         level (LogColorLevel): 日志颜色等级
     """
     _now = datetime.now().astimezone().strftime("%H:%M:%S")
-    ms.main.ui_text_info_update.emit(f"{_now} {msg}", log_color(level))
+    signal_manager.main.ui_text_info_appended.emit(f"{_now} {msg}", log_color(level))
 
 
 class CustomLogger(logging.Logger):
@@ -42,7 +42,7 @@ class CustomLogger(logging.Logger):
         super()._log(logging.ERROR, msg, args, **kwargs, stacklevel=2)
 
     def progress(self, msg, *args, **kwargs):
-        ms.main.ui_text_progress_update.emit(str(msg))  # 输出至完成情况UI界面
+        signal_manager.main.ui_text_progress_changed.emit(str(msg))  # 输出至完成情况UI界面
         super()._log(logging.INFO, f"done number: {msg}", args, **kwargs, stacklevel=2)
 
 

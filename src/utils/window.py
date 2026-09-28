@@ -7,7 +7,8 @@ import win32gui
 from .config import GameLanguage, config
 from .decorator import log_function_call
 from .log import logger
-from .mysignal import global_ms as ms
+from .message import MessageBoxPayload
+from .signals import signal_manager
 
 SCREEN_SIZE = (
     win32api.GetSystemMetrics(win32con.SM_CXSCREEN),
@@ -358,11 +359,11 @@ class GameWindowManager:
         logger.info(f"模拟器显示区已调整为 {final[0]}x{final[1]}")
         return True
 
-    def _emit_window_update(self):
+    def _emit_window_status_changed(self):
         """发出窗口状态更新信号"""
         count = len(self.handles)
         current_text = f"{self.current.title} - {self.current.handle}" if self.current else ""
-        ms.main.window_update.emit(count, current_text)
+        signal_manager.main.window_status_changed.emit(count, current_text)
 
     def force_zoom(self):  # TODO 比例差一点
         """强制缩放：桌面版调整到标准窗口尺寸；模拟器把显示区调整到 1136x640"""
@@ -411,7 +412,9 @@ class GameWindowManager:
                     logger.info("用户此前已选择不强制缩放，不再提醒")
                 return True
 
-            ms.main.qmessagbox_update.emit("question", "强制缩放")
+            signal_manager.main.message_box_requested.emit(
+                MessageBoxPayload.question(MessageBoxPayload.Action.FORCE_ZOOM)
+            )
             logger.info("尝试强制缩放")
             self._force_zoom_flag = True
         return True
@@ -424,7 +427,7 @@ class GameWindowManager:
         rect = self.current.window_rect
         if rect[0] < -9 or rect[1] < 0 or rect[2] < 0 or rect[3] < 0:
             logger.error(f"Game is background, handle_rect:{rect}")
-            ms.main.qmessagbox_update.emit("ERROR", "请前置游戏窗口！")
+            signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("请前置游戏窗口！"))
             self._background_flag = True
             return True
 
@@ -447,7 +450,7 @@ class GameWindowManager:
             if self._initialized and not self._close_window_flag:
                 logger.info("游戏窗口已关闭")
                 self._close_window_flag = True
-            self._emit_window_update()
+            self._emit_window_status_changed()
             return
 
         if not self._initialized and hasattr(self, "gui_button_callback"):
@@ -460,7 +463,7 @@ class GameWindowManager:
             new_window = game_windows[0]
             logger.info("更新游戏窗口" if self.current else "首次获取游戏窗口")
             self._update(new_window)
-            self._emit_window_update()
+            self._emit_window_status_changed()
             return
 
         # 检查窗口变化
@@ -469,7 +472,7 @@ class GameWindowManager:
             logger.info("检测到游戏窗口变化")
             self._update(new_window)
 
-        self._emit_window_update()
+        self._emit_window_status_changed()
 
     def force_update(self, handle: int = None):
         """强制更新游戏窗口
@@ -485,7 +488,7 @@ class GameWindowManager:
                 logger.ui_error("未找到游戏窗口")
                 return
             self._update(wins[0])
-        self._emit_window_update()
+        self._emit_window_status_changed()
 
     def set_foreground(self) -> bool:
         """将游戏窗口置于前台"""

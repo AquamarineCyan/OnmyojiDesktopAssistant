@@ -6,7 +6,7 @@ from .application import ANNOUNCEMENT_CACHE_FILE, ANNOUNCEMENT_URL, Connect
 from .config import config
 from .decorator import run_in_thread
 from .log import logger
-from .mysignal import global_ms as ms
+from .signals import signal_manager
 
 
 def _fetch_remote() -> list[dict] | None:
@@ -83,7 +83,7 @@ def check_announcements():
     if not new_list:
         return
     logger.ui(f"发现 {len(new_list)} 条新公告")
-    ms.announcement.show_ui.emit(new_list)
+    signal_manager.announcement.show_ui.emit(new_list)
 
 
 def show_all_announcements():
@@ -92,7 +92,7 @@ def show_all_announcements():
     if not announcements:
         logger.ui_warn("暂无公告")
         return
-    ms.announcement.show_ui.emit(announcements)
+    signal_manager.announcement.show_ui.emit(announcements)
 
 
 def mark_as_read(latest_id: int):

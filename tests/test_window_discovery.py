@@ -1,6 +1,7 @@
 """Task 7: 识别路由——进程优先、标题降级、实例排序、mumu 跳过强制检查。"""
 import pytest
 
+import src.utils.window as W
 from src.utils.config import config
 from src.utils.window import GameWindow, GameWindowManager
 
@@ -29,14 +30,26 @@ def _h(hwnd):
 
 
 class _EmitRecorder:
-    """Ruling 9 偏离（唯一）：PySide6 SignalInstance.emit 只读，无法 monkeypatch 方法，
-    改为给 QObject 实例设置同名的假信号对象（实例属性遮蔽类信号描述符）。"""
+    """信号记录器：挂在假 signal_manager 上，记录 emit 参数。"""
 
     def __init__(self, out):
         self.out = out
 
     def emit(self, *a):
         self.out.append(a)
+
+
+class _FakeMain:
+    def __init__(self, out):
+        self.message_box_requested = _EmitRecorder(out)
+        self.window_status_changed = _EmitRecorder(out)
+
+
+class _FakeSignalManager:
+    """替换 window.signal_manager，记录信号发射（不依赖 Qt）。"""
+
+    def __init__(self, out):
+        self.main = _FakeMain(out)
 
 
 def test_game_window_family_probe(monkeypatch, _win32, _enable):
@@ -117,9 +130,8 @@ def test_discover_title_fallback_only_when_empty(monkeypatch, _win32):
 
 
 def test_mumu_update_skips_background_check(monkeypatch):
-    ms = pytest.importorskip("src.utils.mysignal")
     emitted = []
-    monkeypatch.setattr(ms.global_ms.main, "qmessagbox_update", _EmitRecorder(emitted))
+    monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     mgr = GameWindowManager()
     mgr.current = _FakeWindow(100, "mumu")
     mgr._update(mgr.current)  # mumu：不得弹"请前置游戏窗口"
@@ -128,9 +140,8 @@ def test_mumu_update_skips_background_check(monkeypatch):
 
 def test_pc_update_still_checks_background(monkeypatch):
     mgr = GameWindowManager()
-    ms = pytest.importorskip("src.utils.mysignal")
     emitted = []
-    monkeypatch.setattr(ms.global_ms.main, "qmessagbox_update", _EmitRecorder(emitted))
+    monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     w = _FakeWindow(200, "pc")
     w.window_rect = (-100, 0, 100, 100)  # 窗口在屏外 → 桌面版仍走原检查
     mgr.current = w

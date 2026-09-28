@@ -2,7 +2,7 @@ from subprocess import Popen
 
 from .application import APP_EXE_NAME
 from .log import logger
-from .mysignal import global_ms as ms
+from .signals import signal_manager
 
 
 class Restart:
@@ -30,7 +30,7 @@ class Restart:
         Popen([self.bat_path])
         # 关闭当前exe程序
         logger.info("App Exiting...")
-        ms.main.sys_exit.emit()
+        signal_manager.main.sys_exit.emit()
 
     def write_restart_bat(self) -> None:
         """编写通用重启脚本"""

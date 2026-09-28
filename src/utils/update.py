@@ -14,8 +14,9 @@ from .application import APP_NAME, APP_PATH, UPDATE_INFO_FILE, USER_DATA_DIR_PAT
 from .config import UpdateDownload, config
 from .decorator import run_in_thread
 from .log import logger
-from .mysignal import global_ms as ms
+from .message import MessageBoxPayload
 from .restart import Restart
+from .signals import signal_manager
 from .toast import toast
 
 
@@ -370,16 +371,18 @@ class Update:
     @run_in_thread
     def ui_update_handle(self):
         if self._check_download_zip() and self._check_local_file(self.file, self.file_size):
-            ms.main.qmessagbox_update.emit("question", "更新重启")
+            signal_manager.main.message_box_requested.emit(
+                MessageBoxPayload.question(MessageBoxPayload.Action.UPDATE_RESTART)
+            )
         else:
             logger.ui_error("更新失败")
-        ms.update_new_version.close_ui.emit()
+        signal_manager.update_new_version.close_ui.emit()
 
     @run_in_thread
     def ui_download_handle(self):
         if not self._check_download_zip():
             logger.ui_error("下载失败")
-        ms.update_new_version.close_ui.emit()
+        signal_manager.update_new_version.close_ui.emit()
 
     def download_update_zip(self, download_url: str) -> bool:
         """下载更新包"""
@@ -430,7 +433,7 @@ class Update:
                 logger.info("暂无更新")
             case StatusCode.NEW_VERSION:
                 logger.ui(f"新版本{self.new_version}")
-                ms.update_new_version.show_ui.emit()
+                signal_manager.update_new_version.show_ui.emit()
                 toast("检测到新版本", f"{self.new_version}\n{self.new_version_info}")
             case StatusCode.CONNECT_ERROR:
                 logger.ui_warn("访问更新地址失败")
@@ -488,7 +491,9 @@ class Update:
 
         if not self._unzip_handle():
             logger.error("解压更新包失败，终止更新重启")
-            ms.main.qmessagbox_update.emit("ERROR", "解压更新包失败，请检查更新包是否损坏后重试")
+            signal_manager.main.message_box_requested.emit(
+                MessageBoxPayload.error("解压更新包失败，请检查更新包是否损坏后重试")
+            )
             return
 
         try:
@@ -501,7 +506,7 @@ class Update:
             _restart.app_restart(is_update=True)
         except Exception as e:
             logger.error(f"更新重启失败: {e}", exc_info=True)
-            ms.main.qmessagbox_update.emit("ERROR", f"更新重启失败: {e}")
+            signal_manager.main.message_box_requested.emit(MessageBoxPayload.error(f"更新重启失败: {e}"))
 
     @staticmethod
     def _json_read(file_path: str):
@@ -563,12 +568,12 @@ def download_zip_percentage_update(file, total_size: int):
 
         # 更新显示文本：大小 + 速度
         display_text = f"{hum_convert(curr)}/{hum_convert(total_size)} (速度: {speed:.2f} MB/s)"
-        ms.update_new_version.progress_text_update.emit(display_text)
+        signal_manager.update_new_version.progress_text_changed.emit(display_text)
 
         progress = 0
         if total_size > 0:
             progress = min(100, int(100 * (curr / total_size)))
-        ms.update_new_version.progressBar_update.emit(progress)
+        signal_manager.update_new_version.progress_bar_changed.emit(progress)
 
         # 更新上一次记录
         last_time = current_time

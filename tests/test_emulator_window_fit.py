@@ -3,6 +3,7 @@ import pytest
 
 import src.utils.window as W
 from src.utils.coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
+from src.utils.message import MessageBoxPayload
 from src.utils.emulator import mumu_handle as MH
 from src.utils.window import GameWindow, GameWindowManager
 
@@ -26,12 +27,25 @@ class _FakeWindow(GameWindow):
         pass
 
 
-class _EmitRecorder:
+class _SignalRecorder:
     def __init__(self, bucket):
         self.bucket = bucket
 
     def emit(self, *args):
         self.bucket.append(args)
+
+
+class _FakeMain:
+    def __init__(self, bucket):
+        self.message_box_requested = _SignalRecorder(bucket)
+        self.window_status_changed = _SignalRecorder(bucket)
+
+
+class _FakeSignalManager:
+    """替换 window.signal_manager，记录信号发射（不依赖 Qt）。"""
+
+    def __init__(self, bucket):
+        self.main = _FakeMain(bucket)
 
 
 @pytest.fixture
@@ -83,9 +97,8 @@ def test_mumu_force_zoom_skips_invalid_window(manager, monkeypatch):
 
 def test_mumu_update_asks_user_before_resize(manager, monkeypatch):
     """尺寸不匹配时走桌面版同款弹窗，不静默改窗口。"""
-    ms = pytest.importorskip("src.utils.mysignal")
     emitted = []
-    monkeypatch.setattr(ms.global_ms.main, "qmessagbox_update", _EmitRecorder(emitted))
+    monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     monkeypatch.setattr(W.config.user, "remember_force_zoom_choice", False)
     monkeypatch.setattr(
         MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("未确认不应缩放"))
@@ -93,14 +106,17 @@ def test_mumu_update_asks_user_before_resize(manager, monkeypatch):
 
     manager._update(_FakeWindow())
 
-    assert ("question", "强制缩放") in emitted
+    assert any(
+        isinstance(args[0], MessageBoxPayload)
+        and args[0].action == MessageBoxPayload.Action.FORCE_ZOOM
+        for args in emitted
+    ), "未弹出强制缩放确认框"
 
 
 def test_mumu_update_auto_resize_when_remembered(manager, monkeypatch):
     """用户此前勾选「不再提醒 + 确定」时，检测到尺寸不符直接缩放。"""
-    ms = pytest.importorskip("src.utils.mysignal")
     emitted = []
-    monkeypatch.setattr(ms.global_ms.main, "qmessagbox_update", _EmitRecorder(emitted))
+    monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     monkeypatch.setattr(W.config.user, "remember_force_zoom_choice", True)
     monkeypatch.setattr(W.config.user, "force_zoom_accepted", True)
     monkeypatch.setattr(MH, "is_window", lambda h: True)
@@ -116,9 +132,8 @@ def test_mumu_update_auto_resize_when_remembered(manager, monkeypatch):
 
 def test_mumu_update_noop_when_size_ok(manager, monkeypatch):
     """尺寸达标时不动窗口、不弹窗。"""
-    ms = pytest.importorskip("src.utils.mysignal")
     emitted = []
-    monkeypatch.setattr(ms.global_ms.main, "qmessagbox_update", _EmitRecorder(emitted))
+    monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     monkeypatch.setattr(
         MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("不应缩放"))
     )

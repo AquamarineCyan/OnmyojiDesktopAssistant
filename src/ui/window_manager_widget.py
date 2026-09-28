@@ -2,7 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import BodyLabel, CaptionLabel, ComboBox, PushButton
 
-from ..utils.mysignal import global_ms as ms
+from ..utils.signals import signal_manager
 
 
 class WindowManagerWidget(QWidget):
@@ -55,7 +55,7 @@ class WindowManagerWidget(QWidget):
 
         self.vBoxLayout.addStretch()
 
-        ms.main.window_update.connect(self.update_window_status)
+        signal_manager.main.window_status_changed.connect(self.update_window_status)
         self.update_window_status(0, "")
 
     @Slot(int, str)

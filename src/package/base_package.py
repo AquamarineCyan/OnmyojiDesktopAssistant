@@ -11,9 +11,9 @@ from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, prevent_sleep, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
-from ..utils.mysignal import global_ms as ms
 from ..utils.paddleocr import RuleOcr
 from ..utils.screenshot import ScreenShot
+from ..utils.signals import signal_manager
 from ..utils.toast import toast
 from ..utils.window import window_manager
 from .global_resource import GlobalResource
@@ -465,7 +465,7 @@ class BasePackage:
         """任务开始"""
 
         # 禁用按钮
-        ms.main.is_fighting_update.emit(True)
+        signal_manager.main.is_fighting_changed.emit(True)
         _start = time.perf_counter()
         if self.max:
             logger.progress(f"0/{self.max}")
@@ -504,7 +504,7 @@ class BasePackage:
             config.runtime.xuanshangfengyin.reset()
 
         # 启用按钮
-        ms.main.is_fighting_update.emit(False)
+        signal_manager.main.is_fighting_changed.emit(False)
         logger.ui(f"已完成 {self.scene_name} {self.n}次")
         # 系统通知
         # 5s结束，保留至通知中心
