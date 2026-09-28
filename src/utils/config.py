@@ -37,6 +37,7 @@ class ScreenshotMethod(StrEnum):
 
     BITBLT = "BitBlt"
     PRINTWINDOW = "PrintWindow"
+    NEMU_IPC = "NemuIPC"
 
 
 class InteractionMode(StrEnum):
@@ -81,7 +82,15 @@ _frontend_sub_config = {
 }
 _backend_sub_config = {
     "prevent_sleep": [True, False],
-    "screenshot_method": [ScreenshotMethod.BITBLT, ScreenshotMethod.PRINTWINDOW],
+    "screenshot_method": [
+        ScreenshotMethod.BITBLT,
+        ScreenshotMethod.PRINTWINDOW,
+        ScreenshotMethod.NEMU_IPC,
+    ],
+    # 自由文本（非候选值）：_check_outdated 不做枚举校验，见 validate() 的 list 分支
+    "mumu_folder": "",
+    "ipc_dll_override": "",
+    "enable_mumu": True,
 }
 
 
@@ -96,6 +105,12 @@ class BackendConfig(BaseModel):
 
     prevent_sleep: bool = True
     screenshot_method: str = "BitBlt"
+    # 决策 A：模拟器支持开关，默认开启；关闭后行为与旧版（仅桌面版）一致
+    enable_mumu: bool = True
+    # 已废弃：模拟器类型开关（保留字段以兼容存量 config.yaml，不再使用）
+    emulator_type: str = ""
+    mumu_folder: str = ""
+    ipc_dll_override: str = ""
 
 
 class InteractionModeConfig(BaseModel):
@@ -341,18 +356,40 @@ class Config:
     def _check_outdated(self, data: dict) -> dict:
         """仅检查不符合配置项的部分，不存在的设置项可以通过UserConfig的model_dump()方法获取默认值"""
 
+        def default_of(spec):
+            """把默认值规格解析为可直接写入配置的实际值：候选列表取首项，字典递归。"""
+            if isinstance(spec, list):
+                return default_of(spec[0])
+            if isinstance(spec, dict):
+                return {k: default_of(v) for k, v in spec.items()}
+            return spec
+
         def validate(value, default_value):
+            # YAML 显式留空的键（如 `mumu_folder:`）解析为 None：一律回落默认值，
+            # 否则 UserConfig(**data) 校验失败（启动崩溃）
+            if value is None:
+                return default_of(default_value), True
             # 如果 default 是列表，表示候选值
             if isinstance(default_value, list):
                 if value not in default_value:
-                    return default_value[0], True
+                    return default_of(default_value), True
                 return value, False
             # 如果 default 是字典，递归检查
             elif isinstance(default_value, dict):
+                if not isinstance(value, dict):
+                    # 整棵子树缺失/损坏：回落为默认值（不得注入含候选列表的原始规格）
+                    return default_of(default_value), True
                 fixed = {}
                 changed = False
                 for k, v in default_value.items():
-                    sub_val, sub_changed = validate(value.get(k), v) if isinstance(value, dict) else (v, True)
+                    if k in value:
+                        sub_val, sub_changed = validate(value[k], v)
+                    elif isinstance(v, list):
+                        # 缺失的候选项：回落默认并记一次整改
+                        sub_val, sub_changed = default_of(v), True
+                    else:
+                        # 缺失的标量/子树：回落默认值，不算数据错误（否则 None 会打崩 UserConfig）
+                        sub_val, sub_changed = default_of(v), False
                     fixed[k] = sub_val
                     if sub_changed:
                         changed = True

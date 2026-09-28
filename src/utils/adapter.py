@@ -1,6 +1,7 @@
 import copy
 import random
 import time
+from typing import Optional
 
 import pyautogui
 import pytweening
@@ -8,6 +9,7 @@ import win32api
 import win32con
 
 from .config import config
+from .coordinate import get_scale, to_actual, to_reference
 from .event import event_thread, event_xuanshang
 from .exception import GUIStopException
 from .log import logger
@@ -37,7 +39,8 @@ class Mouse:
     @classmethod
     def position(cls) -> Point:
         abs_x, abs_y = pyautogui.position()
-        return Point.from_screen(abs_x, abs_y)
+        point = Point.from_screen(abs_x, abs_y)
+        return Point(*to_reference(point.client_x, point.client_y))
 
     @staticmethod
     def random_tween():
@@ -48,6 +51,18 @@ class Mouse:
             pytweening.easeInOutQuad,
         ]
         return random.choice(tweens)
+
+    @staticmethod
+    def _mumu_backend() -> Optional[object]:
+        """当前窗口是 mumu 时返回缓存后端，否则 None（按窗口归属自动路由）。"""
+        from .emulator import get_backend
+        from .config import config
+        w = window_manager.current
+        if w is None or getattr(w, "family", "pc") != "mumu":
+            return None
+        return get_backend(w.handle, w.instance_index,
+                           config.user.interaction_mode.backend.mumu_folder,
+                           config.user.interaction_mode.backend.ipc_dll_override)
 
     # 鼠标后台点击事件参考 https://learn.microsoft.com/zh-cn/windows/win32/inputdev/mouse-input-notifications
 
@@ -111,6 +126,14 @@ class Mouse:
     ):
         global _back_click_point
 
+        if cls._mumu_backend() is not None:
+            if dst_point is not None:
+                # mumu 的 move 不下发（IPC 无悬停），但必须同步锚点，否则后续
+                # _drag_backend 从陈旧点起滑（tansuo.py"移动视角"即 move 后 drag）
+                _back_click_point = dst_point
+            logger.info("mumu backend: move 忽略（IPC 无悬停）")
+            return
+
         # 使用客户区坐标作为目标位置
         if dst_point is None:
             if x is not None and y is not None:
@@ -161,6 +184,11 @@ class Mouse:
         duration: float = 0,
         tween=linear,
     ):
+        # 业务侧坐标是基准空间；xOffset/yOffset 是相对位移，不做换算
+        if point is not None:
+            point = Point(*to_actual(point.client_x, point.client_y))
+        elif x is not None and y is not None:
+            x, y = to_actual(x, y)
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._move_backend(point, x, y, xOffset, yOffset)
         else:
@@ -192,6 +220,12 @@ class Mouse:
             dst_point = _back_click_point
         else:
             dst_point = point
+
+        backend = cls._mumu_backend()
+        if backend is not None:
+            backend.click(int(dst_point.client_x), int(dst_point.client_y))
+            _back_click_point = dst_point
+            return
 
         hwnd = window_manager.get_current_handle()
         if hwnd is None:
@@ -252,6 +286,10 @@ class Mouse:
         if wait:
             time.sleep(wait)
 
+        if point is not None:
+            # 业务侧坐标是基准空间 → 实际客户区
+            point = Point(*to_actual(point.client_x, point.client_y))
+
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             # logger.info(f"backend click {point.x},{point.y}")
             cls._click_backend(point)
@@ -266,6 +304,13 @@ class Mouse:
     @classmethod
     def _drag_backend(cls, x_offset: int = None, y_offset: int = None):
         global _back_click_point
+
+        backend = cls._mumu_backend()
+        if backend is not None:
+            sx, sy = _back_click_point.client_x, _back_click_point.client_y
+            backend.swipe(sx, sy, sx + x_offset, sy + y_offset)
+            _back_click_point = Point(sx + x_offset, sy + y_offset)
+            return
 
         hwnd = window_manager.get_current_handle()
         if hwnd is None:
@@ -306,6 +351,10 @@ class Mouse:
             y_offset (int): 纵轴拖动量
             duration (float): 持续时间
         """
+        if x_offset is not None and y_offset is not None:
+            # 业务侧拖动量是基准空间位移 → 实际客户区
+            fx, fy = get_scale()
+            x_offset, y_offset = x_offset * fx, y_offset * fy
         if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
             cls._drag_backend(x_offset, y_offset)
         else:
@@ -317,6 +366,9 @@ class Mouse:
 
     @classmethod
     def _scroll_backend(cls, distance: int):
+        if cls._mumu_backend() is not None:
+            logger.ui_warn("模拟器后台暂不支持滚轮（范围外）")
+            return
         hwnd = window_manager.get_current_handle()
         if hwnd is None:
             return
@@ -356,6 +408,10 @@ class KeyBoard:
 
     @classmethod
     def _backend_operation(cls, key: str) -> None:
+        if Mouse._mumu_backend() is not None:
+            logger.ui_warn("模拟器后台暂不支持键盘输入（范围外）")
+            return
+
         vk_code = cls._KEY_MAPPING.get(key.lower())
         if not vk_code:
             raise ValueError(f"Unsupported key: {key}")
@@ -367,6 +423,14 @@ class KeyBoard:
         win32api.PostMessage(hwnd, win32con.WM_KEYUP, vk_code, 1)
 
     @classmethod
+    def _dispatch(cls, key: str) -> None:
+        """按交互模式分发按键"""
+        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+            cls._backend_operation(key)
+        else:
+            cls._front_operation(key)
+
+    @classmethod
     def send(cls, key: str, delay: float = 0) -> None:
         """发送按键事件"""
         if delay:
@@ -374,18 +438,33 @@ class KeyBoard:
 
         event_xuanshang.wait()
         logger.info(f"Sending key: {key.upper()}")
-
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
-            cls._backend_operation(key)
-        else:
-            cls._front_operation(key)
+        cls._dispatch(key)
 
     @classmethod
     def enter(cls, delay: float = 0) -> None:
-        """发送回车键"""
+        """发送回车键
+
+        注意：模拟器里回车无法确认弹窗（游戏不响应），确认请改用 `BasePackage.confirm()`。
+        """
+        if Mouse._mumu_backend() is not None:
+            logger.ui_warn("模拟器下回车无法确认弹窗，请改用 BasePackage.confirm()")
         cls.send("enter", delay)
 
     @classmethod
-    def esc(cls, delay: float = 0):
-        """发送ESC键"""
-        cls.send("esc", delay)
+    def esc(cls, delay: float = 0) -> None:
+        """发送「返回」键
+
+        模拟器改用鼠标后退侧键（XBUTTON1）——模拟器后端不转发键盘输入，
+        但鼠标后退侧键会被识别为安卓返回，效果等价 esc；桌面版行为不变。
+        """
+        if delay:
+            time.sleep(delay)
+
+        event_xuanshang.wait()
+        backend = Mouse._mumu_backend()
+        if backend is not None:
+            logger.info("Sending back button: mouse XBUTTON1")
+            backend.press_back()
+            return
+        logger.info("Sending key: ESC (back)")
+        cls._dispatch("esc")

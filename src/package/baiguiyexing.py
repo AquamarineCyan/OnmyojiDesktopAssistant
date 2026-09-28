@@ -1,4 +1,5 @@
 from ..utils.adapter import Mouse
+from ..utils.coordinate import reference_size
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
@@ -7,7 +8,6 @@ from ..utils.function import random_num, random_point, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.point import Point
-from ..utils.window import window_manager
 from .base_package import BasePackage
 
 
@@ -155,9 +155,9 @@ class BaiGuiYeXing(BasePackage):
             # 屏幕中心区域
             point = random_point(
                 60,
-                window_manager.current.client_width - 120,
+                reference_size()[0] - 120,
                 300,
-                window_manager.current.client_height - 100,
+                reference_size()[1] - 100,
             )
             Mouse.click(point, duration=0.25)
             result = RuleImage(self.IMAGE_FINISH)

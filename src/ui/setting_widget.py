@@ -1,8 +1,9 @@
+import os
 from typing import ClassVar
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QIcon
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     CaptionLabel,
@@ -41,6 +42,8 @@ from ..utils.config import (
     config,
     default_config,
 )
+from ..utils.emulator.mumu_handle import is_valid_mumu_folder
+from ..utils.log import logger
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .ui_utils import open_log_folder
 
@@ -437,6 +440,12 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         self.backend_screenshot_combobox.addItems(default_config.interaction_mode["backend"]["screenshot_method"])
         self.backend_screenshot_combobox.currentIndexChanged.connect(self._config_update_backend_screenshot_method)
 
+        self.backend_enable_mumu_switch = SwitchButton()
+        self.backend_enable_mumu_switch.setOnText("")
+        self.backend_enable_mumu_switch.setOffText("")
+        self.backend_enable_mumu_switch.setChecked(config.user.interaction_mode.backend.enable_mumu)
+        self.backend_enable_mumu_switch.checkedChanged.connect(self._config_update_backend_enable_mumu)
+
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
 
@@ -450,20 +459,70 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
             self.backend_screenshot_combobox,
         )
 
+        self.addGroup(
+            FluentIcon.APPLICATION,
+            "启用 MuMu 模拟器支持",
+            "关闭后与旧版行为一致：仅识别桌面版客户端，不探测模拟器",
+            self.backend_enable_mumu_switch,
+        )
+
+        self.backend_mumu_folder_edit = LineEdit()
+        self.backend_mumu_folder_edit.setPlaceholderText("留空自动探测，或手动填写")
+        self.backend_mumu_folder_edit.setText(config.user.interaction_mode.backend.mumu_folder)
+        self.backend_mumu_folder_edit.editingFinished.connect(self._config_update_backend_mumu_folder)
+
+        self.backend_browse_button = PushButton("选择目录")
+        self.backend_browse_button.clicked.connect(self._browse_mumu_folder_clicked)
+
+        self.backend_detect_button = PushButton("自动探测")
+        self.backend_detect_button.clicked.connect(self._detect_mumu_folder_clicked)
+
+        # 两行排布（路径独占一行、按钮另起一行）：单行时本行最小宽度超出设置页
+        # 默认窗口宽度，按钮会被滚动区裁掉；输入框不固定宽度，随卡片宽度自适应。
+        self.backend_mumu_box = QWidget()
+        mumu_layout = QVBoxLayout(self.backend_mumu_box)
+        mumu_layout.setContentsMargins(0, 0, 0, 0)
+        mumu_layout.setSpacing(8)
+        mumu_layout.addWidget(self.backend_mumu_folder_edit)
+
+        mumu_buttons_layout = QHBoxLayout()
+        mumu_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        mumu_buttons_layout.setSpacing(8)
+        mumu_buttons_layout.addWidget(self.backend_browse_button)
+        mumu_buttons_layout.addWidget(self.backend_detect_button)
+        mumu_buttons_layout.addStretch(1)
+        mumu_layout.addLayout(mumu_buttons_layout)
+
+        self.backend_mumu_folder_group = self.addGroup(
+            FluentIcon.APPLICATION, "MuMu 安装目录", "可手动修改；选择目录或自动探测（优先用进程 exe 反推）", self.backend_mumu_box)
+        # 两行内容高于 GroupWidget 默认最小高度（60）：把最小值抬到实际高度，
+        # 否则展开视图按 60 分配高度会把第二行按钮压扁/裁掉。
+        self.backend_mumu_folder_group.setMinimumHeight(
+            max(60, self.backend_mumu_folder_group.sizeHint().height()))
+
+        self._sync_mumu_folder_group_visible()
+
         self.setExpand(True)
 
         text = self.mode_combobox.currentText()
-        disabled = True if text == InteractionMode.FRONTEND else False
+        disabled = text == InteractionMode.FRONTEND
         self.frontend_force_window_switch.setDisabled(not disabled)
+        self._set_backend_controls_disabled(disabled)
+
+    def _set_backend_controls_disabled(self, disabled: bool) -> None:
+        """前台模式下后台控件整体禁用（MuMu 目录行与其它后台项保持一致）。"""
         self.backend_prevent_sleep_switch.setDisabled(disabled)
         self.backend_screenshot_combobox.setDisabled(disabled)
+        self.backend_enable_mumu_switch.setDisabled(disabled)
+        self.backend_mumu_folder_edit.setDisabled(disabled)
+        self.backend_browse_button.setDisabled(disabled)
+        self.backend_detect_button.setDisabled(disabled)
 
     def _config_update(self):
         text = self.mode_combobox.currentText()
-        disabled = True if text == InteractionMode.FRONTEND else False
+        disabled = text == InteractionMode.FRONTEND
         self.frontend_force_window_switch.setDisabled(not disabled)
-        self.backend_prevent_sleep_switch.setDisabled(disabled)
-        self.backend_screenshot_combobox.setDisabled(disabled)
+        self._set_backend_controls_disabled(disabled)
         if text != config.user.interaction_mode.mode:
             config.update("interaction_mode.mode", text)
 
@@ -481,6 +540,74 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         text = self.backend_screenshot_combobox.currentText()
         if text != config.user.interaction_mode.backend.screenshot_method:
             config.update("interaction_mode.backend.screenshot_method", text)
+
+    def _config_update_backend_mumu_folder(self):
+        text = self.backend_mumu_folder_edit.text().strip()
+        if text != config.user.interaction_mode.backend.mumu_folder:
+            config.update("interaction_mode.backend.mumu_folder", text)
+        if text and not is_valid_mumu_folder(text):
+            logger.ui_warn(f"MuMu 安装目录无效（未找到 {text}\\nx_main\\mumu-cli.exe），已保留该值")
+
+    def _config_update_backend_enable_mumu(self):
+        status = self.backend_enable_mumu_switch.isChecked()
+        if status != config.user.interaction_mode.backend.enable_mumu:
+            config.update("interaction_mode.backend.enable_mumu", status)
+        self._sync_mumu_folder_group_visible()
+
+    def _sync_mumu_folder_group_visible(self):
+        """安装目录行随“启用 MuMu 模拟器支持”开关显隐。
+
+        关闭时整组移出卡片（分隔线与卡片高度一并收拢），开启时原样加回末尾；
+        已填写的路径保留不变。"""
+        visible = self.backend_enable_mumu_switch.isChecked()
+        group = self.backend_mumu_folder_group
+        if visible == (not group.isHidden()):
+            return
+        if visible:
+            group.setVisible(True)
+            self.addGroupWidget(group)
+        else:
+            group.setVisible(False)
+            self.removeGroupWidget(group)
+
+    def _adjustViewSize(self):
+        """按各行的实际占位高度重算展开高度。
+
+        基类按 `group.sizeHint()+3` 求和会低估高度（GroupWidget 有 60px 最小高度），
+        显隐切换后一旦算少就会裁掉最后一行，故按 `max(sizeHint, minimumHeight)`
+        逐项累加；隐藏的行始终会被移出布局，不做额外可见性过滤。"""
+        h = 0
+        for i in range(self.viewLayout.count()):
+            w = self.viewLayout.itemAt(i).widget()
+            if w is not None:
+                h += max(w.sizeHint().height(), w.minimumHeight())
+        self.spaceWidget.setFixedHeight(h)
+        if self.isExpand:
+            self.setFixedHeight(self.card.height() + h)
+
+    def _browse_mumu_folder_clicked(self):
+        """弹出资源管理器选择安装目录；取消则不改动。
+
+        选中的目录照常校验（无效仅告警并保留），与手动输入行为一致。"""
+        folder = QFileDialog.getExistingDirectory(
+            self, "选择 MuMu 安装目录", self.backend_mumu_folder_edit.text().strip())
+        if not folder:
+            return
+        folder = os.path.normpath(folder)
+        self.backend_mumu_folder_edit.setText(folder)
+        self._config_update_backend_mumu_folder()
+        if is_valid_mumu_folder(folder):
+            logger.ui(f"已选择 MuMu 安装目录：{folder}")
+
+    def _detect_mumu_folder_clicked(self):
+        from ..utils.emulator.mumu_handle import detect_mumu_folder
+        folder = detect_mumu_folder(config.user.interaction_mode.backend.mumu_folder)
+        if folder:
+            self.backend_mumu_folder_edit.setText(folder)
+            config.update("interaction_mode.backend.mumu_folder", folder)
+            logger.ui(f"自动探测到 MuMu 安装目录：{folder}")
+        else:
+            logger.ui_warn("自动探测失败：请确认 MuMu 已安装/实例已运行，或手动填写路径")
 
 
 class SettingUpdateCard(ExpandGroupSettingCard):
