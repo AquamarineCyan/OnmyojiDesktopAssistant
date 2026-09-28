@@ -294,9 +294,69 @@ class GameWindowManager:
         self.current = window
         self.current.display()
         if self.current.family == "mumu":
-            return  # 模拟器最小化是常态，跳过"前置窗口"与"强制缩放"
+            # 模拟器：显示区尺寸不匹配时复用桌面版的「强制缩放」确认流程
+            self._check_force_zoom()
+            return  # 模拟器最小化是常态，跳过"前置窗口"检查
         if not self._check_background():
             self._check_force_zoom()
+
+    def _need_force_zoom(self) -> bool:
+        """窗口尺寸是否需要规范化
+
+        桌面版：按窗口矩形与标准窗口尺寸比较；
+        模拟器：按显示区（截图帧）尺寸与基准 1136x640 比较。
+        """
+        from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
+
+        window = self.current
+        if window.family == "mumu":
+            w = int(getattr(window, "content_width", 0) or 0)
+            h = int(getattr(window, "content_height", 0) or 0)
+            if w <= 0 or h <= 0:
+                return False  # 尺寸未知，不提示
+            return abs(w - STANDARD_CLIENT_WIDTH) > 2 or abs(h - STANDARD_CLIENT_HEIGHT) > 2
+        return not is_rect_within_range(
+            window.window_rect,
+            self.current_window_resolution.window_standard_width,
+            self.current_window_resolution.window_standard_height,
+        )
+
+    def _force_zoom_emulator(self) -> bool:
+        """模拟器强制缩放：把显示区规范化到基准尺寸 1136x640"""
+        from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
+        from .emulator.mumu_handle import fit_display_size, is_window
+
+        window = self.current
+        shot_hwnd = int(getattr(window, "shot_hwnd", 0) or 0)
+        if not shot_hwnd or not is_window(int(window.handle)) or not is_window(shot_hwnd):
+            logger.ui_error("模拟器窗口无效，强制缩放失败")
+            return False
+        try:
+            final = fit_display_size(
+                window.handle,
+                shot_hwnd,
+                STANDARD_CLIENT_WIDTH,
+                STANDARD_CLIENT_HEIGHT,
+            )
+        except Exception as e:
+            logger.ui_error(f"强制缩放失败: {str(e)}")
+            return False
+        try:
+            # 尺寸可能已变化（含未达标时的部分调整），客户区/内容尺寸都过期，重建窗口对象
+            self.current = GameWindow(
+                window.handle, family="mumu", instance_index=window.instance_index
+            )
+        except Exception as e:
+            logger.warning(f"重建游戏窗口失败：{e}")
+        if abs(int(final[0]) - STANDARD_CLIENT_WIDTH) > 2 or abs(int(final[1]) - STANDARD_CLIENT_HEIGHT) > 2:
+            logger.ui_error(
+                f"强制缩放未达标：显示区 {final[0]}x{final[1]}，"
+                f"目标 {STANDARD_CLIENT_WIDTH}x{STANDARD_CLIENT_HEIGHT}（请恢复模拟器窗口后重试）"
+            )
+            return False
+        logger.ui("强制缩放成功")
+        logger.info(f"模拟器显示区已调整为 {final[0]}x{final[1]}")
+        return True
 
     def _emit_window_update(self):
         """发出窗口状态更新信号"""
@@ -305,12 +365,15 @@ class GameWindowManager:
         ms.main.window_update.emit(count, current_text)
 
     def force_zoom(self):  # TODO 比例差一点
-        """强制缩放 1154*687"""
+        """强制缩放：桌面版调整到标准窗口尺寸；模拟器把显示区调整到 1136x640"""
         if not self.current:
             logger.ui_error("请先获取游戏窗口")
             return False
 
         self._force_zoom_flag = False
+
+        if self.current.family == "mumu":
+            return self._force_zoom_emulator()
 
         if self.current.window_left != 0 and self.current.window_top != 0:
             try:
@@ -340,11 +403,7 @@ class GameWindowManager:
         if not self.current:
             return False
 
-        if not is_rect_within_range(
-            self.current.window_rect,
-            self.current_window_resolution.window_standard_width,
-            self.current_window_resolution.window_standard_height,
-        ):
+        if self._need_force_zoom():
             if config.user.remember_force_zoom_choice:
                 if config.user.force_zoom_accepted:
                     self.force_zoom()

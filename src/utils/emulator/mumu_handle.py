@@ -12,7 +12,7 @@ import psutil
 import win32api
 import win32gui
 from win32print import GetDeviceCaps
-from win32con import DESKTOPHORZRES
+from win32con import DESKTOPHORZRES, SW_RESTORE
 
 # 供测试整体替换的 win32 门面（默认即真实 win32gui）
 _gui = win32gui
@@ -362,6 +362,46 @@ def _client_size(hwnd: int) -> tuple[int, int]:
         return cr[2] - cr[0], cr[3] - cr[1]
     except Exception:
         return 1280, 720
+
+
+def fit_display_size(
+    root_hwnd: int,
+    shot_hwnd: int,
+    target_w: int,
+    target_h: int,
+    tolerance: int = 2,
+    tries: int = 8,
+) -> tuple[int, int]:
+    """把模拟器显示子窗口的客户区规范化到目标尺寸（缩放 root 窗口，迭代逼近）。
+
+    模拟器显示区小于某个尺寸时不会等比缩小、而是裁剪画面，导致截图/坐标与屏幕不符；
+    统一到基准尺寸（1136x640）后，坐标换算系数为 1，识别与点击都按 PC 基准走。
+
+    Returns:
+        (w, h): 调整后的显示区客户区尺寸
+    """
+    if _gui.IsIconic(int(root_hwnd)):
+        # 最小化时 MoveWindow 对显示区不生效：先恢复并置于前台，再走尺寸迭代；
+        # 恢复失败/仍在最小化时下面的收敛失败会由调用方给出明确错误提示
+        try:
+            _gui.ShowWindow(int(root_hwnd), SW_RESTORE)
+            _gui.SetForegroundWindow(int(root_hwnd))
+        except Exception:
+            pass
+        time.sleep(0.3)
+
+    for _ in range(max(1, int(tries))):
+        cw, ch = _client_size(shot_hwnd)
+        dw, dh = int(target_w) - cw, int(target_h) - ch
+        if abs(dw) <= tolerance and abs(dh) <= tolerance:
+            break
+        try:
+            wx, wy, wr, wb = _gui.GetWindowRect(int(root_hwnd))
+            _gui.MoveWindow(int(root_hwnd), wx, wy, (wr - wx) + dw, (wb - wy) + dh, True)
+        except Exception:
+            break
+        time.sleep(0.3)
+    return _client_size(shot_hwnd)
 
 
 def build_handle(spec, mumu_folder: str = "", wait_tries: int = 10) -> MumuHandle:
