@@ -655,7 +655,7 @@ class MainWindow(FluentWindow):
         combobox.clear()
         if game_window_list:
             for item in game_window_list:
-                combobox.addItem(f"{item.title} - {item.handle}", userData=item.handle)  # 存储窗口句柄
+                combobox.addItem(item.label, userData=item.handle)  # 存储窗口句柄
             combobox.setCurrentIndex(0)
 
             logger.info(f"刷新窗口列表，当前窗口数量：{len(game_window_list)}")

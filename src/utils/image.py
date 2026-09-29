@@ -7,6 +7,7 @@ import numpy as np
 from PIL.Image import Image
 
 from .assets import AssetImage
+from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, get_scale, scale_region
 from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
@@ -21,6 +22,33 @@ class LOGLEVEL(Enum):
     NONE = 0
     FAIL = 1
     SUCCESS = 2
+
+
+def get_template_scale(client_w: float | None = None, client_h: float | None = None) -> tuple[float, float]:
+    """计算模板缩放系数 / 基准空间 → 实际客户区的换算系数
+
+    Args:
+        client_w: 当前客户区宽度，None 则按当前窗口（coordinate.get_scale）
+        client_h: 当前客户区高度，None 则按当前窗口（coordinate.get_scale）
+
+    Returns:
+        (fx, fy): 相对 1136x640 的缩放系数，桌面版/无窗口返回 (1.0, 1.0)
+    """
+    if client_w is None or client_h is None:
+        return get_scale()
+    return (client_w / STANDARD_CLIENT_WIDTH, client_h / STANDARD_CLIENT_HEIGHT)
+
+
+def scale_template_image(img: cv2.typing.MatLike, fx: float, fy: float) -> cv2.typing.MatLike:
+    """按系数缩放模板"""
+    if img is None:
+        return None
+    if abs(fx - 1.0) < 0.01 and abs(fy - 1.0) < 0.01:
+        return img
+    new_w = max(1, int(round(img.shape[1] * fx)))
+    new_h = max(1, int(round(img.shape[0] * fy)))
+    interp = cv2.INTER_AREA if (fx < 1.0 and fy < 1.0) else cv2.INTER_LINEAR
+    return cv2.resize(img, (new_w, new_h), interpolation=interp)
 
 
 def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
@@ -93,9 +121,17 @@ class RuleImage:
 
         # 空值或者(0,0,0,0)则匹配整个窗口
         if self.region is None or self.region == (0, 0, 0, 0):
-            self.region = (0, 0, window_manager.current.client_width, window_manager.current.client_height)
+            cur = window_manager.current
+            w = getattr(cur, "content_width", 0) or cur.client_width
+            h = getattr(cur, "content_height", 0) or cur.client_height
+            self.region = (0, 0, w, h)
+            self._region_scalable = False  # 已是实际客户区尺寸
+        else:
+            self._region_scalable = True  # 素材/显式 region 是基准空间坐标
 
         self._image = None
+        self._scaled_image = None
+        self._scaled_key: tuple | None = None
         self.match_result = None
 
     def __str__(self):
@@ -114,6 +150,12 @@ class RuleImage:
             self._image = img
         else:
             logger.warning(f"{self.file} 文件不存在")
+
+    def actual_region(self) -> tuple[int, int, int, int]:
+        """region 在实际客户区中的坐标（基准空间 region 按系数放大）"""
+        if self._region_scalable:
+            return scale_region(self.region)
+        return tuple(self.region)
 
     def match(
         self,
@@ -140,8 +182,10 @@ class RuleImage:
         """
         if normal:
             event_xuanshang.wait()
+        fx, fy = get_template_scale()
+        region = self.actual_region()
         if image is None:
-            image = convert_image_rgb_to_bgr(ScreenShot(self.region, debug=debug).get_image())
+            image = convert_image_rgb_to_bgr(ScreenShot(region, debug=debug).get_image())
         elif isinstance(image, ScreenShot):
             image = convert_image_rgb_to_bgr(image.get_image())
         elif isinstance(image, Image):
@@ -152,7 +196,21 @@ class RuleImage:
             score = self.score
 
         self.load_image()
-        res = cv2.matchTemplate(image, self._image, cv2.TM_CCOEFF_NORMED)
+        if self._image is None:
+            return False
+        # 按当前客户区相对 1136x640 缩放模板（模拟器窗口自由尺寸，裸匹配会掉分）
+        template = self._image
+        if abs(fx - 1.0) >= 0.01 or abs(fy - 1.0) >= 0.01:
+            key = (round(fx, 4), round(fy, 4))
+            if self._scaled_key != key or self._scaled_image is None:
+                self._scaled_image = scale_template_image(self._image, fx, fy)
+                self._scaled_key = key
+            template = self._scaled_image
+            if template.shape[0] > image.shape[0] or template.shape[1] > image.shape[1]:
+                if logger_lever == "ERROR":
+                    logger.warning(f"[ERROR] {self.name} scaled template larger than screenshot")
+                return False
+        res = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
         # 最小匹配度，最大匹配度，最小匹配度的坐标，最大匹配度的坐标
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
@@ -167,12 +225,12 @@ class RuleImage:
         # 匹配区域里的相对坐标
         x1, y1 = max_loc
         # 加上图像自身占游戏窗口的坐标
-        x1 = x1 + self.region[0]
-        y1 = y1 + self.region[1]
-        x2 = x1 + self._image.shape[1]
-        y2 = y1 + self._image.shape[0]
-        # 左，上，右，下
-        self.match_result = (x1, y1, x2, y2)
+        x1 = x1 + region[0]
+        y1 = y1 + region[1]
+        x2 = x1 + template.shape[1]
+        y2 = y1 + template.shape[0]
+        # 实际客户区 → 基准空间：业务侧统一按基准空间使用识别结果
+        self.match_result = (x1 / fx, y1 / fy, x2 / fx, y2 / fy)
 
         if debug:
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR

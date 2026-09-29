@@ -1,7 +1,7 @@
 import time
 from typing import Literal
 
-from ..utils.adapter import Mouse
+from ..utils.adapter import KeyBoard, Mouse
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.assets import AssetOcr
 from ..utils.config import InteractionMode, config
@@ -162,6 +162,54 @@ class BasePackage:
                 if result := ocr.match():
                     Mouse.click(result.center, *args, **kwargs)
                     return True
+
+    def click_confirm(self, timeout: float = 0) -> bool:
+        """OCR 识别并点击「确定/确认」按钮
+
+        模拟器下键盘回车不可用，用点击替代；一次 OCR 同时匹配两个关键词。
+
+        Args:
+            timeout (float): 超时时间，0 表示只识别一次
+
+        Returns:
+            bool: 是否识别并点击成功
+        """
+        assets = (self.global_assets.OCR_CONFIRM, self.global_assets.OCR_CONFIRM_2)
+        start_time = time.time()
+        while True:
+            if bool(event_thread):
+                raise GUIStopException
+
+            ocr_result = RuleOcr().get_raw_result()
+            for asset in assets:
+                result = RuleOcr(asset).match(ocr_result=ocr_result)
+                if result is not None:
+                    Mouse.click(result.center)
+                    logger.ui(f"点击「{result.text}」")
+                    return True
+
+            if timeout <= 0 or time.time() - start_time > timeout:
+                if timeout > 0:
+                    logger.ui_warn("未识别到「确认」按钮")
+                return False
+            sleep()
+
+    def confirm(self, delay: float = 0, timeout: float = 3) -> bool:
+        """确认弹窗：模拟器走 OCR 点击「确认」，桌面版走回车
+
+        Args:
+            delay (float): 前置等待时间
+            timeout (float): 模拟器下的识别超时
+
+        Returns:
+            bool: 桌面版始终为 True；模拟器为是否点击成功
+        """
+        if window_manager.is_emulator:
+            if delay:
+                time.sleep(delay)
+            return self.click_confirm(timeout=timeout)
+        KeyBoard.enter(delay)
+        return True
 
     @log_function_call
     def wait_passengers_on_position(self, passengers: int = 2):
