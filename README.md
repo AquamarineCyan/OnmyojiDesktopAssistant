@@ -249,6 +249,14 @@
 
 [打包PaddleOCR项目](https://www.paddleocr.ai/latest/version3.x/inference_deployment/others/packaging.html) Paddle官方打包demo
 
+## 开发者
+
+感谢以下开发者对本项目作出的贡献：
+
+<a href="https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AquamarineCyan/OnmyojiDesktopAssistant" alt="Contributors" />
+</a>
+
 ## 声明
 
 - 本软件采用 **GNU General Public License v3.0** 许可证。详见 [LICENSE](LICENSE) 文件。
