@@ -56,6 +56,13 @@
             "region": [0, 0, 0, 0],
             "score": "0.7",
             "method": "PERFACT"
+        },
+        {
+            "name": "share",
+            "keyword": "我的阵容",
+            "region": [0, 0, 0, 0],
+            "score": "0.5",
+            "method": "PERFACT"
         }
     ]
 }
