@@ -85,6 +85,8 @@ class YongShengZhiHaiTeam(YongShengZhiHai):
                 logger.ui("队员就位")
                 return True
 
+            self.sleep_interval()
+
     @log_function_call
     def check_fighting(self):
         """判断是否在战斗中"""

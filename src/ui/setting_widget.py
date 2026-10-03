@@ -22,6 +22,7 @@ from qfluentwidgets import (
     QColor,
     ScrollArea,
     SettingCard,
+    SpinBox,
     SubtitleLabel,
     SwitchButton,
 )
@@ -358,6 +359,31 @@ class SettingBattleThemeCard(AppCard):
             config.update("battle_theme_recognition", status)
 
 
+class SettingScreenshotIntervalCard(AppCard):
+    """设置项-截图时间间隔"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.SPEED_HIGH,
+            "截图时间间隔（毫秒）",
+            "任务运行中两次截图之间的间隔，调大可降低 CPU 占用。范围10-1000毫秒，默认100毫秒",
+            parent,
+        )
+
+        self.spinbox = SpinBox()
+        self.spinbox.setRange(10, 1000)
+        self.spinbox.setValue(config.user.screenshot_interval)
+        self.spinbox.valueChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.spinbox)
+
+    def _config_update(self, value: int):
+        """只允许10-1000的整数"""
+        interval = min(max(int(value), 10), 1000)
+        if interval != config.user.screenshot_interval:
+            config.update("screenshot_interval", interval)
+
+
 class SettingRememberForceZoomCard(AppCard):
     """设置项-强制缩放不再提醒"""
 
@@ -494,11 +520,14 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         mumu_layout.addLayout(mumu_buttons_layout)
 
         self.backend_mumu_folder_group = self.addGroup(
-            FluentIcon.APPLICATION, "MuMu 安装目录", "可手动修改；选择目录或自动探测（优先用进程 exe 反推）", self.backend_mumu_box)
+            FluentIcon.APPLICATION,
+            "MuMu 安装目录",
+            "可手动修改；选择目录或自动探测（优先用进程 exe 反推）",
+            self.backend_mumu_box,
+        )
         # 两行内容高于 GroupWidget 默认最小高度（60）：把最小值抬到实际高度，
         # 否则展开视图按 60 分配高度会把第二行按钮压扁/裁掉。
-        self.backend_mumu_folder_group.setMinimumHeight(
-            max(60, self.backend_mumu_folder_group.sizeHint().height()))
+        self.backend_mumu_folder_group.setMinimumHeight(max(60, self.backend_mumu_folder_group.sizeHint().height()))
 
         self._sync_mumu_folder_group_visible()
 
@@ -590,7 +619,8 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
 
         选中的目录照常校验（无效仅告警并保留），与手动输入行为一致。"""
         folder = QFileDialog.getExistingDirectory(
-            self, "选择 MuMu 安装目录", self.backend_mumu_folder_edit.text().strip())
+            self, "选择 MuMu 安装目录", self.backend_mumu_folder_edit.text().strip()
+        )
         if not folder:
             return
         folder = os.path.normpath(folder)
@@ -601,6 +631,7 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
 
     def _detect_mumu_folder_clicked(self):
         from ..utils.emulator.mumu_handle import detect_mumu_folder
+
         folder = detect_mumu_folder(config.user.interaction_mode.backend.mumu_folder)
         if folder:
             self.backend_mumu_folder_edit.setText(folder)
@@ -801,6 +832,7 @@ class SettingWidget(QWidget):
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
         self.battle_theme_card = SettingBattleThemeCard()
+        self.screenshot_interval_card = SettingScreenshotIntervalCard()
         self.remember_force_zoom_card = SettingRememberForceZoomCard()
         self.force_zoom_accepted_card = SettingForceZoomAcceptedCard()
         self.interaction_mode_card = SettingInteractionModeCard()
@@ -831,6 +863,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
         self._layout.addWidget(self.battle_theme_card)
+        self._layout.addWidget(self.screenshot_interval_card)
         self._layout.addWidget(self.remember_force_zoom_card)
         self._layout.addWidget(self.force_zoom_accepted_card)
         self._layout.addWidget(self.interaction_mode_card)

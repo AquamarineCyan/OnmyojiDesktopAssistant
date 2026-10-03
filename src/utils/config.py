@@ -167,6 +167,8 @@ class DefaultConfig(BaseModel):
     """功能排序默认值"""
     battle_theme_recognition: bool = False
     """战斗主题识别（识别特殊胜利/失败画面）"""
+    screenshot_interval: int = 100
+    """截图时间间隔（毫秒）"""
     remember_force_zoom_choice: bool = False
     """记住强制缩放的选择（不再弹窗提醒）"""
     log_color: dict = LogColorConfig().model_dump()
@@ -203,6 +205,8 @@ class UserConfig(BaseModel):
     """功能排序，可通过GameFunctionSelectorWidget修改"""
     battle_theme_recognition: bool = False
     """战斗主题识别（识别特殊胜利/失败画面）"""
+    screenshot_interval: int = default_config.screenshot_interval
+    """截图时间间隔（毫秒）"""
     remember_force_zoom_choice: bool = False
     """记住强制缩放的选择（不再弹窗提醒）"""
     force_zoom_accepted: bool = True

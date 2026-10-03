@@ -1,3 +1,4 @@
+import time
 from enum import Enum
 from pathlib import Path
 from typing import Literal
@@ -7,6 +8,7 @@ import numpy as np
 from PIL.Image import Image
 
 from .assets import AssetImage
+from .config import config
 from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, get_scale, scale_region
 from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
@@ -268,4 +270,5 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
         image = RuleImage(item)
         if image.match(_screenshot):
             return image
+    time.sleep(config.user.screenshot_interval / 1000.0) 
     return None

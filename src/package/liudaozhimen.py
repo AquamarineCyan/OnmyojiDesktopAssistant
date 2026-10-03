@@ -118,6 +118,7 @@ class LiuDaoZhiMen(BasePackage):
 
                 data = self.check_result_mult(self.title_list)
                 if data is None:
+                    self.sleep_interval()
                     continue
                 if data.text == self.title_list[0]:
                     Mouse.click(data.center)

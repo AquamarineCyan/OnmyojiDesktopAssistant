@@ -115,6 +115,8 @@ class JieJieTuPo(BasePackage):
                 _msg_title = False
                 self.title_error_msg()
 
+            self.sleep_interval()
+
     def fighting_into(self, x0: int, y0: int) -> None:
         """点击进入战斗
 

@@ -46,6 +46,8 @@ class ZhaoHuan(BasePackage):
                 Mouse.click(point)
                 return
 
+            self.sleep_interval()
+
     def run(self) -> None:
         self.check_title()
         self.check_first_times()

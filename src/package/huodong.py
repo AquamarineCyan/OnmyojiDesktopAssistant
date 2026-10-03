@@ -129,6 +129,7 @@ class HuoDong(BasePackage):
                         if not RuleImage(self.global_assets.IMAGE_FINISH).match():
                             break
                         Mouse.click(_point)
+                        self.sleep_interval()
 
                     self.done()
 

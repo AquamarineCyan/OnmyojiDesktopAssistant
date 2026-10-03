@@ -105,6 +105,8 @@ class DaoGuanTuPo(BasePackage):
                 self.check_click(self.IMAGE_ZHANBAO, timeout=5)
                 self.check_click(self.IMAGE_QIANWANG, timeout=5)
                 break
+
+            self.sleep_interval()
         sleep(2)
 
         self.current_asset_list = [
