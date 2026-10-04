@@ -475,7 +475,12 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
 
-        self.addGroup(FluentIcon.APPLICATION, "交互模式", "", self.mode_combobox)
+        self.addGroup(
+            FluentIcon.APPLICATION,
+            "交互模式",
+            "切换到后台模式，如遇黑边请调整阴阳师的DPI属性",
+            self.mode_combobox,
+        )
         self.addGroup(FluentIcon.APPLICATION, "前台运行时前置游戏窗口", "", self.frontend_force_window_switch)
         self.addGroup(FluentIcon.APPLICATION, "后台运行时禁止系统休眠", "", self.backend_prevent_sleep_switch)
         self.addGroup(
