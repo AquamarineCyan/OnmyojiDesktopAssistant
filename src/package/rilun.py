@@ -33,9 +33,9 @@ class RiLun(BasePackage):
 class RiLunTeam(RiLun):
     """组队日轮副本"""
 
-    resource_list: list = [
+    resource_list = (
         "fighting",  # 对局进行中
-    ]
+    )
     STATE_READY = 1
     STATE_RUNNING = 2
 
@@ -168,10 +168,10 @@ class RiLunSingle(RiLun):
     """单人日轮副本"""
 
     scene_name = "单人日轮副本"
-    resource_list = [
+    resource_list = (
         "title_3",  # 三层
         "title_4",  # 日蚀
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0):

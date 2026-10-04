@@ -15,7 +15,7 @@ class YuHun(BasePackage):
 
     scene_name = "御魂副本"
     resource_path = "yuhun"
-    resource_list = [
+    resource_list = (
         "title_10",  # 魂十
         "title_11",  # 魂土
         "title_12",  # 神罚
@@ -27,7 +27,7 @@ class YuHun(BasePackage):
         "finish_2000",  # 结束达摩蛋-鎏金圣域
         "finish_damage",  # 结束特征图像
         "finish_damage_2000",  # 结束特征图像-鎏金圣域
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
@@ -68,7 +68,7 @@ class YuHunTeam(YuHun):
     """组队御魂副本"""
 
     scene_name = "组队御魂副本"
-    resource_list = [  # 资源列表
+    resource_list = (  # 资源列表
         # "xiezhanduiwu",  # 组队界面
         # "passenger_2",  # 队员2
         # "passenger_3",  # 队员3
@@ -76,7 +76,7 @@ class YuHunTeam(YuHun):
         "finish_damage",  # 结束特征图像
         "finish_damage_2000",  # 结束特征图像-鎏金圣域
         "accept_invitation",  # 接受邀请
-    ]
+    )
 
     @log_function_call
     def __init__(
@@ -235,12 +235,12 @@ class YuHunSingle(YuHun):
     """单人御魂副本"""
 
     scene_name = "单人御魂副本"
-    resource_list = [
+    resource_list = (
         "title_10",  # 魂十
         "title_11",  # 魂土
         "title_12",  # 神罚
         "finish_2000",  # 结束达摩蛋-鎏金圣域
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0, flag_drop_statistics: bool = False, temp_pop: bool = False):

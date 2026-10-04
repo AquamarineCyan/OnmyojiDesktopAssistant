@@ -16,7 +16,7 @@ class DaoGuanTuPo(BasePackage):
 
     scene_name = "道馆突破"
     resource_path = "daoguantupo"
-    resource_list = [
+    resource_list = (
         "chuzhan",  # 出战-选队伍
         "daojishi",  # 倒计时
         "guanzhan",  # 观战
@@ -28,7 +28,7 @@ class DaoGuanTuPo(BasePackage):
         "zhanbao",  # 战报
         "zhuwei",  # 助威
         "zhuwei_gray",  # 助威-灰色
-    ]
+    )
     STATE_IDLE = 1  # 准备界面
     STATE_WAIT_AUTO_ENTER = 2  # 等待主动进入
     STATE_WAIT_START = 3  # 手动开始

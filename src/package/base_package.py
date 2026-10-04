@@ -25,7 +25,7 @@ class BasePackage:
     """名称"""
     resource_path: str = ""
     """路径"""
-    resource_list: list = []
+    resource_list: tuple = ()
     """资源列表"""
     init: bool = False
     """初始化"""

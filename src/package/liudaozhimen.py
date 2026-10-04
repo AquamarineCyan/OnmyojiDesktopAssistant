@@ -60,7 +60,7 @@ class LiuDaoZhiMen(BasePackage):
 
     scene_name = "六道之门速刷"
     resource_path = "liudaozhimen"
-    resource_list: list = [
+    resource_list = (
         "determine",  # 确定
         "fight",  # 挑战
         "fight_choose_skill_refresh",  # 选择技能-刷新
@@ -69,7 +69,7 @@ class LiuDaoZhiMen(BasePackage):
         "open",  # 开启宝箱
         "shop_refresh",  # 商店刷新
         "start",  # 开启挑战
-    ]
+    )
     title_list: list = ["月之海", "香行域", "错季森", "净佛刹", "真言塔", "孔雀国"]
     """六道列表"""
     ocr_score: float = 0.7

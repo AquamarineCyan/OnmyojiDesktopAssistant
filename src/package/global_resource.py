@@ -9,7 +9,7 @@ class GlobalResource:
     """通用资源"""
 
     resource_path: str = "global"  # 路径
-    resource_list: list = [
+    resource_list: tuple = (
         "accept_invitation",  # 接受邀请
         "confirm2",  # 确认（弹窗按钮，与「确定」区分）
         "fail",  # 失败
@@ -23,7 +23,7 @@ class GlobalResource:
         "start_team",  # 组队挑战
         "tanchigui",  # 贪吃鬼
         "victory",  # 成功
-    ]
+    )
 
     def __init__(self):
         self.init: bool = False

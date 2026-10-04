@@ -13,9 +13,9 @@ class JueXing(BasePackage):
 
     scene_name = "觉醒副本"
     resource_path = "juexing"
-    resource_list = [
+    resource_list = (
         "title",  # 标题
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

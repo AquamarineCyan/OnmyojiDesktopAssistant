@@ -51,11 +51,11 @@ class YingJieShiLian(BasePackage):
 
 class YingJieShiLianExp(YingJieShiLian):
     scene_name = "经验本"
-    resource_list: list = [
+    resource_list = (
         "exp_start",  # 开始
         "yuan_exp_title",  # 标题
         "teng_exp_title",  # 标题
-    ]
+    )
 
     def __init__(self, yingjie: Yingjie, n: int = 0) -> None:
         super().__init__(yingjie, n)

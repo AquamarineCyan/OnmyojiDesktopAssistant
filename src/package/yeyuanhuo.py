@@ -13,10 +13,10 @@ class YeYuanHuo(BasePackage):
 
     scene_name = "业原火副本"
     resource_path = "yeyuanhuo"
-    resource_list = [
+    resource_list = (
         "title",  # 标题
         "start",  # 挑战
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

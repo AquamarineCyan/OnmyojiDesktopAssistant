@@ -16,7 +16,7 @@ class HuiJuan(BasePackage):
     """绘卷"""
 
     scene_name = "绘卷刷分"
-    resource_path: str = "huijuan"
+    resource_path = "huijuan"
 
     def __init__(
         self,

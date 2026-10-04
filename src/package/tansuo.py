@@ -15,7 +15,7 @@ class TanSuo(BasePackage):
 
     scene_name = "探索"
     resource_path = "tansuo"
-    resource_list = [
+    resource_list = (
         "chuzhanxiaohao",
         "fighting",
         "fighting_boss",
@@ -25,7 +25,7 @@ class TanSuo(BasePackage):
         "tansuo_28_0",
         "tansuo_28_title",
         "treasure_box",
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0, temp_pop: bool = False) -> None:

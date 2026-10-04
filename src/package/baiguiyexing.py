@@ -18,7 +18,7 @@ class BaiGuiYeXing(BasePackage):
 
     scene_name = "百鬼夜行"
     resource_path = "baiguiyexing"
-    resource_list = [
+    resource_list = (
         "baiguiqiyueshu",  # 「百鬼契约书」
         "choose",  # 押选
         "jinru",  # 进入
@@ -27,7 +27,7 @@ class BaiGuiYeXing(BasePackage):
         "xingchongju_refresh",  # 星重聚刷新
         "yaoqing",  # 邀请好友
         "yaoqing_prompt",  # 邀请提示
-    ]
+    )
 
     def __init__(self, n: int = 0, flag_screenshot: bool = False):
         super().__init__(n)

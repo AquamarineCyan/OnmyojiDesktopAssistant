@@ -11,10 +11,10 @@ class YuLing(BasePackage):
 
     scene_name = "御灵副本"
     resource_path = "yuling"
-    resource_list = [
+    resource_list = (
         "title",  # 限时活动特征图像
         "start",  # 挑战
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

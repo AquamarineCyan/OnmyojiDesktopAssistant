@@ -34,9 +34,9 @@ class LiaoTuPoFullException(CustomException):
 class JieJieTuPo(BasePackage):
     """结界突破"""
 
-    scene_name: str = "结界突破"
-    resource_path: str = "jiejietupo"
-    resource_list: list = [
+    scene_name = "结界突破"
+    resource_path = "jiejietupo"
+    resource_list = (
         "fail",  # 失败
         "fangshoujilu",  # 防守记录-个人突破
         "geren",  # 个人突破
@@ -54,7 +54,7 @@ class JieJieTuPo(BasePackage):
         "xunzhang_4",  # 勋章数4
         "xunzhang_5",  # 勋章数5
         "yinyangliao",  # 阴阳寮突破
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:

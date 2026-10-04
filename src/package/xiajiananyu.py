@@ -10,7 +10,7 @@ class XiaJianAnYu(BasePackage):
 
     scene_name = "狭间暗域"
     resource_path = "xiajiananyu"
-    resource_list = [
+    resource_list = (
         "baizangzhu_fujiang_left",  # 白藏主-副将左
         "baizangzhu_fujiang_right",  # 白藏主-副将右
         "baizangzhu_jingying_left",  # 白藏主-精英左
@@ -37,7 +37,7 @@ class XiaJianAnYu(BasePackage):
         "shenlong_jingying_right",  # 神龙-精英右
         "shenlong_shouling",  # 神龙-首领
         "zhanbao",  # 战报
-    ]
+    )
 
     def __init__(self, n: int = 0, mode: XiaJianAnYuMode = XiaJianAnYuMode.KONGQUE):
         super().__init__(n)

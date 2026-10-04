@@ -15,12 +15,12 @@ class XuanShangFengYin(BasePackage):
 
     scene_name = "悬赏封印"
     resource_path = "xuanshangfengyin"
-    resource_list: list = [
+    resource_list = (
         "title",  # 标题
         "xuanshang_accept",  # 接受
         "xuanshang_ignore",  # 忽略
         "xuanshang_refuse",  # 拒绝
-    ]
+    )
 
     def __init__(self) -> None:
         super().__init__()

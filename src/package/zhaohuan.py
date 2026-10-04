@@ -13,12 +13,12 @@ class ZhaoHuan(BasePackage):
 
     scene_name = "普通召唤"
     resource_path = "zhaohuan"
-    resource_list = [
+    resource_list = (
         "putongzhaohuan",  # 普通召唤
         "queding",  # 确定
         "title",  # 标题
         "zaicizhaohuan",  # 再次召唤
-    ]
+    )
 
     @log_function_call
     def __init__(self, n: int = 0) -> None:
