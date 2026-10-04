@@ -23,6 +23,7 @@ class GameFunction(Enum):
     YINGJIESHILIAN = "英杰试炼"
     HUIJUAN = "绘卷刷分"
     MIWEN = "每周秘闻"
+    XIAJIANANYU = "狭间暗域"
 
 
 class QiLing(StrEnum):
@@ -50,3 +51,12 @@ class MiWenMode(StrEnum):
 
     JING_SU = "竞速"
     BAI_ZHAN = "百战"
+
+
+class XiaJianAnYuMode(StrEnum):
+    """狭间暗域"""
+
+    SHENLONG = "神龙"
+    KONGQUE = "孔雀"
+    BAIZANGZHU = "白藏主"
+    HEIBAO = "黑豹"

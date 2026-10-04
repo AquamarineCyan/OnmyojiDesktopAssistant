@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QWidget
 from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
 
 from ..package import *
-from ..package.types import GameFunction, MiWenMode
+from ..package.types import GameFunction, MiWenMode, XiaJianAnYuMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.announcement_widget import AnnouncementWindow
 from ..ui.first_use_widget import FirstUseMessageBox
@@ -465,6 +465,11 @@ class MainWindow(FluentWindow):
                 basic_group.set_number_spinbox_value(10, 1, 10)
                 MiWen.description()
 
+            case GameFunction.XIAJIANANYU:
+                set_stack(StackedWidgetIndex.XIAJIANANYU)
+                basic_group.number_spinbox.setEnabled(False)
+                XiaJianAnYu.description()
+
     def _app_start(self):
         # 没有选功能前禁止通过快捷键启动程序
         if self.homeInterface.basic_group.func_combobox.currentIndex() == -1:
@@ -616,6 +621,11 @@ class MainWindow(FluentWindow):
                 card = advanced_stack.miwen_card
                 mode = MiWenMode(card.combobox.currentText())
                 MiWen(n=selected_number, mode=mode).task_start()
+
+            case GameFunction.XIAJIANANYU:
+                card = advanced_stack.xiajiananyu_card
+                mode = XiaJianAnYuMode(card.combobox.currentText())
+                XiaJianAnYu(mode=mode).task_start()
 
     def _app_stop(self):
         event_thread.set()

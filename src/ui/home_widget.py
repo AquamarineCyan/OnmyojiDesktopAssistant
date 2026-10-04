@@ -25,7 +25,7 @@ from qfluentwidgets import (
     ToolTipPosition,
 )
 
-from ..package.types import GameFunction, MiWenMode, QiLing, Yingjie
+from ..package.types import GameFunction, MiWenMode, QiLing, XiaJianAnYuMode, Yingjie
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
 
@@ -45,6 +45,7 @@ class StackedWidgetIndex(Enum):
     HUIJUAN = 7
     MIWEN = 8
     BAIGUIYEXING = 9
+    XIAJIANANYU = 10
 
 
 class HomeWidget(QWidget):
@@ -592,6 +593,27 @@ class HomeWidget(QWidget):
                     screenshot_dir.mkdir(parents=True)
                 QDesktopServices.openUrl(QUrl.fromLocalFile(str(screenshot_dir)))
 
+        class AdvancedXiaJianAnYuCard(HeaderCardWidget):
+            """高级设置-狭间暗域"""
+
+            id = StackedWidgetIndex.XIAJIANANYU.value
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.setTitle("高级设置")
+                self.setBorderRadius(8)
+                self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
+
+                self.combobox = ComboBox()
+                self.combobox.addItems([item.value for item in XiaJianAnYuMode])
+
+                self.vBoxLayout = QVBoxLayout()
+                self.vBoxLayout.setSpacing(10)
+                self.vBoxLayout.addWidget(self.combobox)
+                self.vBoxLayout.addStretch()
+
+                self.viewLayout.addLayout(self.vBoxLayout)
+
         def __init__(self, parent=None):
             super().__init__(parent=parent)
 
@@ -604,6 +626,7 @@ class HomeWidget(QWidget):
             self.huijuan_card = self.AdvancedHuiJuanCard()
             self.miwen_card = self.AdvancedMiWenCard()
             self.baiguiyexing_card = self.AdvancedBaiGuiYeXingCard()
+            self.xiajiananyu_card = self.AdvancedXiaJianAnYuCard()
 
             self.addWidget(QWidget())
 
@@ -617,6 +640,7 @@ class HomeWidget(QWidget):
                 self.huijuan_card,
                 self.miwen_card,
                 self.baiguiyexing_card,
+                self.xiajiananyu_card,
             ]
 
             for card in sorted(card_instances, key=lambda x: type(x).id):

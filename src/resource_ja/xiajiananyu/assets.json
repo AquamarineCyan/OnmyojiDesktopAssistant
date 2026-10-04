@@ -1,0 +1,164 @@
+{
+    "current_path": "xiajiananyu",
+    "image_data": [
+        {
+            "name": "baizangzhu_fujiang_left",
+            "file": "baizangzhu_fujiang_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "baizangzhu_fujiang_right",
+            "file": "baizangzhu_fujiang_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "baizangzhu_jingying_left",
+            "file": "baizangzhu_jingying_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "baizangzhu_jingying_middle",
+            "file": "baizangzhu_jingying_middle.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "baizangzhu_jingying_right",
+            "file": "baizangzhu_jingying_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "baizangzhu_shouling",
+            "file": "baizangzhu_shouling.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_fujiang_left",
+            "file": "heibao_fujiang_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_fujiang_right",
+            "file": "heibao_fujiang_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_jingying_left",
+            "file": "heibao_jingying_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_jingying_middle",
+            "file": "heibao_jingying_middle.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_jingying_right",
+            "file": "heibao_jingying_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "heibao_shouling",
+            "file": "heibao_shouling.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_fujiang_left",
+            "file": "kongque_fujiang_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_fujiang_right",
+            "file": "kongque_fujiang_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_jingying_left",
+            "file": "kongque_jingying_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_jingying_middle",
+            "file": "kongque_jingying_middle.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_jingying_right",
+            "file": "kongque_jingying_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "kongque_shouling",
+            "file": "kongque_shouling.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_fujiang_left",
+            "file": "shenlong_fujiang_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_fujiang_right",
+            "file": "shenlong_fujiang_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_jingying_left",
+            "file": "shenlong_jingying_left.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_jingying_middle",
+            "file": "shenlong_jingying_middle.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_jingying_right",
+            "file": "shenlong_jingying_right.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "shenlong_shouling",
+            "file": "shenlong_shouling.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        },
+        {
+            "name": "zhanbao",
+            "file": "zhanbao.png",
+            "region": [0, 0, 0, 0],
+            "score": "0.7"
+        }
+    ],
+    "ocr_data": [
+        {
+            "name": "goto",
+            "keyword": "前往",
+            "region": [0, 0, 0, 0],
+            "score": "0.7",
+            "method": "PERFACT"
+        }
+    ]
+}
