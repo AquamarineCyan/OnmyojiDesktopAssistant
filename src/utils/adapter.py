@@ -1,14 +1,14 @@
 import copy
 import random
 import time
-from typing import Optional
+from typing import ClassVar
 
 import pyautogui
 import pytweening
 import win32api
 import win32con
 
-from .config import config
+from .config import InteractionMode, config
 from .coordinate import get_scale, to_actual, to_reference
 from .event import event_thread, event_xuanshang
 from .exception import GUIStopException
@@ -29,7 +29,7 @@ def linear(n):
 
     # We use this function instead of pytweening.linear for the default tween function just in case pytweening couldn't be imported.
     if not 0.0 <= n <= 1.0:
-        raise ("Argument must be between 0.0 and 1.0.")
+        raise ValueError("Argument must be between 0.0 and 1.0.")
     return n
 
 
@@ -53,16 +53,19 @@ class Mouse:
         return random.choice(tweens)
 
     @staticmethod
-    def _mumu_backend() -> Optional[object]:
+    def _mumu_backend() -> object | None:
         """当前窗口是 mumu 时返回缓存后端，否则 None（按窗口归属自动路由）。"""
         from .emulator import get_backend
-        from .config import config
+
         w = window_manager.current
         if w is None or getattr(w, "family", "pc") != "mumu":
             return None
-        return get_backend(w.handle, w.instance_index,
-                           config.user.interaction_mode.backend.mumu_folder,
-                           config.user.interaction_mode.backend.ipc_dll_override)
+        return get_backend(
+            w.handle,
+            w.instance_index,
+            config.user.interaction_mode.backend.mumu_folder,
+            config.user.interaction_mode.backend.ipc_dll_override,
+        )
 
     # 鼠标后台点击事件参考 https://learn.microsoft.com/zh-cn/windows/win32/inputdev/mouse-input-notifications
 
@@ -92,10 +95,10 @@ class Mouse:
     def _move_front(
         cls,
         dst_point: Point | None = None,
-        x: float = None,
-        y: float = None,
-        xOffset: float = None,
-        yOffset: float = None,
+        x: float | None = None,
+        y: float | None = None,
+        xOffset: float | None = None,
+        yOffset: float | None = None,
         duration: float = 0,
         tween=linear,
     ):
@@ -177,10 +180,10 @@ class Mouse:
     def move(
         cls,
         point: Point | None = None,
-        x: float = None,
-        y: float = None,
-        xOffset: float = None,
-        yOffset: float = None,
+        x: float | None = None,
+        y: float | None = None,
+        xOffset: float | None = None,
+        yOffset: float | None = None,
         duration: float = 0,
         tween=linear,
     ):
@@ -189,7 +192,7 @@ class Mouse:
             point = Point(*to_actual(point.client_x, point.client_y))
         elif x is not None and y is not None:
             x, y = to_actual(x, y)
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._move_backend(point, x, y, xOffset, yOffset)
         else:
             cls._move_front(point, x, y, xOffset, yOffset, duration, tween)
@@ -290,7 +293,7 @@ class Mouse:
             # 业务侧坐标是基准空间 → 实际客户区
             point = Point(*to_actual(point.client_x, point.client_y))
 
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             # logger.info(f"backend click {point.x},{point.y}")
             cls._click_backend(point)
         else:
@@ -298,11 +301,11 @@ class Mouse:
             cls._click_front(point, duration)
 
     @classmethod
-    def _drag_front(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+    def _drag_front(cls, x_offset: int | None = None, y_offset: int | None = None, duration: float = 0.5):
         pyautogui.dragRel(x_offset, y_offset, duration=duration, tween=cls.random_tween())
 
     @classmethod
-    def _drag_backend(cls, x_offset: int = None, y_offset: int = None):
+    def _drag_backend(cls, x_offset: int | None = None, y_offset: int | None = None):
         global _back_click_point
 
         backend = cls._mumu_backend()
@@ -343,7 +346,7 @@ class Mouse:
         logger.info(f"update ({_back_click_point.client_x},{_back_click_point.client_y})")
 
     @classmethod
-    def drag(cls, x_offset: int = None, y_offset: int = None, duration: float = 0.5):
+    def drag(cls, x_offset: int | None = None, y_offset: int | None = None, duration: float = 0.5):
         """拖动，使用前需要先移动鼠标至当前位置
 
         参数:
@@ -355,7 +358,7 @@ class Mouse:
             # 业务侧拖动量是基准空间位移 → 实际客户区
             fx, fy = get_scale()
             x_offset, y_offset = x_offset * fx, y_offset * fy
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._drag_backend(x_offset, y_offset)
         else:
             cls._drag_front(x_offset, y_offset, duration)
@@ -387,7 +390,7 @@ class Mouse:
             scroll up/away from the user, negative values scroll down/toward the
             user.
         """
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._scroll_backend(distance)
         else:
             cls._scroll_front(distance)
@@ -397,7 +400,7 @@ class Mouse:
 class KeyBoard:
     """键盘事件"""
 
-    _KEY_MAPPING = {
+    _KEY_MAPPING: ClassVar[dict[str, int]] = {
         "enter": win32con.VK_RETURN,
         "esc": win32con.VK_ESCAPE,
     }
@@ -425,7 +428,7 @@ class KeyBoard:
     @classmethod
     def _dispatch(cls, key: str) -> None:
         """按交互模式分发按键"""
-        if config.user.model_dump().get("interaction_mode").get("mode") == "后台":
+        if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._backend_operation(key)
         else:
             cls._front_operation(key)

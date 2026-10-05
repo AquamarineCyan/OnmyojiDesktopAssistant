@@ -1,6 +1,6 @@
 [project]
 name = "OnmyojiDesktopAssistant"
-version = "2.1.5"
+version = "2.1.6"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = [{name = "AquamarineCyan", email = "1057424730@qq.com"}]
 readme = "README.md"
@@ -15,6 +15,7 @@ dependencies = [
     "paddleocr==3.7.0",
     "paddlepaddle==3.2.2",
     "pillow>=12.3.0",
+    "psutil>=7.2.2",
     "pyautogui>=0.9.54",
     "pydantic>=2.13.4",
     "pynput>=1.8.2",
@@ -24,14 +25,22 @@ dependencies = [
     "pyyaml==6.0.2",
     "win11toast==0.35",
     "winshell==0.6",
-    "psutil",
 ]
 
 [dependency-groups]
 dev = [
+    "py-spy>=0.4.2",
     "pyinstaller>=6.22.2",
     "pytest>=9.1.1",
+    "ruff>=0.16.9",
 ]
 
 [tool.ruff]
 line-length = 120
+
+[tool.ruff.lint]
+ignore = [
+    "BLE001", # 捕获 Exception 兜底
+    "S110",   # try-except-pass
+    "S112",   # try-except-continue
+]

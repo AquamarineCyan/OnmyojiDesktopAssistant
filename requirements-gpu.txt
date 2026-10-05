@@ -21,6 +21,7 @@ packaging>=22.0
 paddleocr==3.7.0
 paddlepaddle-gpu==3.3.1
 pillow>=12.3.0
+psutil
 PyAutoGUI
 pydantic>=2.1.0
 pynput
@@ -32,5 +33,7 @@ win11toast
 winshell
 
 # Dev/test tools (optional)
+py-spy
 pyinstaller
 pytest
+ruff

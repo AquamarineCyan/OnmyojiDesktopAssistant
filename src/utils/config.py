@@ -106,7 +106,7 @@ class BackendConfig(BaseModel):
     prevent_sleep: bool = True
     screenshot_method: str = "BitBlt"
     # 决策 A：模拟器支持开关，默认开启；关闭后行为与旧版（仅桌面版）一致
-    enable_mumu: bool = True
+    enable_mumu: bool = False
     # 已废弃：模拟器类型开关（保留字段以兼容存量 config.yaml，不再使用）
     emulator_type: str = ""
     mumu_folder: str = ""

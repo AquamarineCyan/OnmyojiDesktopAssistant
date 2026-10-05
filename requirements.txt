@@ -5,6 +5,7 @@ packaging>=22.0
 paddleocr==3.7.0
 paddlepaddle==3.2.2
 pillow>=12.3.0
+psutil
 PyAutoGUI
 pydantic>=2.1.0
 pynput
@@ -15,6 +16,7 @@ PyYAML==6.0.2
 win11toast
 winshell
 
+py-spy
 pyinstaller
 pytest
-psutil
+ruff
