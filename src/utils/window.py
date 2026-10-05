@@ -1,3 +1,4 @@
+import time
 from typing import Iterable
 
 import win32api
@@ -67,8 +68,8 @@ class GameWindow:
     def label(self) -> str:
         n = self.instance_index + 1
         if self.family == "mumu":
-            return f"模拟器 · 实例{n} · {self.title}"
-        return f"桌面版 · 实例{n} · {self.title}"
+            return f"模拟器 - 实例{n} - {self.title}"
+        return f"桌面版 - 实例{n} - {self.title} - {self.handle}"
 
     def __init__(self, handle: int, family: str | None = None, instance_index: int = 0):
         self.handle = int(handle)
@@ -142,6 +143,7 @@ class GameWindow:
     def display(self):
         s = "游戏窗口信息\n"
         s += f"{self.title}\n"
+        s += f"窗口句柄:{self.handle}\n"
         s += f"左侧横坐标:{self.window_left}\n"
         s += f"顶部纵坐标:{self.window_top}\n"
         s += f"右侧横坐标:{self.window_right}\n"
@@ -200,6 +202,9 @@ class GameWindowManager:
     current_window_resolution: WindowResolution = None
     """当前游戏窗口的分辨率"""
 
+    window_check_interval: float = 1.0
+    """窗口信息线程更新间隔（秒）"""
+
     def __init__(self):
         self._window_title: str = self.window_title_zh
 
@@ -210,6 +215,7 @@ class GameWindowManager:
         self._background_flag: bool = False
         self._force_zoom_flag: bool = False
         self._close_window_flag: bool = False
+        self._last_check_timestamp: float = 0.0  # 上次检测时间戳
 
     def screen_init(self):
         """初始化屏幕分辨率"""
@@ -260,6 +266,7 @@ class GameWindowManager:
     def discover(self) -> list[GameWindow]:
         """发现窗口：进程优先（桌面版在前、模拟器在后，各自按序编号），零发现才回落标题兜底。"""
         from .client_discovery import build_client_items, discover_process_clients
+
         out: list[GameWindow] = []
         seen: set[int] = set()
         try:
@@ -283,8 +290,11 @@ class GameWindowManager:
             if int(client.hwnd) in seen:
                 continue
             try:
-                w = GameWindow(int(client.hwnd), family=client.kind == "emulator" and "mumu" or "pc",
-                               instance_index=(client.index or 1) - 1)
+                w = GameWindow(
+                    int(client.hwnd),
+                    family=client.kind == "emulator" and "mumu" or "pc",
+                    instance_index=(client.index or 1) - 1,
+                )
             except Exception:
                 continue
             out.append(w)
@@ -344,9 +354,7 @@ class GameWindowManager:
             return False
         try:
             # 尺寸可能已变化（含未达标时的部分调整），客户区/内容尺寸都过期，重建窗口对象
-            self.current = GameWindow(
-                window.handle, family="mumu", instance_index=window.instance_index
-            )
+            self.current = GameWindow(window.handle, family="mumu", instance_index=window.instance_index)
         except Exception as e:
             logger.warning(f"重建游戏窗口失败：{e}")
         if abs(int(final[0]) - STANDARD_CLIENT_WIDTH) > 2 or abs(int(final[1]) - STANDARD_CLIENT_HEIGHT) > 2:
@@ -435,6 +443,11 @@ class GameWindowManager:
 
     def update_window_task(self):
         """更新游戏窗口信息"""
+        now = time.monotonic()
+        if now - self._last_check_timestamp < self.window_check_interval:
+            return
+        self._last_check_timestamp = now
+
         game_windows = self.discover()
         target_handles = [w.handle for w in game_windows]
         old_handles = [w.handle for w in self.handles]

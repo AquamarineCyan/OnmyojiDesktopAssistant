@@ -142,8 +142,8 @@ def client_label(client: ClientInfo) -> str:
     # index 存储为 1-based；旧 cli 行号为 0-based 时在发现阶段已 +1
     name = (client.detail or client.title or f"PID {client.pid}").strip() or f"PID {client.pid}"
     if client.kind == "emulator":
-        return f"模拟器 · 实例{n} · {name}"
-    return f"桌面版 · 实例{n} · {name}"
+        return f"模拟器 - 实例{n} - {name}"
+    return f"桌面版 - 实例{n} - {name}"
 
 
 def build_client_items(
@@ -196,8 +196,9 @@ def discover_process_clients(mumu_folder: str = "", enable_emulator: bool = True
                 continue
             used.add(int(hwnd))
             emus.append(
-                ClientInfo(kind="emulator", pid=pid, hwnd=int(hwnd), title=title,
-                           index=int(iid) + 1, detail=name or title)
+                ClientInfo(
+                    kind="emulator", pid=pid, hwnd=int(hwnd), title=title, index=int(iid) + 1, detail=name or title
+                )
             )
 
     try:
@@ -233,8 +234,7 @@ def discover_process_clients(mumu_folder: str = "", enable_emulator: bool = True
                 title = win32gui.GetWindowText(root) or getattr(handle, "root_title", "") or ""
             except Exception:
                 title = getattr(handle, "root_title", "") or ""
-            emus.append(ClientInfo(kind="emulator", pid=pid, hwnd=root, title=title,
-                                   index=None, detail=title))
+            emus.append(ClientInfo(kind="emulator", pid=pid, hwnd=root, title=title, index=None, detail=title))
 
     pc_procs = [i for i in procs if PC_PATH_HINT in _exe_lower(i)]
     game_procs = [i for i in pc_procs if _proc_name(i) in PC_GAME_PROC_NAMES]
@@ -251,8 +251,7 @@ def discover_process_clients(mumu_folder: str = "", enable_emulator: bool = True
         if hwnd in used:
             continue
         used.add(hwnd)
-        pcs.append(ClientInfo(kind="pc", pid=pid, hwnd=int(hwnd), title=title or "",
-                              index=None, detail=title or ""))
+        pcs.append(ClientInfo(kind="pc", pid=pid, hwnd=int(hwnd), title=title or "", index=None, detail=title or ""))
 
     pcs.sort(key=lambda c: c.pid)
     # 模拟器：cli 给的 index 优先（已是 1-based），兜底按 pid

@@ -1,9 +1,14 @@
 """MuMu 句柄层：安装目录探测 + 窗口枚举 + 句柄树判定（适配 Qt/nemuwin 树）。
 移植参考：OnmyojiAuto OAT/tools/emulator/mumu_handle.py（本机窗口树实测不同：根/子类名为
 Qt5156QWindowIcon，游戏表面为 class=nemuwin title=nemudisplay）。"""
+
 from __future__ import annotations
 
+import json
 import os
+import re
+import subprocess
+import tempfile
 import time
 from dataclasses import dataclass
 from typing import Optional
@@ -11,34 +16,50 @@ from typing import Optional
 import psutil
 import win32api
 import win32gui
-from win32print import GetDeviceCaps
 from win32con import DESKTOPHORZRES, SW_RESTORE
+from win32print import GetDeviceCaps
 
 # 供测试整体替换的 win32 门面（默认即真实 win32gui）
 _gui = win32gui
 
 MUMU_PROCESS_NAMES = ("MuMuNxDevice.exe", "MuMuPlayer.exe", "NemuPlayer.exe")
 # 进程 exe 反推安装根时关注的主进程（不含 MuMuNxSVC.exe —— VBox 服务，目录无价值）
-ROOT_PROBE_PROCESS_NAMES = ("mumunxmain.exe", "mumunxdevice.exe", "mumunxservice.exe",
-                            "mumuremoteservice.exe", "mumuremotebackend.exe")
+ROOT_PROBE_PROCESS_NAMES = (
+    "mumunxmain.exe",
+    "mumunxdevice.exe",
+    "mumunxservice.exe",
+    "mumuremoteservice.exe",
+    "mumuremotebackend.exe",
+)
 MUMU_TITLES = ("MuMu模拟器12", "MuMu安卓设备", "MuMuPlayer")
 IGNORED_TITLE_SUBSTRINGS = ("MessageWnd",)
 # 同属 MuMu 进程但必须排除的辅助窗口（本机实测清单，避免误判为设备窗口）
 EXCLUDED_WINDOW_CLASSES = {
-    "IME", "Default IME", "MSCTFIME UI", "Sogou_TSF_UI", "SoPY_Hint", "SoPY_UI",
-    "SoPY_Status", "NVOpenGLPbuffer", "Chrome_WidgetWin_0", "Chrome_SystemMessageWindow",
-    "Base_PowerMessageWindow", "Static", "Qt5156QWindowToolSaveBits",
+    "IME",
+    "Default IME",
+    "MSCTFIME UI",
+    "Sogou_TSF_UI",
+    "SoPY_Hint",
+    "SoPY_UI",
+    "SoPY_Status",
+    "NVOpenGLPbuffer",
+    "Chrome_WidgetWin_0",
+    "Chrome_SystemMessageWindow",
+    "Base_PowerMessageWindow",
+    "Static",
+    "Qt5156QWindowToolSaveBits",
 }
-EXCLUDED_WINDOW_TITLES = {"HintWnd", "MSCTFIME UI", "Default IME", "Sogou_TSF_UI",
-                          "__wglDummyWindowFodder"}
+EXCLUDED_WINDOW_TITLES = {"HintWnd", "MSCTFIME UI", "Default IME", "Sogou_TSF_UI", "__wglDummyWindowFodder"}
 # 旧版 MuMu 树的渲染子窗口类名（保留兼容）
 SHOT_CHILD_NAMES = ("MuMuPlayer", "MuMuNxDevice", "NemuPlayer")
 # 新版 MuMu 树的游戏显示表面
 NEMUWIN_CLASS = "nemuwin"
 NEMUWIN_TITLE = "nemudisplay"
 COMMON_MUMU_ROOTS = (
-    r"E:\MuMuPlayer", r"D:\MuMuPlayer",
-    r"C:\Program Files\Netease\MuMuPlayer-12.0", r"C:\Program Files\MuMuPlayer",
+    r"E:\MuMuPlayer",
+    r"D:\MuMuPlayer",
+    r"C:\Program Files\Netease\MuMuPlayer-12.0",
+    r"C:\Program Files\MuMuPlayer",
 )
 
 
@@ -144,8 +165,10 @@ def _uninstall_locations() -> list[str]:
     """
     if _winreg is None:
         return []
-    paths = [r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
-             r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall"]
+    paths = [
+        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall",
+        r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
+    ]
     out: list[str] = []
     for path in paths:
         try:
@@ -232,6 +255,7 @@ def _is_excluded_window(hwnd: int) -> bool:
 def enum_mumu_by_process() -> list[int]:
     """按所属进程枚举（与标题无关）；排除辅助窗口。"""
     import win32process
+
     found: list[int] = []
 
     def _cb(hwnd: int, _) -> bool:
@@ -253,16 +277,23 @@ def enum_mumu_by_process() -> list[int]:
 
 
 def _mumu_cli_json(mumu_folder: str) -> list[dict]:
-    import json
-    import subprocess
     cli = os.path.join((mumu_folder or "").strip(), "nx_main", "mumu-cli.exe")
     if not os.path.isfile(cli):
         return []
     try:
-        proc = subprocess.run([cli, "info", "--vmindex", "all"],
-                              capture_output=True, timeout=10,
-                              creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        data = json.loads((proc.stdout or b"").decode("utf-8", "replace"))
+        # 不用 capture_output：管道会迫使 CPython 为 stdout/stderr 各起一个读取线程，
+        # 空闲期每次查询都会让它们在堆栈里闪现/消失。stdout 重定向到临时文件、
+        # stderr 丢弃，保留 10s 超时保护且不产生任何读取线程。
+        with tempfile.TemporaryFile() as f:
+            subprocess.run(
+                [cli, "info", "--vmindex", "all"],
+                stdout=f,
+                stderr=subprocess.DEVNULL,
+                timeout=10,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+            )
+            f.seek(0)
+            data = json.loads(f.read().decode("utf-8", "replace"))
     except Exception:
         return []
     out: list[dict] = []
@@ -279,8 +310,9 @@ def _mumu_cli_json(mumu_folder: str) -> list[dict]:
 
 
 # 每 tick（~200ms）的 discover/build_handle 都会查 cli；mumu-cli 子进程启动 + 10s 超时风险
-# 让这一个 daemon 线程（同时跑悬赏封印）卡死。TTL≈1s 缓存把每 tick 2-3 次 cli 查询压成 1 次。
-MUMU_CLI_TTL = 1.0  # 秒
+# 让这一个 daemon 线程（同时跑悬赏封印）卡死。TTL=3s 缓存把每 tick 2-3 次 cli 查询压成
+# 最多每 3s 一次子进程，避免空闲期每秒起一次进程。
+MUMU_CLI_TTL = 3.0  # 秒
 
 _cli_cache: dict[str, tuple] = {}
 """folder -> (func_ref, monotonic_ts, rows)；func_ref 变化（测试 monkeypatch/热替换）即失效。"""
@@ -424,14 +456,17 @@ def build_handle(spec, mumu_folder: str = "", wait_tries: int = 10) -> MumuHandl
         raise ValueError(f"not a MuMu window tree (root={root})")
     cw, ch = _client_size(shot)
     return MumuHandle(
-        root_hwnd=root, root_title=title, shot_hwnd=shot,
-        control_hwnds=[root, shot], scale_rate=window_scale_rate(),
-        client_w=cw, client_h=ch,
+        root_hwnd=root,
+        root_title=title,
+        shot_hwnd=shot,
+        control_hwnds=[root, shot],
+        scale_rate=window_scale_rate(),
+        client_w=cw,
+        client_h=ch,
     )
 
 
 def _suffix_id(title: str, fallback: int) -> int:
-    import re
     m = re.search(r"-(\d+)\s*$", title or "")
     if m:
         try:
@@ -472,7 +507,6 @@ def _resolve_root(spec) -> tuple[int, str]:
 
 
 def _wait_children(root: int, tries: int = 10) -> list[int]:
-    import time
     kids = direct_children(root)
     for _ in range(tries - 1):
         if kids:

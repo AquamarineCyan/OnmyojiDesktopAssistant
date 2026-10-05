@@ -1,3 +1,5 @@
+import time
+
 from ..utils.config import XuanShangFengYin as XuanShangFengYinMode
 from ..utils.config import config
 from ..utils.event import event_xuanshang
@@ -22,11 +24,15 @@ class XuanShangFengYin(BasePackage):
         "xuanshang_refuse",  # 拒绝
     )
 
+    check_interval: float = 1.0
+    """检测间隔（秒）"""
+
     def __init__(self) -> None:
         super().__init__()
         self._flag_is_first: bool = True
         self._flag_msg: bool = False
         self._flag_notify: bool = False
+        self._last_check_timestamp: float = 0.0  # 上次检测时间戳
         event_xuanshang.set()
 
     def load_asset(self):
@@ -41,6 +47,11 @@ class XuanShangFengYin(BasePackage):
 
         if config.user.xuanshangfengyin == XuanShangFengYinMode.CLOSE:
             return
+
+        now = time.monotonic()
+        if now - self._last_check_timestamp < self.check_interval:
+            return
+        self._last_check_timestamp = now
 
         image = RuleImage(self.IMAGE_TITLE)
         _screenshot = ScreenShot()  # FIXME (0,0,0,0)

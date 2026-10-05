@@ -60,10 +60,10 @@ def test_desktop_first_emulator_after_with_instance_numbers(monkeypatch):
         ("emulator", 31),
     ]
     labels = [cd.client_label(c) for c in clients]
-    assert labels[0].startswith("桌面版 · 实例1")
-    assert labels[1].startswith("桌面版 · 实例2")
-    assert labels[2].startswith("模拟器 · 实例1")
-    assert labels[3].startswith("模拟器 · 实例2")
+    assert labels[0].startswith("桌面版 - 实例1")
+    assert labels[1].startswith("桌面版 - 实例2")
+    assert labels[2].startswith("模拟器 - 实例1")
+    assert labels[3].startswith("模拟器 - 实例2")
 
 
 def test_title_fallback_only_when_empty(monkeypatch):
