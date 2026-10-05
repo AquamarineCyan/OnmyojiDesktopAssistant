@@ -301,6 +301,23 @@ class GameWindowManager:
             seen.add(int(client.hwnd))
         return out
 
+    def topmost_window(self, windows: list[GameWindow]) -> GameWindow:
+        """返回 Z 序最靠前（最上层）的窗口。
+
+        EnumWindows 按 Z 序自上而下枚举顶层窗口，故首个命中的句柄即当前最上层
+        （前置）的游戏窗口。枚举失败时退回首项。
+        """
+        by_handle = {w.handle: w for w in windows}
+        z_order: list[int] = []
+        try:
+            win32gui.EnumWindows(lambda h, p: p.append(h) or True, z_order)
+        except Exception:
+            z_order = []
+        for hwnd in z_order:
+            if hwnd in by_handle:
+                return by_handle[hwnd]
+        return windows[0]
+
     def _update(self, window: GameWindow):
         self.current = window
         self.current.display()
@@ -472,8 +489,8 @@ class GameWindowManager:
 
         # 统一处理逻辑
         if self.current is None or self.current.handle not in target_handles:
-            # 首次获取或原窗口消失
-            new_window = game_windows[0]
+            # 首次获取或原窗口消失：取最上层（前置）的游戏窗口
+            new_window = self.topmost_window(game_windows)
             logger.info("更新游戏窗口" if self.current else "首次获取游戏窗口")
             self._update(new_window)
             self._emit_window_status_changed()
@@ -500,7 +517,8 @@ class GameWindowManager:
             if not wins:
                 logger.ui_error("未找到游戏窗口")
                 return
-            self._update(wins[0])
+            # 「检测前置游戏窗口」：在发现的窗口里取最上层（前置）的一个
+            self._update(self.topmost_window(wins))
         self._emit_window_status_changed()
 
     def set_foreground(self) -> bool:

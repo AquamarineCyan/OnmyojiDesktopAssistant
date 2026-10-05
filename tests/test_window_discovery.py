@@ -156,6 +156,23 @@ def test_pc_update_still_checks_background(monkeypatch):
     assert emitted
 
 
+def test_topmost_window_prefers_upper_z_order(monkeypatch):
+    """「检测前置游戏窗口」按 Z 序取最上层，与进程发现顺序无关。"""
+    # EnumWindows 按 Z 序自上而下：20 在最上层，其次 10
+    monkeypatch.setattr(W.win32gui, "EnumWindows", lambda cb, p: [cb(h, p) for h in (20, 10)])
+    mgr = GameWindowManager()
+    a, b = _FakeWindow(10, "pc"), _FakeWindow(20, "mumu")
+    assert mgr.topmost_window([a, b]) is b
+    assert mgr.topmost_window([b, a]) is b
+
+
+def test_topmost_window_falls_back_to_first(monkeypatch):
+    """枚举不到任何顶层窗口时退回首项。"""
+    monkeypatch.setattr(W.win32gui, "EnumWindows", lambda cb, p: None)
+    mgr = GameWindowManager()
+    a, b = _FakeWindow(10, "pc"), _FakeWindow(20, "mumu")
+    assert mgr.topmost_window([a, b]) is a
+
 
 def test_label_desktop_includes_handle():
     """桌面版 label 末尾带句柄；模拟器 label 不变。"""
