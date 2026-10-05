@@ -1,4 +1,4 @@
-"""决策 A：enable_mumu 开关（默认开）。关闭后完全退回旧版（仅桌面版）行为。"""
+"""决策 A：enable_mumu 开关（默认关）。关闭后完全退回旧版（仅桌面版）行为。"""
 from src.utils import window as wm
 from src.utils.config import config
 

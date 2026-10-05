@@ -1,4 +1,5 @@
 """Task 6b: 模拟器配置字段与截图方法枚举（T7/T8/T9 的前置依赖）。"""
+
 from src.utils.config import BackendConfig, ScreenshotMethod, config
 
 
@@ -9,7 +10,7 @@ def test_screenshot_method_has_nemu_ipc():
 def test_backend_config_defaults():
     b = BackendConfig()
     assert b.emulator_type == "" and b.mumu_folder == "" and b.ipc_dll_override == ""
-    assert b.enable_mumu is True
+    assert b.enable_mumu is False
 
 
 def test_config_update_roundtrip():

@@ -4,8 +4,9 @@
 screenshot_method），同时缺少本分支新增的 mumu_folder/ipc_dll_override。
 修复前 _check_outdated 会把缺失标量写成 None，UserConfig(**data) 抛 ValidationError。
 """
-import yaml
+
 import pytest
+import yaml
 
 from src.utils.config import Config
 
@@ -67,5 +68,5 @@ def test_legacy_config_with_explicit_null_scalars_loads(tmp_path, monkeypatch):
     cfg = _write(monkeypatch, tmp_path, legacy)
 
     backend = cfg.user.interaction_mode.backend
-    assert backend.enable_mumu is True
+    assert backend.enable_mumu is False
     assert backend.mumu_folder == ""
