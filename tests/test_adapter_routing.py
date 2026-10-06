@@ -148,3 +148,32 @@ class _P:
     def __init__(self, x, y):
         self.client_x = x
         self.client_y = y
+
+
+def test_pc_backend_drag_with_scaled_offset_does_not_crash(monkeypatch):
+    """桌面版后台拖动：get_scale 恒返回 float，缩放后偏移量必须收回 int，
+    否则 _drag_backend 里 range(steps) 抛 TypeError（探索"移动视角"实际崩溃路径）。"""
+    posted = []
+    monkeypatch.setattr(ad.window_manager, "current", _PcWin())
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad.window_manager, "get_current_handle", lambda: 200)
+    monkeypatch.setattr(ad.win32api, "PostMessage", lambda *a, **k: posted.append(a))
+    monkeypatch.setattr(ad, "_back_click_point", _P(100, 100))
+
+    ad.Mouse.drag(-538, 0)  # tansuo.py "移动视角" 的真实调用形态
+
+    assert len(posted) >= 3  # down / move×N / up 正常发出
+
+
+def test_mumu_drag_sends_int_offsets_to_swipe(monkeypatch):
+    """backend.swipe 的参数契约是 int：缩放后的拖动量必须在 adapter 层收回整数。"""
+    backend = _Backend()
+    monkeypatch.setattr(E, "get_backend", lambda *a, **k: backend)
+    monkeypatch.setattr(ad.window_manager, "current", _WinScaled())
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad, "_back_click_point", _P(10, 10))
+
+    ad.Mouse.drag(500, 300)
+
+    fx, fy = 1393 / 1136, 784 / 640
+    assert backend.calls[-1] == ("swipe", 10, 10, 10 + int(500 * fx), 10 + int(300 * fy))

@@ -355,9 +355,10 @@ class Mouse:
             duration (float): 持续时间
         """
         if x_offset is not None and y_offset is not None:
-            # 业务侧拖动量是基准空间位移 → 实际客户区
+            # 业务侧拖动量是基准空间位移 → 实际客户区；get_scale 恒返回 float，
+            # 必须收回 int，否则 _drag_backend 的 range(steps) 会抛 TypeError
             fx, fy = get_scale()
-            x_offset, y_offset = x_offset * fx, y_offset * fy
+            x_offset, y_offset = int(x_offset * fx), int(y_offset * fy)
         if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._drag_backend(x_offset, y_offset)
         else:
