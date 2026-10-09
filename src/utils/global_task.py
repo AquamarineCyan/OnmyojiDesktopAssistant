@@ -1,5 +1,8 @@
 import time
+import traceback
 from threading import Lock, Thread
+
+from .log import logger
 
 
 class GlobalTask(Thread):
@@ -23,7 +26,12 @@ class GlobalTask(Thread):
             for task in current_tasks:
                 if not self.running:
                     break
-                task()
+                try:
+                    task()
+                except Exception as e:
+                    # 单个任务异常不应导致整个全局任务线程退出
+                    logger.error(f"全局任务执行失败: {e}")
+                    logger.error(traceback.format_exception(e))
                 time.sleep(0.05)
             time.sleep(0.1)
 

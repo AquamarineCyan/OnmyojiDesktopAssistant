@@ -55,6 +55,10 @@ class XuanShangFengYin(BasePackage):
 
         image = RuleImage(self.IMAGE_TITLE)
         _screenshot = ScreenShot()  # FIXME (0,0,0,0)
+        if _screenshot.get_image() is None:
+            # 截图失败（窗口最小化/句柄失效等），本轮跳过，等待下一轮检测
+            logger.warning("悬赏封印检测跳过：截图失败")
+            return
         if not image.match(_screenshot, normal=False):
             event_xuanshang.set()
             self._flag_notify = False

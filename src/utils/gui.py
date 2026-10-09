@@ -690,6 +690,9 @@ class MainWindow(FluentWindow):
             handle = int(data)
             logger.info(f"当前窗口：{handle}")
             image = ScreenShot(handle=handle).get_image()
+            if image is None:
+                logger.ui_error("窗口预览失败：截图不可用")
+                return
             qimage = ImageQt(image)
             pixmap = QPixmap.fromImage(qimage)
             # 缩放图像以适应预览区域
