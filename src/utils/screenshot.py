@@ -2,6 +2,7 @@ import time
 from ctypes import windll
 
 import cv2
+import numpy as np
 import win32con
 import win32gui
 import win32ui
@@ -39,6 +40,8 @@ class ScreenShot:
         self.hwnd = self.gamewindow.handle
 
         self._image = None
+        self._bgr = None
+        self._raw = None  # (buf, (w, h), crop)：后台原始缓冲，惰性重建 PIL 用
         client_rect = self.gamewindow.client_rect
 
         if rect:  # 使用自定义矩形区域（相对于客户区）
@@ -86,7 +89,7 @@ class ScreenShot:
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot front cost {self.time_cost} ms, {window_rect}")
+            logger.info(f"screenshot front cost {self.time_cost:.2f} ms, {window_rect}")
         if self._debug:
             image.show()
         self._image = image
@@ -95,9 +98,11 @@ class ScreenShot:
     def _screenshot_mumu(self) -> None:
         """mumu 后台截图：走 MumuBackend（PrintWindow→IPC→BitBlt，最小化走 IPC 不黑屏）。"""
         from .emulator import get_backend
+
         _start = time.perf_counter()
         backend = get_backend(
-            self.hwnd, self.gamewindow.instance_index,
+            self.hwnd,
+            self.gamewindow.instance_index,
             config.user.interaction_mode.backend.mumu_folder,
             config.user.interaction_mode.backend.ipc_dll_override,
         )
@@ -107,7 +112,8 @@ class ScreenShot:
         if img is None:
             raise RuntimeError("mumu screenshot black/unavailable")
         # 帧即 shot 客户区：先按 rect（客户区相对 (l, t, w, h)）裁剪到帧边界，
-        # 再 BGR→RGB —— 与 _screenshot_backend 的裁剪语义一致（image.py 按 region 原点偏移坐标）
+        # 与 _screenshot_backend 的裁剪语义一致（image.py 按 region 原点偏移坐标）；
+        # 帧本身即 BGR，直接留作 BGR 缓冲（零拷贝切片视图），PIL 图像按需惰性生成
         frame_h, frame_w = img.shape[:2]
         l = max(0, int(self.rect[0]))
         t = max(0, int(self.rect[1]))
@@ -115,18 +121,16 @@ class ScreenShot:
         b = min(frame_h, t + int(self.rect[3]))
         if r <= l or b <= t:
             raise RuntimeError(f"mumu screenshot rect outside frame: {self.rect}")
-        img = img[t:b, l:r]
-        rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        self._image = Image.fromarray(rgb)
+        self._bgr = img[t:b, l:r]
         self.time_cost = round((time.perf_counter() - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot mumu cost {self.time_cost} ms, {self.rect}")
+            logger.info(f"screenshot mumu cost {self.time_cost:.2f} ms, {self.rect}")
 
     def _screenshot_backend(
         self,
         client_rect: tuple[int, int, int, int],
         method: ScreenshotMethod,
-    ) -> Image.Image:
+    ) -> np.ndarray:
         """后台截图
 
         Args:
@@ -134,7 +138,7 @@ class ScreenShot:
             method (ScreenshotMethod): 截图模式
 
         Returns:
-            Image.Image: 截取图像
+            np.ndarray: 截取图像（BGR，原始缓冲视图）
         """
         _start = time.perf_counter()
         # 返回句柄窗口的设备环境，覆盖整个窗口，包括非客户区，标题栏，菜单，边框
@@ -173,26 +177,23 @@ class ScreenShot:
         # 获取位图信息
         bmpinfo = saveBitMap.GetInfo()
         bmpstr = saveBitMap.GetBitmapBits(True)
-        # 生成图像
-        image = Image.frombuffer(
-            "RGB",
-            (bmpinfo["bmWidth"], bmpinfo["bmHeight"]),
-            bmpstr,
-            "raw",
-            "BGRX",
-            0,
-            1,
-        ).convert("RGB")
-
+        # 原始缓冲为 BGRX（4 字节/像素）：reshape 后取前 3 通道即 BGR 视图，
+        # 不经 PIL 转换/拷贝（PIL 图像在 get_image() 中按需惰性生成）
+        buf = np.frombuffer(bmpstr, dtype=np.uint8)
+        full = buf.reshape(bmpinfo["bmHeight"], bmpinfo["bmWidth"], 4)
         if method == ScreenshotMethod.PRINTWINDOW:
-            image = image.crop(
-                (
-                    client_rect[0],
-                    client_rect[1],
-                    client_rect[0] + client_rect[2],
-                    client_rect[1] + client_rect[3],
-                )
+            # PRINTWINDOW 截取的是整窗，需按客户区相对坐标裁剪
+            crop = (
+                client_rect[0],
+                client_rect[1],
+                client_rect[0] + client_rect[2],
+                client_rect[1] + client_rect[3],
             )
+            self._raw = (bmpstr, (bmpinfo["bmWidth"], bmpinfo["bmHeight"]), crop)
+            self._bgr = full[crop[1] : crop[3], crop[0] : crop[2], :3]
+        else:
+            self._raw = (bmpstr, (bmpinfo["bmWidth"], bmpinfo["bmHeight"]), None)
+            self._bgr = full[:, :, :3]
 
         # 内存释放
         win32gui.DeleteObject(saveBitMap.GetHandle())
@@ -203,15 +204,32 @@ class ScreenShot:
         _end = time.perf_counter()
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
-            logger.info(f"screenshot backend [{method}] cost {self.time_cost} ms, {client_rect}")
+            logger.info(f"screenshot backend [{method}] cost {self.time_cost:.2f} ms, {client_rect}")
         if self._debug:
-            image.show()
-        self._image = image
-        return image
+            self.get_image().show()
+        return self._bgr
 
     def save(self, file, *args, **kwargs) -> None:
-        self._image.save(file, *args, **kwargs)
-        logger.info(f"screenshot cost {self.time_cost} ms, at {file}")
+        self.get_image().save(file, *args, **kwargs)
+        logger.info(f"screenshot cost {self.time_cost:.2f} ms, at {file}")
 
     def get_image(self) -> Image.Image:
+        """获取 PIL 图像（惰性：后台优先用原始缓冲重建）"""
+        if self._image is None:
+            if self._raw is not None:
+                buf, size, crop = self._raw
+                image = Image.frombuffer("RGB", size, buf, "raw", "BGRX", 0, 1).convert("RGB")
+                if crop is not None:
+                    image = image.crop(crop)
+                self._image = image
+                self._raw = None  # 释放原始缓冲
+            elif self._bgr is not None:
+                # 负步长视图会走 PIL 慢路径（实测约慢 3 倍），先转连续 RGB
+                self._image = Image.fromarray(np.ascontiguousarray(self._bgr[:, :, ::-1]))
         return self._image
+
+    def get_bgr(self) -> np.ndarray:
+        """获取 BGR 图像（后台截图直接复用原始缓冲视图，免整图转换与拷贝）"""
+        if self._bgr is None:
+            self._bgr = cv2.cvtColor(np.array(self._image), cv2.COLOR_RGB2BGR)
+        return self._bgr

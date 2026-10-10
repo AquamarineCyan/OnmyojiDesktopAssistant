@@ -62,9 +62,16 @@ def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
     返回:
         cv2.typing.MatLike: BGR图像
     """
-    img_np = np.array(image)
-    # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
-    return cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+    # 同一张截图在一个识别循环里会被多个素材重复转换
+    # （例如 check_image_once 中 N 个素材共用同一个 ScreenShot），
+    # 转换结果只取决于图像内容，因此缓存到 Image 实例上，整轮只转一次
+    bgr = getattr(image, "_bgr_cache", None)
+    if bgr is None:
+        img_np = np.array(image)
+        # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
+        bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+        image._bgr_cache = bgr
+    return bgr
 
 
 class RuleImage:
@@ -187,9 +194,10 @@ class RuleImage:
         fx, fy = get_template_scale()
         region = self.actual_region()
         if image is None:
-            image = convert_image_rgb_to_bgr(ScreenShot(region, debug=debug).get_image())
+            # 后台截图直接复用原始 BGR 缓冲视图，跳过 PIL 与整图转换
+            image = ScreenShot(region, debug=debug).get_bgr()
         elif isinstance(image, ScreenShot):
-            image = convert_image_rgb_to_bgr(image.get_image())
+            image = image.get_bgr()
         elif isinstance(image, Image):
             image = convert_image_rgb_to_bgr(image)
         else:
@@ -235,8 +243,9 @@ class RuleImage:
         self.match_result = (x1 / fx, y1 / fy, x2 / fx, y2 / fy)
 
         if debug:
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR
-            cv2.imshow("DEBUG", image)
+            vis = image.copy()  # 在副本上画框，避免污染缓存的共享数组
+            cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR
+            cv2.imshow("DEBUG", vis)
             cv2.waitKey(0)
 
         return True
@@ -270,5 +279,5 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
         image = RuleImage(item)
         if image.match(_screenshot):
             return image
-    time.sleep(config.user.screenshot_interval / 1000.0) 
+    time.sleep(config.user.screenshot_interval / 1000.0)
     return None
