@@ -7,30 +7,48 @@ from PyInstaller.utils.hooks import copy_metadata
 datas = []
 binaries = []
 
-try:
-    import paddlex
-    from paddlex.utils.deps import BASE_DEP_SPECS
-    deps_all = list(BASE_DEP_SPECS.keys())
-except ImportError:
-    raise RuntimeError("paddlex not installed or BASE_DEP_SPECS not found. Please install paddlex first.")
-
-deps_need = deps_all
-for dep in deps_need:
-    try:
-        datas += copy_metadata(dep)
-    except Exception as e:
-        print(f"Warning: Failed to copy metadata for '{dep}': {e}")
-
-datas += collect_data_files('paddlex')
-
-binaries += collect_dynamic_libs('paddle')
-
-# GPU
+# GPU use PaddleOCR(paddlex + nvidia)
+# CPU use RapidOCR + ONNX Runtime
+is_gpu = False
 try:
     importlib.metadata.version("paddlepaddle-gpu")
-    binaries += collect_dynamic_libs('nvidia')
+    is_gpu = True
 except Exception:
     pass
+
+if is_gpu:
+    try:
+        import paddlex
+        from paddlex.utils.deps import BASE_DEP_SPECS
+        deps_all = list(BASE_DEP_SPECS.keys())
+    except ImportError:
+        raise RuntimeError("paddlex not installed or BASE_DEP_SPECS not found. Please install paddlex first.")
+
+    deps_need = deps_all
+    for dep in deps_need:
+        try:
+            datas += copy_metadata(dep)
+        except Exception as e:
+            print(f"Warning: Failed to copy metadata for '{dep}': {e}")
+
+    datas += collect_data_files('paddlex')
+
+    binaries += collect_dynamic_libs('paddle')
+    binaries += collect_dynamic_libs('nvidia')
+
+    try:
+        datas += copy_metadata('paddlepaddle-gpu')
+    except Exception as e:
+        print(f"Warning: Failed to copy metadata for 'paddlepaddle-gpu': {e}")
+else:
+    # without model files
+    datas += [
+        entry
+        for entry in collect_data_files('rapidocr')
+        if not entry[0].lower().endswith('.onnx')
+    ]
+
+    binaries += collect_dynamic_libs('onnxruntime')
 
 a = Analysis(
     ['main.py'],

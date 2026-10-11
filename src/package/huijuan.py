@@ -4,7 +4,7 @@ from ..utils.exception import GUIStopException
 from ..utils.function import sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr
+from ..utils.ocr_engine import RuleOcr
 from ..utils.point import Point
 from .base_package import BasePackage
 from .jiejietupo import JieJieTuPoGeRen

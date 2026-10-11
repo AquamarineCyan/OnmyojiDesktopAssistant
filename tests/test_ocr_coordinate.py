@@ -1,4 +1,5 @@
 """OCR 结果统一换算回基准空间（1136x640）。"""
+
 from src.utils import window as window_module
 
 
@@ -30,7 +31,7 @@ def _item(x1, y1, x2, y2, text="确认"):
 
 
 def test_ocr_result_scaled_back_to_reference(monkeypatch):
-    from src.utils.paddleocr import OcrData
+    from src.utils.ocr_engine import OcrData
 
     monkeypatch.setattr(window_module.window_manager, "current", _MumuWin())
     fx, fy = 1393 / 1136, 784 / 640
@@ -45,7 +46,7 @@ def test_ocr_result_scaled_back_to_reference(monkeypatch):
 
 
 def test_ocr_result_identity_for_pc(monkeypatch):
-    from src.utils.paddleocr import OcrData
+    from src.utils.ocr_engine import OcrData
 
     monkeypatch.setattr(window_module.window_manager, "current", _PcWin())
 
@@ -58,7 +59,7 @@ def test_ocr_result_identity_for_pc(monkeypatch):
 
 def test_ocr_region_scaled_for_mumu(monkeypatch):
     """显式 OCR region 是基准空间坐标，检测区域要放大到实际客户区。"""
-    from src.utils.paddleocr import RuleOcr
+    from src.utils.ocr_engine import RuleOcr
 
     monkeypatch.setattr(window_module.window_manager, "current", _MumuWin())
     fx, fy = 1393 / 1136, 784 / 640

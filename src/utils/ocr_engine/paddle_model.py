@@ -5,8 +5,8 @@ from typing import Tuple, Type
 
 import httpx
 
-from .application import MODEL_DIR_PATH, Connect
-from .log import logger
+from ..application import MODEL_DIR_PATH, Connect
+from ..log import logger
 
 
 class ModelType(Enum):
