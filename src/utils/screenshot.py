@@ -2,6 +2,7 @@ import time
 from ctypes import windll
 
 import cv2
+import numpy as np
 import win32con
 import win32gui
 import win32ui
@@ -215,3 +216,7 @@ class ScreenShot:
 
     def get_image(self) -> Image.Image:
         return self._image
+
+    def get_array(self) -> np.ndarray:
+        """直接返回 ndarray，跳过 PIL→NumPy 的多余拷贝"""
+        return np.asarray(self._image)

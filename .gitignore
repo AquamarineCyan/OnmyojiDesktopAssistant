@@ -22,4 +22,5 @@ pytest-of-*/
 .venv/
 
 .idea/
+.vscode/
 .codegraph/

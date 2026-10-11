@@ -236,8 +236,8 @@ class RuleImage:
 
         if debug:
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR
-            cv2.imshow("DEBUG", image)
-            cv2.waitKey(0)
+            # 使用 PIL 展示，避免依赖 opencv 的 GUI 组件（headless 版无 imshow）
+            Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).show(title="DEBUG")
 
         return True
 
@@ -270,5 +270,5 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
         image = RuleImage(item)
         if image.match(_screenshot):
             return image
-    time.sleep(config.user.screenshot_interval / 1000.0) 
+    time.sleep(config.user.screenshot_interval / 1000.0)
     return None

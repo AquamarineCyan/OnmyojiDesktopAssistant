@@ -5,7 +5,7 @@ from ..utils.exception import CustomException, GUIStopException, TimesNotEnoughE
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr
+from ..utils.rapidocr import RuleOcr
 from ..utils.point import Point
 from .base_package import BasePackage
 

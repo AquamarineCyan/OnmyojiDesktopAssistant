@@ -11,7 +11,7 @@ from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import finish_random_left_right, prevent_sleep, sleep
 from ..utils.image import AssetImage, RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr
+from ..utils.rapidocr import RuleOcr
 from ..utils.screenshot import ScreenShot
 from ..utils.signals import signal_manager
 from ..utils.toast import toast

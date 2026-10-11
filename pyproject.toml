@@ -10,10 +10,11 @@ requires-python = ">=3.11"
 dependencies = [
     "httpx>=0.28.1",
     "numpy>=2.0.0,<2.4.0",
-    "opencv-python==4.13.0.92",
+    "onnxruntime==1.30.0",
+    # 统一使用 headless 版：rapidocr 依赖它，且它与 opencv-python 共用同一个 cv2 目录，
+    # 同时安装两者会互相覆盖，安装顺序决定最终内容（不可预期）
+    "opencv-python-headless==4.13.0.92",
     "packaging>=22.0",
-    "paddleocr==3.7.0",
-    "paddlepaddle==3.2.2",
     "pillow>=12.3.0",
     "psutil>=7.2.2",
     "pyautogui>=0.9.54",
@@ -23,6 +24,7 @@ dependencies = [
     "pyside6-fluent-widgets>=1.11.2",
     "pywin32==312",
     "pyyaml==6.0.2",
+    "rapidocr==3.10.0",
     "win11toast==0.35",
     "winshell==0.6",
 ]

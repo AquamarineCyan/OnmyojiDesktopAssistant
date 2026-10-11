@@ -29,7 +29,7 @@ from .global_task import global_task
 from .keyboard_listener import KeyListenerThread
 from .log import logger
 from .message import MessageBoxPayload
-from .paddleocr import check_ocr_folder, ocr_manager
+from .rapidocr import check_ocr_folder, ocr_manager
 from .restart import Restart
 from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut

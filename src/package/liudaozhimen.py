@@ -5,7 +5,7 @@ from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.log import logger
-from ..utils.paddleocr import OcrData, RuleOcr
+from ..utils.rapidocr import OcrData, RuleOcr
 from ..utils.point import Point
 from .base_package import BasePackage
 

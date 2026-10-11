@@ -4,7 +4,7 @@ from ..utils.exception import GUIStopException, TimesNotEnoughException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr
+from ..utils.rapidocr import RuleOcr
 from .base_package import BasePackage
 
 

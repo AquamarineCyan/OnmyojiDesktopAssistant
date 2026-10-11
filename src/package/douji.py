@@ -6,7 +6,7 @@ from ..utils.exception import CustomException, GUIStopException
 from ..utils.function import sleep
 from ..utils.image import RuleImage
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr, ocr_match_once
+from ..utils.rapidocr import RuleOcr, ocr_match_once
 from .base_package import BasePackage
 
 

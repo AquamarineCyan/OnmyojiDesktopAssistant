@@ -121,17 +121,10 @@
 
     可选：GPU 安装（手动，非默认）
 
-    如果需要使用 GPU 加速，请在安装前先卸载 CPU 版 Paddle（如果已安装）：
+    程序启动时会自动探测推理引擎：检测到 `paddlepaddle-gpu` 则走 PaddlePaddle + CUDA，否则回退 ONNX Runtime + CPU。
+    CPU 版依赖已默认安装，无需任何额外操作；只有需要 GPU 加速时才需要下面的步骤。
 
-    ```bash
-    # 使用 uv 卸载 CPU 版本
-    uv pip uninstall -y paddlepaddle
-
-    # 使用 pip 卸载 CPU 版本
-    pip uninstall -y paddlepaddle
-    ```
-
-    根据你的 CUDA 版本安装 paddlepaddle-gpu（以 cu129 为例），更多信息请参考 PaddleOCR 官方文档：https://www.paddleocr.ai/latest/quick_start.html#1
+    根据你的 CUDA 版本安装 paddlepaddle-gpu（以 cu129 为例），更多信息请参考 PaddlePaddle 官方文档：https://www.paddlepaddle.org.cn/install/quick
 
     ```bash
     # 使用 uv 安装 gpu 依赖
@@ -243,11 +236,9 @@
 
 ## 感谢
 
-[PaddlePaddle/PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) 文字识别库
+[RapidAI/RapidOCR](https://github.com/RapidAI/RapidOCR) 文字识别库
 
 [zhiyiYo/PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PySide6) 基于 PySide6 的 Fluent Design 风格组件库
-
-[打包PaddleOCR项目](https://www.paddleocr.ai/latest/version3.x/inference_deployment/others/packaging.html) Paddle官方打包demo
 
 ## 开发者
 

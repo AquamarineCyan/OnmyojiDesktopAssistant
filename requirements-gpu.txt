@@ -1,25 +1,21 @@
 # GPU variant requirements
-# This requirements file adds the Paddle GPU package and provides a suitable index.
-# Recommended usage:
-#  - Use a fresh virtual environment (recommended): python -m venv .venv-gpu && .venv-gpu\Scripts\activate
-#  - Uninstall CPU paddle if already present:
-#      pip uninstall -y paddlepaddle
-#      # or if installed via uv
-#      uv pip uninstall -y paddlepaddle
-#  - Install packages using pip and the extra index for Paddle GPU (cu129 example):
-#      pip install -r requirements-gpu.txt --extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
-#  - Or using uv:
-#      uv pip install -r requirements-gpu.txt -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
-
-# Add Paddle GPU index as an extra index URL so pip will still consult PyPI
---extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
+# GPU 版使用 PaddlePaddle 推理（而非 ONNX Runtime），CPU 版使用 ONNX Runtime。
+# 程序启动时通过探测环境中是否存在 `paddle` 包自动选择引擎：
+# 有则走 PaddlePaddle + CUDA，无则回退 ONNX Runtime + CPU。
+#
+# 推荐在独立虚拟环境中安装 GPU 版本，与 CPU 版互不影响：
+#     python -m venv .venv-gpu && .venv-gpu\Scripts\activate
+#
+# `paddlepaddle-gpu` 版本需与本机 CUDA/cuDNN 匹配，
+# 参考 https://www.paddlepaddle.org.cn/install/quick
+##注意paddlepaddle-gpu最高支持cu129
 
 httpx>=0.23.0
 numpy>=2.0.0,<2.4.0
-opencv-python==4.13.0.92
-packaging>=22.0
-paddleocr==3.7.0
+# GPU 版用 PaddlePaddle 推理，不装 onnxruntime
 paddlepaddle-gpu==3.3.1
+opencv-python-headless==4.13.0.92
+packaging>=22.0
 pillow>=12.3.0
 psutil
 PyAutoGUI
@@ -29,6 +25,7 @@ PySide6>=6.10.1
 pyside6-fluent-widgets
 pywin32
 PyYAML==6.0.2
+rapidocr==3.10.0
 win11toast
 winshell
 

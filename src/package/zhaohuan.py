@@ -4,7 +4,7 @@ from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import sleep
 from ..utils.log import logger
-from ..utils.paddleocr import RuleOcr
+from ..utils.rapidocr import RuleOcr
 from .base_package import BasePackage
 
 
