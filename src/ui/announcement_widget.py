@@ -1,7 +1,8 @@
-from PySide6.QtGui import QDesktopServices, QIcon
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import CheckBox, PushButton, TextBrowser
 
+from .ui_utils import open_safe_link
 from ..utils.announcement import mark_as_read
 from ..utils.application import ICO_RESOURCE_PATH
 from ..utils.markdown import autolink_urls, downgrade_headings
@@ -26,7 +27,7 @@ class AnnouncementWindow(QWidget):
 
         self.text_browser = TextBrowser(self)
         self.text_browser.setOpenLinks(False)  # 禁用内部链接处理
-        self.text_browser.anchorClicked.connect(QDesktopServices.openUrl)
+        self.text_browser.anchorClicked.connect(open_safe_link)
 
         # 翻页控件
         self.prev_button = PushButton("上一页")

@@ -33,17 +33,23 @@ def is_Chinese_Path() -> bool:
 
 
 def random_normal(min: int | float, max: int | float) -> int:
-    """正态分布"""
+    """在 [min, max) 内取一个近似正态分布的整数
+
+    用「拒绝采样」实现。注意 `min >= max` 时拒绝条件永不成立，
+    原先的 while True 会变成死循环把核跑满，这里显式兜底。
+    """
+    if min >= max:
+        return int(min)
     mu = (min + max) / 2
     sigma = (max - mu) / 3
-    while True:
+    # 3σ 之外基本不会命中，上限只是防御性兜底，避免任何意外下的死循环
+    for _ in range(100):
         numb = random.gauss(mu, sigma)
-        if numb > min and numb < max:
-            logger.info(f"normal index: {round(numb)}")
-            break
-        else:
-            logger.info(f"normal out of index: {round(numb)}")
-    return int(numb)
+        if min < numb < max:
+            logger.debug(f"normal index: {round(numb)}")
+            return int(numb)
+    logger.debug(f"normal out of index, fallback to midpoint: {min}~{max}")
+    return int((min + max) / 2)
 
 
 def random_num(minimum: int | float, maximum: int | float) -> float:
@@ -56,8 +62,8 @@ def random_num(minimum: int | float, maximum: int | float) -> float:
     返回:
         float: 随机值
     """
-    # 获取系统当前时间戳
-    random.seed(time.time_ns())
+    # 不要在这里 random.seed(time.time_ns())：全局 RNG 与其他线程共用，
+    # 每次调用重播种会互相干扰，且纳秒时间戳可预测，会让「随机点击」退化成可复现序列
     return round((random.random() * (maximum - minimum) + minimum), 2)
 
 
@@ -210,8 +216,9 @@ def open_asset_file(file: Path) -> dict:
         logger.ui_error(f"{file}值错误或类型错误")
     except Exception as e:
         logger.ui_error(f"{file}打开失败: {e}")
-    finally:
-        return data
+    # 不要写 `finally: return data`：finally 里的 return 会吞掉
+    # 上面 except 分支里 logger 自身抛出的异常以及 KeyboardInterrupt
+    return data
 
 
 def merge_dict(base_dict, update_dict) -> dict:

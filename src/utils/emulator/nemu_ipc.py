@@ -125,17 +125,28 @@ class NemuIpc:
     def capture(self) -> np.ndarray:
         if not self.connect_id:
             self.connect()
-        if self.width <= 0 or self.height <= 0:
-            self.get_resolution()
-        length = self.width * self.height * 4
+
+        # 缓冲区尺寸必须每帧按当前分辨率重算。
+        # 模拟器窗口被拖动或改分辨率后，DLL 会按新尺寸写入，
+        # 而缓存的 self.width/height 还是旧值 —— 新分辨率更大时
+        # 就是一次堆缓冲区越界写（进程崩溃/内存破坏，且难以复现）。
+        w = ctypes.pointer(ctypes.c_int(0))
+        h = ctypes.pointer(ctypes.c_int(0))
+        ret = self.lib.nemu_capture_display(self.connect_id, self.display_id, 0, w, h, None)
+        if ret > 0:
+            raise NemuIpcError("nemu_capture_display failed in capture(query)")
+        width, height = w.contents.value, h.contents.value
+        if width <= 0 or height <= 0:
+            raise NemuIpcError(f"invalid capture resolution: {width}x{height}")
+
+        length = width * height * 4
         buf = (ctypes.c_ubyte * length)()
-        w = ctypes.pointer(ctypes.c_int(self.width))
-        h = ctypes.pointer(ctypes.c_int(self.height))
         ret = self.lib.nemu_capture_display(
             self.connect_id, self.display_id, length, w, h, ctypes.cast(buf, ctypes.c_void_p))
         if ret > 0:
             raise NemuIpcError("nemu_capture_display failed in capture")
-        return np.ctypeslib.as_array(buf).reshape((self.height, self.width, 4))
+        self.width, self.height = width, height
+        return np.ctypeslib.as_array(buf).reshape((height, width, 4))
 
     def down(self, x: int, y: int, contact: int = 0) -> None:
         """finger 版触摸按下（MAA 同款：contact 从 1 起，原生坐标，无需翻转）"""

@@ -101,11 +101,17 @@ class QiLing(BasePackage):
 
         raise LuopanEmptyException()
 
-    def fight_until_finish(self):
-        """战斗，直到战胜当前契灵"""
+    def fight_until_finish(self, max_battles: int = 10):
+        """战斗直到失败或用尽资源
+
+        Args:
+            max_battles: 最多战斗轮数。结契模式下每轮消耗一个式神，
+                不设上限时 `while True` 会让任务永久运行、只能手动停止；
+                超限按「资源耗尽」收尾，与游戏内实际表现一致。
+        """
         count = 0
         error = 0
-        while True:
+        while count < max_battles:
             if bool(event_thread):
                 raise GUIStopException
 
@@ -146,6 +152,8 @@ class QiLing(BasePackage):
             count += 1
             logger.ui(f"[{self.stone_pokemon}] 第{count}次")
             sleep(3)
+
+        logger.ui(f"已达到最大战斗轮数 {max_battles}，结束结契")
 
     def check_pokemon_remain(self, need_click: bool) -> bool:
         """检查当前契灵是否还有剩余

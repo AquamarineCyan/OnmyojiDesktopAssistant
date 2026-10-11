@@ -1,4 +1,5 @@
 import os
+import threading
 from enum import StrEnum
 
 import yaml
@@ -245,6 +246,11 @@ class Config:
     """配置"""
 
     config_path = USER_DATA_DIR_PATH / "config.yaml"
+    """配置文件路径
+
+    注意：config 所在目录由 `APP_PATH = Path().cwd()` 决定（见 application.py），
+    打包运行时若从非安装目录启动，配置会被读写到那个目录而不是程序目录。
+    """
 
     def __init__(self):
         self.user: UserConfig = UserConfig()
@@ -253,6 +259,12 @@ class Config:
         self.resource_dir = RESOURCE_DIR_PATH
         self.runtime = RuntimeState()
         self._is_gpu: bool = self._detect_gpu_mode()  # GPU 模式
+        self._lock = threading.RLock()
+        """保护 update() 的「读-改-写」整体，以及 _save 的临时文件流转
+
+        config.update 会被 GUI 线程（设置项切换、拖动 SpinBox）和
+        公告线程（mark_as_read）并发调用。
+        """
         self._init()
 
     @property
@@ -319,17 +331,20 @@ class Config:
             logger.ui_error("file config.yaml save failed.")
             return False
 
-        # 先写临时文件再原子替换：config.update 可能被 GUI 线程与公告线程并发调用，
-        # 直接 open(...,"w") 原地写会写出半截文件，下次启动即读不出配置
-        tmp_path = self.config_path.with_suffix(".yaml.tmp")
-        try:
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
-            os.replace(tmp_path, self.config_path)
-        except OSError as e:
-            logger.ui_error(f"配置文件保存失败: {e}")
-            tmp_path.unlink(missing_ok=True)
-            return False
+        with self._lock:
+            # 先写临时文件再原子替换：config.update 可能被 GUI 线程与公告线程并发调用，
+            # 直接 open(...,"w") 原地写会写出半截文件，下次启动即读不出配置。
+            # 临时文件名必须带唯一后缀：固定的 .yaml.tmp 会被两个线程互相截断，
+            # 先写完的一方 os.replace 出去的是混写的半截 YAML。
+            tmp_path = self.config_path.with_name(f"{self.config_path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+            try:
+                with open(tmp_path, "w", encoding="utf-8") as f:
+                    yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
+                os.replace(tmp_path, self.config_path)
+            except OSError as e:
+                logger.ui_error(f"配置文件保存失败: {e}")
+                tmp_path.unlink(missing_ok=True)
+                return False
         return True
 
     @staticmethod
@@ -363,16 +378,19 @@ class Config:
         # CDK 属于敏感信息，日志中不输出明文
         _show_value = "***" if key == "mirrorchyan_cdk" and value else value
         logger.info(f"配置项 [{key}] 更新为 [{_show_value}]")
-        config_dict = self.user.model_dump(mode="json")
+        # 整段（读 → 改 → 校验 → 写盘）必须在同一把锁里：
+        # 两个线程各自 dump 旧快照再写回，后写的会静默覆盖先写的修改
+        with self._lock:
+            config_dict = self.user.model_dump(mode="json")
 
-        keys = key.split(".")
-        target = config_dict
-        for k in keys[:-1]:
-            target = target.setdefault(k, {})
-        target[keys[-1]] = value
+            keys = key.split(".")
+            target = config_dict
+            for k in keys[:-1]:
+                target = target.setdefault(k, {})
+            target[keys[-1]] = value
 
-        self.user = UserConfig.model_validate(config_dict)
-        self._save(self.user)
+            self.user = UserConfig.model_validate(config_dict)
+            self._save(self.user)
 
         if key.startswith("log_color."):
             from .log_color import update_log_colors

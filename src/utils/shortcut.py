@@ -45,13 +45,13 @@ def create_desktop_shortcut() -> bool:
                 try:
                     sh.icon_location = str(exe_candidate)
                 except Exception:
-                    pass
+                    pass  # 图标设置失败可以降级，不影响快捷方式本身
                 sh.description = f"{APP_NAME} 桌面快捷方式"
-                try:
-                    sh.write()
-                except Exception:
-                    pass
+                sh.write()
         except Exception as e:
+            # 写入失败（桌面被占用、权限不足、.lnk 被安全软件锁定）必须如实上报：
+            # 原先这里是 pass，之后仍然打印「已创建」并 return True，
+            # 用户会以为快捷方式已就绪（甚至指向旧版本 exe）
             logger.ui_warn("创建桌面快捷方式失败")
             logger.exception(e)
             return False

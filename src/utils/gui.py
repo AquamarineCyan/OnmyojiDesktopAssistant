@@ -23,6 +23,7 @@ from .announcement import check_announcements, show_all_announcements
 from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION
 from .config import GameLanguage, InteractionMode, config
 from .decorator import log_function_call, run_in_thread
+from .emulator import clear_backends
 from .event import event_thread
 from .function import is_Chinese_Path
 from .global_task import global_task
@@ -725,13 +726,27 @@ class MainWindow(FluentWindow):
             signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("未选中窗口"))
 
     def app_restart_handle(self):
-        Restart().app_restart()
+        # Restart 内部没有任何异常处理，写 bat 或拉起 Popen 失败会直接在
+        # GUI 线程抛未捕获异常，表现为程序静默卡死
+        try:
+            Restart().app_restart()
+        except Exception as e:
+            logger.error(f"重启失败: {e}", exc_info=True)
+            signal_manager.main.message_box_requested.emit(MessageBoxPayload.error(f"重启失败: {e}"))
 
     def closeEvent(self, event):
         """关闭程序事件"""
+        # 通知正在跑的任务线程退出：event_thread 只在业务循环的检查点生效，
+        # 不置位的话任务线程会继续点击游戏直到进程被杀
+        event_thread.set()
+
         # 清理线程
         self.key_listener.stop()
         global_task.stop()
+
+        # 释放模拟器后端持有的 IPC 连接 / ctypes 句柄
+        with suppress(Exception):
+            clear_backends()
 
         # 关闭子窗口
         for child in self.sub_windows:

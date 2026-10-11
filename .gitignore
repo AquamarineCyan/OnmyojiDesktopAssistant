@@ -24,3 +24,8 @@ pytest-of-*/
 .idea/
 .vscode/
 .codegraph/
+.ruff_cache/
+.pytest_cache/
+# 解压中间产物（更新/测试）
+zip_files/
+*.zip.sha256.tmp

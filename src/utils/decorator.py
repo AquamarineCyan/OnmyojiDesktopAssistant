@@ -22,9 +22,23 @@ def log_function_call(func):
 
 
 def run_in_thread(func):
+    """把调用放到守护线程执行。
+
+    必须捕获异常：工作线程里的 traceback 默认只打到 stderr，而打包产物
+    没有控制台（stderr 虽被 `log.redirect_third_party_output` 重定向，
+    但重定向本身也可能失效），异常会彻底静默——调用方拿不到返回值，
+    日志里也查不到，只会看到「功能没反应」。
+    """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        Thread(target=func, name=func.__qualname__, args=args, kwargs=kwargs, daemon=True).start()
+        def _run():
+            try:
+                func(*args, **kwargs)
+            except Exception as e:
+                logger.error(f"{func.__qualname__} 线程内异常: {e}", exc_info=True)
+
+        Thread(target=_run, name=func.__qualname__, daemon=True).start()
 
     return wrapper
 

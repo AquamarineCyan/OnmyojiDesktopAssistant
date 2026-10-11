@@ -110,6 +110,25 @@ class MumuCapture:
     def _grab(self, use_printwindow: bool) -> Optional[np.ndarray]:
         hwnd = self.handle.shot_hwnd
         hdc = None
+
+        def _release() -> None:
+            """幂等地释放 GDI 资源。
+
+            外层 except 也需要清理 hwndDC（GetDC 之后、进入内层 try 之前
+            可能就抛异常），而内层 finally 已经释放过一次。若两边都无条件
+            ReleaseDC 同一个 hdc，GDI DC 计数会被多减，可能误释放别的线程
+            随后申请的 DC —— 表现为后台截图跑久之后的随机绘制异常。
+            """
+            nonlocal hdc
+            if hdc is None:
+                return
+            try:
+                win32gui.ReleaseDC(hwnd, hdc)
+            except Exception:
+                pass
+            finally:
+                hdc = None  # 置空，保证不会二次释放
+
         try:
             cr = win32gui.GetClientRect(hwnd)
             w, h = cr[2] - cr[0], cr[3] - cr[1]
@@ -145,18 +164,11 @@ class MumuCapture:
                     mfc.DeleteDC()
                 except Exception:
                     pass
-                try:
-                    win32gui.ReleaseDC(hwnd, hdc)
-                except Exception:
-                    pass
+                _release()
             img = np.frombuffer(bits, dtype=np.uint8).reshape((h, w, 4))
             return cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
         except Exception:
-            if hdc is not None:
-                try:
-                    win32gui.ReleaseDC(hwnd, hdc)
-                except Exception:
-                    pass
+            _release()
             return None
 
     @staticmethod

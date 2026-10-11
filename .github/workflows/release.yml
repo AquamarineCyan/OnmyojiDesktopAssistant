@@ -46,15 +46,29 @@ jobs:
             xcopy src\resource output\resource /s /e /v /q /y
             mkdir output\resource_ja
             xcopy src\resource_ja output\resource_ja /s /e /v /q /y
-            
+
             $version = "${{ github.ref_name }}" -replace "^v", ""
             Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-$version.zip"
+
+      # 客户端在解压并以管理员权限覆盖安装目录之前会强制校验 SHA-256，
+      # 期望值必须来自这里产出的 sidecar 文件，否则 GitHub 线路会被判定为
+      # 「缺少校验和」而拒绝安装。
+      - name: Generate checksum
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem "OnmyojiDesktopAssistant-*.zip" | Select-Object -First 1
+          if (-not $zip) { throw "未找到更新包" }
+          $hash = (Get-FileHash -Algorithm SHA256 -Path $zip.FullName).Hash.ToLower()
+          "$hash  $($zip.Name)" | Out-File -FilePath "$($zip.Name).sha256" -Encoding ascii -NoNewline
+          Write-Host "sha256($($zip.Name)) = $hash"
 
       - name: Upload build
         uses: actions/upload-artifact@v7
         with:
           name: OnmyojiDesktopAssistant
-          path: OnmyojiDesktopAssistant-*.zip
+          path: |
+            OnmyojiDesktopAssistant-*.zip
+            OnmyojiDesktopAssistant-*.zip.sha256
           retention-days: 7
 
   release:
@@ -77,7 +91,9 @@ jobs:
           name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           generate_release_notes: true
-          files: OnmyojiDesktopAssistant-*.zip
+          files: |
+            OnmyojiDesktopAssistant-*.zip
+            OnmyojiDesktopAssistant-*.zip.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

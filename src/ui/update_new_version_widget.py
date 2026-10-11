@@ -1,7 +1,5 @@
-from threading import Thread
-
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QDesktopServices, QIcon
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QDialogButtonBox, QHBoxLayout, QSizePolicy, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
@@ -14,6 +12,7 @@ from qfluentwidgets import (
     TransparentPushButton,
 )
 
+from .ui_utils import open_safe_link
 from ..utils.application import ICO_RESOURCE_PATH, VERSION
 from ..utils.config import config, default_config
 from ..utils.log import logger
@@ -38,7 +37,7 @@ def _create_browser() -> TextBrowser:
     """创建自适应高度、无内部滚动条的只读文本浏览器"""
     browser = TextBrowser()
     browser.setOpenLinks(False)  # 禁用内部链接处理
-    browser.anchorClicked.connect(QDesktopServices.openUrl)
+    browser.anchorClicked.connect(open_safe_link)
     browser.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     browser.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     browser.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -124,6 +123,11 @@ class UpdateNewVersionWidget(QWidget):
         signal_manager.update_new_version.progress_text_changed.connect(self._download_info_update_handle)
         signal_manager.update_new_version.progress_bar_changed.connect(self._progress_update_handle)
         signal_manager.update_new_version.close_ui.connect(self.close)
+        self._connected_signals = (
+            (signal_manager.update_new_version.progress_text_changed, self._download_info_update_handle),
+            (signal_manager.update_new_version.progress_bar_changed, self._progress_update_handle),
+            (signal_manager.update_new_version.close_ui, self.close),
+        )
 
         # 主内容区：最新版本默认展开 + 其余版本折叠卡片
         _markdown = self._build_shown_markdown()
@@ -195,7 +199,24 @@ class UpdateNewVersionWidget(QWidget):
 
     def _download_button_handle(self):
         self._progress_bar_show_handle()
-        Thread(target=update_manager.ui_download_handle, name="update_manager.ui_download_handle", daemon=True).start()
+        # ui_download_handle 自身已带 @run_in_thread，这里再包一层只是白白多一个线程
+        update_manager.ui_download_handle()
+
+    def closeEvent(self, event):
+        """关闭时断开全局信号
+
+        窗口每检测到一次新版本就会被 open_sub_window 新建一个，
+        而 QWidget.close() 默认不销毁对象，MainWindow.closeEvent 也只 close()
+        不 deleteLater()。不清掉连接的话，每开一次就多挂 3 条连接，
+        之后每次下载进度都会扇出到所有历史实例（含已隐藏的）。
+        """
+        for signal, slot in getattr(self, "_connected_signals", ()):
+            try:
+                signal.disconnect(slot)
+            except (RuntimeError, TypeError):
+                pass  # 本来就没连上（构造失败）
+        self._connected_signals = ()
+        super().closeEvent(event)
 
     def _split_versions(self, version_history: list[dict]) -> tuple[list[dict], list[dict]]:
         """拆分默认展示与折叠的版本
