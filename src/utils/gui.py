@@ -1,3 +1,4 @@
+import threading
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +43,9 @@ from .window import GameWindow, window_manager
 class MainWindow(FluentWindow):
     def __init__(self):
         super().__init__()
+
+        # 窗口探测/预览走后台线程，用它避免重复点击并发探测
+        self._window_detect_running: bool = False
 
         language = config.user.game_language
         suffix = "" if language == GameLanguage.CN else f" - {language}"
@@ -191,6 +195,9 @@ class MainWindow(FluentWindow):
         # 窗口探测跑在 GlobalTask 守护线程，界面刷新必须经信号回到 GUI 线程
         signal_manager.main.window_list_changed.connect(self.refresh_window_list)
         signal_manager.main.window_button_enabled.connect(self._window_button_enabled_handle)
+        signal_manager.main.window_detect_finished.connect(self._window_detect_finished_handle)
+        signal_manager.main.window_preview_ready.connect(self._preview_ready_handle)
+        signal_manager.main.window_preview_failed.connect(self._preview_failed_handle)
         window_manager.screen_init()
         self._update_screen_resolution_handle()
 
@@ -337,7 +344,46 @@ class MainWindow(FluentWindow):
         return True
 
     def force_detect_window_handle(self):
-        return window_manager.force_update()
+        """手动检测前置游戏窗口
+
+        探测链路会拉起 mumu-cli.exe 子进程（单次最长 10 秒），放在主线程
+        会让界面冻结 10 秒；这里丢到后台线程，结果由 window_manager 自己
+        emit 的 window_status_changed / window_list_changed 回到主线程刷新。
+        """
+        self._detect_window_async(None)
+
+    def _detect_window_async(self, handle: int | None):
+        """后台线程执行窗口探测/应用
+
+        Args:
+            handle (int | None): 指定句柄则应用该窗口，为 None 则重新探测
+        """
+        if self._window_detect_running:
+            logger.ui_warn("上一次窗口检测尚未完成，请稍候")
+            return
+        self._window_detect_running = True
+        self._set_window_detect_busy(True)
+
+        def _worker():
+            try:
+                window_manager.force_update(handle)
+            except Exception as e:
+                logger.error(f"检测游戏窗口失败: {e}", exc_info=True)
+            finally:
+                self._window_detect_running = False
+                signal_manager.main.window_detect_finished.emit()
+
+        threading.Thread(target=_worker, name="window_detect", daemon=True).start()
+
+    def _set_window_detect_busy(self, busy: bool):
+        """检测期间禁用相关按钮，避免重复点击并发探测"""
+        with suppress(RuntimeError):
+            self.homeInterface.basic_group.force_detect_window_button.setEnabled(not busy)
+            self.windowManagerInterface.apply_button.setEnabled(not busy)
+            self.windowManagerInterface.preview_button.setEnabled(not busy)
+
+    def _window_detect_finished_handle(self):
+        self._set_window_detect_busy(False)
 
     def game_function_description(self):
         """功能描述"""
@@ -685,33 +731,52 @@ class MainWindow(FluentWindow):
             self.windowManagerInterface.update_screen_resolution(resolution.screen_size[0], resolution.screen_size[1])
 
     def preview_window(self):
-        """预览选中的窗口"""
+        """预览选中的窗口
+
+        截图与窗口访问放在后台线程：模拟器路径可能触发 IPC 建链，
+        失败时 ScreenShot 还会重试 10 次。
+        """
         widget = self.windowManagerInterface
         data = widget.comboBox.currentData()
-        if data and int(data):
-            handle = int(data)
-            logger.info(f"当前窗口：{handle}")
-            image = ScreenShot(handle=handle).get_image()
-            if image is None:
-                logger.ui_error("窗口预览失败：截图不可用")
-                return
-            qimage = ImageQt(image)
-            pixmap = QPixmap.fromImage(qimage)
-            # 缩放图像以适应预览区域
-            scaled_pixmap = pixmap.scaled(
-                widget.preview_image.width(),
-                widget.preview_image.height(),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation,
-            )
-            widget.preview_image.setPixmap(scaled_pixmap)
-            widget.update_capture_size_label(f"{image.size[0]} X {image.size[1]}")
-            widget.update_capture_time_label(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}")
-
-            logger.info(f"预览窗口：{handle}")
-        else:
+        if not (data and int(data)):
             logger.warning("未选中窗口")
             signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("未选中窗口"))
+            return
+
+        handle = int(data)
+        logger.info(f"当前窗口：{handle}")
+
+        def _worker():
+            try:
+                image = ScreenShot(handle=handle).get_image()
+            except Exception as e:
+                logger.error(f"窗口预览截图失败: {e}", exc_info=True)
+                signal_manager.main.window_preview_failed.emit(str(e))
+                return
+            # 只把 PIL 图像带回主线程：QPixmap 不是线程安全的，必须在主线程构造
+            signal_manager.main.window_preview_ready.emit(handle, image)
+
+        threading.Thread(target=_worker, name="window_preview", daemon=True).start()
+
+    def _preview_ready_handle(self, handle: int, image):
+        """主线程刷新预览控件"""
+        widget = self.windowManagerInterface
+        qimage = ImageQt(image)
+        pixmap = QPixmap.fromImage(qimage)
+        # 缩放图像以适应预览区域
+        scaled_pixmap = pixmap.scaled(
+            widget.preview_image.width(),
+            widget.preview_image.height(),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        widget.preview_image.setPixmap(scaled_pixmap)
+        widget.update_capture_size_label(f"{image.size[0]} X {image.size[1]}")
+        widget.update_capture_time_label(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}")
+        logger.info(f"预览窗口：{handle}")
+
+    def _preview_failed_handle(self, message: str):
+        logger.ui_error(f"窗口预览失败：{message}")
 
     def apply_selected_window(self):
         """应用选中的窗口"""
@@ -719,8 +784,8 @@ class MainWindow(FluentWindow):
         data = widget.comboBox.currentData()
         if data and int(data):
             handle = int(data)
-            window_manager.force_update(handle)
             logger.info(f"应用选中的窗口：{handle}")
+            self._detect_window_async(handle)
         else:
             logger.warning("未选中窗口")
             signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("未选中窗口"))

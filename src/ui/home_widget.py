@@ -31,6 +31,13 @@ from ..utils.config import config
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
+MAX_LOG_BLOCKS: int = 2000
+"""界面日志文本框保留的最大行数
+
+QTextDocument 原生支持块数上限，超出后自动丢弃最早的块。
+设为 0 表示不限制（不推荐）。
+"""
+
 
 class StackedWidgetIndex(Enum):
     """高级设置窗口索引"""
@@ -665,6 +672,10 @@ class HomeWidget(QWidget):
 
             self.text_info = TextBrowser()
             self.text_info.setReadOnly(True)
+            # 限制块数：玩法循环里每秒可产生数十条日志，不设上限的话
+            # 长时间挂机后 QTextBlock 会累积到几十万，内存与排版开销持续上升。
+            # setMaximumBlockCount 挂在 QTextDocument 上（不是控件上）
+            self.text_info.document().setMaximumBlockCount(MAX_LOG_BLOCKS)
             # 时间戳对齐缩进（像素）：基于初始化时的控件字体实测
             self.text_info_indent = self.text_info.fontMetrics().horizontalAdvance("00:00:00 ")
 

@@ -5,7 +5,7 @@ rapid_ocr.py —— RapidOCR 模块（与 benchmark 对齐的优化版）
   [O2] 检测输入短边下限 736
   [O3] 关闭 CLS（文字方向固定场景）
   [O4] 预热用 720×1280 空图跑 2 次
-  [O5] 走 ScreenShot.get_array()，避免每帧 PIL→NumPy 转换
+  [O5] 走 ScreenShot.get_bgr()，避免每帧 PIL→NumPy 转换
   [O6] 截图落盘改为默认关闭、按需开启（避免每帧 I/O）
 """
 import os
@@ -308,7 +308,7 @@ class OcrData:
 
 
 # ==========================================================================
-# OcrDetector —— 走 get_array，去掉每帧写盘
+# OcrDetector —— 走 get_bgr，去掉每帧写盘
 # ==========================================================================
 
 class OcrDetector:
@@ -320,7 +320,7 @@ class OcrDetector:
     def get_raw_result(self) -> list[OcrData]:
         """截图 → OCR → 结构化结果
 
-        [O5] 走 ScreenShot.get_array() 直接拿 ndarray，跳过 PIL 中间对象
+        [O5] 走 ScreenShot.get_bgr() 直接拿 ndarray，跳过 PIL 中间对象
         [O6] 截图落盘改为可选，默认不写盘，消除每帧 I/O
         """
         if not ocr_manager.is_initialized():
@@ -336,7 +336,7 @@ class OcrDetector:
             screenshot_file = SCREENSHOT_DIR_PATH / f"{time.strftime('%Y%m%d%H%M%S')}.png"
             screenshot.get_image().save(screenshot_file)
 
-        image = screenshot.get_array()          # ← 直接 ndarray（BGR）
+        image = screenshot.get_bgr()           # ← 直接 ndarray（BGR）
         ocr_result = ocr_manager.detect(image)
 
         # 截图按 region 裁剪，RapidOCR 返回的框是 region 局部坐标，

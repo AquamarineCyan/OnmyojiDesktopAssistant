@@ -19,6 +19,34 @@ from ..utils.window import window_manager
 from .global_resource import GlobalResource
 from .utils import get_image_asset, get_ocr_asset, load_asset
 
+STALL_TIMEOUT: float = 600.0
+"""连续匹配不到目标时的兜底超时（秒），默认 10 分钟
+
+`check_click` / `check_title` 默认 `timeout=0`（永不超时），设计上依赖
+「目标一定会出现」。但 UI 改版、分辨率变化、弹出额外确认框时目标永远不会出现，
+此时任务线程会永久挂死：停止按钮依赖的 `event_thread` 检查根本执行不到，
+且 `task_start` 的 finally 不会跑，`prevent_sleep(False)` 不执行 →
+系统会一直保持防休眠。
+
+这里给一个独立的兜底时长，超过即抛异常让任务显式失败（用户能看到报错），
+而不是无声挂死。正常流程中目标通常几秒内出现，远达不到这个量级；
+确有必要等待更久的场景可显式传 `stall_timeout`。
+"""
+
+
+def _raise_stalled(where: str, seconds: float, asset=None):
+    """连续匹配不到目标时统一的中断点
+
+    把目标素材的名字/类型带进报错，否则用户只看到「600 秒未匹配到目标」
+    根本不知道卡在哪一步。
+    """
+    name = getattr(asset, "name", None) or "<未命名>"
+    logger.error(f"{where} 连续 {seconds:.0f} 秒未匹配到目标 [{name}]，中断以避免任务永久挂死")
+    raise CustomException(
+        f"{where}: {seconds:.0f} 秒未匹配到目标「{name}」。"
+        f"请确认游戏场景是否正确、窗口尺寸是否变化，或该素材已失效。"
+    )
+
 
 class BasePackage:
     scene_name: str = ""
@@ -99,8 +127,17 @@ class BasePackage:
         time.sleep(config.user.screenshot_interval / 1000.0)
 
     @log_function_call
-    def check_title(self):
-        """检查主场景"""
+    def check_title(self, stall_timeout: float = STALL_TIMEOUT):
+        """检查主场景
+
+        Args:
+            stall_timeout: 连续未匹配到场景的容忍时长（秒）。
+                超过后抛出异常而不是无限等待 —— UI 改版、分辨率变化、
+                弹了新的确认框时目标永远不会出现，无限等待会让任务线程
+                永久挂死，连停止按钮都失效（且 `prevent_sleep(False)`
+                不执行，系统会一直保持防休眠）。
+                传 0 可关闭该兜底。
+        """
         msg_title: bool = True
         asset = None
 
@@ -112,9 +149,13 @@ class BasePackage:
         else:
             logger.error("no title asset defined")
 
+        _start = time.time()
         while True:
             if bool(event_thread):
                 raise GUIStopException
+
+            if stall_timeout and time.time() - _start > stall_timeout:
+                _raise_stalled("check_title", stall_timeout, asset)
 
             if isinstance(asset, AssetOcr):
                 if RuleOcr(asset).match():
@@ -139,14 +180,28 @@ class BasePackage:
         asset: AssetImage | AssetOcr | None = None,
         timeout: float = 0,
         point_type: Literal["random", "center"] = "random",
+        stall_timeout: float = STALL_TIMEOUT,
         *args,
         **kwargs,
     ) -> bool:
+        """点击目标
+
+        Args:
+            asset: 目标素材
+            timeout: 匹配超时（秒），0 表示不限
+            point_type: 点击取随机点还是中心点
+            stall_timeout: 连续未匹配到目标的容忍时长（秒），
+                仅在 `timeout=0` 时生效 —— 有 timeout 时本来就会退出。
+                超过后抛出异常而不是无限等待。传 0 可关闭该兜底。
+        """
         if isinstance(asset, str):
             raise TypeError("asset must be AssetImage or AssetOcr")
 
         if timeout:
             _start = time.time()
+        if not timeout:
+            stall_timeout = stall_timeout if stall_timeout else 0
+            _stall_start = time.time()
         while True:
             if bool(event_thread):
                 raise GUIStopException
@@ -168,6 +223,12 @@ class BasePackage:
                 if result := ocr.match():
                     Mouse.click(result.center, *args, **kwargs)
                     return True
+            else:
+                logger.error(f"check_click got invalid asset: {type(asset).__name__}")
+                return False
+
+            if not timeout and stall_timeout and time.time() - _stall_start > stall_timeout:
+                _raise_stalled("check_click", stall_timeout, asset)
 
             self.sleep_interval()
 

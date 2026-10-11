@@ -334,6 +334,50 @@ class SettingLogFolderCard(AppCard):
         self.hBoxLayout.addWidget(self.open_button)
 
 
+class SettingLogRetentionCard(AppCard):
+    """设置项-日志保留策略"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.BROOM,
+            "日志清理",
+            "程序启动时自动清理旧日志。超过保留天数的轮转日志会被删除；"
+            "日志目录总量超过上限时，从最旧的日志开始删。当前日志始终保留。",
+            parent,
+        )
+
+        self.days_spinbox = SpinBox()
+        self.days_spinbox.setRange(0, 365)
+        self.days_spinbox.setSpecialValueText("不限制")
+        self.days_spinbox.setValue(config.user.log_retention_days)
+        self.days_spinbox.valueChanged.connect(self._config_update_days)
+        self.days_spinbox.setToolTip("日志保留天数，0 表示不按时间清理")
+
+        self.size_spinbox = SpinBox()
+        self.size_spinbox.setRange(0, 4096)
+        self.size_spinbox.setSpecialValueText("不限制")
+        self.size_spinbox.setValue(config.user.log_max_size_mb)
+        self.size_spinbox.valueChanged.connect(self._config_update_size)
+        self.size_spinbox.setToolTip("日志目录总大小上限（MB），0 表示不限制")
+
+        days_label = BodyLabel("保留天数：")
+        size_label = BodyLabel("大小上限(MB)：")
+
+        self.hBoxLayout.addWidget(days_label)
+        self.hBoxLayout.addWidget(self.days_spinbox)
+        self.hBoxLayout.addSpacing(12)
+        self.hBoxLayout.addWidget(size_label)
+        self.hBoxLayout.addWidget(self.size_spinbox)
+
+    def _config_update_days(self, value: int):
+        if int(value) != config.user.log_retention_days:
+            config.update("log_retention_days", int(value))
+
+    def _config_update_size(self, value: int):
+        if int(value) != config.user.log_max_size_mb:
+            config.update("log_max_size_mb", int(value))
+
+
 class SettingBattleThemeCard(AppCard):
     """设置项-战斗主题识别"""
 
@@ -853,6 +897,7 @@ class SettingWidget(QWidget):
         self.shortcut_start_stop_card = SettingShortcutStartStopCard()
         self.logger_color_card = SettingLoggerColorCard()
         self.log_folder_card = SettingLogFolderCard()
+        self.log_retention_card = SettingLogRetentionCard()
         self.win_toast_card = SettingWinToastCard()
         self.group_update = SettingUpdateCard()
 
@@ -879,6 +924,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.shortcut_start_stop_card)
         self._layout.addWidget(self.logger_color_card)
         self._layout.addWidget(self.log_folder_card)
+        self._layout.addWidget(self.log_retention_card)
         self._layout.addWidget(self.win_toast_card)
         self._layout.addWidget(self.group_update)
         self._layout.addSpacing(24)

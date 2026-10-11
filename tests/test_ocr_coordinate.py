@@ -111,7 +111,7 @@ def test_ocr_detector_adds_region_origin(monkeypatch):
     class _FakeScreenshot:
         is_valid = True
 
-        def get_array(self):
+        def get_bgr(self):
             return None
 
         def get_image(self):  # pragma: no cover - SAVE_SCREENSHOT 为 False
@@ -158,7 +158,7 @@ def test_ocr_detector_zero_region_no_offset(monkeypatch):
     class _FakeScreenshot:
         is_valid = True
 
-        def get_array(self):
+        def get_bgr(self):
             return None
 
     monkeypatch.setattr(rapidocr_module, "ScreenShot", lambda rect: _FakeScreenshot())
@@ -196,8 +196,8 @@ def test_ocr_detector_returns_empty_when_screenshot_failed(monkeypatch):
     class _FailedScreenshot:
         is_valid = False
 
-        def get_array(self):  # pragma: no cover - 不应被调用
-            raise AssertionError("截图失败时不应调用 get_array")
+        def get_bgr(self):  # pragma: no cover - 不应被调用
+            raise AssertionError("截图失败时不应调用 get_bgr")
 
     monkeypatch.setattr(rapidocr_module, "ScreenShot", lambda rect: _FailedScreenshot())
     monkeypatch.setattr(rapidocr_module.ocr_manager, "is_initialized", lambda: True)

@@ -75,6 +75,29 @@ class CustomSignal(QObject):
         window_button_enabled = Signal()
         """首次检测到游戏窗口，通知界面启用主功能控件"""
 
+        window_detect_finished = Signal()
+        """手动「检测前置游戏窗口」/「应用选中窗口」结束
+
+        探测链路会拉起 `mumu-cli.exe` 子进程（最长 10 秒），必须放到后台线程，
+        否则 GUI 事件循环会冻结。这个信号用于恢复按钮可用状态。
+        """
+
+        window_preview_ready = Signal(int, object)
+        """窗口预览截图就绪
+
+        Args:
+            handle (int): 窗口句柄
+            image (PIL.Image.Image): 截图。QPixmap 不是线程安全的，
+                必须在主线程里由它转换，worker 只负责截图。
+        """
+
+        window_preview_failed = Signal(str)
+        """窗口预览失败
+
+        Args:
+            message (str): 失败原因
+        """
+
         xuanshangfengyin_detected = Signal(str, str)
         """悬赏封印通知
 

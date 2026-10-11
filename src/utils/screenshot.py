@@ -248,6 +248,3 @@ class ScreenShot:
             self._bgr = cv2.cvtColor(np.array(self._image), cv2.COLOR_RGB2BGR)
         return self._bgr
 
-    def get_array(self) -> np.ndarray:
-        """获取 ndarray（BGR，OCR 直接消费，省去 PIL→NumPy 转换）"""
-        return self.get_bgr()

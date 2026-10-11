@@ -175,6 +175,10 @@ class DefaultConfig(BaseModel):
     """记住强制缩放的选择（不再弹窗提醒）"""
     log_color: dict = LogColorConfig().model_dump()
     """日志颜色配置"""
+    log_retention_days: int = 7
+    """日志保留天数"""
+    log_max_size_mb: int = 100
+    """日志目录总大小上限（MB）"""
 
 
 default_config = DefaultConfig()
@@ -215,6 +219,10 @@ class UserConfig(BaseModel):
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
     log_color: LogColorConfig = LogColorConfig()
     """日志颜色配置"""
+    log_retention_days: int = default_config.log_retention_days
+    """日志保留天数，超过该天数的轮转日志在启动时自动删除，0 表示不按时间清理"""
+    log_max_size_mb: int = default_config.log_max_size_mb
+    """日志目录总大小上限（MB），超出后从最旧的轮转日志开始删除，0 表示不限制"""
     announcement_id: int = 19700101
     """已读公告的最新 id"""
 
@@ -293,6 +301,12 @@ class Config:
 
         if self.user.game_language == GameLanguage.JA:
             self.resource_dir = RESOURCE_JA_DIR_PATH
+
+        # 用用户实际配置再清一次日志：log.py 导入期只能按默认值清
+        # （那时 file_handler 已建，截断当前日志不安全）
+        from .log import cleanup_logs
+
+        cleanup_logs(self.user.log_retention_days, self.user.log_max_size_mb)
 
         from .log_color import update_log_colors
 
