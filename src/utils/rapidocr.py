@@ -54,7 +54,7 @@ os.environ.setdefault("ORT_DISABLE_ALL_LOGS", "1")
 from rapidocr.utils.typings import EngineType, ModelType, OCRVersion
 
 from .application import SCREENSHOT_DIR_PATH
-from .assets import AssetOcr
+from .assets import AssetOcr, match_keyword, normalize_keywords
 from .coordinate import get_scale, scale_region
 from .log import logger
 from .point import Point, Rectangle
@@ -378,23 +378,24 @@ class RuleOcr:
         self,
         assetocr: AssetOcr = None,
         name: str = None,
-        keyword: str = None,
+        keyword: str | list[str] = None,
         region: tuple = None,
         score: float = 0.7,
         method: Literal["PERFECT", "INCLUDE"] = "PERFECT",
     ) -> None:
         if assetocr:
-            self.keyword = assetocr.keyword
+            keyword = assetocr.keyword
             self.name = assetocr.name
             self.region = assetocr.region
             self.score = assetocr.score
             self.method = assetocr.method
         else:
-            self.keyword = keyword
             self.name = name
             self.region = region
             self.score = score
             self.method = method
+        # keyword 允许是列表（容忍 OCR 同形字混淆），统一规整成 tuple 去空白
+        self.keyword = normalize_keywords(keyword)
 
         if self.region is None or self.region == (0, 0, 0, 0):
             self.region = window_manager.current.client_rect
@@ -410,7 +411,7 @@ class RuleOcr:
     def match(
         self,
         ocr_result: list[OcrData] = None,
-        keyword: str = None,
+        keyword: str | list[str] = None,
         score: float = None,
         debug: bool = False,
     ) -> OcrData | None:
@@ -422,22 +423,16 @@ class RuleOcr:
         if ocr_result is None:
             ocr_result = self.get_raw_result()
 
-        if keyword is None:
-            keyword = self.keyword
+        keywords = self.keyword if keyword is None else keyword
         if score is None:
             score = self.score
 
         for item in ocr_result:
             if item.score < score:
                 continue
-            if self.method == "PERFECT":
-                if item.text == keyword:
-                    self.match_result = item
-                    return item
-            elif self.method == "INCLUDE":
-                if keyword in item.text:
-                    self.match_result = item
-                    return item
+            if match_keyword(item.text, keywords, self.method):
+                self.match_result = item
+                return item
 
         return None
 

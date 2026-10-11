@@ -193,7 +193,7 @@
         },
         {
             "name": "start",
-            "keyword": "挑战",
+            "keyword": ["挑战", "桃战"],
             "region": [0, 0, 0, 0],
             "score": "0.6",
             "method": "PERFECT"

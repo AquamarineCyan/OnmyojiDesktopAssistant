@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 
 from .application import MODEL_DIR_PATH
-from .assets import AssetOcr
+from .assets import AssetOcr, match_keyword, normalize_keywords
 from .coordinate import get_scale, scale_region
 from .log import logger
 from .paddle_model import PaddleModel
@@ -299,7 +299,7 @@ class RuleOcr:
         self,
         assetocr: AssetOcr = None,
         name: str = None,
-        keyword: str = None,
+        keyword: str | list[str] = None,
         region: tuple = None,  # 暂未用上
         score: float = 0.7,
         method: Literal["PERFECT", "INCLUDE"] = "PERFECT",
@@ -308,7 +308,7 @@ class RuleOcr:
         Args:
             assetocr (AssetOcr):  文字识别资源
             name (str): 名称
-            keyword (str): 关键词
+            keyword (str | list[str]): 关键词，列表表示任一命中即可
             region (tuple): 区域
             score (float): 识别阈值
             method (Literal["PERFECT", "INCLUDE"]): 匹配方式，PERFECT：完全匹配，INCLUDE：包含匹配
@@ -378,14 +378,9 @@ class RuleOcr:
         for item in ocr_result:
             if item.score < score:
                 continue
-            if self.method == "PERFECT":
-                if item.text == keyword:
-                    self.match_result = item
-                    return item
-            elif self.method == "INCLUDE":
-                if keyword in item.text:
-                    self.match_result = item
-                    return item
+            if match_keyword(item.text, keyword, self.method):
+                self.match_result = item
+                return item
 
         return None
 

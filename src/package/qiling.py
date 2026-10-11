@@ -1,4 +1,5 @@
 from ..utils.adapter import Mouse
+from ..utils.assets import match_keyword
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import CustomException, GUIStopException, TimesNotEnoughException
@@ -88,7 +89,7 @@ class QiLing(BasePackage):
 
             result = RuleOcr().get_raw_result()
             for item in result:
-                if item.text == self.OCR_JIEQI_GIVE_UP.keyword:
+                if match_keyword(item.text, self.OCR_JIEQI_GIVE_UP.keyword):
                     logger.ui("放弃结契")
                     Mouse.click(item.center)
                     return

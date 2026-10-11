@@ -1,6 +1,7 @@
 import time
 
 from ..utils.adapter import Mouse
+from ..utils.assets import match_keyword
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -70,20 +71,20 @@ class DaoGuanTuPo(BasePackage):
             sleep()
             result = RuleOcr().get_raw_result()
             for item in result:
-                if self.OCR_TITLE.keyword == item.text:
+                if match_keyword(item.text, self.OCR_TITLE.keyword):
                     logger.ui_hint(self.scene_name)
 
-                if self.OCR_DAOJISHI.keyword in item.text:
+                if match_keyword(item.text, self.OCR_DAOJISHI.keyword, "INCLUDE"):
                     self.state = self.STATE_WAIT_AUTO_ENTER
                     logger.ui("等待倒计时自动进入")
                     return
 
-                if self.OCR_REMAINTIME.keyword in item.text:
+                if match_keyword(item.text, self.OCR_REMAINTIME.keyword, "INCLUDE"):
                     logger.ui("可进攻")
                     self.state = self.STATE_WAIT_START
                     return
 
-                if self.global_assets.OCR_AUTO_FIGHT.keyword in item.text:
+                if match_keyword(item.text, self.global_assets.OCR_AUTO_FIGHT.keyword, "INCLUDE"):
                     logger.ui("战斗中")
                     return
 
