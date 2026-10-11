@@ -46,6 +46,7 @@ from ..utils.config import (
 from ..utils.emulator.mumu_handle import is_valid_mumu_folder
 from ..utils.log import logger
 from .game_function_selector_widget import GameFunctionSelectorWidget
+from .mumu_emulator_widget import MumuEmulatorMessageBox
 from .ui_utils import open_log_folder
 
 
@@ -582,10 +583,19 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         if text and not is_valid_mumu_folder(text):
             logger.ui_warn(f"MuMu 安装目录无效（未找到 {text}\\nx_main\\mumu-cli.exe），已保留该值")
 
-    def _config_update_backend_enable_mumu(self):
-        status = self.backend_enable_mumu_switch.isChecked()
-        if status != config.user.interaction_mode.backend.enable_mumu:
-            config.update("interaction_mode.backend.enable_mumu", status)
+    def _config_update_backend_enable_mumu(self, checked: bool):
+        if checked:
+            # 开启前先弹窗，未确认则回退开关、不写入配置
+            if not MumuEmulatorMessageBox(self.window()).exec():
+                logger.info("用户取消 MuMu 模拟器提示，未启用 MuMu 模拟器支持")
+                self.backend_enable_mumu_switch.blockSignals(True)
+                self.backend_enable_mumu_switch.setChecked(False)
+                self.backend_enable_mumu_switch.blockSignals(False)
+                self._sync_mumu_folder_group_visible()
+                return
+            logger.info("用户确认 MuMu 模拟器提示，开启 MuMu 模拟器支持")
+        if checked != config.user.interaction_mode.backend.enable_mumu:
+            config.update("interaction_mode.backend.enable_mumu", checked)
         self._sync_mumu_folder_group_visible()
 
     def _sync_mumu_folder_group_visible(self):
