@@ -29,5 +29,5 @@ class AssetOcr(BaseModel):
     """区域"""
     score: float = 0.7
     """匹配分数"""
-    method: Literal["PERFACT", "INCLUDE"] = "PERFACT"
+    method: Literal["PERFECT", "INCLUDE"] = "PERFECT"
     """匹配方法  PERFECT: 完全匹配  INCLUDE: 包含匹配"""

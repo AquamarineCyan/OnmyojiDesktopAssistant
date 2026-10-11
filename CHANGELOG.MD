@@ -4,6 +4,7 @@
 
 - 将文字识别引擎由 PaddleOCR 替换为 RapidOCR，CPU 版走 ONNX Runtime，安装体积与内存占用显著下降
 - 文字识别模型升级为 `PP-OCRv6`，识别耗时与准确率均优于原 `PP-OCRv3`
+- 修复 `assets.json` 中 `method` 字段拼写为 `PERFACT` 导致 `PERFECT` 模式文字匹配恒失效的问题
 
 ## v2.1.7 - 2026-10-09
 

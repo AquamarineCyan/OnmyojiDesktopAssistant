@@ -56,21 +56,21 @@
             "keyword": "道馆突破",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "daojishi",
             "keyword": "后开战",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "shengyutuposhijian",
             "keyword": "剩余突破时间",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         }
     ]
 }

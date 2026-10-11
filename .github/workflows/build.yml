@@ -2,6 +2,11 @@ name: Build
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -24,12 +29,13 @@ jobs:
       - name: Run Pytest
         run: uv run pytest tests -s
 
+      # 仅在推送到 main 或手动触发时打包，普通 PR 只跑测试
       - name: Build
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         run: uv run pyinstaller main.spec --clean --noconfirm --distpath .
 
       - name: Package
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         run: |
             mkdir output\resource
             xcopy src\resource output\resource /s /e /v /q /y
@@ -38,9 +44,9 @@ jobs:
             Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-debug.zip"
 
       - name: Upload build
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v7
         with:
-          name: OnmyojiDesktopAssistant
+          name: OnmyojiDesktopAssistant-${{ github.sha }}
           path: OnmyojiDesktopAssistant-debug.zip
           retention-days: 7

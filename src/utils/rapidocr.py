@@ -349,7 +349,7 @@ class RuleOcr:
         keyword: str = None,
         region: tuple = None,
         score: float = 0.7,
-        method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
+        method: Literal["PERFECT", "INCLUDE"] = "PERFECT",
     ) -> None:
         if assetocr:
             self.keyword = assetocr.keyword
@@ -398,7 +398,7 @@ class RuleOcr:
         for item in ocr_result:
             if item.score < score:
                 continue
-            if self.method == "PERFACT":
+            if self.method == "PERFECT":
                 if item.text == keyword:
                     self.match_result = item
                     return item
