@@ -111,11 +111,13 @@
 
     安装 uv：[uv 官方文档](https://docs.astral.sh/uv/getting-started/installation/)
 
+    `pyproject.toml` 是**唯一权威来源**，下面两种方式等价：
+
     ```bash
-    # 使用 uv 安装依赖
+    # 方式一：uv（推荐，与 CI 一致，会生成 uv.lock）
     uv sync
 
-    # 使用 pip 安装依赖
+    # 方式二：pip（requirements.txt 由 tools/sync_requirements.py 从 pyproject.toml 生成）
     pip install -r requirements.txt
     ```
 
@@ -124,17 +126,23 @@
     程序启动时会自动探测推理引擎：检测到 `paddlepaddle-gpu` 则走 PaddlePaddle + CUDA，否则回退 ONNX Runtime + CPU。
     CPU 版依赖已默认安装，无需任何额外操作；只有需要 GPU 加速时才需要下面的步骤。
 
-    根据你的 CUDA 版本安装 paddlepaddle-gpu（以 cu129 为例），更多信息请参考 PaddlePaddle 官方文档：https://www.paddlepaddle.org.cn/install/quick
+    `requirements-gpu.txt` 与 `requirements.txt` 的唯一差异是推理引擎（`paddlepaddle-gpu` 替代 `onnxruntime`），
+    建议在**独立虚拟环境**中安装，避免与 CPU 版冲突：
 
     ```bash
-    # 使用 uv 安装 gpu 依赖
-    uv pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
-
-    # 使用 pip 安装 gpu 依赖
-    pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+    python -m venv .venv-gpu && .venv-gpu\Scripts\activate
+    pip install -r requirements-gpu.txt
     ```
 
-    建议在独立虚拟环境中安装 GPU 版本，避免与 CPU 版本冲突。
+    也可以只在现有环境里替换推理引擎：
+
+    ```bash
+    uv pip uninstall onnxruntime
+    uv pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+    ```
+
+    `paddlepaddle-gpu` 版本需与本机 CUDA/cuDNN 匹配，参考 https://www.paddlepaddle.org.cn/install/quick
+    （注意最高支持 cu129）。
 
 3. 运行/调试
 

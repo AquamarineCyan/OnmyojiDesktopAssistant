@@ -1,5 +1,6 @@
 [project]
 name = "OnmyojiDesktopAssistant"
+# 版本号需与 src/utils/version.py 的 VERSION、CHANGELOG.MD 保持一致
 version = "2.1.7"
 description = "适配网易阴阳师桌面版的辅助程序"
 authors = [{name = "AquamarineCyan", email = "1057424730@qq.com"}]
@@ -36,6 +37,17 @@ dev = [
     "pytest>=9.1.1",
     "ruff>=0.16.9",
 ]
+
+# 依赖清单说明
+# ----------------
+# 本文件是依赖的唯一权威来源（CI 的 `uv sync` 读它）。
+# requirements.txt / requirements-gpu.txt 由它生成，供 pip 用户使用：
+#     uv run python tools/sync_requirements.py          # 重新生成
+#     uv run python tools/sync_requirements.py --check   # 只校验，漂移则退出码 1
+# CI 与 tests/test_requirements_sync.py 都会校验，防止三份清单漂移。
+#
+# GPU 版与 CPU 版的唯一差异是推理引擎（paddlepaddle-gpu 替代 onnxruntime），
+# 替换规则集中在 tools/sync_requirements.py 的 GPU_ENGINE_SWAP。
 
 [tool.ruff]
 line-length = 120

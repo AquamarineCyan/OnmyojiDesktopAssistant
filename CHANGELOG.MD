@@ -36,6 +36,7 @@
 - `random_normal` 在 `min >= max` 时不再死循环；`random_num` 不再每次重播种全局 RNG
 - `结契` 增加最大战斗轮数上限，不再永久运行
 - 修复 `function.py` 中 `finally: return` 吞异常
+- `pyproject.toml` 成为依赖的唯一权威来源，`requirements*.txt` 改为由 `tools/sync_requirements.py` 生成，CI 与测试双重校验，杜绝三份清单漂移（此前 `pydantic>=2.1.0` vs `>=2.13.4`、`pywin32` vs `pywin32==312` 等差异长期静默存在，pip 装出的环境与 CI 不一致）
 
 ## v2.1.7 - 2026-10-09
 

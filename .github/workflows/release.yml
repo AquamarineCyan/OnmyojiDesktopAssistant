@@ -31,6 +31,11 @@ jobs:
         # 任一站点抖动就会阻塞发版
         run: uv run pytest tests -s -m "not network"
 
+      - name: Check requirements sync
+        # requirements*.txt 由 tools/sync_requirements.py 从 pyproject.toml 生成，
+        # 三份清单一旦漂移，pip 装出来的环境就会与 CI 不一致
+        run: uv run python tools/sync_requirements.py --check
+
       # 仓库现存约 150 条历史 ruff 违规，先非阻塞地跑起来暴露债务，
       # 清理完再改成硬门禁（continue-on-error 删除即可）
       - name: Run Ruff
