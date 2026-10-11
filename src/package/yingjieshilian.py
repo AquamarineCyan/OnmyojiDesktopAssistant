@@ -108,6 +108,10 @@ class YingJieShiLianExp(YingJieShiLian):
             if result is None:
                 continue
 
+            # _timer 只在 title 分支里创建，但下面所有分支都会引用它，
+            # 首帧就命中失败/胜利/结束时会 NameError 直接终止任务，必须先初始化
+            _timer: Timer | None = None
+
             if self._flag_timer_check_start:
                 self._flag_timer_check_start = False
                 logger.ui_error("进入挑战失败")
@@ -168,6 +172,8 @@ class YingJieShiLianExp(YingJieShiLian):
                         if not RuleImage(self.global_assets.IMAGE_FINISH).match():
                             break
                         Mouse.click(_coor_point)
+                        # 每轮都在做两次全屏截图+模板匹配，不 sleep 会空转打满一个核
+                        self.sleep_interval()
 
                     self.done()
                     sleep()

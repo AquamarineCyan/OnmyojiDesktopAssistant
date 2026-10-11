@@ -187,8 +187,9 @@ class MainWindow(FluentWindow):
     def _global_task_init(self):
         """全局任务初始化"""
         window_manager.set_window_title(config.user.game_language)
-        window_manager.set_gui_button_callback(self._window_button_enabled_handle)
-        window_manager.set_gui_window_manager_list_callback(self.refresh_window_list)
+        # 窗口探测跑在 GlobalTask 守护线程，界面刷新必须经信号回到 GUI 线程
+        signal_manager.main.window_list_changed.connect(self.refresh_window_list)
+        signal_manager.main.window_button_enabled.connect(self._window_button_enabled_handle)
         window_manager.screen_init()
         self._update_screen_resolution_handle()
 

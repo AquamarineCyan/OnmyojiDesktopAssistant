@@ -1,5 +1,6 @@
 import hashlib
 import importlib.metadata
+import os
 import shutil
 from pathlib import Path
 
@@ -199,6 +200,10 @@ class RapidModel:
     def download(cls) -> bool:
         """下载模型到 `models` 目录
 
+        每个文件先落到 `.part` 临时文件，校验通过后再原子替换到最终路径：
+        直接写最终路径时，中途中断会留下半截模型，is_valid() 判定失败后
+        又会把它删掉——原本完好的模型因此被误删，下次启动还要重下。
+
         Returns:
             bool: 是否下载成功
         """
@@ -215,7 +220,14 @@ class RapidModel:
             return False
 
         if not cls.is_valid():
-            shutil.rmtree(model_dir, ignore_errors=True) if model_dir.is_dir() else model_dir.unlink(missing_ok=True)
+            # 校验没过：清理本次下载产物（仅 .part 与新下载的完整文件）
+            if model_dir.is_dir():
+                shutil.rmtree(model_dir, ignore_errors=True)
+            else:
+                model_dir.unlink(missing_ok=True)
+            dict_path = cls.get_dict_path()
+            if dict_path is not None:
+                dict_path.unlink(missing_ok=True)
             return False
 
         return True
@@ -224,7 +236,7 @@ class RapidModel:
     def _download_onnx_model(cls, info: dict, model_dir: Path) -> bool:
         """下载 ONNX 模型（单个文件）"""
         url = info["model_dir"]
-        return cls._download_file(url, str(model_dir), model_dir.name)
+        return cls._download_file(url, model_dir, model_dir.name)
 
     @classmethod
     def _download_paddle_model(cls, info: dict, model_dir: Path) -> bool:
@@ -234,21 +246,26 @@ class RapidModel:
 
         for name in PADDLE_MODEL_FILES:
             url = f"{base_url}/{name}"
-            if not cls._download_file(url, str(model_dir / name), name, sha256=info.get(name)):
+            if not cls._download_file(url, model_dir / name, name):
                 return False
 
         dict_url = info.get("dict_url")
         if dict_url:
             # 字典平铺存放，与 RapidOCR 的 dict_dir 保持一致
             dict_name = Path(dict_url).name
-            if not cls._download_file(dict_url, str(MODEL_DIR_PATH / dict_name), dict_name):
+            if not cls._download_file(dict_url, MODEL_DIR_PATH / dict_name, dict_name):
                 return False
 
         return True
 
     @classmethod
-    def _download_file(cls, url: str, save_path: str, name: str, sha256: str | None = None) -> bool:
-        """下载文件（带进度条）"""
+    def _download_file(cls, url: str, save_path: Path, name: str) -> bool:
+        """下载单个文件到 `save_path`
+
+        先写 `save_path.part`，下载完整后 `os.replace` 原子替换：
+        中断/失败只影响临时文件，已有的可用模型保持完好。
+        """
+        tmp_path = save_path.with_name(save_path.name + ".part")
         try:
             with httpx.stream(
                 "GET", url, headers=Connect.headers, timeout=cls.HTTP_TIMEOUT, follow_redirects=True
@@ -259,7 +276,7 @@ class RapidModel:
                 downloaded_size = 0
                 last_logged_percent = 0
 
-                with open(save_path, "wb") as f:
+                with open(tmp_path, "wb") as f:
                     for chunk in resp.iter_bytes(chunk_size=cls.CHUNK_SIZE):
                         if chunk:
                             f.write(chunk)
@@ -273,17 +290,19 @@ class RapidModel:
                                     logger.ui(
                                         f"下载进度: {progress:.1f}% ({downloaded_size / 1024 / 1024:.2f}MB/{total_size / 1024 / 1024:.2f}MB)"
                                     )
+            os.replace(tmp_path, save_path)
             return True
         except httpx.HTTPError as e:
             logger.ui_error(f"下载失败: {e}")
-            Path(save_path).unlink(missing_ok=True)
+            tmp_path.unlink(missing_ok=True)
             return False
         except OSError as e:
             logger.ui_error(f"文件操作失败: {e}")
+            tmp_path.unlink(missing_ok=True)
             return False
         except Exception as e:
             logger.ui_error(f"下载过程中发生未知错误: {e}")
-            Path(save_path).unlink(missing_ok=True)
+            tmp_path.unlink(missing_ok=True)
             return False
 
     @classmethod

@@ -14,6 +14,7 @@ MIRROR_URLS = [
 ]
 
 
+@pytest.mark.network
 def test_api_url():
     api_url = "https://api.github.com/repos/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest"
     try:
@@ -26,6 +27,7 @@ def test_api_url():
     assert r.status_code == 200, f"Expected status code 200, got {r.status_code}"
 
 
+@pytest.mark.network
 @pytest.mark.parametrize("url", MIRROR_URLS)
 def test_mirror_url(url):
     try:

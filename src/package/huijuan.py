@@ -68,6 +68,7 @@ class HuiJuan(BasePackage):
 
     def get_current_number(self):
         result = RuleOcr(region=(650, 0, 100, 55)).get_raw_result()
+        number = -1  # 循环 0 次时也要有值，否则下面 return 会 UnboundLocalError
         try:
             for item in result:
                 if "/30" == item.text[-3:]:
@@ -89,7 +90,8 @@ class HuiJuan(BasePackage):
         for item in result:
             if "结界突破" in item.text:
                 logger.info("使用文字识别结界突破成功")
-                return Point(item.center.client_x + 40, item.center.client_y + 600)  # TODO 底层解决相对截图时的坐标问题
+                # OcrData 的 center 已是客户区→基准空间的坐标，无需再补 region 原点
+                return Point(item.center.client_x, item.center.client_y)
 
         return None
 

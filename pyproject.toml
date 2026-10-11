@@ -46,3 +46,11 @@ ignore = [
     "S110",   # try-except-pass
     "S112",   # try-except-continue
 ]
+# 注意：这里刻意不写 select。仓库现存约 150 条历史违规（error 79%分散在各模块、
+# 多为 import 排序/类型注解风格），一旦启用更宽的规则集并配成 CI 硬门禁，
+# 会让每一次推送都失败。要收口需先分批清理，见 CHANGELOG「最近更新」。
+
+[tool.pytest.ini_options]
+markers = [
+    "network: 需要真实访问外网（GitHub API / 第三方镜像站），CI 默认跳过",
+]

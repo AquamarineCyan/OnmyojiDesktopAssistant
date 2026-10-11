@@ -7,10 +7,11 @@ import cv2
 import numpy as np
 from PIL.Image import Image
 
+from .application import SCREENSHOT_DIR_PATH
 from .assets import AssetImage
 from .config import config
 from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, get_scale, scale_region
-from .event import event_xuanshang
+from .event import WAIT_EVENT_TIMEOUT, event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import Point
@@ -62,9 +63,16 @@ def convert_image_rgb_to_bgr(image: Image) -> cv2.typing.MatLike:
     返回:
         cv2.typing.MatLike: BGR图像
     """
-    img_np = np.array(image)
-    # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
-    return cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+    # 同一张截图在一个识别循环里会被多个素材重复转换
+    # （例如 check_image_once 中 N 个素材共用同一个 ScreenShot），
+    # 转换结果只取决于图像内容，因此缓存到 Image 实例上，整轮只转一次
+    bgr = getattr(image, "_bgr_cache", None)
+    if bgr is None:
+        img_np = np.array(image)
+        # OpenCV使用BGR格式，而PIL使用RGB格式，因此需要转换颜色通道
+        bgr = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
+        image._bgr_cache = bgr
+    return bgr
 
 
 class RuleImage:
@@ -159,6 +167,23 @@ class RuleImage:
             return scale_region(self.region)
         return tuple(self.region)
 
+    def _show_debug(self, image: np.ndarray, rect: tuple[int, int, int, int]) -> None:
+        """调试预览：在副本上画框后落盘并阻塞等待
+
+        opencv 为 headless 版，没有 imshow/waitKey 的 GUI 组件，
+        直接调用会抛 cv2.error。这里改用 PIL 落盘 + 等待按键，
+        保留原 cv2.waitKey(0) 的「停下来看图」语义。
+        """
+        import msvcrt
+
+        vis = image.copy()  # 在副本上画框，避免污染缓存的共享数组
+        cv2.rectangle(vis, (rect[0], rect[1]), (rect[2], rect[3]), (0, 0, 255), 1)  # color: BGR
+        path = Path(SCREENSHOT_DIR_PATH) / f"debug_{self.name}_{int(time.time() * 1000)}.png"
+        Image.fromarray(cv2.cvtColor(vis, cv2.COLOR_BGR2RGB)).save(path)
+        logger.ui(f"[DEBUG] {self.name} 匹配成功，已保存: {path}")
+        logger.ui("[DEBUG] 按任意键继续...")
+        msvcrt.getch()
+
     def match(
         self,
         image: ScreenShot | Image | str | None = None,
@@ -183,17 +208,22 @@ class RuleImage:
             bool: 匹配成功/失败
         """
         if normal:
-            event_xuanshang.wait()
+            # 必须带超时：event_xuanshang 若因异常永远不被 set，
+            # 无超时的 wait() 会让本线程永久阻塞，连停止按钮都失效
+            event_xuanshang.wait(timeout=WAIT_EVENT_TIMEOUT)
         fx, fy = get_template_scale()
         region = self.actual_region()
         if image is None:
-            image = convert_image_rgb_to_bgr(ScreenShot(region, debug=debug).get_image())
+            # 后台截图直接复用原始 BGR 缓冲视图，跳过 PIL 与整图转换
+            image = ScreenShot(region).get_bgr()
         elif isinstance(image, ScreenShot):
-            image = convert_image_rgb_to_bgr(image.get_image())
+            image = image.get_bgr()
         elif isinstance(image, Image):
             image = convert_image_rgb_to_bgr(image)
         else:
             image = cv2.imread(image, cv2.IMREAD_COLOR)
+        if image is None:
+            return False
         if score is None:
             score = self.score
 
@@ -235,9 +265,7 @@ class RuleImage:
         self.match_result = (x1 / fx, y1 / fy, x2 / fx, y2 / fy)
 
         if debug:
-            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR
-            # 使用 PIL 展示，避免依赖 opencv 的 GUI 组件（headless 版无 imshow）
-            Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).show(title="DEBUG")
+            self._show_debug(image, (x1, y1, x2, y2))
 
         return True
 
@@ -266,6 +294,8 @@ def check_image_once(image_list: list[AssetImage]) -> RuleImage | None:
         RuleImage | None: 识别结果
     """
     _screenshot = ScreenShot(_log=True)
+    if not _screenshot.is_valid:
+        return None
     for item in image_list:
         image = RuleImage(item)
         if image.match(_screenshot):

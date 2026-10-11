@@ -62,6 +62,19 @@ class CustomSignal(QObject):
             current_text (str): 当前窗口描述文本，格式为 `标题 - 句柄`，无窗口时为空字符串
         """
 
+        window_list_changed = Signal(object)
+        """游戏窗口列表变化
+
+        由 `GlobalTask` 守护线程中的 `WindowManager.update_window_task` 发出，
+        必须走信号：Qt 控件只能在 GUI 主线程操作，直接跨线程调用会崩溃。
+
+        Args:
+            game_window_list (list[GameWindow]): 当前检测到的游戏窗口列表，可能为空
+        """
+
+        window_button_enabled = Signal()
+        """首次检测到游戏窗口，通知界面启用主功能控件"""
+
         xuanshangfengyin_detected = Signal(str, str)
         """悬赏封印通知
 

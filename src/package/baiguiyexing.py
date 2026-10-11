@@ -199,6 +199,10 @@ class BaiGuiYeXing(BasePackage):
                 logger.ui("结束")
                 return
 
+            # 上面两个 RuleImage 都没命中时直接回到循环头，每轮两次全屏截图+模板匹配，
+            # 不 sleep 会空转打满一个核
+            self.sleep_interval()
+
     def task_finish_info(self):
         if self.flag_screenshot:
             logger.ui(f"截图保存在\n{SCREENSHOT_DIR_PATH / self.resource_path}")

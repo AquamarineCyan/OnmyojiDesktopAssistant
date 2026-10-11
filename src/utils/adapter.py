@@ -10,7 +10,7 @@ import win32con
 
 from .config import InteractionMode, config
 from .coordinate import get_scale, to_actual, to_reference
-from .event import event_thread, event_xuanshang
+from .event import WAIT_EVENT_TIMEOUT, event_thread, event_xuanshang
 from .exception import GUIStopException
 from .log import logger
 from .point import Point
@@ -440,7 +440,7 @@ class KeyBoard:
         if delay:
             time.sleep(delay)
 
-        event_xuanshang.wait()
+        event_xuanshang.wait(timeout=WAIT_EVENT_TIMEOUT)
         logger.info(f"Sending key: {key.upper()}")
         cls._dispatch(key)
 
@@ -464,7 +464,7 @@ class KeyBoard:
         if delay:
             time.sleep(delay)
 
-        event_xuanshang.wait()
+        event_xuanshang.wait(timeout=WAIT_EVENT_TIMEOUT)
         backend = Mouse._mumu_backend()
         if backend is not None:
             logger.info("Sending back button: mouse XBUTTON1")

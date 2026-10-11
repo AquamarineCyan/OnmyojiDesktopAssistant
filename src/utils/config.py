@@ -1,3 +1,4 @@
+import os
 from enum import StrEnum
 
 import yaml
@@ -291,17 +292,43 @@ class Config:
         )
 
     def _read(self) -> dict:
-        with open(self.config_path, encoding="utf-8") as f:
-            return yaml.safe_load(f)
+        """读取配置
+
+        配置文件可能被用户手改坏（语法错误）或写入过程中断（空文件）。
+        这里不能直接抛出：`Config` 是模块级单例（`config.py` 末尾），
+        异常会中断整个 import 链，表现为启动即闪退且没有任何提示。
+        """
+        try:
+            with open(self.config_path, encoding="utf-8") as f:
+                # 空文件 / 只有注释时 safe_load 返回 None，统一回落为空 dict，
+                # 让后续 _check_outdated 用默认值补齐，而不是抛 TypeError
+                return yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            logger.ui_error(f"配置文件格式错误，将重置为默认配置: {e}")
+            self.data_error += 1
+            return {}
+        except OSError as e:
+            logger.ui_error(f"配置文件读取失败，将重置为默认配置: {e}")
+            self.data_error += 1
+            return {}
 
     def _save(self, data) -> bool:
         if isinstance(data, UserConfig):
             data = data.model_dump(mode="json")
-        if isinstance(data, dict):
-            with open(self.config_path, "w", encoding="utf-8") as f:
-                yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
-        else:
+        if not isinstance(data, dict):
             logger.ui_error("file config.yaml save failed.")
+            return False
+
+        # 先写临时文件再原子替换：config.update 可能被 GUI 线程与公告线程并发调用，
+        # 直接 open(...,"w") 原地写会写出半截文件，下次启动即读不出配置
+        tmp_path = self.config_path.with_suffix(".yaml.tmp")
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                yaml.dump(data, f, indent=4, allow_unicode=True, sort_keys=False)
+            os.replace(tmp_path, self.config_path)
+        except OSError as e:
+            logger.ui_error(f"配置文件保存失败: {e}")
+            tmp_path.unlink(missing_ok=True)
             return False
         return True
 

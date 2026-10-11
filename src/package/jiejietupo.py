@@ -475,7 +475,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
             self.list_xunzhang = self.list_num_xunzhang()
             self.tupo_victory = self.list_xunzhang.count(-1)
             if self.tupo_victory == 3:
+                # 刷新分支不会经过 fighting()，必须在这里推进计数，
+                # 否则 self.n 永不增长，循环变成无休止的刷新
                 self.refresh()
+                self.done()
             elif self.tupo_victory < 3:
                 logger.ui(f"已攻破{self.tupo_victory}个")
                 self.fighting()

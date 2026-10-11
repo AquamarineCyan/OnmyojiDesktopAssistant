@@ -1,14 +1,17 @@
 # GPU variant requirements
 # GPU 版使用 PaddlePaddle 推理（而非 ONNX Runtime），CPU 版使用 ONNX Runtime。
-# 程序启动时通过探测环境中是否存在 `paddle` 包自动选择引擎：
-# 有则走 PaddlePaddle + CUDA，无则回退 ONNX Runtime + CPU。
+# 程序启动时自动选择引擎：
+#   打包后以 lib/nvidia 目录是否存在为准；
+#   源码运行时回退检查发行包名 paddlepaddle-gpu。
+# 注意不能用 `import paddle` 判断：CPU 版 paddlepaddle 同样提供 paddle 模块，
+# 会把纯 CPU 环境误判成 GPU 版，导致 use_cuda=True 下初始化失败。
 #
 # 推荐在独立虚拟环境中安装 GPU 版本，与 CPU 版互不影响：
 #     python -m venv .venv-gpu && .venv-gpu\Scripts\activate
 #
 # `paddlepaddle-gpu` 版本需与本机 CUDA/cuDNN 匹配，
 # 参考 https://www.paddlepaddle.org.cn/install/quick
-##注意paddlepaddle-gpu最高支持cu129
+# 注意：paddlepaddle-gpu 最高支持 cu129
 
 httpx>=0.23.0
 numpy>=2.0.0,<2.4.0

@@ -9,10 +9,13 @@ rapid_ocr.py —— RapidOCR 模块（与 benchmark 对齐的优化版）
   [O6] 截图落盘改为默认关闭、按需开启（避免每帧 I/O）
 """
 import os
+import threading
 import time
 from typing import Literal
 
+import cv2
 import numpy as np
+from PIL import Image
 
 
 # ==========================================================================
@@ -151,6 +154,16 @@ def check_ocr_folder():
 # OCRManager
 # ==========================================================================
 
+_INFER_LOCK = threading.Lock()
+"""推理串行锁
+
+全局任务线程（悬赏封印图像识别 + 点击）与玩法线程（OCR）会并发进入。
+ONNX Runtime 的 `Run` 本身线程安全，但 PaddlePaddle 的 `PaddleInferSession`
+复用同一个输入张量 handle，并发调用会互相覆盖输入数据、识别结果随机错乱。
+推理本身不适合并发，串行化即可。
+"""
+
+
 class OCRManager:
     """OCR 引擎管理器"""
 
@@ -183,11 +196,11 @@ class OCRManager:
 
             self.rapidocr = RapidOCR(params=params)
 
-            # [O4] 用接近真实截图尺寸(720×1280)的空图预热 2 次，
-            #      触发算子编译 + 内存池稳定，避免首次真实推理抖动
-            warmup = np.zeros((720, 1280, 3), dtype=np.uint8)
-            self.rapidocr(warmup)
-            self.rapidocr(warmup)
+            # [O4] 预热：必须用「有文字」的图。纯色空图过不了检测，
+            #      RapidOCR 会以 "The text detection result is empty" 提前返回，
+            #      rec 模型仍是懒加载，首次真实识别照样要付模型加载 + 算子编译的抖动。
+            #      尺寸取接近真实截图的横屏比例（游戏为 1136x640 ~ 1393x784）。
+            self._warmup()
 
             t_end = time.perf_counter()
             logger.ui(f"模型[RapidOCR {ENGINE_TYPE}]初始化成功，用时 {(t_end - t_start):.2f} 秒")
@@ -197,11 +210,18 @@ class OCRManager:
             logger.error(f"模型[RapidOCR {OCR_VERSION} {MODEL_TYPE} / {ENGINE_TYPE}]初始化失败: {e}")
             raise
 
+    def _warmup(self) -> None:
+        """跑两次带文字的图，让 det/rec 两个模型都完成加载与算子预热"""
+        warmup = np.full((640, 1136, 3), 24, dtype=np.uint8)
+        cv2.putText(warmup, "WARMUP 12345", (80, 360), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (240, 240, 240), 4)
+        for _ in range(2):
+            self.rapidocr(warmup)
+
     def detect(self, image) -> list:
         """执行OCR检测
 
         Args:
-            image: PIL.Image 或 np.ndarray；优先传 ndarray 以省去转换开销
+            image: PIL.Image（RGB）或 np.ndarray（**BGR**，OpenCV 约定）
 
         Returns:
             list: 格式化后的OCR检测结果
@@ -214,20 +234,21 @@ class OCRManager:
             t1 = time.perf_counter()
             if isinstance(image, np.ndarray):
                 img_np = image
+            elif isinstance(image, Image.Image):
+                # RapidOCR 的 ndarray 入口是原样透传（不转通道），
+                # 而 PIL 入口走 np.array() 得到 RGB，两者约定不一致：
+                # 这里统一转成 BGR 再送进去，避免通道颠倒降低识别率
+                img_np = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
             else:
-                # [O5] asarray 比 array 少一次拷贝（PIL 已是 C-contiguous）
-                img_np = np.asarray(image)
-            # t2 = time.perf_counter()
+                raise TypeError(f"不支持的图像类型: {type(image)}")
 
-            result = self.rapidocr(img_np)
-            # t3 = time.perf_counter()
+            with _INFER_LOCK:
+                result = self.rapidocr(img_np)
 
             res_data = get_ocrdata_from_result(result)
             t4 = time.perf_counter()
 
-            logger.debug(
-                f"解析结果: {(t4 - t1) * 1000:.2f} ms"
-            )
+            logger.debug(f"OCR inference: {(t4 - t1) * 1000:.2f} ms, {len(res_data)} items")
             return res_data
         except Exception as e:
             logger.error(f"OCR检测失败: {e}")
@@ -307,13 +328,21 @@ class OcrDetector:
 
         start_time = time.time()
         screenshot = ScreenShot(rect=self.region)
+        if not screenshot.is_valid:
+            logger.error(f"OCR 截图失败，region={self.region}")
+            return []
 
         if SAVE_SCREENSHOT:
             screenshot_file = SCREENSHOT_DIR_PATH / f"{time.strftime('%Y%m%d%H%M%S')}.png"
             screenshot.get_image().save(screenshot_file)
 
-        image = screenshot.get_array()          # ← 直接 ndarray
+        image = screenshot.get_array()          # ← 直接 ndarray（BGR）
         ocr_result = ocr_manager.detect(image)
+
+        # 截图按 region 裁剪，RapidOCR 返回的框是 region 局部坐标，
+        # 必须先加回 region 原点才是客户区坐标（与 image.py 的处理一致），
+        # 否则带 region 的素材点击位置会整体偏移到窗口左上角
+        offset_x, offset_y = int(self.region[0]), int(self.region[1])
 
         data_result: list[OcrData] = []
         for item in ocr_result:
@@ -324,14 +353,17 @@ class OcrDetector:
                 continue
             if item.get("Text", "") == "":
                 continue
+            for point in item["BoxPoints"]:
+                point["X"] += offset_x
+                point["Y"] += offset_y
             ocr_data = OcrData(item)
             ocr_data.to_reference()
-            logger.info(f"result: {ocr_data}")
+            logger.debug(f"result: {ocr_data}")
             data_result.append(ocr_data)
 
         end_time = time.time()
         elapsed_ms = (end_time - start_time) * 1000
-        logger.debug(f"OCR detection took {elapsed_ms:.2f} ms")
+        logger.debug(f"OCR detection took {elapsed_ms:.2f} ms, {len(data_result)} items")
         return data_result
 
 

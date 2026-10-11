@@ -233,14 +233,6 @@ class GameWindowManager:
         elif language == GameLanguage.JA:
             self._window_title = self.window_title_ja
 
-    def set_gui_button_callback(self, callback):
-        """设置GUI按钮回调函数"""
-        self.gui_button_callback = callback
-
-    def set_gui_window_manager_list_callback(self, callback):
-        """设置GUI窗口管理列表回调函数"""
-        self.gui_window_manager_list_callback = callback
-
     def _titles_to_search(self) -> tuple[str, ...]:
         """返回用于搜索的窗口标题元组。
 
@@ -470,10 +462,11 @@ class GameWindowManager:
         old_handles = [w.handle for w in self.handles]
 
         if target_handles != old_handles:
-            logger.info(f"检测到游戏窗口变化，当前窗口数量：{len(target_handles)}")
+            logger.info(f"检测到游戏窗口变化，当前数量：{len(target_handles)}")
             self.handles = game_windows
-            if hasattr(self, "gui_window_manager_list_callback"):
-                self.gui_window_manager_list_callback(game_windows)
+            # 本方法运行在 GlobalTask 守护线程，Qt 控件只能在 GUI 主线程操作，
+            # 必须通过信号转发，直接调回调会崩溃
+            signal_manager.main.window_list_changed.emit(game_windows)
 
         if not game_windows:
             self.current = None  # 未找到游戏窗口
@@ -483,9 +476,9 @@ class GameWindowManager:
             self._emit_window_status_changed()
             return
 
-        if not self._initialized and hasattr(self, "gui_button_callback"):
+        if not self._initialized:
             self._initialized = True
-            self.gui_button_callback()
+            signal_manager.main.window_button_enabled.emit()
 
         # 统一处理逻辑
         if self.current is None or self.current.handle not in target_handles:

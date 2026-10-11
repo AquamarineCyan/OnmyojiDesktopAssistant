@@ -172,6 +172,7 @@ class LiuDaoZhiMen(BasePackage):
     def get_current_money(self):
         """获取当前万相铃数量"""
         result = RuleOcr(region=(980, 0, 150, 70)).get_raw_result()
+        money = 0  # 循环 0 次时也要有值，否则下面 return 会 UnboundLocalError
         try:
             for item in result:
                 money = int(item.text)

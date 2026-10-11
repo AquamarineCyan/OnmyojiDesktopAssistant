@@ -27,7 +27,15 @@ jobs:
         run: uv sync
 
       - name: Run Pytest
-        run: uv run pytest tests -s
+        # 跳过 network 用例：它们真实请求 GitHub API 与 5 个第三方镜像站，
+        # 任一站点抖动就会让 CI/发版失败
+        run: uv run pytest tests -s -m "not network"
+
+      # 仓库现存约 150 条历史 ruff 违规，先非阻塞地跑起来暴露债务，
+      # 清理完再改成硬门禁（continue-on-error 删除即可）
+      - name: Run Ruff
+        continue-on-error: true
+        run: uv run ruff check .
 
       # 仅在推送到 main 或手动触发时打包，普通 PR 只跑测试
       - name: Build
