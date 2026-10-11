@@ -55,35 +55,76 @@ def test_retention_zero_disables_time_rule(log_dir):
     assert old.exists()
 
 
-def test_size_cap_deletes_oldest_first(log_dir):
+def test_size_cap_truncates_oldest_rotated_log(log_dir):
+    """超限时截断最旧的轮转日志（保留尾部），而不是删除它"""
     kb = 1024
-    old = _mk(log_dir / f"{APP}.log.a", 400 * kb, age_days=5)
-    mid = _mk(log_dir / f"{APP}.log.b", 400 * kb, age_days=4)
-    new = _mk(log_dir / f"{APP}.log.c", 400 * kb, age_days=3)
+    old = _mk(log_dir / f"{APP}.log.a", 900 * kb, age_days=5)
+    new = _mk(log_dir / f"{APP}.log.b", 400 * kb, age_days=4)
     active = _mk(log_dir / f"{APP}.log", 400 * kb)
 
-    # 总量 1600KB，上限 1MB(1024KB) → 删最旧两个(800KB)后剩 800KB，刚好达标
+    # 总量 1700KB，上限 1MB → 需释放约 700KB，全部由最旧的 a 承担
     log_module.cleanup_logs(retention_days=0, max_size_mb=1)
+
+    assert old.exists(), "最旧的轮转日志应被截断保留，而不是直接删除"
+    assert new.exists(), "更新的轮转日志不应被动"
+    assert active.exists(), "当日日志不应被动"
+    assert old.stat().st_size < 900 * kb, "应被截断"
+    assert old.stat().st_size >= kb, "不该被砍到只剩零头"
     total = sum(f.stat().st_size for f in log_dir.iterdir())
-
     assert total <= 1024 * kb, f"总量仍超限: {total}"
-    assert active.exists(), "当前日志不参与删除"
-    assert new.exists(), "最新的轮转日志应该被保留"
-    assert not old.exists(), "最旧的轮转日志应该先被删"
-    assert not mid.exists(), "次旧的也应该被删"
 
 
-def test_size_cap_keeps_enough_just_under_budget(log_dir):
+def test_size_cap_truncation_keeps_tail(log_dir):
+    """截断必须保留尾部（最新的内容），丢的是头部"""
     kb = 1024
-    old = _mk(log_dir / f"{APP}.log.a", 500 * kb, age_days=5)
-    new = _mk(log_dir / f"{APP}.log.b", 400 * kb, age_days=4)
+    old = _mk(log_dir / f"{APP}.log.old", 900 * kb, age_days=5)
+    old.write_bytes(b"HEADMARK" + b"m" * (900 * 1024) + b"TAILMARK")
     _mk(log_dir / f"{APP}.log", 400 * kb)
 
-    # 总量 1300KB，上限 1000KB → 只需删最旧的 500KB
     log_module.cleanup_logs(retention_days=0, max_size_mb=1)
 
-    assert not old.exists()
-    assert new.exists()
+    data = old.read_bytes()
+    assert old.stat().st_size < 900 * kb, "应被截断"
+    assert data.endswith(b"TAILMARK"), "必须保留尾部"
+    assert b"HEADMARK" not in data, "应丢弃头部"
+    assert b"earlier content trimmed" in data[:200]
+
+
+def test_size_cap_never_touches_active_log(log_dir):
+    """当日日志既不会被删除，也不会被截断 —— 它是排障时唯一有用的那份"""
+    active = _mk(log_dir / f"{APP}.log", 4 * 1024 * 1024)
+    before = active.read_bytes()
+    for i in range(5):
+        _mk(log_dir / f"{APP}.log.{i}", 900 * 1024, age_days=9 - i)
+
+    log_module.cleanup_logs(retention_days=0, max_size_mb=1)
+
+    assert active.exists()
+    assert active.read_bytes() == before, "当日日志内容不得被改动"
+
+
+def test_size_cap_respects_min_keep_floor(log_dir):
+    """保底值：旧日志不会被砍到只剩几 KB
+
+    实际生效的保底值是 min(MIN_KEEP_BYTES, 预算/10) —— 固定 1MB 的保底
+    在小预算下会把所有旧日志都判成「砍不动」，清理直接失效。
+    """
+    from src.utils.log import MIN_KEEP_BYTES
+
+    kb = 1024
+    budget = 1 * 1024 * kb
+    effective_floor = min(MIN_KEEP_BYTES, budget // 10)
+
+    old = _mk(log_dir / f"{APP}.log.a", 1500 * kb, age_days=5)
+    _mk(log_dir / f"{APP}.log.b", 1500 * kb, age_days=4)
+    _mk(log_dir / f"{APP}.log", 1500 * kb)
+
+    log_module.cleanup_logs(retention_days=0, max_size_mb=1)
+
+    assert old.exists()
+    assert old.stat().st_size >= effective_floor, "不应低于保底值"
+    # 保底值是预算的 1/10，而不是固定 1MB
+    assert effective_floor == budget // 10
 
 
 def test_size_cap_zero_disables_size_rule(log_dir):
@@ -92,18 +133,18 @@ def test_size_cap_zero_disables_size_rule(log_dir):
     assert big.exists()
 
 
-def test_truncates_active_when_no_rotated_left(log_dir):
-    """轮转日志删完仍超限 → 当日日志本身过大，截断保留尾部"""
+def test_active_log_untouched_when_no_rotated_logs(log_dir, capsys):
+    """只剩当日日志且它本身就超上限时：不动它，只告警"""
     active = _mk(log_dir / f"{APP}.log", 4 * 1024 * 1024)
     active.write_bytes(b"HEADMARK" + b"y" * (4 * 1024 * 1024) + b"TAILMARK")
+    before = active.read_bytes()
 
     log_module.cleanup_logs(retention_days=0, max_size_mb=1)
 
-    data = active.read_bytes()
-    assert len(data) <= 1024 * 1024, f"截断后仍超限: {len(data)}"
-    assert data.endswith(b"TAILMARK"), "必须保留尾部，否则丢掉的是最新日志"
-    assert b"HEADMARK" not in data, "应丢弃头部"
-    assert b"earlier content trimmed" in data[:200]
+    assert active.read_bytes() == before, "当日日志绝不能被截断"
+    assert b"HEADMARK" in active.read_bytes()
+    out = capsys.readouterr().out
+    assert "当日日志不会被截断" in out, "应给出可操作的告警而不是静默失败"
 
 
 def test_under_limit_changes_nothing(log_dir):

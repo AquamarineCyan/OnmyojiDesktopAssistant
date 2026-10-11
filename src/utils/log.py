@@ -21,6 +21,22 @@ DEFAULT_MAX_SIZE_MB: int = 100
 
 _MB: int = 1024 * 1024
 
+MIN_KEEP_BYTES: int = _MB
+"""旧日志被截断时至少保留的尾部字节数（不会超过预算的 1/10）
+
+避免出现「为了满足上限，把某个旧日志砍到只剩几 KB」的情况 ——
+那样既丢了排障价值，又不如直接删掉。保底值也用于决定何时停止截断。
+"""
+
+
+def _log_error(message: str) -> None:
+    """清理阶段的告警
+
+    此时 `logger` 尚未构造（cleanup_logs 会在文件处理程序创建之前被调用），
+    只能退回 print。抽成小函数是为了不在多处写同样这句注释。
+    """
+    print(f"[log] {message}")
+
 
 def _active_log_path() -> Path:
     return Path(LOG_DIR_PATH / f"{APP_NAME}.log")
@@ -35,20 +51,33 @@ def _rotated_logs(active: Path) -> list[Path]:
     return sorted(files, key=lambda f: f.stat().st_mtime)
 
 
-def _truncate_keeping_tail(path: Path, keep_bytes: int) -> bool:
-    """把文件截断到只保留尾部 keep_bytes
+_TRIM_MARKER: bytes = b"...(earlier content trimmed by retention policy)...\n"
+"""截断标记，写在被丢弃的头部位置，说明日志不完整"""
 
-    用于「单个当日日志就撑爆上限」的情况 —— 此时没有可删的轮转文件。
-    只在文件未被打开时调用（见 import 期的那次清理）。
+
+def _truncate_keeping_tail(path: Path, target_bytes: int) -> bool:
+    """把文件截断到「最终大小」恰好为 target_bytes，只保留尾部
+
+    Args:
+        target_bytes: 截断后**最终**文件大小。标记本身占用的字节会从
+            保留的尾部里扣掉，否则每次截断都会让总量多出标记长度，
+            清理后仍然略微超出预算。
+
+    Returns:
+        bool: 是否真的发生了截断
     """
+    marker_len = len(_TRIM_MARKER)
     try:
-        if path.stat().st_size <= keep_bytes:
+        if path.stat().st_size <= target_bytes:
+            return False
+        keep = target_bytes - marker_len
+        if keep <= 0:
             return False
         with open(path, "rb") as f:
-            f.seek(-keep_bytes, os.SEEK_END)
+            f.seek(-keep, os.SEEK_END)
             tail = f.read()
         with open(path, "wb") as f:
-            f.write(b"...(earlier content trimmed by retention policy)...\n")
+            f.write(_TRIM_MARKER)
             f.write(tail)
         return True
     except OSError as e:
@@ -61,10 +90,13 @@ def cleanup_logs(retention_days: int = DEFAULT_RETENTION_DAYS, max_size_mb: int 
 
     两条规则，先按时间再按总量：
     1. 超过 `retention_days` 天的轮转日志直接删除（<= 0 表示跳过）
-    2. 仍超过 `max_size_mb` 时，从最旧的轮转日志开始依次删除
-    3. 轮转日志删完还超（说明是当日日志本身就过大），把当前日志截断只保留尾部
+    2. 总量超过 `max_size_mb` 时，从**最旧**的轮转日志开始截断，只保留尾部
 
-    当前正在写入的日志永远不会被规则 1/2 删除 —— 它是排障时唯一有用的那份。
+    当前正在写入的当日日志既不会被删除、也不会被截断 —— 它是排障时
+    唯一对应当前问题的那份记录。所以总量超限时优先牺牲旧日志：
+    把最旧的轮转日志砍掉头部、保留尾部，直到回到预算内。
+    只有当轮转日志全部被时间规则清空、且当日日志本身就超过上限时，
+    才会出现无法收敛的情况 —— 此时只告警，不动当日日志。
 
     Args:
         retention_days: 保留天数，<= 0 表示不按时间清理
@@ -73,7 +105,7 @@ def cleanup_logs(retention_days: int = DEFAULT_RETENTION_DAYS, max_size_mb: int 
     active = _active_log_path()
     rotated = _rotated_logs(active)
 
-    # 1) 按保留天数
+    # 1) 按保留天数：超出保留窗口的轮转日志已经没有保留价值，直接删除
     if retention_days > 0:
         cutoff = time.time() - retention_days * 86400
         keep = []
@@ -88,11 +120,11 @@ def cleanup_logs(retention_days: int = DEFAULT_RETENTION_DAYS, max_size_mb: int 
                 keep.append(f)
         rotated = keep
 
-    # 2) 按总量上限
+    # 2) 按总量上限：从最旧的轮转日志开始截断（保留尾部），不动当日日志
     if max_size_mb > 0:
         budget = max_size_mb * _MB
-        total = 0
         sizes = {}
+        total = 0
         for f in [active, *rotated]:
             try:
                 sizes[f] = f.stat().st_size
@@ -100,20 +132,34 @@ def cleanup_logs(retention_days: int = DEFAULT_RETENTION_DAYS, max_size_mb: int 
             except OSError:
                 sizes[f] = 0
 
-        for f in rotated:  # 已按 mtime 从旧到新
-            if total <= budget:
-                break
-            try:
-                f.unlink(missing_ok=True)
-                total -= sizes.get(f, 0)
-                print(f"[log] removed oversized log: {f.name}")
-            except OSError:
-                pass
+        if total > budget:
+            # 保底值不能超过预算的 1/10，否则在小预算下会把「该截断的旧日志」
+            # 全部判成不可截断，导致清理完全失效
+            keep_floor = min(MIN_KEEP_BYTES, budget // 10)
+            excess = total - budget
+            for f in rotated:  # 已按 mtime 从旧到新
+                if excess <= 0:
+                    break
+                size = sizes.get(f, 0)
+                # keep 是截断后的**最终**大小，截断标记的字节已由
+                # _truncate_keeping_tail 内部从保留尾部里扣除
+                keep = max(keep_floor, size - excess)
+                if keep >= size:
+                    continue  # 这个文件在保底值内也砍不动了，跳过
+                if _truncate_keeping_tail(f, keep):
+                    actual = f.stat().st_size
+                    freed = size - actual
+                    excess -= freed
+                    total -= freed
+                    print(f"[log] truncated {f.name}: {size} -> {actual} bytes")
 
-        # 3) 只剩当日日志还超限 → 截断保留尾部
-        if total > budget and active.exists():
-            if _truncate_keeping_tail(active, budget // 2):
-                print(f"[log] truncated active log to {budget // 2 // _MB} MB")
+        if total > budget:
+            # 轮转日志全部耗尽仍超限：说明是当日日志本身就大于上限。
+            # 按设计不截断当日日志（它是排障时唯一有用的记录），只告警。
+            _log_error(
+                f"日志目录仍超出上限 {total // _MB}MB > {max_size_mb}MB，"
+                f"且已无可清理的旧日志（当日日志不会被截断）。请调高上限或调小保留天数。"
+            )
 
 
 # 导入期先按默认值清一次：此时 file_handler 还没建，截断当前日志是安全的。
