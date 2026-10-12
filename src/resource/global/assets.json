@@ -161,42 +161,42 @@
             "keyword": "自动",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "cancel",
             "keyword": "取消",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "confirm",
             "keyword": "确定",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "confirm2",
             "keyword": "确认",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "click_and_continue",
             "keyword": "点击屏幕继续",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "start",
             "keyword": "挑战",
             "region": [0, 0, 0, 0],
             "score": "0.6",
-            "method": "PERFACT"
+            "method": "PERFECT"
         }
     ]
 }

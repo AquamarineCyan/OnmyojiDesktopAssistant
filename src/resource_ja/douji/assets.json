@@ -6,63 +6,63 @@
             "keyword": "斗技",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "fight",
             "keyword": "战",
             "region": [0, 0, 0, 0],
             "score": "0.5",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name" : "auto",
             "keyword" : "自动",
             "region": [0, 80, 100, 100],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "cancel",
             "keyword": "取消",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "intentional",
             "keyword": "手动",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "victory",
             "keyword": "胜利",
             "region": [0, 0, 0, 0],
             "score": "0.5",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "fail",
             "keyword": "失败",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "level_up",
             "keyword": "段位上升",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "share",
             "keyword": "我的阵容",
             "region": [0, 0, 0, 0],
             "score": "0.5",
-            "method": "PERFACT"
+            "method": "PERFECT"
         }
     ]
 }

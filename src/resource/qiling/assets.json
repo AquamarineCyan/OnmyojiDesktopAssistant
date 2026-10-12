@@ -26,21 +26,21 @@
             "keyword": "探查",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "title",
             "keyword": "契灵之境",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         },
         {
             "name": "jieqi_give_up",
             "keyword": "放弃结契",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFACT"
+            "method": "PERFECT"
         }
     ]
 }

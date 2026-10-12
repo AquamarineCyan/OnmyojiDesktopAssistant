@@ -132,7 +132,7 @@ class RuleOcr:
         keyword: str = None,
         region: tuple = None,
         score: float = 0.7,
-        method: Literal["PERFACT", "INCLUDE"] = "PERFACT",
+        method: Literal["PERFECT", "INCLUDE"] = "PERFECT",
     ) -> None:
         """
         Args:
@@ -141,7 +141,7 @@ class RuleOcr:
             keyword (str): 关键词
             region (tuple): 区域
             score (float): 识别阈值
-            method (Literal["PERFACT", "INCLUDE"]): 匹配方式，PERFACT：完全匹配，INCLUDE：包含匹配
+            method (Literal["PERFECT", "INCLUDE"]): 匹配方式，PERFECT：完全匹配，INCLUDE：包含匹配
         """
         if assetocr:
             self.keyword = assetocr.keyword
@@ -208,7 +208,7 @@ class RuleOcr:
         for item in ocr_result:
             if item.score < score:
                 continue
-            if self.method == "PERFACT":
+            if self.method == "PERFECT":
                 if item.text == keyword:
                     self.match_result = item
                     return item
