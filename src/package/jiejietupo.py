@@ -427,6 +427,10 @@ class JieJieTuPoGeRen(JieJieTuPo):
             sleep()
             self.confirm()
 
+            # 已重新进入战斗，重置等待准备界面的计时
+            ready_start_time = time.perf_counter()
+            flag_ready_start_wait_timeout = False
+
     def refresh(self) -> None:
         """刷新"""
         flag_refresh = False  # 刷新提醒
