@@ -174,9 +174,9 @@ class HomeWidget(QWidget):
             self.func_combobox.blockSignals(False)
 
         def set_number_spinbox_value(self, current: int = 1, min: int = 0, max: int = 99):
-            self.number_spinbox.setValue(current)
             self.number_spinbox.setMinimum(min)
             self.number_spinbox.setMaximum(max)
+            self.number_spinbox.setValue(current)
 
     class AdvanceStack(QStackedWidget):
         """高级设置"""

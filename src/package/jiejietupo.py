@@ -60,7 +60,7 @@ class JieJieTuPo(BasePackage):
     def __init__(self, n: int = 0) -> None:
         super().__init__(n)
 
-    def load_asset(self):
+    def load_asset(self) -> None:
         self.IMAGE_FAIL = self.get_image_asset("fail")
         self.IMAGE_FANGSHOUJILU = self.get_image_asset("fangshoujilu")
         self.IMAGE_GEREN = self.get_image_asset("geren")
@@ -142,7 +142,7 @@ class JieJieTuPo(BasePackage):
         # 三次都没有点到结界
         raise Exception("未点到结界")
 
-    def fighting_proactive_failure_once(self):
+    def fighting_proactive_failure_once(self) -> None:
         """主动失败一次"""
         KeyBoard.esc()  # 桌面版=ESC，模拟器=鼠标侧键返回
         sleep()
@@ -195,15 +195,15 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.flag_keep_level: bool = flag_first_round_failure  # 首轮失败标志
 
     @staticmethod
-    def description():
-        msg = """默认卡级（退4打9）。
+    def description() -> None:
+        msg = """默认卡级（退4打9）次数设置为0时，自动识别当前突破券数量。
 按以下步骤调整游戏内设置：
 1. 应用队伍预设
 2. 停留在个人突破界面
 3. 解锁⌈阵容锁定⌋按钮"""
         logger.ui(msg)
 
-    def load_asset(self):
+    def load_asset(self) -> None:
         super().load_asset()
         self.IMAGE_REFRESH = self.get_image_asset("shuaxin")
         self.IMAGE_REFRESH_TRUE = self.get_image_asset("queding")
@@ -356,7 +356,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 if flag_victory:
                     return
 
-    def fighting_proactive_failure(self, count_max) -> None:
+    def fighting_proactive_failure(self, count_max: int) -> None:
         """主动失败，默认解锁阵容
 
         Args:
@@ -458,7 +458,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 flag_refresh = True
                 sleep(time_wait, time_wait + 5)
 
-    def lower_level(self):
+    def lower_level(self) -> None:
         """降级，退九刷新"""
         logger.ui("开始降级")
         logger.ui("退九")
@@ -467,11 +467,11 @@ class JieJieTuPoGeRen(JieJieTuPo):
         self.refresh()
         logger.ui("降级完成")
 
-    def keep_level(self):
+    def keep_level(self) -> None:
         """保级，退四打九，只进行退出操作"""
         self.fighting_proactive_failure(4)
 
-    def refresh_task(self):
+    def refresh_task(self) -> None:
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
@@ -487,7 +487,7 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 logger.ui_warn("暂不支持大于3个，请自行处理")
                 return
 
-    def level_task(self, lower_level_count: int):
+    def level_task(self, lower_level_count: int) -> None:
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
@@ -561,7 +561,20 @@ class JieJieTuPoGeRen(JieJieTuPo):
                     self.check_click(self.global_assets.IMAGE_FINISH)
                     sleep(2)
 
-    def run(self):
+    def get_current_number(self) -> int:
+        """获取当前突破券数量"""
+        result = RuleOcr(region=(1000, 0, 110, 60)).get_raw_result()
+        number: int = -1
+        try:
+            for item in result:
+                if "/30" == item.text[-3:]:
+                    number = int(item.text[:-3])
+                    logger.ui(f"突破券: {number}")
+        except ValueError:
+            number = -1
+        return number
+
+    def run(self) -> None:
         # 卡57级和刷新规则互斥
         if self.flag_refresh_rule:
             logger.info("只刷新")
@@ -573,6 +586,19 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 return
 
         self.check_title()
+        self.sleep_interval()
+
+        if self.max == 0:
+            logger.ui("正在识别当前突破券数量")
+            self.sleep_interval()
+
+            number = self.get_current_number()
+            if number == -1:
+                logger.ui_error("无法识别当前突破券数量")
+                return
+            self.max = number
+            logger.ui(f"自动更新突破券数量为 {number} 张")
+        self.sleep_interval()
 
         if self.flag_refresh_rule:  # 只需要刷新
             self.refresh_task()
@@ -664,7 +690,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                     self.page_down(4)
                     i = 1
 
-    def page_down(self, rows: int = 1):
+    def page_down(self, rows: int = 1) -> None:
         """向下翻页
 
         参数:
@@ -674,7 +700,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
         Mouse.scroll(-rows * 240)  # 2*pis(pis=2*120)
 
     @log_function_call
-    def get_current_process(self):
+    def get_current_process(self) -> None:
         result = RuleOcr().get_raw_result()
         for item in result:
             if "%" not in item.text:
@@ -692,7 +718,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
 
             return
 
-    def run(self):
+    def run(self) -> None:
         self.check_title()
         while self.n < self.max:
             if bool(event_thread):

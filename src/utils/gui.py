@@ -391,7 +391,7 @@ class MainWindow(FluentWindow):
             case GameFunction.GERENTUPO:
                 JieJieTuPoGeRen.description()
                 set_stack(StackedWidgetIndex.JIEJIETUPO)
-                basic_group.set_number_spinbox_value(1, 1, 30)
+                basic_group.set_number_spinbox_value(0, 0, 30)
                 card = advanced_stack.jiejietupo_card
                 card.mode_level.setChecked(True)
                 card.fail_checkbox.setChecked(True)

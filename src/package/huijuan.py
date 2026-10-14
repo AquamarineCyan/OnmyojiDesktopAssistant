@@ -54,10 +54,10 @@ class HuiJuan(BasePackage):
             """比如你要刷100次探索，每5次探索清理一次突破，如此循环20轮。那么你上面的次数填写20，下面填写5。"""
         )
 
-    def load_asset(self):
+    def load_asset(self) -> None:
         self.IMAGE_MAP_JIEJIETUPO = self.get_image_asset("map_jiejietupo")
 
-    def close_tansuo(self):
+    def close_tansuo(self) -> None:
         asset_image_list = load_asset(TanSuo.resource_path, "image")
         IMAGE_TITLE_28 = get_image_asset(asset_image_list, "title_28")
         if RuleImage(IMAGE_TITLE_28).match():
@@ -65,18 +65,6 @@ class HuiJuan(BasePackage):
             self.check_click(self.global_assets.IMAGE_QUIT, point_type="center")
         else:
             logger.ui("当前不在探索入口处，无需关闭")
-
-    def get_current_number(self):
-        result = RuleOcr(region=(650, 0, 100, 55)).get_raw_result()
-        try:
-            for item in result:
-                if "/30" == item.text[-3:]:
-                    number = int(item.text[:-3])
-                    logger.ui(f"突破券: {number}")
-        except ValueError:
-            number = -1
-            logger.ui_error("突破券识别失败")
-        return number
 
     def get_jiejietupo_scene(self) -> Point | None:
         # 优先使用图像识别
@@ -93,7 +81,7 @@ class HuiJuan(BasePackage):
 
         return None
 
-    def run(self):
+    def run(self) -> None:
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException
@@ -107,25 +95,19 @@ class HuiJuan(BasePackage):
             self.close_tansuo()
 
             sleep(2)
-            number = self.get_current_number()
-
-            sleep(2)
-            logger.ui("正在前往 结界突破")
+            logger.ui("正在前往「结界突破」场景")
             sleep(2)
 
             point = self.get_jiejietupo_scene()
             if point:
                 Mouse.click(point)
             else:
-                logger.ui_error("未识别到结界突破")
+                logger.ui_error("未识别到「结界突破」场景")
                 return
 
             sleep(4)
 
-            # TODO 判断机制
-            logger.ui(f"个人突破{number}次")
             JieJieTuPoGeRen(
-                number,
                 flag_refresh_rule=self.flag_refresh_rule,
                 flag_current_level=self.flag_current_level,
                 flag_target_level=self.flag_target_level,
