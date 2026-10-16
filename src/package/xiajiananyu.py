@@ -1,3 +1,4 @@
+from ..utils.adapter import KeyBoard
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import AssetImage
 from ..utils.log import logger
@@ -39,13 +40,23 @@ class XiaJianAnYu(BasePackage):
         "zhanbao",  # 战报
     )
 
-    def __init__(self, n: int = 0, mode: XiaJianAnYuMode = XiaJianAnYuMode.KONGQUE):
+    def __init__(
+        self,
+        n: int = 0,
+        mode: XiaJianAnYuMode = XiaJianAnYuMode.KONGQUE,
+        flag_auto_exit: bool = False,
+        auto_exit_time: int = 30,
+    ):
         super().__init__(n)
         self.mode: XiaJianAnYuMode = mode
+        self.flag_auto_exit: bool = flag_auto_exit
+        self.auto_exit_time: int = auto_exit_time
 
     @staticmethod
     def description():
-        logger.ui("按顺序点击首领-副将左-副将右-精英左-精英中-精英右。请提前锁定阵容，不支持自动退出战斗。")
+        logger.ui(
+            "按顺序点击首领-副将左-副将右-精英左-精英中-精英右。请提前锁定阵容；可勾选「自动退出战斗」并设置超时时间（10秒-3分钟）。"
+        )
 
     def load_asset(self):
         # 白藏主
@@ -114,11 +125,6 @@ class XiaJianAnYu(BasePackage):
             logger.ui_warn("点击前往失败，可能已在当前暗域")
         sleep(2)
 
-        logger.ui("正在弹窗确定")
-        if not self.check_click(self.global_assets.OCR_CONFIRM, timeout=5):
-            logger.ui_warn("点击确定超时，可能已在当前暗域")
-        sleep(2)
-
         for i in range(3):
             if self.check_click(self.global_assets.OCR_START, timeout=5):
                 logger.ui("点击挑战成功")
@@ -127,7 +133,20 @@ class XiaJianAnYu(BasePackage):
             sleep(2)
 
         logger.ui("战斗中，等待结算")
-        self.check_result()
+        if self.flag_auto_exit:
+            logger.ui(f"等待{self.auto_exit_time}秒自动退出战斗，计算时间与游戏内有几秒误差属于正常范围")
+            if self.check_result(timeout=self.auto_exit_time) is None:
+                logger.ui_warn("战斗超时，自动退出战斗")
+                KeyBoard.esc()  # 桌面版=ESC，模拟器=鼠标侧键返回
+                sleep()
+                self.confirm(timeout=3)  # 桌面版=回车，模拟器=OCR 点击「确认」
+                sleep(2)
+                # 退出战斗后重新检测结算，超时10秒
+                if self.check_result(timeout=10) is None:
+                    logger.ui_warn("退出战斗后未检测到结算")
+        else:
+            self.check_result()
+
         sleep(2)
         finish_random_left_right()
         sleep(2)

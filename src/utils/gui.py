@@ -625,7 +625,11 @@ class MainWindow(FluentWindow):
             case GameFunction.XIAJIANANYU:
                 card = advanced_stack.xiajiananyu_card
                 mode = XiaJianAnYuMode(card.combobox.currentText())
-                XiaJianAnYu(mode=mode).task_start()
+                XiaJianAnYu(
+                    mode=mode,
+                    flag_auto_exit=card.auto_exit_checkbox.isChecked(),
+                    auto_exit_time=card.auto_exit_spinbox.value(),
+                ).task_start()
 
     def _app_stop(self):
         event_thread.set()

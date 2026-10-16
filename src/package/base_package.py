@@ -305,17 +305,28 @@ class BasePackage:
         logger.progress(f"{self.n}/{self.max}")
 
     @log_function_call
-    def check_result(self) -> bool:
+    def check_result(self, timeout: float = 0) -> bool | None:
         """结果判断
 
+        Args:
+            timeout (float): 超时时间，单位秒，0 表示不超时
+
         Returns:
-            bool: 返回结果
+            bool | None: 返回结果
                  - True: 胜利/结束
                  - False: 失败
+                 - None: 超时
         """
+        if timeout:
+            _start = time.time()
+
         while True:
             if bool(event_thread):
                 raise GUIStopException
+
+            if timeout and (time.time() - _start > timeout):
+                logger.error(f"结果判断超时，超时{timeout}秒")
+                return None
 
             _screenshot = ScreenShot()
 

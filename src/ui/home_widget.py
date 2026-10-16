@@ -607,12 +607,31 @@ class HomeWidget(QWidget):
                 self.combobox = ComboBox()
                 self.combobox.addItems([item.value for item in XiaJianAnYuMode])
 
+                self.auto_exit_checkbox = CheckBox("自动退出战斗")
+                self.auto_exit_checkbox.toggled.connect(self._auto_exit_checkbox_toggled_handle)
+                self.auto_exit_spinbox = SpinBox()
+                self.auto_exit_spinbox.setRange(10, 180)
+                self.auto_exit_spinbox.setValue(30)
+                self.auto_exit_spinbox.setDisabled(True)
+                self.auto_exit_label = BodyLabel("秒")
+
+                self.auto_exit_hBoxLayout = QHBoxLayout()
+                self.auto_exit_hBoxLayout.setSpacing(10)
+                self.auto_exit_hBoxLayout.addWidget(self.auto_exit_spinbox)
+                self.auto_exit_hBoxLayout.addWidget(self.auto_exit_label)
+                self.auto_exit_hBoxLayout.addStretch()
+
                 self.vBoxLayout = QVBoxLayout()
                 self.vBoxLayout.setSpacing(10)
                 self.vBoxLayout.addWidget(self.combobox)
+                self.vBoxLayout.addWidget(self.auto_exit_checkbox)
+                self.vBoxLayout.addLayout(self.auto_exit_hBoxLayout)
                 self.vBoxLayout.addStretch()
 
                 self.viewLayout.addLayout(self.vBoxLayout)
+
+            def _auto_exit_checkbox_toggled_handle(self, checked: bool):
+                self.auto_exit_spinbox.setDisabled(not checked)
 
         def __init__(self, parent=None):
             super().__init__(parent=parent)
