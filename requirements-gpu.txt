@@ -1,39 +1,36 @@
-# GPU variant requirements
-# This requirements file adds the Paddle GPU package and provides a suitable index.
-# Recommended usage:
-#  - Use a fresh virtual environment (recommended): python -m venv .venv-gpu && .venv-gpu\Scripts\activate
-#  - Uninstall CPU paddle if already present:
-#      pip uninstall -y paddlepaddle
-#      # or if installed via uv
-#      uv pip uninstall -y paddlepaddle
-#  - Install packages using pip and the extra index for Paddle GPU (cu129 example):
+# GPU 版依赖
+# 本文件在 CPU 版基础上引入 Paddle GPU 包，并附带对应的软件源。
+# 推荐用法：
+#  - 建议使用全新的虚拟环境：python -m venv .venv-gpu && .venv-gpu\Scripts\activate
+#  - 使用 pip 安装，并指定 Paddle GPU 的额外源（以 cu129 为例）：
 #      pip install -r requirements-gpu.txt --extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
-#  - Or using uv:
+#  - 或使用 uv：
 #      uv pip install -r requirements-gpu.txt -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
 
-# Add Paddle GPU index as an extra index URL so pip will still consult PyPI
+# 关于 opencv：此处不声明。cv2 由 paddlex 传递依赖的 opencv-contrib-python 唯一提供，
+# 版本跟随 paddlex 的 pin（当前 4.10.0.84），请勿再添加 opencv-python / opencv-python-headless
+
+# 以 extra index 方式加入 Paddle GPU 源，pip 仍会照常查询 PyPI
 --extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu129/
 
-httpx>=0.23.0
-numpy>=2.0.0,<2.4.0
-opencv-python==4.13.0.92
-packaging>=22.0
+httpx==0.28.1
+numpy==2.3.5
+packaging==26.2
 paddleocr==3.7.0
 paddlepaddle-gpu==3.3.1
-pillow>=12.3.0
-psutil
-PyAutoGUI
-pydantic>=2.1.0
-pynput
-PySide6>=6.10.1
-pyside6-fluent-widgets
-pywin32
+pillow==12.3.0
+psutil==7.2.2
+PyAutoGUI==0.9.54
+pydantic==2.13.4
+pynput==1.8.2
+PySide6==6.10.1
+pyside6-fluent-widgets==1.11.2
+pywin32==312
 PyYAML==6.0.2
-win11toast
-winshell
+win11toast==0.35
+winshell==0.6
 
-# Dev/test tools (optional)
-py-spy
-pyinstaller
-pytest
-ruff
+py-spy==0.4.2
+pyinstaller==6.22.2
+pytest==9.1.1
+ruff==0.16.9

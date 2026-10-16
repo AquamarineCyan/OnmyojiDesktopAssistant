@@ -121,27 +121,21 @@
 
     可选：GPU 安装（手动，非默认）
 
-    如果需要使用 GPU 加速，请在安装前先卸载 CPU 版 Paddle（如果已安装）：
+    默认依赖为 CPU 版（ONNX Runtime），不含 Paddle 相关包，无需卸载任何东西。
 
-    ```bash
-    # 使用 uv 卸载 CPU 版本
-    uv pip uninstall -y paddlepaddle
-
-    # 使用 pip 卸载 CPU 版本
-    pip uninstall -y paddlepaddle
-    ```
-
-    根据你的 CUDA 版本安装 paddlepaddle-gpu（以 cu129 为例），更多信息请参考 PaddleOCR 官方文档：https://www.paddleocr.ai/latest/quick_start.html#1
+    如需使用 GPU 加速，请改用 `requirements-gpu.txt`（内含 `paddleocr` 与 `paddlepaddle-gpu`），建议在独立虚拟环境中安装，避免与 CPU 版本冲突：
 
     ```bash
     # 使用 uv 安装 gpu 依赖
-    uv pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+    uv pip install -r requirements-gpu.txt
 
     # 使用 pip 安装 gpu 依赖
-    pip install paddlepaddle-gpu==3.3.1 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/
+    pip install -r requirements-gpu.txt
     ```
 
-    建议在独立虚拟环境中安装 GPU 版本，避免与 CPU 版本冲突。
+    该文件已内置 paddlepaddle 的 cu129 源，若你的 CUDA/cuDNN 版本不同，请相应调整其中的索引地址。更多信息请参考 PaddleOCR 官方文档：https://www.paddleocr.ai/latest/quick_start.html#1
+
+    程序启动时会自动探测推理引擎：检测到 `paddlepaddle-gpu` 时使用 PaddlePaddle + CUDA，否则回退 ONNX Runtime + CPU。
 
 3. 运行/调试
 

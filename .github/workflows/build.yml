@@ -6,26 +6,69 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: Build (${{ matrix.variant }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: cpu
+            artifact: OnmyojiDesktopAssistant-debug
+          - variant: gpu
+            artifact: OnmyojiDesktopAssistant-gpu-debug
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup uv
+      - name: Setup uv (cpu)
+        if: matrix.variant == 'cpu'
         uses: astral-sh/setup-uv@v8.2.0
         with:
           enable-cache: true
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install dependencies (cpu)
+        if: matrix.variant == 'cpu'
         run: uv sync
 
-      - name: Run Pytest
+      - name: Run Pytest (cpu)
+        if: matrix.variant == 'cpu'
         run: uv run pytest tests -s
 
-      - name: Build
+      - name: Build (cpu)
+        if: matrix.variant == 'cpu'
         run: uv run pyinstaller main.spec --clean --noconfirm --distpath .
+
+      - name: Setup Python (gpu)
+        if: matrix.variant == 'gpu'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-gpu.txt
+
+      - name: Install dependencies (gpu)
+        if: matrix.variant == 'gpu'
+        run: pip install -r requirements-gpu.txt
+
+      - name: Run Pytest (gpu)
+        if: matrix.variant == 'gpu'
+        run: pytest tests -s
+
+      - name: Build (gpu)
+        if: matrix.variant == 'gpu'
+        run: pyinstaller main.spec --clean --noconfirm --distpath .
+
+      - name: Verify variant marker
+        shell: pwsh
+        run: |
+          $hasNvidia = Test-Path "output\lib\nvidia"
+          $hasPaddle = Test-Path "output\lib\paddle"
+          if ('${{ matrix.variant }}' -eq 'gpu') {
+            if (-not ($hasNvidia -or $hasPaddle)) { throw "GPU 包缺少 lib\nvidia 或 lib\paddle，未走 GPU 构建分支" }
+          } else {
+            if ($hasNvidia -or $hasPaddle) { throw "CPU 包不应包含 lib\nvidia 或 lib\paddle" }
+          }
 
       - name: Package
         run: |
@@ -33,11 +76,11 @@ jobs:
             xcopy src\resource output\resource /s /e /v /q /y
             mkdir output\resource_ja
             xcopy src\resource_ja output\resource_ja /s /e /v /q /y
-            Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-debug.zip"
+            Compress-Archive -Path output\* -DestinationPath "${{ matrix.artifact }}.zip"
 
       - name: Upload build
         uses: actions/upload-artifact@v7
         with:
-          name: OnmyojiDesktopAssistant
-          path: OnmyojiDesktopAssistant-debug.zip
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.zip
           retention-days: 7

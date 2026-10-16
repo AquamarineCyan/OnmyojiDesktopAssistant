@@ -44,3 +44,7 @@ ignore = [
     "S110",   # try-except-pass
     "S112",   # try-except-continue
 ]
+
+[tool.uv]
+# 忽略镜像源中没有对应 numpy 包的影响
+index-strategy = "unsafe-best-match"
