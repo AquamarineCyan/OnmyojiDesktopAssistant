@@ -25,11 +25,9 @@ jobs:
         run: uv run pytest tests -s
 
       - name: Build
-        if: github.event_name == 'workflow_dispatch'
         run: uv run pyinstaller main.spec --clean --noconfirm --distpath .
 
       - name: Package
-        if: github.event_name == 'workflow_dispatch'
         run: |
             mkdir output\resource
             xcopy src\resource output\resource /s /e /v /q /y
@@ -38,7 +36,6 @@ jobs:
             Compress-Archive -Path output\* -DestinationPath "OnmyojiDesktopAssistant-debug.zip"
 
       - name: Upload build
-        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v7
         with:
           name: OnmyojiDesktopAssistant
