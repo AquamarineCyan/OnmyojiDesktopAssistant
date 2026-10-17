@@ -1,6 +1,7 @@
+import shutil
 from subprocess import Popen
 
-from .application import APP_EXE_NAME
+from .application import APP_EXE_NAME, LIB_BACKUP_DIR_PATH, LIB_DIR_PATH
 from .log import logger
 from .signals import signal_manager
 
@@ -85,6 +86,10 @@ echo Continue upgrading...
 if not exist {unzip_path}\\{self.app_exe_name} exit
 timeout /T 3 /NOBREAK
 
+echo backup old lib...
+if exist {LIB_BACKUP_DIR_PATH.name} rd /s /q {LIB_BACKUP_DIR_PATH.name}
+if exist {LIB_DIR_PATH.name} ren {LIB_DIR_PATH.name} {LIB_BACKUP_DIR_PATH.name}
+
 echo copy new version...
 xcopy .\\{unzip_path} . /s /e /y /v
 rd /s /q {unzip_path}
@@ -95,3 +100,11 @@ start {self.app_exe_name}
 del %0
 """
         self.save(bat_text)
+
+    @staticmethod
+    def clean_lib_backup() -> None:
+        """清理更新重启时备份的旧运行库文件夹"""
+        if not LIB_BACKUP_DIR_PATH.exists():
+            return
+        logger.info(f"清理旧运行库备份: {LIB_BACKUP_DIR_PATH}")
+        shutil.rmtree(LIB_BACKUP_DIR_PATH, ignore_errors=True)

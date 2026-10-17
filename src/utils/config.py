@@ -3,7 +3,7 @@ from enum import StrEnum
 import yaml
 from pydantic import BaseModel, field_validator
 
-from .application import APP_PATH, RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
+from .application import LIB_NVIDIA_DIR_PATH, RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
 from .log_color import DEFAULT_LOG_COLORS, LogColorLevel, normalize_color
 
@@ -311,7 +311,7 @@ class Config:
 
         GPU 版本打包后会包含 lib/nvidia 目录，通过检查该目录是否存在来判断。
         """
-        return (APP_PATH / "lib" / "nvidia").is_dir()
+        return LIB_NVIDIA_DIR_PATH.is_dir()
 
     def show_log(self):
         _dump = yaml.dump(self.user.model_dump(mode="json"), allow_unicode=True, sort_keys=False)

@@ -162,6 +162,7 @@ class MainWindow(FluentWindow):
         logger.info(f"[VERSION] {VERSION}")
         config.show_log()
         logger.ui("程序初始化中，请稍候")
+        Restart.clean_lib_backup()
         if config.is_gpu:
             logger.ui_warn("当前为GPU版本，请勿与正式版混合使用，不支持自动下载更新包。")
 
@@ -708,7 +709,7 @@ class MainWindow(FluentWindow):
             )
             widget.preview_image.setPixmap(scaled_pixmap)
             widget.update_capture_size_label(f"{image.size[0]} X {image.size[1]}")
-            widget.update_capture_time_label(f"{datetime.now().strftime('%H:%M:%S.%f')[:-3]}")
+            widget.update_capture_time_label(f"{datetime.now().astimezone().strftime('%H:%M:%S.%f')[:-3]}")
 
             logger.info(f"预览窗口：{handle}")
         else:

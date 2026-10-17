@@ -22,7 +22,7 @@ jobs:
 
       - name: Setup uv (cpu)
         if: matrix.variant == 'cpu'
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v10
         with:
           enable-cache: true
           python-version: "3.11"
@@ -41,7 +41,7 @@ jobs:
 
       - name: Setup Python (gpu)
         if: matrix.variant == 'gpu'
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip

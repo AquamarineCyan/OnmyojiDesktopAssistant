@@ -40,6 +40,15 @@ MODEL_DIR_PATH: Path = APP_PATH / "models"
 if not MODEL_DIR_PATH.exists():
     MODEL_DIR_PATH.mkdir(parents=True)
 
+LIB_DIR_PATH: Path = APP_PATH / "lib"
+"""程序运行库文件夹路径"""
+
+LIB_NVIDIA_DIR_PATH: Path = LIB_DIR_PATH / "nvidia"
+"""GPU 运行库（nvidia）文件夹路径"""
+
+LIB_BACKUP_DIR_PATH: Path = APP_PATH / "lib_backup"
+"""更新重启时旧运行库的备份文件夹路径"""
+
 
 class Connect:
     owner = "AquamarineCyan"
