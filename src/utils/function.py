@@ -23,16 +23,11 @@ def is_Chinese_Path() -> bool:
     """
     from re import compile
 
-    zhPattern = compile("[\u4e00-\u9fa5]+")
-    match = zhPattern.search(str(APP_PATH))
-    if not match:
-        logger.info("English Path")
-        return False
-    logger.ui_error("Chinese Path")
-    return True
+    zhPattern = compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\U00020000-\U0002a6df]")
+    return bool(zhPattern.search(str(APP_PATH)))
 
 
-def random_normal(min: int | float, max: int | float) -> int:
+def random_normal(min: float, max: float) -> int:
     """正态分布"""
     mu = (min + max) / 2
     sigma = (max - mu) / 3
@@ -46,12 +41,12 @@ def random_normal(min: int | float, max: int | float) -> int:
     return int(numb)
 
 
-def random_num(minimum: int | float, maximum: int | float) -> float:
+def random_num(minimum: float, maximum: float) -> float:
     """返回给定范围的随机值
 
     参数:
-        minimum (int | float): 最小值（含）
-        maximum (int | float): 最大值（不含）
+        minimum (float): 最小值（含）
+        maximum (float): 最大值（不含）
 
     返回:
         float: 随机值
@@ -82,14 +77,14 @@ def random_point(x1: int, x2: int, y1: int, y2: int) -> Point:
 @log_caller
 def random_sleep(
     caller_name: str = "",
-    minimum: int | float = 1.0,
-    maximum: int | float | None = None,
+    minimum: float = 1.0,
+    maximum: float | None = None,
 ):
     """随机延时（秒）
 
     参数:
-        minimum (int | float): 最小值（含），默认1.0
-        maximum (int | float | None): 最大值（不含），默认None
+        minimum (float): 最小值（含），默认1.0
+        maximum (float | None): 最大值（不含），默认None
     """
     if maximum is None:
         maximum = minimum + 1
@@ -243,7 +238,7 @@ def merge_dict(base_dict, update_dict) -> dict:
     return base_dict
 
 
-def get_asset_data(resource_path) -> tuple[Path | dict]:
+def get_asset_data(resource_path) -> tuple[Path, dict]:
     _full_path = config.resource_dir / resource_path / "assets.json"
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
 
