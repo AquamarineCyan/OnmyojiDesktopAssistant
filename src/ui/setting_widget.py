@@ -474,6 +474,8 @@ class SettingForceZoomAcceptedCard(AppCard):
 class SettingInteractionModeCard(ExpandGroupSettingCard):
     """设置项-交互模式"""
 
+    _MUMU_SUPPORT_CONTENT = "关闭后与旧版行为一致：仅识别桌面版客户端，不探测模拟器"
+
     def __init__(self, parent=None):
         super().__init__(
             FluentIcon.APPLICATION,
@@ -527,10 +529,10 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
             self.backend_screenshot_combobox,
         )
 
-        self.addGroup(
+        self.mumu_support_group = self.addGroup(
             FluentIcon.APPLICATION,
             "启用 MuMu 模拟器支持",
-            "关闭后与旧版行为一致：仅识别桌面版客户端，不探测模拟器",
+            self._MUMU_SUPPORT_CONTENT,
             self.backend_enable_mumu_switch,
         )
 
@@ -588,6 +590,10 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
         self.backend_mumu_folder_edit.setDisabled(disabled)
         self.backend_browse_button.setDisabled(disabled)
         self.backend_detect_button.setDisabled(disabled)
+        # 前台模式下 MuMu 开关不可用，描述行同步提示原因，切回后台时恢复
+        self.mumu_support_group.setContent(
+            "需将交互模式切换为「后台」后才可开启" if disabled else self._MUMU_SUPPORT_CONTENT
+        )
 
     def _config_update(self):
         text = self.mode_combobox.currentText()

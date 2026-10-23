@@ -194,3 +194,13 @@ def test_backend_row_disabled_in_frontend_mode(card):
     assert not card.backend_mumu_folder_edit.isEnabled()
     assert not card.backend_browse_button.isEnabled()
     assert not card.backend_detect_button.isEnabled()
+
+
+def test_mumu_support_hint_follows_mode(card):
+    """前台模式下 MuMu 开关行描述切换为「需后台模式」提示，后台模式恢复原描述。"""
+    backend_content = "关闭后与旧版行为一致：仅识别桌面版客户端，不探测模拟器"
+    card.mode_combobox.setCurrentText(InteractionMode.BACKEND)
+    assert card.mumu_support_group.contentLabel.text() == backend_content
+
+    card.mode_combobox.setCurrentText(InteractionMode.FRONTEND)
+    assert card.mumu_support_group.contentLabel.text() == "需将交互模式切换为「后台」后才可开启"
