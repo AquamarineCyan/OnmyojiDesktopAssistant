@@ -271,7 +271,10 @@ class MainWindow(FluentWindow):
         """
         # 中文路径
         if is_Chinese_Path():
-            signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("请在英文路径打开！"))
+            logger.ui_error("当前是中文路径，请在英文路径打开！")
+            signal_manager.main.message_box_requested.emit(
+                MessageBoxPayload.error(f"请在英文路径打开！\n\n当前路径：{APP_PATH}")
+            )
             return False
 
         # 资源文件夹完整度
