@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 
 from ..application import MODEL_DIR_PATH
+from ..gpu_info import get_cuda_device_list, get_gpu_list, resolve_device
 from ..log import logger
 from ..screenshot import ScreenShot
 from ..window import window_manager
@@ -71,11 +72,12 @@ class OCRManager:
         """检查OCR是否已初始化"""
         return self.paddleocr is not None
 
-    def init(self, version: int = 3) -> bool:
+    def init(self, version: int = 3, gpu_id: int | None = None) -> bool:
         """初始化OCR
 
         Args:
             version: OCR模型版本号，默认 3
+            gpu_id: GPU编号，>=0 时通过 device=gpu:{gpu_id} 手动指定，None/-1 自动选择
 
         Returns:
             bool: 初始化成功/已初始化返回 True
@@ -93,22 +95,37 @@ class OCRManager:
                 logger.ui_error(f"未找到版本[PaddleOCR v{version}]的模型定义")
                 return False
 
+            kwargs = {
+                "text_detection_model_name": det_class.name,
+                "text_detection_model_dir": str(MODEL_DIR_PATH / det_class.model_dir_name),
+                "text_recognition_model_name": rec_class.name,
+                "text_recognition_model_dir": str(MODEL_DIR_PATH / rec_class.model_dir_name),
+                "use_doc_orientation_classify": False,
+                "use_doc_unwarping": False,
+                "use_textline_orientation": False,
+                "det_db_thresh": 0.3,
+                "det_db_box_thresh": 0.5,
+                "det_db_unclip_ratio": 1.5,
+            }
+            device = resolve_device(gpu_id)
+            cuda_devices = get_cuda_device_list()
+            # 仅当 CUDA 设备存在时指定 device；无 N 卡时回退 CPU，避免 device=gpu:N 报错
+            if device and cuda_devices:
+                kwargs["device"] = device
+            elif device:
+                # CUDA 设备不可用时从 nvidia-smi 获取显卡名称，取不到则用泛称
+                unavailable_gpu = next((g["name"] for g in get_gpu_list() if g["index"] == gpu_id), "所选GPU")
+                logger.ui_warn(f"{unavailable_gpu} 不可用，切换到CPU模式")
             with paddle_hide_window_context():
-                self.paddleocr = PaddleOCR(
-                    text_detection_model_name=det_class.name,
-                    text_detection_model_dir=str(MODEL_DIR_PATH / det_class.model_dir_name),
-                    text_recognition_model_name=rec_class.name,
-                    text_recognition_model_dir=str(MODEL_DIR_PATH / rec_class.model_dir_name),
-                    use_doc_orientation_classify=False,
-                    use_doc_unwarping=False,
-                    use_textline_orientation=False,
-                    det_db_thresh=0.3,
-                    det_db_box_thresh=0.5,
-                    det_db_unclip_ratio=1.5,
-                )
+                self.paddleocr = PaddleOCR(**kwargs)
 
             t_end = time.perf_counter()
-            logger.ui(f"模型[PaddleOCR v{version}]初始化成功，用时 {(t_end - t_start):.2f} 秒")
+            gpu_name = None
+            if cuda_devices:
+                gpu_name = cuda_devices[gpu_id if device and 0 <= gpu_id < len(cuda_devices) else 0]
+            logger.ui(
+                f"模型[PaddleOCR v{version}]初始化成功，用时 {(t_end - t_start):.2f} 秒（设备: {gpu_name or 'CPU'}）"
+            )
             return True
 
         except Exception as e:

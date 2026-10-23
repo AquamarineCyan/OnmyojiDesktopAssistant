@@ -211,6 +211,8 @@ class UserConfig(BaseModel):
     """记住强制缩放的选择（不再弹窗提醒）"""
     force_zoom_accepted: bool = True
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
+    gpu_id: int = 0
+    """GPU编号，默认0"""
     log_color: LogColorConfig = LogColorConfig()
     """日志颜色配置"""
     announcement_id: int = 19700101

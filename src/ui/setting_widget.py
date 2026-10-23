@@ -44,6 +44,7 @@ from ..utils.config import (
     default_config,
 )
 from ..utils.emulator.mumu_handle import is_valid_mumu_folder
+from ..utils.gpu_info import get_cuda_device_list
 from ..utils.log import logger
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .mumu_emulator_widget import MumuEmulatorMessageBox
@@ -124,6 +125,41 @@ class SettingXuanshangfengyinCard(AppCard):
         text = self.combobox.currentText()
         if text != config.user.xuanshangfengyin:
             config.update("xuanshangfengyin", text)
+
+
+class SettingGpuIdCard(AppCard):
+    """设置项-GPU编号"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.ROBOT,
+            "GPU选择",
+            "选择用于 OCR 推理加速的 NVIDIA 显卡",
+            parent,
+        )
+
+        self.combobox = ComboBox()
+        self._device_names = get_cuda_device_list()
+        if self._device_names:
+            for name in self._device_names:
+                self.combobox.addItem(name)
+        else:
+            self.combobox.addItem("未检测到可用N卡")
+            self.combobox.setDisabled(True)
+        self._sync_from_config()
+        self.combobox.currentIndexChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.combobox)
+
+    def _sync_from_config(self):
+        """将当前配置的 gpu_id 同步到下拉框"""
+        gpu_id = config.user.gpu_id
+        self.combobox.setCurrentIndex(gpu_id if 0 <= gpu_id < self.combobox.count() else 0)
+
+    def _config_update(self):
+        gpu_id = self.combobox.currentIndex()
+        if gpu_id != config.user.gpu_id:
+            config.update("gpu_id", gpu_id)
 
 
 class SettingRememberLastChoiceCard(AppCard):
@@ -846,6 +882,7 @@ class SettingWidget(QWidget):
 
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
+        self.gpu_id_card = SettingGpuIdCard()
         self.battle_theme_card = SettingBattleThemeCard()
         self.screenshot_interval_card = SettingScreenshotIntervalCard()
         self.remember_force_zoom_card = SettingRememberForceZoomCard()
@@ -877,6 +914,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.game_setting_label)
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
+        self._layout.addWidget(self.gpu_id_card)
         self._layout.addWidget(self.battle_theme_card)
         self._layout.addWidget(self.screenshot_interval_card)
         self._layout.addWidget(self.remember_force_zoom_card)
@@ -906,3 +944,4 @@ class SettingWidget(QWidget):
         """刷新强制缩放相关设置卡片，使其与当前配置同步"""
         self.remember_force_zoom_card.switch.setChecked(config.user.remember_force_zoom_choice)
         self.force_zoom_accepted_card.combobox.setCurrentIndex(0 if config.user.force_zoom_accepted else 1)
+        self.gpu_id_card._sync_from_config()

@@ -26,6 +26,7 @@ from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
 from .global_task import global_task
+from .gpu_info import log_gpu_info
 from .keyboard_listener import KeyListenerThread
 from .log import logger
 from .message import MessageBoxPayload
@@ -165,6 +166,7 @@ class MainWindow(FluentWindow):
         Restart.clean_lib_backup()
         if config.is_gpu:
             logger.ui_warn("当前为GPU版本，请勿与正式版混合使用，不支持自动下载更新包。")
+            log_gpu_info()
 
         if not config.is_gpu:
             update_manager.check_latest()
@@ -286,7 +288,7 @@ class MainWindow(FluentWindow):
 
         # 初始化文字识别
         try:
-            ocr_manager.init()
+            ocr_manager.init(gpu_id=config.user.gpu_id)
             logger.info("文字识别资源初始化成功")
         except Exception as e:
             logger.ui_error(f"文字识别资源初始化失败: {e}")

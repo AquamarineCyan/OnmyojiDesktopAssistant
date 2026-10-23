@@ -124,7 +124,12 @@ class OCRManager:
     def is_initialized(self) -> bool:
         return self.rapidocr is not None
 
-    def init(self) -> bool:
+    def init(self, gpu_id: int | None = None) -> bool:
+        """初始化OCR
+
+        Args:
+            gpu_id: CPU 引擎不使用该参数，仅为与 PaddleOCR 引擎保持统一调用签名
+        """
         if self.is_initialized():
             return True
 
