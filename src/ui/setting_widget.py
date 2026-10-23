@@ -128,23 +128,27 @@ class SettingXuanshangfengyinCard(AppCard):
 
 
 class SettingGpuIdCard(AppCard):
-    """设置项-GPU编号"""
+    """设置项-使用GPU加速推理"""
 
     def __init__(self, parent=None):
         super().__init__(
             FluentIcon.ROBOT,
-            "GPU选择",
-            "选择用于 OCR 推理加速的 NVIDIA 显卡",
+            "使用GPU加速推理",
+            "使用GPU推理能够以极低的GPU占用显著降低CPU的负担，仅限NVIDIA显卡",
             parent,
         )
 
+        self._gpu_supported = config.is_gpu
         self.combobox = ComboBox()
-        self._device_names = get_cuda_device_list()
+        if self._gpu_supported:
+            self._device_names = get_cuda_device_list()
+        else:
+            self._device_names = []
         if self._device_names:
             for name in self._device_names:
                 self.combobox.addItem(name)
         else:
-            self.combobox.addItem("未检测到可用N卡")
+            self.combobox.addItem("当前版本不支持GPU加速" if not self._gpu_supported else "未检测到可用N卡")
             self.combobox.setDisabled(True)
         self._sync_from_config()
         self.combobox.currentIndexChanged.connect(self._config_update)
@@ -888,12 +892,19 @@ class SettingWidget(QWidget):
 
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
-        self.gpu_id_card = SettingGpuIdCard()
         self.battle_theme_card = SettingBattleThemeCard()
-        self.screenshot_interval_card = SettingScreenshotIntervalCard()
         self.remember_force_zoom_card = SettingRememberForceZoomCard()
         self.force_zoom_accepted_card = SettingForceZoomAcceptedCard()
         self.interaction_mode_card = SettingInteractionModeCard()
+
+        # 性能设置
+        self.performance_setting_label = SubtitleLabel("性能设置")
+        font = self.performance_setting_label.font()
+        font.setWeight(QFont.Weight.Normal)  # 字体不加粗
+        self.performance_setting_label.setFont(font)
+
+        self.screenshot_interval_card = SettingScreenshotIntervalCard()
+        self.gpu_id_card = SettingGpuIdCard()
 
         # 软件设置
         self.software_setting_label = SubtitleLabel("软件设置")
@@ -920,12 +931,14 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.game_setting_label)
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
-        self._layout.addWidget(self.gpu_id_card)
         self._layout.addWidget(self.battle_theme_card)
-        self._layout.addWidget(self.screenshot_interval_card)
         self._layout.addWidget(self.remember_force_zoom_card)
         self._layout.addWidget(self.force_zoom_accepted_card)
         self._layout.addWidget(self.interaction_mode_card)
+        self._layout.addSpacing(24)
+        self._layout.addWidget(self.performance_setting_label)
+        self._layout.addWidget(self.screenshot_interval_card)
+        self._layout.addWidget(self.gpu_id_card)
         self._layout.addSpacing(24)
         self._layout.addWidget(self.software_setting_label)
         self._layout.addWidget(self.remember_last_choice_card)
