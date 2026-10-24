@@ -184,15 +184,22 @@ class JieJieTuPoGeRen(JieJieTuPo):
         flag_current_level: int = 57,
         flag_target_level: int = 57,
         flag_first_round_failure: bool = True,
+        flag_huijuan: bool = False,
+        flag_huijuan_first: bool = True,
     ) -> None:
         super().__init__(n)
-        self.list_xunzhang: list = None  # 勋章列表
-        self.tupo_victory: int = None  # 攻破次数
+        self.list_xunzhang: list | None = None  # 勋章列表
+        self.tupo_victory: int | None = None  # 攻破次数
         self.time_refresh: int = 0  # 记录刷新时间
         self.flag_refresh_rule: int = flag_refresh_rule
         self.flag_current_level: int = flag_current_level
         self.flag_target_level: int = flag_target_level
-        self.flag_keep_level: bool = flag_first_round_failure  # 首轮失败标志
+        self.flag_huijuan: bool = flag_huijuan  # 绘卷模式，退四前检查可进攻结界数
+        self.flag_huijuan_first: bool = flag_huijuan_first  # 绘卷模式首轮退级
+        # 首轮失败标志：绘卷模式由 flag_huijuan_first 控制，否则沿用 flag_first_round_failure
+        self.flag_keep_level: bool = flag_huijuan_first if flag_huijuan else flag_first_round_failure
+        # 首轮退级优先于9个检查，执行一次后置为False
+        self.flag_first_round_retreat: bool = flag_huijuan_first
 
     @staticmethod
     def description() -> None:
@@ -488,9 +495,16 @@ class JieJieTuPoGeRen(JieJieTuPo):
                 return
 
     def level_task(self, lower_level_count: int) -> None:
+        loop_count = 0
         while self.n < self.max:
+            loop_count += 1
             if bool(event_thread):
                 raise GUIStopException
+
+            logger.info(
+                f"保级判断：第{loop_count}次循环，已进攻 {self.n}/{self.max}，"
+                f"flag_keep_level={self.flag_keep_level}，flag_huijuan={self.flag_huijuan}"
+            )
 
             # 降级次数由输入给定
             for _ in range(lower_level_count):
@@ -500,8 +514,23 @@ class JieJieTuPoGeRen(JieJieTuPo):
 
             # 保级
             if self.flag_keep_level:
-                self.keep_level()
+                if self.flag_huijuan and not self.flag_first_round_retreat:
+                    # 绘卷模式非首轮：只有当前可进攻结界为9个时才退四，否则直接进攻
+                    self.list_xunzhang = self.list_num_xunzhang(only_victory=True)
+                    tupo_victory = self.list_xunzhang.count(-1)
+                    logger.info(f"绘卷退4检查：已攻破 {tupo_victory} 个，可进攻 {9 - tupo_victory} 个")
+                    if tupo_victory > 0:
+                        logger.ui("当前可进攻结界不足9个，直接进攻")
+                    else:
+                        self.keep_level()
+                else:
+                    # 首轮退级优先于9个检查，直接退四
+                    if self.flag_first_round_retreat:
+                        logger.ui("首轮退级：不检查可进攻结界数，直接退4")
+                    self.keep_level()
+                self.flag_first_round_retreat = False
             else:
+                logger.info("flag_keep_level=False，本次跳过退4判断，直接进攻")
                 self.flag_keep_level = True
 
             # 获得每个结界的勋章数

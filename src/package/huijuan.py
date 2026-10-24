@@ -44,6 +44,7 @@ class HuiJuan(BasePackage):
         self.flag_current_level: int = flag_current_level
         self.flag_target_level: int = flag_target_level
         self.flag_first_round_failure: bool = flag_first_round_failure
+        self.flag_huijuan_first_done: bool = False  # 首个有突破券的轮次是否已处理首轮退级
         self.has_temp_pop: bool = has_temp_pop
 
     @staticmethod
@@ -107,12 +108,19 @@ class HuiJuan(BasePackage):
 
             sleep(4)
 
-            JieJieTuPoGeRen(
+            # 首轮退级仅在首个有突破券的轮次生效，无券轮次顺延到下一轮
+            flag_huijuan_first = self.flag_first_round_failure and not self.flag_huijuan_first_done
+            jiejietupo = JieJieTuPoGeRen(
                 flag_refresh_rule=self.flag_refresh_rule,
                 flag_current_level=self.flag_current_level,
                 flag_target_level=self.flag_target_level,
                 flag_first_round_failure=self.flag_first_round_failure,
-            ).run()
+                flag_huijuan=True,
+                flag_huijuan_first=flag_huijuan_first,
+            )
+            jiejietupo.run()
+            if flag_huijuan_first and jiejietupo.max > 0:
+                self.flag_huijuan_first_done = True
             self.close_current_scene()
 
             self.n += 1
