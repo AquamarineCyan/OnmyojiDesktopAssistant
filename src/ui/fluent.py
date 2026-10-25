@@ -4,6 +4,7 @@ from qfluentwidgets import FluentIcon, FluentWindow, NavigationItemPosition
 
 from ..utils.application import ICO_RESOURCE_PATH
 from .home_widget import HomeWidget
+from .ocr_detection_widget import OcrDetectionWidget
 from .setting_widget import SettingWidget
 from .window_manager_widget import WindowManagerWidget
 
@@ -22,6 +23,8 @@ class Window(FluentWindow):
 
         self.homeInterface = HomeWidget(self)
         self.windowManagerInterface = WindowManagerWidget(self)
+        self.ocrDetectionInterface = OcrDetectionWidget(self)
+
         self.settingInterface = SettingWidget(self)
 
         self.initNavigation()
@@ -30,6 +33,8 @@ class Window(FluentWindow):
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FluentIcon.HOME, "首页")
         self.addSubInterface(self.windowManagerInterface, FluentIcon.ZOOM, "窗口管理")
+        self.addSubInterface(self.ocrDetectionInterface, FluentIcon.SEARCH, "文字识别")
+
         # 底部顶格
         self.addSubInterface(self.settingInterface, FluentIcon.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
