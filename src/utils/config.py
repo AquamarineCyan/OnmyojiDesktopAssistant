@@ -6,6 +6,7 @@ from pydantic import BaseModel, field_validator
 from .application import LIB_NVIDIA_DIR_PATH, RESOURCE_DIR_PATH, RESOURCE_JA_DIR_PATH, USER_DATA_DIR_PATH
 from .log import logger
 from .log_color import DEFAULT_LOG_COLORS, LogColorLevel, normalize_color
+from .theme import AppTheme
 
 
 class GameLanguage(StrEnum):
@@ -74,6 +75,8 @@ _shortcut_start_stop_list = [
     "F12",
 ]
 """快捷键-开始/停止"""
+_theme_list = [AppTheme.LIGHT, AppTheme.DARK, AppTheme.AUTO]
+"""界面主题候选值"""
 _interaction_mode_list = [InteractionMode.FRONTEND, InteractionMode.BACKEND]
 """交互模式"""
 # 前台/后台的子配置
@@ -153,6 +156,8 @@ class DefaultConfig(BaseModel):
     """悬赏封印"""
     remember_last_choice: bool = False
     """记住上次选择"""
+    theme: list = _theme_list
+    """界面主题候选值"""
     shortcut_start_stop: list = _shortcut_start_stop_list
     """快捷键-开始/停止"""
     win_toast: bool = True
@@ -193,6 +198,8 @@ class UserConfig(BaseModel):
     """悬赏封印"""
     remember_last_choice: bool = False
     """记忆上次所选功能"""
+    theme: str = AppTheme.AUTO
+    """界面主题：浅色/深色/跟随系统"""
     last_function: str = ""
     """上次选择的功能名（GameFunction.name），与remember_last_choice配合使用"""
     shortcut_start_stop: str = _shortcut_start_stop_list[0]
