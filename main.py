@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QApplication
 from src.utils.config import config  # noqa: F401
 from src.utils.gui import MainWindow
 from src.utils.log import redirect_third_party_output
+from src.utils.theme import apply_theme
 
 # 重定向到日志并记录第三方输出
 redirect_third_party_output()
@@ -14,6 +15,8 @@ if __name__ == "__main__":
     # 管理员启动
     if windll.shell32.IsUserAnAdmin():
         app = QApplication(sys.argv)
+        # 按配置应用界面主题（浅色/深色/跟随系统），必须在创建窗口前执行
+        apply_theme(config.user.theme)
         main_win_widget = MainWindow()
         main_win_widget.show()
         app.exec()

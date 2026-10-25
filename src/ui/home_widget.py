@@ -1,7 +1,7 @@
 from enum import Enum
 
 from PySide6.QtCore import Qt, QUrl
-from PySide6.QtGui import QColor, QDesktopServices, QTextBlockFormat, QTextCursor
+from PySide6.QtGui import QColor, QDesktopServices, QTextBlockFormat, QTextCharFormat, QTextCursor
 from PySide6.QtWidgets import (
     QButtonGroup,
     QFrame,
@@ -28,6 +28,7 @@ from qfluentwidgets import (
 from ..package.types import GameFunction, MiWenMode, QiLing, XiaJianAnYuMode, Yingjie
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
+from ..utils.log_color import is_dark_theme, swap_default_color
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
@@ -791,3 +792,27 @@ class HomeWidget(QWidget):
 
         widget.ensureCursorVisible()
         widget.moveCursor(QTextCursor.MoveOperation.End)
+
+    def refresh_log_colors(self):
+        """主题切换后重刷日志区历史行颜色
+
+        行颜色是追加时按当时主题写入的字符格式，切主题不会自动跟随；
+        这里按新主题的方向把默认色换成对应变体（幂等），自定义色保持不变。"""
+        to_dark = is_dark_theme()
+        widget = self.output_info_group.text_info
+        document = widget.document()
+        cursor = QTextCursor(document)
+        block = document.firstBlock()
+        while block.isValid():
+            it = block.begin()
+            while not it.atEnd():
+                fragment = it.fragment()
+                new_color = swap_default_color(fragment.charFormat().foreground().color().name(), to_dark)
+                if new_color:
+                    fmt = QTextCharFormat(fragment.charFormat())
+                    fmt.setForeground(QColor(new_color))
+                    cursor.setPosition(fragment.position())
+                    cursor.setPosition(fragment.position() + fragment.length(), QTextCursor.MoveMode.KeepAnchor)
+                    cursor.setCharFormat(fmt)
+                it += 1
+            block = block.next()

@@ -46,6 +46,7 @@ from ..utils.config import (
 from ..utils.emulator.mumu_handle import is_valid_mumu_folder
 from ..utils.gpu_info import get_cuda_device_list
 from ..utils.log import logger
+from ..utils.theme import apply_theme
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .mumu_emulator_widget import MumuEmulatorMessageBox
 from .ui_utils import open_log_folder
@@ -164,6 +165,33 @@ class SettingGpuIdCard(AppCard):
         gpu_id = self.combobox.currentIndex()
         if gpu_id != config.user.gpu_id:
             config.update("gpu_id", gpu_id)
+
+
+class SettingThemeCard(AppCard):
+    """设置项-界面主题"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.BRUSH,
+            "界面主题",
+            "切换界面的深浅色显示，跟随系统时随 Windows 深浅色自动切换",
+            parent,
+        )
+
+        self.combobox = ComboBox()
+        self.combobox.addItems(default_config.theme)
+        self.combobox.setFixedWidth(120)
+        # 连接信号前设好初始值，避免构造期间触发一次多余的主题应用
+        self.combobox.setCurrentText(config.user.theme)
+        self.combobox.currentIndexChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.combobox)
+
+    def _config_update(self):
+        text = self.combobox.currentText()
+        if text != config.user.theme:
+            config.update("theme", text)
+            apply_theme(text)
 
 
 class SettingRememberLastChoiceCard(AppCard):
@@ -913,6 +941,7 @@ class SettingWidget(QWidget):
         self.software_setting_label.setFont(font)
 
         self.remember_last_choice_card = SettingRememberLastChoiceCard()
+        self.theme_card = SettingThemeCard()
         self.function_selector_card = SettingFunctionSelectorCard()
         self.shortcut_start_stop_card = SettingShortcutStartStopCard()
         self.logger_color_card = SettingLoggerColorCard()
@@ -941,6 +970,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.gpu_id_card)
         self._layout.addSpacing(24)
         self._layout.addWidget(self.software_setting_label)
+        self._layout.addWidget(self.theme_card)
         self._layout.addWidget(self.remember_last_choice_card)
         self._layout.addWidget(self.function_selector_card)
         self._layout.addWidget(self.shortcut_start_stop_card)
