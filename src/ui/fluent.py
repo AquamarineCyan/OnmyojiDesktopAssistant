@@ -1,8 +1,6 @@
-from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication, QHBoxLayout, QStackedWidget
-from qfluentwidgets import FluentIcon, NavigationInterface, NavigationItemPosition
-from qframelesswindow import FramelessWindow, StandardTitleBar
+from PySide6.QtWidgets import QApplication
+from qfluentwidgets import FluentIcon, FluentWindow, NavigationItemPosition
 
 from ..utils.application import ICO_RESOURCE_PATH
 from .home_widget import HomeWidget
@@ -10,58 +8,36 @@ from .setting_widget import SettingWidget
 from .window_manager_widget import WindowManagerWidget
 
 
-class Window(FramelessWindow):
+class Window(FluentWindow):
+    """主窗口
+
+    基于 qfluentwidgets 的 FluentWindow：标题栏（FluentTitleBar）、导航栏、
+    内容面板的深浅主题样式由 qfluentwidgets 官方 QSS 自动管理，无需自写样式。
+    """
+
     def __init__(self):
         super().__init__()
-        self.setTitleBar(StandardTitleBar(self))
-
-        self.hBoxLayout = QHBoxLayout(self)
-        self.navigationInterface = NavigationInterface(self, showMenuButton=True)
-        self.stackWidget = QStackedWidget(self)
+        # 关闭 Win11 Mica 材质，使用随主题切换的纯色背景
+        self.setMicaEffectEnabled(False)
 
         self.homeInterface = HomeWidget(self)
         self.windowManagerInterface = WindowManagerWidget(self)
-
         self.settingInterface = SettingWidget(self)
 
-        self.initLayout()
         self.initNavigation()
         self.initWindow()
-
-    def initLayout(self):
-        self.hBoxLayout.setSpacing(0)
-        self.hBoxLayout.setContentsMargins(0, self.titleBar.height(), 0, 0)
-        self.hBoxLayout.addWidget(self.navigationInterface)
-        self.hBoxLayout.addWidget(self.stackWidget)
-        self.hBoxLayout.setStretchFactor(self.stackWidget, 1)
 
     def initNavigation(self):
         self.addSubInterface(self.homeInterface, FluentIcon.HOME, "首页")
         self.addSubInterface(self.windowManagerInterface, FluentIcon.ZOOM, "窗口管理")
-
         # 底部顶格
         self.addSubInterface(self.settingInterface, FluentIcon.SETTING, "设置", NavigationItemPosition.BOTTOM)
 
-        self.navigationInterface.setCurrentItem("Home")  # HomeWidget.ObjectName
-        self.stackWidget.currentChanged.connect(self.onCurrentInterfaceChanged)
-        self.stackWidget.setCurrentIndex(0)
-
-    def addSubInterface(self, interface, icon, text: str, position=NavigationItemPosition.TOP, parent=None):
-        self.stackWidget.addWidget(interface)
-        self.navigationInterface.addItem(
-            routeKey=interface.objectName(),
-            icon=icon,
-            text=text,
-            onClick=lambda: self.switchTo(interface),
-            position=position,
-            tooltip=text,
-            parentRouteKey=parent.objectName() if parent else None,
-        )
+        self.switchTo(self.homeInterface)
 
     def initWindow(self):
         self.resize(800, 600)
         self.setWindowIcon(QIcon(ICO_RESOURCE_PATH))
-        self.titleBar.setAttribute(Qt.WA_StyledBackground)
         self.center()
 
     def center(self):
@@ -69,9 +45,7 @@ class Window(FramelessWindow):
         w, h = desktop.width(), desktop.height()
         self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
 
-    def switchTo(self, widget):
-        self.stackWidget.setCurrentWidget(widget)
-
-    def onCurrentInterfaceChanged(self, index):
-        widget = self.stackWidget.widget(index)
-        self.navigationInterface.setCurrentItem(widget.objectName())
+    def _onThemeChangedFinished(self):
+        super()._onThemeChangedFinished()
+        # 日志行颜色按追加时的主题写入，切主题后需重刷保证可读
+        self.homeInterface.refresh_log_colors()
