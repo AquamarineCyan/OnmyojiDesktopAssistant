@@ -73,7 +73,7 @@ def get_gpu_list() -> list[dict]:
                         "memory_total": int(fields[2]),
                         "memory_used": int(fields[3]),
                         "memory_free": int(fields[4]),
-                        "temperature": int(fields[5]),
+                        "temperature": int(float(fields[5])),
                         "driver": fields[6],
                     }
                 )
