@@ -2,12 +2,6 @@
     "current_path": "daoguantupo",
     "image_data": [
         {
-            "name": "chuzhan",
-            "file": "chuzhan.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
             "name": "guanzhan",
             "file": "guanzhan.png",
             "region": [0, 0, 0, 0],
@@ -63,14 +57,14 @@
             "keyword": "后开战",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFECT"
+            "method": "INCLUDE"
         },
         {
             "name": "shengyutuposhijian",
             "keyword": "剩余突破时间",
             "region": [0, 0, 0, 0],
             "score": "0.7",
-            "method": "PERFECT"
+            "method": "INCLUDE"
         }
     ]
 }

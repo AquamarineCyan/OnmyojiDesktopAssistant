@@ -1,6 +1,7 @@
 import time
 
 from ..utils.adapter import Mouse
+from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
@@ -17,10 +18,8 @@ class DaoGuanTuPo(BasePackage):
     scene_name = "道馆突破"
     resource_path = "daoguantupo"
     resource_list = (
-        "chuzhan",  # 出战-选队伍
         "daojishi",  # 倒计时
         "guanzhan",  # 观战
-        "jijie",  # 集结
         "qianwang",  # 前往-助威
         "shengyutuposhijian",  # 剩余突破时间
         "tiaozhan",  # 挑战
@@ -29,26 +28,20 @@ class DaoGuanTuPo(BasePackage):
         "zhuwei",  # 助威
         "zhuwei_gray",  # 助威-灰色
     )
-    STATE_IDLE = 1  # 准备界面
-    STATE_WAIT_AUTO_ENTER = 2  # 等待主动进入
-    STATE_WAIT_START = 3  # 手动开始
-    STATE_FIGHTING = 4  # 进行中
 
     @log_function_call
-    def __init__(self, n: int = 0, flag_guanzhan: bool = False) -> None:
+    def __init__(self, n: int = 0, flag_guanzhan: bool = False, flag_screenshot: bool = False) -> None:
         super().__init__(n)
-        self.flag_guanzhan = flag_guanzhan  # 是否观战
-        self.flag_fighting = False  # 是否进行中
-        self.state = self.STATE_IDLE
+        self.flag_guanzhan: bool = flag_guanzhan  # 是否观战
+        self.flag_screenshot: bool = flag_screenshot  # 是否结束后截图
+        self.need_challenge: bool = False  # 检测到「可进攻」后需点击挑战
 
     @staticmethod
     def description() -> None:
         logger.ui("目前仅支持正在进行中的道馆突破，无法实现跳转道馆场景")
 
-    def load_asset(self):
-        self.IMAGE_CHUZHAN = self.get_image_asset("chuzhan")
+    def load_asset(self) -> None:
         self.IMAGE_GUANZHAN = self.get_image_asset("guanzhan")
-        # self.IMAGE_JIJIE = self.get_image_asset("jijie")  # no idea what it is
         self.IMAGE_QIANWANG = self.get_image_asset("qianwang")
         self.IMAGE_TIAOZHAN = self.get_image_asset("tiaozhan")
         self.IMAGE_TITLE = self.get_image_asset("title")
@@ -62,36 +55,42 @@ class DaoGuanTuPo(BasePackage):
 
     @log_function_call
     def check_title(self) -> None:
-        msg_title = True
+        msg_title: bool = True
+        self.need_challenge: bool = False
+        rule_title = RuleOcr(self.OCR_TITLE)
+        rule_daojishi = RuleOcr(self.OCR_DAOJISHI)
+        rule_remaintime = RuleOcr(self.OCR_REMAINTIME)
         while True:
             if bool(event_thread):
                 raise GUIStopException
 
-            sleep()
+            self.sleep_interval()
             result = RuleOcr().get_raw_result()
-            for item in result:
-                if self.OCR_TITLE.keyword == item.text:
-                    logger.ui_hint(self.scene_name)
 
-                if self.OCR_DAOJISHI.keyword in item.text:
-                    self.state = self.STATE_WAIT_AUTO_ENTER
-                    logger.ui("等待倒计时自动进入")
-                    return
+            # 标题
+            if rule_title.match(ocr_result=result):
+                logger.ui_hint(self.scene_name)
 
-                if self.OCR_REMAINTIME.keyword in item.text:
-                    logger.ui("可进攻")
-                    self.state = self.STATE_WAIT_START
-                    return
+            # 倒计时自动进入
+            if rule_daojishi.match(ocr_result=result):
+                logger.ui("等待倒计时自动进入")
+                return
 
-                if self.global_assets.OCR_AUTO_FIGHT.keyword in item.text:
-                    logger.ui("战斗中")
-                    return
+            # 剩余突破时间
+            if rule_remaintime.match(ocr_result=result):
+                self.need_challenge = True
+                logger.ui("可进攻")
+                return
+
+            if any(self.global_assets.OCR_AUTO_FIGHT.keyword in item.text for item in result):
+                logger.ui("战斗中")
+                return
 
             if msg_title:
                 msg_title = False
                 self.title_error_msg()
 
-    def guanzhan(self):
+    def guanzhan(self) -> None:
         """观战"""
         logger.ui_warn("观战中，暂无法自动退出，可手动退出")
         # TODO 记录总时长
@@ -138,6 +137,10 @@ class DaoGuanTuPo(BasePackage):
                         _flag_zhuwei_disable = False
 
                 case self.global_assets.IMAGE_FINISH.name:
+                    if self.flag_screenshot:
+                        sleep()
+                        self.screenshot()
+                        logger.ui("「战斗结算」已截图")
                     self.ensure_finish()
 
                 case name if name in self.global_assets.ALL_FAIL_NAMES:
@@ -147,15 +150,19 @@ class DaoGuanTuPo(BasePackage):
 
             sleep(4)
 
-    def done(self):
+    def done(self) -> None:
         self.n += 1
         logger.progress(self.n)
 
-    def check_and_enter_battle(self):
+    def task_finish_info(self) -> None:
+        if self.flag_screenshot:
+            logger.ui(f"截图保存在\n{SCREENSHOT_DIR_PATH / self.resource_path}")
+
+    def check_and_enter_battle(self) -> None:
         """检查标题并进入战斗场景"""
         self.check_title()
         sleep(2)
-        if self.state == self.STATE_WAIT_START:
+        if self.need_challenge:
             self.check_click(self.IMAGE_TIAOZHAN, timeout=3)
         sleep(4)  # 等待过场动画
 
@@ -201,7 +208,7 @@ class DaoGuanTuPo(BasePackage):
         logger.warning("准备超时")
         return False
 
-    def wait_for_battle_ready(self):
+    def wait_for_battle_ready(self) -> bool:
         """等待战斗准备界面并处理"""
         self.current_asset_list = [
             self.global_assets.IMAGE_READY_OLD,
@@ -227,6 +234,10 @@ class DaoGuanTuPo(BasePackage):
 
                 case self.global_assets.IMAGE_FINISH.name:
                     sleep()
+                    if self.flag_screenshot:
+                        self.screenshot()
+                        logger.ui("「战斗结算」已截图")
+                    sleep()
                     finish_random_left_right()
                     return True
 
@@ -236,7 +247,7 @@ class DaoGuanTuPo(BasePackage):
                     logger.ui_warn(f"失败{('（' + result.description + '）') if result.description else ''}")
                     return False
 
-    def run(self):
+    def run(self) -> None:
         for i in range(self.max):
             if bool(event_thread):
                 raise GUIStopException

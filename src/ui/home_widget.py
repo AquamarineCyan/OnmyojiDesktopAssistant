@@ -321,13 +321,28 @@ class HomeWidget(QWidget):
                 self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
 
                 self.checkbox = CheckBox("观战")
+                self.screenshot_checkbox = CheckBox("保存结算截图")
+                self.open_screenshot_button = PushButton("打开截图文件夹")
+                self.open_screenshot_button.setVisible(False)
+                self.open_screenshot_button.clicked.connect(self._open_screenshot_folder)
+                self.screenshot_checkbox.stateChanged.connect(
+                    lambda state: self.open_screenshot_button.setVisible(bool(state))
+                )
 
                 self.vBoxLayout = QVBoxLayout()
                 self.vBoxLayout.setSpacing(10)
                 self.vBoxLayout.addWidget(self.checkbox)
+                self.vBoxLayout.addWidget(self.screenshot_checkbox)
+                self.vBoxLayout.addWidget(self.open_screenshot_button)
                 self.vBoxLayout.addStretch()
 
                 self.viewLayout.addLayout(self.vBoxLayout)
+
+            def _open_screenshot_folder(self):
+                screenshot_dir = SCREENSHOT_DIR_PATH / "daoguantupo"
+                if not screenshot_dir.exists():
+                    screenshot_dir.mkdir(parents=True)
+                QDesktopServices.openUrl(QUrl.fromLocalFile(str(screenshot_dir)))
 
         class AdvancedQiLingCard(HeaderCardWidget):
             """高级设置-契灵"""
