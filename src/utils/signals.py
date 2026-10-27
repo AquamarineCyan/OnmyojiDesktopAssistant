@@ -73,6 +73,14 @@ class CustomSignal(QObject):
         sys_exit = Signal()
         """退出程序"""
 
+        debug_preview_requested = Signal(object, str)
+        """请求显示匹配结果预览
+
+        Args:
+            image (PIL.Image.Image): 待预览图像（RGB）
+            title (str): 标题
+        """
+
     class Announcement(QObject):
         """公告"""
 

@@ -386,6 +386,31 @@ class SettingWinToastCard(AppCard):
             config.update("win_toast", status)
 
 
+class SettingDebugPreviewCard(AppCard):
+    """设置项-显示图像匹配框"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.DEVELOPER_TOOLS,
+            "显示图像匹配框",
+            "图像匹配命中时在预览窗口中显示截图与匹配框，仅用于开发者调试",
+            parent,
+        )
+
+        self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.switch.setOnText("启用")
+        self.switch.setOffText("禁用")
+        self.switch.setChecked(config.user.debug_preview)
+        self.switch.checkedChanged.connect(self._config_update)
+
+        self.hBoxLayout.addWidget(self.switch)
+
+    def _config_update(self):
+        status = self.switch.isChecked()
+        if status != config.user.debug_preview:
+            config.update("debug_preview", status)
+
+
 class SettingLogFolderCard(AppCard):
     """设置项-日志文件夹"""
 
@@ -949,6 +974,14 @@ class SettingWidget(QWidget):
         self.win_toast_card = SettingWinToastCard()
         self.group_update = SettingUpdateCard()
 
+        # 开发者设置
+        self.developer_setting_label = SubtitleLabel("开发者设置")
+        font = self.developer_setting_label.font()
+        font.setWeight(QFont.Weight.Normal)  # 字体不加粗
+        self.developer_setting_label.setFont(font)
+
+        self.debug_preview_card = SettingDebugPreviewCard()
+
         self.about_label = SubtitleLabel("关于")
         font = self.about_label.font()
         font.setWeight(QFont.Weight.Normal)  # 字体不加粗
@@ -978,6 +1011,9 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.log_folder_card)
         self._layout.addWidget(self.win_toast_card)
         self._layout.addWidget(self.group_update)
+        self._layout.addSpacing(24)
+        self._layout.addWidget(self.developer_setting_label)
+        self._layout.addWidget(self.debug_preview_card)
         self._layout.addSpacing(24)
         self._layout.addWidget(self.about_label)
         self._layout.addWidget(self.about_card)

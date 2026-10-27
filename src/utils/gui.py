@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from threading import Thread
 
-from PIL.ImageQt import ImageQt
+from PIL import Image, ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget
@@ -13,6 +13,7 @@ from ..package import *
 from ..package.types import GameFunction, MiWenMode, XiaJianAnYuMode
 from ..ui import icon_rc  # noqa: F401
 from ..ui.announcement_widget import AnnouncementWindow
+from ..ui.debug_preview_widget import DebugPreviewWindow
 from ..ui.first_use_widget import FirstUseMessageBox
 from ..ui.fluent import Window as FluentWindow
 from ..ui.force_zoom_dialog import ForceZoomDialog
@@ -20,7 +21,7 @@ from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_new_version_widget import UpdateNewVersionWidget
 from ..ui.update_record_widget import UpdateRecordWindow
 from .announcement import check_announcements, show_all_announcements
-from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION
+from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION, clear_debug_screenshot_dir
 from .config import GameLanguage, InteractionMode, config
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
@@ -51,6 +52,7 @@ class MainWindow(FluentWindow):
         self.setWindowTitle(title)
 
         self.sub_windows: list[QWidget] = []  # 子窗口列表
+        self.debug_preview_window: DebugPreviewWindow | None = None  # 匹配结果预览窗口
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
@@ -126,6 +128,7 @@ class MainWindow(FluentWindow):
         signal_manager.main.ui_text_progress_changed.connect(self.ui_text_progress_changed_handle)
         signal_manager.main.xuanshangfengyin_detected.connect(self.xuanshangfengyin_detected_handle)
         signal_manager.main.sys_exit.connect(self._exit_handle)
+        signal_manager.main.debug_preview_requested.connect(self.debug_preview_handle)
         signal_manager.announcement.show_ui.connect(self.show_announcement_window)
         signal_manager.update_new_version.show_ui.connect(self.show_update_new_version_window)
 
@@ -696,6 +699,18 @@ class MainWindow(FluentWindow):
         if resolution:
             self.windowManagerInterface.update_screen_resolution(resolution.screen_size[0], resolution.screen_size[1])
 
+    def debug_preview_handle(self, image: Image.Image, title: str):
+        """显示匹配结果预览（debug 模式）
+
+        Args:
+            image (Image.Image): 待预览图像（RGB）
+            title (str): 标题
+        """
+        if self.debug_preview_window is None:
+            self.debug_preview_window = DebugPreviewWindow()
+            self.sub_windows.append(self.debug_preview_window)
+        self.debug_preview_window.show_image(image, title)
+
     def preview_window(self):
         """预览选中的窗口"""
         widget = self.windowManagerInterface
@@ -707,7 +722,7 @@ class MainWindow(FluentWindow):
             if image is None:
                 logger.ui_error("窗口预览失败：截图不可用")
                 return
-            qimage = ImageQt(image)
+            qimage = ImageQt.ImageQt(image)
             pixmap = QPixmap.fromImage(qimage)
             # 缩放图像以适应预览区域
             scaled_pixmap = pixmap.scaled(
@@ -752,6 +767,9 @@ class MainWindow(FluentWindow):
                 if child is not None and child.isVisible():
                     child.close()
         self.sub_windows.clear()
+
+        # 清空调试预览截图
+        clear_debug_screenshot_dir()
 
         with suppress(Exception):
             logger.info("[EXIT]")

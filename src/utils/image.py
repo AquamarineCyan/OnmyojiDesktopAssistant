@@ -7,6 +7,8 @@ import cv2
 import numpy as np
 from PIL.Image import Image
 
+from ..ui.debug_preview_widget import show_debug_preview
+from .application import DEBUG_SCREENSHOT_DIR_PATH
 from .assets import AssetImage
 from .config import config
 from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, get_scale, scale_region
@@ -166,11 +168,25 @@ class RuleImage:
             return scale_region(self.region)
         return tuple(self.region)
 
+    def _show_debug(self, image: np.ndarray, rect: tuple[int, int, int, int]) -> None:
+        """调试预览：在副本上画出匹配框后落盘并交给应用内 Qt 预览窗口
+
+        opencv 为 headless 版，没有 imshow/waitKey 等 GUI 组件，直接调用会抛
+        cv2.error。这里改用主窗口的 Qt 预览窗口；截图同时保存到
+        data/screenshot/debug，程序退出时自动清空。
+        """
+        from PIL import Image as PILImage  # fromarray 挂在模块上，Image 类没有该方法
+
+        vis = image.copy()  # 在副本上画框，避免污染缓存的共享数组
+        cv2.rectangle(vis, (rect[0], rect[1]), (rect[2], rect[3]), (0, 0, 255), 1)  # color: BGR
+        pil_image = PILImage.fromarray(cv2.cvtColor(vis, cv2.COLOR_BGR2RGB))
+        save_path = DEBUG_SCREENSHOT_DIR_PATH / f"debug-{self.name}-{time.strftime('%Y%m%d%H%M%S')}.png"
+        show_debug_preview(pil_image, f"图像匹配结果 - {self.name}", save_path)
+
     def match(
         self,
         image: ScreenShot | Image | str | None = None,
         score: float = None,
-        debug: bool = False,
         normal: bool = True,
         logger_lever: Literal["ERROR", "SUCCESS", "NONE"] = "SUCCESS",
     ) -> bool:
@@ -179,7 +195,6 @@ class RuleImage:
         Args:
             image (ScreenShot | Image | str | None): 待匹配图像，None表示使用当前截图
             score (float): 匹配阈值，低于该值则匹配失败
-            debug (bool): 是否显示调试信息，默认为False
             normal (bool): 是否正常状态（非悬赏等待状态）下进行匹配
             logger_lever (Literal["ERROR", "SUCCESS", "NONE"]): 日志级别
                         - "ERROR" : 仅记录失败
@@ -195,13 +210,16 @@ class RuleImage:
         region = self.actual_region()
         if image is None:
             # 后台截图直接复用原始 BGR 缓冲视图，跳过 PIL 与整图转换
-            image = ScreenShot(region, debug=debug).get_bgr()
+            image = ScreenShot(region).get_bgr()
         elif isinstance(image, ScreenShot):
             image = image.get_bgr()
         elif isinstance(image, Image):
             image = convert_image_rgb_to_bgr(image)
         else:
             image = cv2.imread(image, cv2.IMREAD_COLOR)
+        if image is None:
+            # 截图失败（get_bgr 返回 None）：本轮按未匹配处理，不抛异常
+            return False
         if score is None:
             score = self.score
 
@@ -234,6 +252,8 @@ class RuleImage:
         # https://blog.csdn.net/m0_37579176/article/details/116950903
         # 匹配区域里的相对坐标
         x1, y1 = max_loc
+        # 调试预览画框使用截图内的相对坐标（不叠加 region 偏移）
+        debug_rect = (x1, y1, x1 + template.shape[1], y1 + template.shape[0])
         # 加上图像自身占游戏窗口的坐标
         x1 = x1 + region[0]
         y1 = y1 + region[1]
@@ -242,11 +262,12 @@ class RuleImage:
         # 实际客户区 → 基准空间：业务侧统一按基准空间使用识别结果
         self.match_result = (x1 / fx, y1 / fy, x2 / fx, y2 / fy)
 
-        if debug:
-            vis = image.copy()  # 在副本上画框，避免污染缓存的共享数组
-            cv2.rectangle(vis, (x1, y1), (x2, y2), (0, 0, 255), 1)  # color: BGR
-            cv2.imshow("DEBUG", vis)
-            cv2.waitKey(0)
+        # 显示带框的截图
+        if config.user.debug_preview:
+            try:
+                self._show_debug(image, debug_rect)
+            except Exception as e:
+                logger.warning(f"[DEBUG] 调试预览失败: {e}")
 
         return True
 

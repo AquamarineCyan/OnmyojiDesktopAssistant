@@ -21,14 +21,12 @@ class ScreenShot:
         rect: tuple[int, int, int, int] | None = None,
         handle: int | None = None,
         _log: bool = False,
-        debug: bool = False,
     ) -> None:
         """
         Args:
             rect (tuple[int, int, int, int] | None): 自定义矩形(left, top, width, height)。默认为None，表示整个窗口客户区。
             handle (int | None): 窗口句柄。如果为None，则使用当前活动窗口。
             _log (bool): 是否记录日志。默认False。
-            debug (bool): 是否在调试模式下显示截图。默认False。
         """
         if handle:
             if isinstance(handle, GameWindow):
@@ -50,7 +48,6 @@ class ScreenShot:
             self.rect = client_rect
 
         self._log = _log
-        self._debug = debug
 
         # 最多重试10次
         for i in range(10):
@@ -90,8 +87,6 @@ class ScreenShot:
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
             logger.info(f"screenshot front cost {self.time_cost:.2f} ms, {window_rect}")
-        if self._debug:
-            image.show()
         self._image = image
         return image
 
@@ -205,8 +200,6 @@ class ScreenShot:
         self.time_cost = round((_end - _start) * 1000, 2)
         if self._log:
             logger.info(f"screenshot backend [{method}] cost {self.time_cost:.2f} ms, {client_rect}")
-        if self._debug:
-            self.get_image().show()
         return self._bgr
 
     def save(self, file, *args, **kwargs) -> None:
@@ -228,8 +221,10 @@ class ScreenShot:
                 self._image = Image.fromarray(np.ascontiguousarray(self._bgr[:, :, ::-1]))
         return self._image
 
-    def get_bgr(self) -> np.ndarray:
+    def get_bgr(self) -> np.ndarray | None:
         """获取 BGR 图像（后台截图直接复用原始缓冲视图，免整图转换与拷贝）"""
         if self._bgr is None:
+            if self._image is None:
+                return None
             self._bgr = cv2.cvtColor(np.array(self._image), cv2.COLOR_RGB2BGR)
         return self._bgr

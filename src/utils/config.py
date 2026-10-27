@@ -178,6 +178,8 @@ class DefaultConfig(BaseModel):
     """记住强制缩放的选择（不再弹窗提醒）"""
     log_color: dict = LogColorConfig().model_dump()
     """日志颜色配置"""
+    debug_preview: bool = False
+    """调试时显示图像匹配结果框（开发者设置）"""
 
 
 default_config = DefaultConfig()
@@ -222,6 +224,8 @@ class UserConfig(BaseModel):
     """GPU编号，默认0"""
     log_color: LogColorConfig = LogColorConfig()
     """日志颜色配置"""
+    debug_preview: bool = False
+    """调试时显示图像匹配结果框（开发者设置）"""
     announcement_id: int = 19700101
     """已读公告的最新 id"""
 

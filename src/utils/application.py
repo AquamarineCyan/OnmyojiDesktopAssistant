@@ -35,6 +35,24 @@ SCREENSHOT_DIR_PATH: Path = USER_DATA_DIR_PATH / "screenshot"
 if not SCREENSHOT_DIR_PATH.exists():
     SCREENSHOT_DIR_PATH.mkdir(parents=True)
 
+DEBUG_SCREENSHOT_DIR_PATH: Path = SCREENSHOT_DIR_PATH / "debug"
+"""调试预览截图文件夹路径（程序退出时清空）"""
+if not DEBUG_SCREENSHOT_DIR_PATH.exists():
+    DEBUG_SCREENSHOT_DIR_PATH.mkdir(parents=True)
+
+
+def clear_debug_screenshot_dir() -> None:
+    """清空调试预览截图文件夹（失败不影响程序退出）"""
+    if not DEBUG_SCREENSHOT_DIR_PATH.exists():
+        return
+    for path in DEBUG_SCREENSHOT_DIR_PATH.iterdir():
+        try:
+            if path.is_file():
+                path.unlink()
+        except OSError:
+            pass
+
+
 MODEL_DIR_PATH: Path = APP_PATH / "models"
 """模型文件夹路径"""
 if not MODEL_DIR_PATH.exists():
