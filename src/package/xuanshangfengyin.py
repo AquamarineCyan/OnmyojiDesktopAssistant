@@ -20,7 +20,6 @@ class XuanShangFengYin(BasePackage):
     resource_list = (
         "title",  # 标题
         "xuanshang_accept",  # 接受
-        "xuanshang_ignore",  # 忽略
         "xuanshang_refuse",  # 拒绝
     )
 
@@ -38,7 +37,6 @@ class XuanShangFengYin(BasePackage):
     def load_asset(self):
         self.IMAGE_TITLE = self.get_image_asset("title")
         self.IMAGE_ACCEPT = self.get_image_asset("accept")
-        self.IMAGE_IGNORE = self.get_image_asset("ignore")
         self.IMAGE_REFUSE = self.get_image_asset("refuse")
 
     def check_task(self):
@@ -64,13 +62,13 @@ class XuanShangFengYin(BasePackage):
             self._flag_notify = False
             if self._flag_msg:
                 self._flag_msg = False
-                logger.ui("悬赏封印已消失，恢复线程")
+                logger.ui("悬赏封印已消失，恢复任务")
             return
 
         # 检测到悬赏封印
         event_xuanshang.clear()
         logger.ui_hint(self.scene_name)
-        logger.ui_warn("已暂停后台线程，等待处理")
+        logger.ui_warn("已暂停任务，等待处理")
         toast("悬赏封印", "检测到悬赏封印")
         if not self._flag_notify:
             self._flag_notify = True
@@ -85,7 +83,7 @@ class XuanShangFengYin(BasePackage):
                 _asset = self.IMAGE_REFUSE
             case XuanShangFengYinMode.IGNORE:
                 _msg = "忽略协作"
-                _asset = self.IMAGE_IGNORE
+                _asset = self.global_assets.IMAGE_CLOSE
             case _:
                 _msg = "用户配置出错，自动接受协作"
                 _asset = self.IMAGE_ACCEPT

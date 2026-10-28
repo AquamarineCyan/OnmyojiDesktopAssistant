@@ -14,12 +14,6 @@
             "score": "0.7"
         },
         {
-            "name": "ignore",
-            "file": "xuanshang_ignore.png",
-            "region": [0, 0, 0, 0],
-            "score": "0.7"
-        },
-        {
             "name": "refuse",
             "file": "xuanshang_refuse.png",
             "region": [0, 0, 0, 0],
