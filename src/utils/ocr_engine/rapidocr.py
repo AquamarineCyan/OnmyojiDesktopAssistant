@@ -158,7 +158,7 @@ class OCRManager:
             logger.error(f"模型[RapidOCR {OCR_VERSION} {MODEL_TYPE} / {ENGINE_TYPE}]初始化失败: {e}")
             raise
 
-    def detect(self, image) -> list:
+    def detect(self, image: Image | np.ndarray) -> list:
         """执行OCR检测
 
         Args:

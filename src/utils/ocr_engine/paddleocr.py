@@ -132,14 +132,28 @@ class OCRManager:
             logger.error(f"模型[PaddleOCR v{version}]初始化失败: {e}")
             raise
 
-    def detect(self, image: Image.Image) -> list:
+    def detect(self, image: Image.Image | np.ndarray) -> list:
         """执行OCR检测
 
         Args:
-            image: PIL Image 对象
+            image: PIL Image（RGB）或 np.ndarray（BGR，OpenCV 约定）
 
         Returns:
-            list: OCR检测结果
+            list[dict]: 已格式化的识别结果，每项含 Text / Score / BoxPoints
+
+        Example:
+            [
+                {
+                    "Text": "XXXX",
+                    "Score": 0.99,
+                    "BoxPoints": [
+                        {"X": 100, "Y": 10},
+                        {"X": 200, "Y": 20},
+                        {"X": 300, "Y": 30},
+                        {"X": 400, "Y": 40},
+                    ],
+                }
+            ]
         """
         if not self.is_initialized():
             logger.ui_error("模型未初始化成功，请重启后再试")
@@ -149,9 +163,13 @@ class OCRManager:
             t1 = time.perf_counter()
             img_np = np.array(image)
             result = self.paddleocr.predict(input=img_np)
+            # 统一格式
+            formatted_result = []
+            for res in result:
+                formatted_result.extend(get_ocrdata_from_result(res))
             t2 = time.perf_counter()
             logger.debug(f"OCR总耗时: {(t2 - t1) * 1000:.2f} ms")
-            return result
+            return formatted_result
         except Exception as e:
             logger.error(f"OCR检测失败: {e}")
             return []
@@ -220,16 +238,8 @@ class OcrDetector:
 
         ocr_result = ocr_manager.detect(image)
         data_result: list[OcrData] = []
-        try:
-            formatted_result = []
-            for res in ocr_result:
-                formatted_result.extend(get_ocrdata_from_result(res))
-        except Exception as e:
-            logger.error(f"Failed to parse OCR result: {str(e)}")
-            logger.error(f"Raw OCR result: {ocr_result}")
-            return data_result
 
-        for item in formatted_result:
+        for item in ocr_result:
             # 过滤无效数据
             if not isinstance(item, dict):
                 logger.warning(f"OCR item is not a dict: {item}")
