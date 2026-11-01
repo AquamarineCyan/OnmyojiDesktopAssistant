@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import ClassVar
 
 from .version import DEBUG_VERSION, VERSION  # noqa: F401
 
@@ -73,15 +74,14 @@ class Connect:
     repo = APP_NAME
     homepage = f"https://github.com/{owner}/{repo}"
     releases_api = f"https://api.github.com/repos/{owner}/{repo}/releases"
-    headers = {
+    headers: ClassVar[dict[str, str]] = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36"
     }
-    mirror_station = [
+    mirror_station: ClassVar[list[str]] = [
+        "https://gh-proxy.com/",
         "https://ghfast.top/",
         "https://gh.nxnow.top/",
-        "https://gh-proxy.com/",
         "https://free.cn.eu.org/",
-        "https://gh.slw.im/",
     ]
 
     class MirrorChyan:
