@@ -4,6 +4,7 @@ from typing import Literal
 from ..assets import AssetOcr
 from ..config import config
 from ..coordinate import get_scale, scale_region
+from ..log import logger
 from ..point import Point, Rectangle
 from ..window import window_manager
 
@@ -103,6 +104,30 @@ class OcrData:
         return f"text: {self.text}, score: {self.score}, rect: {self.rect.get_box()}, center: {self.center}"
 
 
+def _capture_size() -> tuple[int, int]:
+    """当前窗口可截图区域的实际尺寸（模拟器取内容帧尺寸，桌面版取客户区）"""
+    cur = window_manager.current
+    if cur is None:
+        return 0, 0
+    width = getattr(cur, "content_width", 0) or cur.client_width
+    height = getattr(cur, "content_height", 0) or cur.client_height
+    return width, height
+
+
+def _clamp_region(region: tuple[int, int, int, int]) -> tuple[int, int, int, int]:
+    """把 region 收敛到可截图区域，避免越界导致黑边、裁错误位或截图失败"""
+    width, height = _capture_size()
+    if width <= 0 or height <= 0:
+        return region
+    x, y, w, h = (int(v) for v in region)
+    x, y = max(0, x), max(0, y)
+    w, h = min(w, width - x), min(h, height - y)
+    if w <= 0 or h <= 0:
+        logger.warning(f"OCR region {region} 超出窗口 {width}x{height}，回退为整窗识别")
+        return (0, 0, width, height)
+    return (x, y, w, h)
+
+
 class RuleOcr:
     """文字识别
 
@@ -161,6 +186,8 @@ class RuleOcr:
         else:
             # 素材/显式 region 是基准空间坐标 → 实际客户区
             self.region = scale_region(self.region)
+        # 越界的 region 收敛到可截图区域内，避免黑边/截断/截图失败
+        self.region = _clamp_region(self.region)
 
         self.match_result: OcrData = None
         self.detector = _detector_cls(self.region)

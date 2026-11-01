@@ -1,4 +1,7 @@
+import re
+
 from ..utils.adapter import Mouse
+from ..utils.config import config
 from ..utils.coordinate import reference_size
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
@@ -6,8 +9,34 @@ from ..utils.exception import DailyLimitException, GUIStopException
 from ..utils.function import finish_random_left_right, random_normal, random_num, sleep
 from ..utils.image import RuleImage, check_image_once
 from ..utils.log import logger
+from ..utils.ocr_engine import RuleOcr
 from ..utils.point import Point
+from ..utils.window import window_manager
 from .base_package import BasePackage
+
+_TARGET_CHAPTER = 28
+"""默认目标章节（CPU 模型可识别第二十八章）"""
+
+_MAX_SCROLL_TIMES = 15
+"""最大滚动次数，防止识别异常时死循环"""
+
+
+def _target_chapter() -> int:
+    """GPU 版模型识别不到「第二十八章」，目标降为第二十七章，靠兜底滚动补足"""
+    return 27 if config.is_gpu else _TARGET_CHAPTER
+
+
+def _parse_chapter(text: str) -> int | None:
+    """解析「第X章」中的章节号，未匹配返回 None"""
+    cn_digits = {"一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+    match = re.search(r"第([一二三四五六七八九十]+)章", text)  # 游戏内只有中文数字
+    if not match:
+        return None
+    num = match.group(1)
+    if "十" in num:
+        tens, _, ones = num.partition("十")
+        return (int(cn_digits[tens]) if tens else 1) * 10 + (int(cn_digits[ones]) if ones else 0)
+    return int(cn_digits[num])
 
 
 class TanSuo(BasePackage):
@@ -37,7 +66,7 @@ class TanSuo(BasePackage):
 
     @staticmethod
     def description() -> None:
-        logger.ui("提前准备好自动轮换和加成，仅单人探索")
+        logger.ui("提前准备好自动轮换和加成，仅单人探索第二十八章。")
 
     def load_asset(self):
         self.IMAGE_START = self.get_image_asset("start")
@@ -50,9 +79,60 @@ class TanSuo(BasePackage):
         self.IMAGE_TANSUO_28 = self.get_image_asset("tansuo_28")
         self.IMAGE_TITLE_28 = self.get_image_asset("title_28")
 
-    @log_function_call
+    def get_chapter_number(self) -> int | None:
+        """返回当前界面可见的最大章节号，未识别到返回 None"""
+        # 章节列表固定在右侧，只识别 x>=900 的区域，减少全屏 OCR 开销；
+        x = 900
+        width, height = window_manager.current.client_width, window_manager.current.client_height
+        result = RuleOcr(region=(x, 0, width - x, height)).get_raw_result()
+        chapters = [n for item in result if (n := _parse_chapter(item.text)) is not None]
+        return max(chapters) if chapters else None
+
+    def scroll_to_target_chapter(self) -> bool:
+        """滚动章节列表到目标章节，返回是否正常识别到章节列表
+
+        默认目标是第二十八章；GPU 版模型识别不到第二十八章，目标降为第二十七章，
+        并在到达后兜底滚两格，保证第二十八章也露出。每滚一次都重新识别。
+        """
+        target = _target_chapter()
+        chapter = self.get_chapter_number()
+        if chapter is None:
+            self.title_error_msg()
+            return False
+        if chapter >= target:
+            logger.info(f"当前第{chapter}章，无需滚动")
+            return True
+
+        logger.ui(f"当前停留第{chapter}章，滚动到第{target}章")
+        # 滚轮落点需在章节列表上，move 只需一次，后续滚动都作用于此
+        Mouse.move(point=Point(1030, 340))
+        for _ in range(_MAX_SCROLL_TIMES):
+            if bool(event_thread):
+                raise GUIStopException
+            Mouse.scroll(-3 * 120)  # 向下3格
+
+            self.sleep_interval()
+            chapter = self.get_chapter_number()
+            if chapter is None:
+                logger.info("滚动后未识别到章节，继续滚动")
+                continue
+            if chapter >= target:
+                logger.ui(f"已滚动到第{chapter}章")
+                if config.is_gpu:
+                    # GPU 版模型识别不到「第二十八章」，兜底再滚两格
+                    logger.info("兜底再滚动两格")
+                    Mouse.scroll(-120 * 2)
+                    self.sleep_interval()
+                return True
+            logger.info(f"当前第{chapter}章，继续滚动")
+        logger.ui_error(f"滚动次数超限，仍未到达第{target}章")
+        return True
+
     def check_title(self) -> None:
-        msg_title = True
+        msg_title: bool = False
+
+        msg_title = self.scroll_to_target_chapter()
+
         self.current_asset_list = [
             self.IMAGE_CHUZHANXIAOHAO,
             self.IMAGE_TANSUO_28,
