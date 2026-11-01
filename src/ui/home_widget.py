@@ -19,6 +19,7 @@ from qfluentwidgets import (
     LineEdit,
     PushButton,
     RadioButton,
+    Slider,
     SpinBox,
     TextBrowser,
     ToolTipFilter,
@@ -47,6 +48,7 @@ class StackedWidgetIndex(Enum):
     MIWEN = 8
     BAIGUIYEXING = 9
     XIAJIANANYU = 10
+    LIAOTUPO = 11
 
 
 class HomeWidget(QWidget):
@@ -308,6 +310,38 @@ class HomeWidget(QWidget):
                         self.fail_checkbox.setDisabled(True)
                         self.current_combobox.setDisabled(True)
                         self.target_combobox.setDisabled(True)
+
+        class AdvancedLiaoTuPoCard(HeaderCardWidget):
+            """高级设置-寮突破"""
+
+            id = StackedWidgetIndex.LIAOTUPO.value
+
+            def __init__(self, parent=None):
+                super().__init__(parent)
+                self.setTitle("高级设置")
+                self.setBorderRadius(8)
+                self.headerView.setFixedHeight(GroupHeaderCardWidgetHeaderViewHeight)
+
+                self.process_label = BodyLabel("目标进度")
+                self.process_value_label = BodyLabel("90%")
+                self.process_slider = Slider(Qt.Orientation.Horizontal)
+                self.process_slider.setRange(0, 100)
+                self.process_slider.setValue(90)
+                self.process_slider.valueChanged.connect(lambda value: self.process_value_label.setText(f"{value}%"))
+
+                self.hBoxLayout = QHBoxLayout()
+                self.hBoxLayout.setSpacing(10)
+                self.hBoxLayout.addWidget(self.process_label)
+                self.hBoxLayout.addStretch()
+                self.hBoxLayout.addWidget(self.process_value_label)
+
+                self.vBoxLayout = QVBoxLayout()
+                self.vBoxLayout.setSpacing(10)
+                self.vBoxLayout.addLayout(self.hBoxLayout)
+                self.vBoxLayout.addWidget(self.process_slider)
+                self.vBoxLayout.addStretch()
+
+                self.viewLayout.addLayout(self.vBoxLayout)
 
         class AdvancedDaoGuanTuPoCard(HeaderCardWidget):
             """高级设置-道馆突破"""
@@ -662,6 +696,7 @@ class HomeWidget(QWidget):
             self.miwen_card = self.AdvancedMiWenCard()
             self.baiguiyexing_card = self.AdvancedBaiGuiYeXingCard()
             self.xiajiananyu_card = self.AdvancedXiaJianAnYuCard()
+            self.liaotupo_card = self.AdvancedLiaoTuPoCard()
 
             self.addWidget(QWidget())
 
@@ -676,6 +711,7 @@ class HomeWidget(QWidget):
                 self.miwen_card,
                 self.baiguiyexing_card,
                 self.xiajiananyu_card,
+                self.liaotupo_card,
             ]
 
             for card in sorted(card_instances, key=lambda x: type(x).id):
@@ -695,7 +731,6 @@ class HomeWidget(QWidget):
 
             self.progress_label = BodyLabel("当前进度")
             self.progress_text = LineEdit()
-            self.progress_text.setMaximumHeight(20)
             self.progress_text.setReadOnly(True)
 
             self.text_info = TextBrowser()
@@ -706,9 +741,11 @@ class HomeWidget(QWidget):
             self.vBoxLayout = QVBoxLayout()
             self.hBoxLayout = QHBoxLayout()
             self.hBoxLayout.setSpacing(10)
+            # 与下方 TextBrowser 的内边距对齐，左侧留出空间
+            self.hBoxLayout.setContentsMargins(8, 0, 0, 0)
 
-            self.hBoxLayout.addWidget(self.progress_label)
-            self.hBoxLayout.addWidget(self.progress_text)
+            self.hBoxLayout.addWidget(self.progress_label, 0, Qt.AlignmentFlag.AlignVCenter)
+            self.hBoxLayout.addWidget(self.progress_text, 1, Qt.AlignmentFlag.AlignVCenter)
 
             self.vBoxLayout.addLayout(self.hBoxLayout)
             self.vBoxLayout.addWidget(self.text_info, 1)

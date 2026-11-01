@@ -657,9 +657,10 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
     }
 
     @log_function_call
-    def __init__(self, n: int = 0) -> None:
+    def __init__(self, n: int = 0, process_threshold: int = 90) -> None:
         super().__init__(n)
         self.process: float = 0  # 突破进度
+        self.process_threshold: int = process_threshold  # 提前结束任务的进度阈值
 
     @staticmethod
     def description() -> Literal[100, 6]:
@@ -740,15 +741,22 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
                 if _process > 100:  # 防止识别错误
                     continue
                 self.process = _process
-                logger.ui(f"当前进度：{self.process}%")
+                logger.ui(f"当前进度：{self.process:.2f}%")
+                logger.progress(f"{self.process:.2f}%")
 
-            if self.process > 90:
+            if self.process >= self.process_threshold:
+                logger.ui_warn(f"突破进度达到 {self.process_threshold}%，提前结束任务")
                 raise LiaoTuPoFullException
 
             return
 
+    def done(self) -> None:
+        """当前进度不展示次数"""
+        self.n += 1
+
     def run(self) -> None:
         self.check_title()
+        logger.progress("0.00%")
         while self.n < self.max:
             if bool(event_thread):
                 raise GUIStopException

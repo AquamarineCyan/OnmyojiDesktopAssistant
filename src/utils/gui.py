@@ -408,6 +408,7 @@ class MainWindow(FluentWindow):
             case GameFunction.LIAOTUPO:
                 times = JieJieTuPoYinYangLiao.description()
                 basic_group.set_number_spinbox_value(times, 1, 200)
+                set_stack(StackedWidgetIndex.LIAOTUPO)
 
             case GameFunction.DAOGUANTUPO:
                 DaoGuanTuPo.description()
@@ -537,7 +538,11 @@ class MainWindow(FluentWindow):
                 ).task_start()
 
             case GameFunction.LIAOTUPO:
-                JieJieTuPoYinYangLiao(n=selected_number).task_start()
+                card = advanced_stack.liaotupo_card
+                JieJieTuPoYinYangLiao(
+                    n=selected_number,
+                    process_threshold=card.process_slider.value(),
+                ).task_start()
 
             case GameFunction.DAOGUANTUPO:
                 card = advanced_stack.daoguantupo_card
