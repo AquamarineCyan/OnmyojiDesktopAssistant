@@ -27,6 +27,7 @@ class ZhaoHuan(BasePackage):
     @staticmethod
     def description() -> None:
         logger.ui("普通召唤，请选择十连次数，请选择合适的召唤屋")
+        logger.ui_warn("该功能将在2026年12月31日后弃用。")
 
     def load_asset(self):
         self.OCR_TITLE = self.get_ocr_asset("title")
