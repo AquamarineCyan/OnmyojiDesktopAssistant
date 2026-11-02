@@ -727,7 +727,7 @@ class JieJieTuPoYinYangLiao(JieJieTuPo):
             rows (int): 行数，默认1行
         """
         # TODO 操作滚轮需要鼠标在当前区域，目前来说调用该方法时，鼠标在当前区域
-        Mouse.scroll(-rows * 240)  # 2*pis(pis=2*120)
+        Mouse.scroll(-rows * 2)  # 每行 2 格
 
     @log_function_call
     def get_current_process(self) -> None:

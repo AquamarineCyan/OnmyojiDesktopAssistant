@@ -366,10 +366,12 @@ class Mouse:
 
     @classmethod
     def _scroll_front(cls, distance: int):
+        """前台滚轮：pyautogui 驱动"""
         pyautogui.scroll(distance)
 
     @classmethod
     def _scroll_backend(cls, distance: int):
+        """后台滚轮：windows事件；模拟器不支持"""
         if cls._mumu_backend() is not None:
             logger.ui_warn("模拟器后台暂不支持滚轮（范围外）")
             return
@@ -381,21 +383,18 @@ class Mouse:
         cls._win_scroll(hwnd, distance, lParam)
 
     @classmethod
-    def scroll(cls, distance: int) -> None:
-        """
-        滚轮
-        Scrolls the mouse wheel.
+    def scroll(cls, steps: int) -> None:
+        """滚动鼠标滚轮
 
-        参数:
-        distance (int): How far to scroll the mouse wheel. Positive values
-            scroll up/away from the user, negative values scroll down/toward the
-            user.
+        Args:
+            steps (int): 滚动格数，正数向上，负数向下
         """
+        distance = int(steps * win32con.WHEEL_DELTA)
         if config.user.interaction_mode.mode == InteractionMode.BACKEND:
             cls._scroll_backend(distance)
         else:
             cls._scroll_front(distance)
-        logger.info(f"scroll at ({distance})")
+        logger.info(f"向{'上' if steps > 0 else '下'}滚动{abs(steps)}格")
 
 
 class KeyBoard:

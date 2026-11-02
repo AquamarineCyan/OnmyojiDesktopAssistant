@@ -109,7 +109,7 @@ class TanSuo(BasePackage):
         for _ in range(_MAX_SCROLL_TIMES):
             if bool(event_thread):
                 raise GUIStopException
-            Mouse.scroll(-3 * 120)  # 向下3格
+            Mouse.scroll(-3)  # 向下3格
 
             self.sleep_interval()
             chapter = self.get_chapter_number()
@@ -121,7 +121,7 @@ class TanSuo(BasePackage):
                 if config.is_gpu:
                     # GPU 版模型识别不到「第二十八章」，兜底再滚两格
                     logger.info("兜底再滚动两格")
-                    Mouse.scroll(-120 * 2)
+                    Mouse.scroll(-2)  # 向下2格
                     self.sleep_interval()
                 return True
             logger.info(f"当前第{chapter}章，继续滚动")
