@@ -178,6 +178,13 @@ class GameWindowManager:
         self._force_zoom_flag: bool = False
         self._close_window_flag: bool = False
         self._last_check_timestamp: float = 0.0  # 上次检测时间戳
+        self._custom_size: tuple[int, int] | None = None  # 用户自定义的目标尺寸（持久化于 config）
+        # 启动时读取持久化的自定义尺寸，作为本次会话的规范化目标（重启后仍记住用户的缩放偏好）
+        _w = int(getattr(config.user, "custom_window_width", 0) or 0)
+        _h = int(getattr(config.user, "custom_window_height", 0) or 0)
+        if _w > 0 and _h > 0:
+            self._custom_size = (_w, _h)
+        self._resizing: bool = False  # 缩放进行中标记（窗口信息线程据此挂起强制缩放检测）
 
     def set_window_title(self, language: GameLanguage):
         if language == GameLanguage.CN:
@@ -281,21 +288,24 @@ class GameWindowManager:
     def _need_force_zoom(self) -> bool:
         """窗口尺寸是否需要规范化
 
-        桌面版：按客户区尺寸与基准 1136x640 比较（不看外框，容差 5px）；
-        模拟器：按显示区（截图帧）尺寸与基准 1136x640 比较（容差 2px）。
+        桌面版：按客户区尺寸与规范化目标比较（不看外框，容差 5px）；
+        模拟器：按显示区（截图帧）尺寸与规范化目标比较（容差 2px）。
+        规范化目标默认 1136x640；用户自定义缩放后跟随自定义尺寸，
+        否则自定义尺寸会被判为不匹配，点「应用」时又被弹回基准。
         """
         window = self.current
+        target_w, target_h = self.zoom_target
         if window.family == "mumu":
             w = int(getattr(window, "content_width", 0) or 0)
             h = int(getattr(window, "content_height", 0) or 0)
             if w <= 0 or h <= 0:
                 return False  # 尺寸未知，不提示
-            return abs(w - STANDARD_CLIENT_WIDTH) > 2 or abs(h - STANDARD_CLIENT_HEIGHT) > 2
+            return abs(w - target_w) > 2 or abs(h - target_h) > 2
         w = int(getattr(window, "client_width", 0) or 0)
         h = int(getattr(window, "client_height", 0) or 0)
         if w <= 0 or h <= 0:
             return False  # 尺寸未知，不提示
-        return abs(w - STANDARD_CLIENT_WIDTH) > 5 or abs(h - STANDARD_CLIENT_HEIGHT) > 5
+        return abs(w - target_w) > 5 or abs(h - target_h) > 5
 
     def _emit_window_status_changed(self):
         """发出窗口状态更新信号"""
@@ -388,8 +398,8 @@ class GameWindowManager:
         """主动缩放：把窗口调整到指定客户区宽高
 
         Args:
-            width (int | None): 目标客户区宽度，默认 1136
-            height (int | None): 目标客户区高度，默认 640
+            width (int | None): 目标客户区宽度，默认取规范化目标（自定义过则用自定义尺寸，否则 1136）
+            height (int | None): 目标客户区高度，默认取规范化目标（自定义过则用自定义尺寸，否则 640）
 
         Returns:
             bool: 是否调整成功（窗口不存在、位置异常或尺寸未达标时返回 False）
@@ -398,27 +408,43 @@ class GameWindowManager:
             logger.ui_error("请先获取游戏窗口")
             return False
 
-        width = int(STANDARD_CLIENT_WIDTH if width is None else width)
-        height = int(STANDARD_CLIENT_HEIGHT if height is None else height)
+        explicit = width is not None or height is not None
+        target_w, target_h = self.zoom_target
+        width = int(target_w if width is None else width)
+        height = int(target_h if height is None else height)
         if width <= 0 or height <= 0:
             logger.ui_error("宽度和高度必须为正整数")
             return False
-
-        # 尺寸被重新调整后，允许后续检测再次提示强制缩放
-        self._force_zoom_flag = False
 
         # 窗口位于屏幕边缘/后台时 SetWindowPos 可能不生效，此时不做缩放
         if self.current.family != "mumu" and (self.current.window_left == 0 or self.current.window_top == 0):
             logger.ui_error("缩放失败")
             return False
 
-        if self.current.family == "mumu":
-            if not self._resize_mumu_client(width, height):
+        # 缩放期间窗口尺寸反复变化（模拟器迭代逼近最长 8 轮），窗口信息线程会读到中间尺寸：
+        # 置位标记让检测线程挂起强制缩放判断，避免缩放未完成时又被判「不匹配」再次弹窗
+        self._resizing = True
+        try:
+            if self.current.family == "mumu":
+                if not self._resize_mumu_client(width, height):
+                    logger.ui_error("缩放失败")
+                    return False
+            elif not self._resize_pc_client(width, height):
                 logger.ui_error("缩放失败")
                 return False
-        elif not self._resize_pc_client(width, height):
-            logger.ui_error("缩放失败")
-            return False
+        finally:
+            self._resizing = False
+
+        # 以下仅在成功后生效：
+        # - 记录并持久化自定义目标：失败时记录会让不可达的目标反复触发强制缩放提示；
+        # - 重置 _force_zoom_flag 允许后续再次提示：失败时保持拦截，避免「确认→失败→下一秒再弹」循环
+        if explicit:
+            self._custom_size = (width, height)
+            config.update("custom_window_width", width)
+            config.update("custom_window_height", height)
+            if self.current.family != "mumu" and (width, height) != (STANDARD_CLIENT_WIDTH, STANDARD_CLIENT_HEIGHT):
+                logger.ui_warn("桌面版识别基准为 1136x640，非基准尺寸可能导致识别失败")
+        self._force_zoom_flag = False
 
         logger.ui("缩放成功")
         logger.info(f"窗口客户区已调整为 {width}x{height}")
@@ -426,7 +452,8 @@ class GameWindowManager:
 
     def _check_force_zoom(self) -> bool:
         """检查是否需要强制缩放"""
-        if self._force_zoom_flag:
+        # 已提示待处理，或缩放正在进行（窗口尺寸处于中间态，判断无意义）时挂起
+        if self._force_zoom_flag or self._resizing:
             return False
 
         if not self.current:
@@ -546,6 +573,11 @@ class GameWindowManager:
     def is_emulator(self) -> bool:
         """当前是否为模拟器窗口（family 为 mumu）"""
         return self.current is not None and getattr(self.current, "family", "pc") == "mumu"
+
+    @property
+    def zoom_target(self) -> tuple[int, int]:
+        """强制缩放的规范化目标尺寸：用户自定义过则用自定义尺寸，否则基准 1136x640"""
+        return self._custom_size or (STANDARD_CLIENT_WIDTH, STANDARD_CLIENT_HEIGHT)
 
     def get_current_handle(self) -> int | None:
         """获取当前游戏窗口句柄，窗口未初始化时返回 None"""

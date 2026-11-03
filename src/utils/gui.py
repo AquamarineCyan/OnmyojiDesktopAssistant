@@ -215,7 +215,8 @@ class MainWindow(FluentWindow):
             if payload.action == MessageBoxPayload.Action.FORCE_ZOOM:
                 logger.error("游戏窗口大小不匹配")
 
-                dialog = ForceZoomDialog()
+                target_w, target_h = window_manager.zoom_target
+                dialog = ForceZoomDialog(target_width=target_w, target_height=target_h)
                 result = dialog.exec()
                 self.settingInterface.refresh_force_zoom()
                 if result:

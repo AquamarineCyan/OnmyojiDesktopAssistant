@@ -220,6 +220,10 @@ class UserConfig(BaseModel):
     """记住强制缩放的选择（不再弹窗提醒）"""
     force_zoom_accepted: bool = True
     """记住的强制缩放选择：True=接受缩放，False=拒绝"""
+    custom_window_width: int = 0
+    """自定义窗口缩放宽度（0=未自定义，使用基准 1136）"""
+    custom_window_height: int = 0
+    """自定义窗口缩放高度（0=未自定义，使用基准 640）"""
     gpu_id: int = 0
     """GPU编号，默认0"""
     log_color: LogColorConfig = LogColorConfig()

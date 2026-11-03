@@ -2,16 +2,22 @@ from PySide6.QtCore import Qt
 from qfluentwidgets import CheckBox, Dialog
 
 from ..utils.config import config
+from ..utils.window import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
 
 
 class ForceZoomDialog(Dialog):
     """游戏窗口大小不匹配时，强制缩放提示弹窗"""
 
-    def __init__(self, parent=None):
+    def __init__(
+        self,
+        parent=None,
+        target_width: int = STANDARD_CLIENT_WIDTH,
+        target_height: int = STANDARD_CLIENT_HEIGHT,
+    ):
         super().__init__(
             "游戏窗口大小不匹配",
             "是否强制缩放？\n"
-            "如不缩放，请自行将窗口调整至 1136×640，\n"
+            f"如不缩放，请自行将窗口调整至 {target_width}×{target_height}，\n"
             "或参考 帮助文档 在 data/myresource 文件夹中添加对应素材。",
             parent,
         )
