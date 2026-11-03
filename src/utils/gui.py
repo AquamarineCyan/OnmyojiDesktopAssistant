@@ -20,6 +20,7 @@ from ..ui.force_zoom_dialog import ForceZoomDialog
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_new_version_widget import UpdateNewVersionWidget
 from ..ui.update_record_widget import UpdateRecordWindow
+from ..ui.window_manager_widget import ResizeWindowDialog
 from .announcement import check_announcements, show_all_announcements
 from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION, clear_debug_screenshot_dir
 from .config import GameLanguage, InteractionMode, config
@@ -37,7 +38,7 @@ from .screenshot import ScreenShot
 from .shortcut import create_desktop_shortcut
 from .signals import signal_manager
 from .update import update_manager
-from .window import GameWindow, window_manager
+from .window import SCREEN_SIZE, GameWindow, window_manager
 
 
 class MainWindow(FluentWindow):
@@ -140,6 +141,7 @@ class MainWindow(FluentWindow):
 
         self.windowManagerInterface.preview_button.clicked.connect(self.preview_window)
         self.windowManagerInterface.apply_button.clicked.connect(self.apply_selected_window)
+        self.windowManagerInterface.resize_button.clicked.connect(self.resize_window_handle)
 
         self.settingInterface.about_card.short_cut_button.clicked.connect(create_desktop_shortcut)
         self.settingInterface.about_card.app_restart_button.clicked.connect(self.app_restart_handle)
@@ -195,7 +197,7 @@ class MainWindow(FluentWindow):
         window_manager.set_window_title(config.user.game_language)
         window_manager.set_gui_button_callback(self._window_button_enabled_handle)
         window_manager.set_gui_window_manager_list_callback(self.refresh_window_list)
-        window_manager.screen_init()
+        logger.ui(f"屏幕分辨率：{SCREEN_SIZE[0]}x{SCREEN_SIZE[1]}")
         self._update_screen_resolution_handle()
 
         global_task.add(window_manager.update_window_task)
@@ -218,7 +220,7 @@ class MainWindow(FluentWindow):
                 self.settingInterface.refresh_force_zoom()
                 if result:
                     logger.info("用户接受强制缩放")
-                    window_manager.force_zoom()
+                    window_manager.resize_window()
                 else:
                     logger.info("用户拒绝强制缩放")
 
@@ -697,12 +699,11 @@ class MainWindow(FluentWindow):
         self.windowManagerInterface.comboBox.setEnabled(len(game_window_list) > 0)
         self.windowManagerInterface.preview_button.setEnabled(len(game_window_list) > 0)
         self.windowManagerInterface.apply_button.setEnabled(len(game_window_list) > 0)
+        self.windowManagerInterface.resize_button.setEnabled(len(game_window_list) > 0)
 
     def _update_screen_resolution_handle(self):
         """更新屏幕分辨率显示"""
-        resolution = window_manager.current_window_resolution
-        if resolution:
-            self.windowManagerInterface.update_screen_resolution(resolution.screen_size[0], resolution.screen_size[1])
+        self.windowManagerInterface.update_screen_resolution(SCREEN_SIZE[0], SCREEN_SIZE[1])
 
     def debug_preview_handle(self, image: Image.Image, title: str):
         """显示匹配结果预览（debug 模式）
@@ -756,6 +757,24 @@ class MainWindow(FluentWindow):
         else:
             logger.warning("未选中窗口")
             signal_manager.main.message_box_requested.emit(MessageBoxPayload.error("未选中窗口"))
+
+    def resize_window_handle(self):
+        """主动缩放当前游戏窗口（支持自定义宽高）"""
+        current = window_manager.current
+        if not current:
+            logger.ui_error("请先获取游戏窗口")
+            return
+        current_width = int(getattr(current, "content_width", 0) or current.client_width)
+        current_height = int(getattr(current, "content_height", 0) or current.client_height)
+        dialog = ResizeWindowDialog(
+            self.windowManagerInterface,
+            window_label=self.windowManagerInterface.comboBox.currentText(),
+            width=current_width,
+            height=current_height,
+        )
+        if dialog.exec():
+            width, height = dialog.values()
+            window_manager.resize_window(width, height)
 
     def app_restart_handle(self):
         Restart().app_restart()

@@ -12,13 +12,7 @@
 模拟器：实际客户区 = MuMu 显示帧尺寸（窗口可自由缩放），系数 = 实际 / 1136x640。
 """
 
-from __future__ import annotations
-
-STANDARD_CLIENT_WIDTH = 1136
-"""基准空间宽度"""
-
-STANDARD_CLIENT_HEIGHT = 640
-"""基准空间高度"""
+from .window import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, window_manager
 
 
 def get_scale() -> tuple[float, float]:
@@ -26,8 +20,6 @@ def get_scale() -> tuple[float, float]:
 
     无窗口或桌面版（非 mumu）返回 (1.0, 1.0)，即两个空间重合。
     """
-    from .window import window_manager
-
     try:
         cur = window_manager.current
         if cur is None or getattr(cur, "family", "pc") != "mumu":
@@ -66,10 +58,10 @@ def scale_region(region: tuple[int, int, int, int]) -> tuple[int, int, int, int]
         return tuple(region)
     x, y, w, h = region
     return (
-        int(round(x * fx)),
-        int(round(y * fy)),
-        int(round(w * fx)),
-        int(round(h * fy)),
+        round(x * fx),
+        round(y * fy),
+        round(w * fx),
+        round(h * fy),
     )
 
 

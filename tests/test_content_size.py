@@ -13,10 +13,8 @@ def test_gamewindow_mumu_content_size_uses_shot(monkeypatch):
     monkeypatch.setattr(config.user.interaction_mode.backend, "enable_mumu", True)
     h = MumuHandle(root_hwnd=100, root_title="t", shot_hwnd=111,
                    control_hwnds=[100, 111], scale_rate=1.0, client_w=1084, client_h=610)
-    monkeypatch.setattr("src.utils.emulator.mumu_handle.build_handle", lambda *a, **k: h)
-    monkeypatch.setattr(
-        "src.utils.emulator.mumu_handle.detect_mumu_folder", lambda *a, **k: "E:\\MuMuPlayer"
-    )
+    monkeypatch.setattr(wm, "build_handle", lambda *a, **k: h)
+    monkeypatch.setattr(wm, "detect_mumu_folder", lambda *a, **k: "E:\\MuMuPlayer")
     monkeypatch.setattr(wm.win32gui, "GetWindowText", lambda hwnd: "t")
     monkeypatch.setattr(wm.win32gui, "GetWindowRect", lambda hwnd: (0, 0, 100, 100))
     monkeypatch.setattr(

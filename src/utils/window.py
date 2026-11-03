@@ -1,12 +1,13 @@
 import time
-from typing import Iterable
+from collections.abc import Iterable
 
 import win32api
 import win32con
 import win32gui
 
+from .client_discovery import build_client_items, discover_process_clients
 from .config import GameLanguage, config
-from .decorator import log_function_call
+from .emulator.mumu_handle import build_handle, detect_mumu_folder, fit_display_size, is_window
 from .log import logger
 from .message import MessageBoxPayload
 from .signals import signal_manager
@@ -15,6 +16,12 @@ SCREEN_SIZE = (
     win32api.GetSystemMetrics(win32con.SM_CXSCREEN),
     win32api.GetSystemMetrics(win32con.SM_CYSCREEN),
 )
+
+STANDARD_CLIENT_WIDTH: int = 1136
+"""基准客户区宽度"""
+
+STANDARD_CLIENT_HEIGHT: int = 640
+"""基准客户区高度"""
 
 
 def enum_windows(hwnd, result_list):
@@ -60,7 +67,7 @@ class GameWindow:
     family: str = "pc"
     """窗口家族：'pc'（桌面版）/'mumu'（MuMu 模拟器）"""
     shot_hwnd: int = 0
-    control_hwnds: list[int] = []
+    control_hwnds: list[int]
     scale_rate: float = 1.0
     instance_index: int = 0
 
@@ -74,6 +81,7 @@ class GameWindow:
     def __init__(self, handle: int, family: str | None = None, instance_index: int = 0):
         self.handle = int(handle)
         self.instance_index = int(instance_index)
+        self.control_hwnds: list[int] = []
         self.title = win32gui.GetWindowText(self.handle)
 
         # 偏移量见类初始定义
@@ -114,10 +122,6 @@ class GameWindow:
             self.family = "pc"
             return
         try:
-            from .emulator.mumu_handle import build_handle, detect_mumu_folder
-        except Exception:
-            return
-        try:
             folder = detect_mumu_folder(config.user.interaction_mode.backend.mumu_folder)
         except Exception:
             folder = ""
@@ -153,54 +157,12 @@ class GameWindow:
         logger.ui(s)
 
 
-class WindowResolution:
-    screen_size: tuple[int, int]
-    """屏幕尺寸，16:9"""
-    window_standard_width: int
-    """窗口标准宽度"""
-    window_standard_height: int
-    """窗口标准高度"""
-
-
-class WindowResolutionDefault(WindowResolution):
-    """默认值"""
-
-    screen_size = (1920, 1080)
-    window_standard_width: int = 1136 + 18
-    window_standard_height: int = 640 + 39 + 8
-
-
-class WindowResolution1920(WindowResolution):
-    """1920x1080"""
-
-    screen_size = (1920, 1080)
-    window_standard_width: int = 1136 + 18
-    window_standard_height: int = 640 + 39 + 8
-
-
-class WindowResolution2560(WindowResolution):
-    """2560x1440"""
-
-    # (704, 369, 1856, 1048)
-    screen_size = (2560, 1440)
-    window_standard_width: int = 1152
-    window_standard_height: int = 679
-
-
 class GameWindowManager:
     """游戏窗口"""
-
-    window_standard_width: int = 1136 + 18
-    """窗口标准宽度（官方1136+外框18=1154）"""
-    window_standard_height: int = 640 + 39 + 8
-    """窗口标准高度（官方640+标题栏39+外框8=687）"""
 
     window_title_zh: str = "阴阳师-网易游戏"  # 国服
     window_title_zh_mumu: str = "阴阳师-MuMu模拟器专版"  # 国服MuMu专版
     window_title_ja: str = "陰陽師Onmyoji"  # 日服
-
-    current_window_resolution: WindowResolution = None
-    """当前游戏窗口的分辨率"""
 
     window_check_interval: float = 1.0
     """窗口信息线程更新间隔（秒）"""
@@ -216,16 +178,6 @@ class GameWindowManager:
         self._force_zoom_flag: bool = False
         self._close_window_flag: bool = False
         self._last_check_timestamp: float = 0.0  # 上次检测时间戳
-
-    def screen_init(self):
-        """初始化屏幕分辨率"""
-        logger.ui(f"屏幕分辨率：{SCREEN_SIZE[0]}x{SCREEN_SIZE[1]}")
-        if SCREEN_SIZE == WindowResolution1920.screen_size:
-            self.current_window_resolution = WindowResolution1920()
-        elif SCREEN_SIZE == WindowResolution2560.screen_size:
-            self.current_window_resolution = WindowResolution2560()
-        else:
-            self.current_window_resolution = WindowResolutionDefault()
 
     def set_window_title(self, language: GameLanguage):
         if language == GameLanguage.CN:
@@ -265,8 +217,6 @@ class GameWindowManager:
 
     def discover(self) -> list[GameWindow]:
         """发现窗口：进程优先（桌面版在前、模拟器在后，各自按序编号），零发现才回落标题兜底。"""
-        from .client_discovery import build_client_items, discover_process_clients
-
         out: list[GameWindow] = []
         seen: set[int] = set()
         try:
@@ -331,11 +281,9 @@ class GameWindowManager:
     def _need_force_zoom(self) -> bool:
         """窗口尺寸是否需要规范化
 
-        桌面版：按窗口矩形与标准窗口尺寸比较；
-        模拟器：按显示区（截图帧）尺寸与基准 1136x640 比较。
+        桌面版：按客户区尺寸与基准 1136x640 比较（不看外框，容差 5px）；
+        模拟器：按显示区（截图帧）尺寸与基准 1136x640 比较（容差 2px）。
         """
-        from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
-
         window = self.current
         if window.family == "mumu":
             w = int(getattr(window, "content_width", 0) or 0)
@@ -343,46 +291,11 @@ class GameWindowManager:
             if w <= 0 or h <= 0:
                 return False  # 尺寸未知，不提示
             return abs(w - STANDARD_CLIENT_WIDTH) > 2 or abs(h - STANDARD_CLIENT_HEIGHT) > 2
-        return not is_rect_within_range(
-            window.window_rect,
-            self.current_window_resolution.window_standard_width,
-            self.current_window_resolution.window_standard_height,
-        )
-
-    def _force_zoom_emulator(self) -> bool:
-        """模拟器强制缩放：把显示区规范化到基准尺寸 1136x640"""
-        from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
-        from .emulator.mumu_handle import fit_display_size, is_window
-
-        window = self.current
-        shot_hwnd = int(getattr(window, "shot_hwnd", 0) or 0)
-        if not shot_hwnd or not is_window(int(window.handle)) or not is_window(shot_hwnd):
-            logger.ui_error("模拟器窗口无效，强制缩放失败")
-            return False
-        try:
-            final = fit_display_size(
-                window.handle,
-                shot_hwnd,
-                STANDARD_CLIENT_WIDTH,
-                STANDARD_CLIENT_HEIGHT,
-            )
-        except Exception as e:
-            logger.ui_error(f"强制缩放失败: {str(e)}")
-            return False
-        try:
-            # 尺寸可能已变化（含未达标时的部分调整），客户区/内容尺寸都过期，重建窗口对象
-            self.current = GameWindow(window.handle, family="mumu", instance_index=window.instance_index)
-        except Exception as e:
-            logger.warning(f"重建游戏窗口失败：{e}")
-        if abs(int(final[0]) - STANDARD_CLIENT_WIDTH) > 2 or abs(int(final[1]) - STANDARD_CLIENT_HEIGHT) > 2:
-            logger.ui_error(
-                f"强制缩放未达标：显示区 {final[0]}x{final[1]}，"
-                f"目标 {STANDARD_CLIENT_WIDTH}x{STANDARD_CLIENT_HEIGHT}（请恢复模拟器窗口后重试）"
-            )
-            return False
-        logger.ui("强制缩放成功")
-        logger.info(f"模拟器显示区已调整为 {final[0]}x{final[1]}")
-        return True
+        w = int(getattr(window, "client_width", 0) or 0)
+        h = int(getattr(window, "client_height", 0) or 0)
+        if w <= 0 or h <= 0:
+            return False  # 尺寸未知，不提示
+        return abs(w - STANDARD_CLIENT_WIDTH) > 5 or abs(h - STANDARD_CLIENT_HEIGHT) > 5
 
     def _emit_window_status_changed(self):
         """发出窗口状态更新信号"""
@@ -390,36 +303,126 @@ class GameWindowManager:
         current_text = f"{self.current.title} - {self.current.handle}" if self.current else ""
         signal_manager.main.window_status_changed.emit(count, current_text)
 
-    def force_zoom(self):  # TODO 比例差一点
-        """强制缩放：桌面版调整到标准窗口尺寸；模拟器把显示区调整到 1136x640"""
+    def _resize_pc_client(self, width: int, height: int) -> bool:
+        """桌面版按客户区精准缩放（迭代修正窗口外框尺寸）
+
+        外框/标题栏厚度随 DPI、主题变化，固定偏移量并不精确，因此按「当前客户区 vs 目标客户区」的差值迭代修正窗口总尺寸。
+
+        Args:
+            width (int): 目标客户区宽度
+            height (int): 目标客户区高度
+
+        Returns:
+            bool: 客户区是否达到目标尺寸（误差 ≤5px）
+        """
+        window = self.current
+        tolerance: int = 5  # 误差范围，单位像素
+        try:
+            rect = win32gui.GetWindowRect(window.handle)
+            win_w, win_h = rect[2] - rect[0], rect[3] - rect[1]
+            for _ in range(5):
+                cr = win32gui.GetClientRect(window.handle)
+                cw, ch = cr[2] - cr[0], cr[3] - cr[1]
+                dw, dh = width - cw, height - ch
+                if abs(dw) <= tolerance and abs(dh) <= tolerance:
+                    break
+                win_w, win_h = win_w + dw, win_h + dh
+                win32gui.SetWindowPos(
+                    window.handle,
+                    win32con.HWND_TOP,
+                    0,
+                    0,
+                    win_w,
+                    win_h,
+                    win32con.SWP_SHOWWINDOW | win32con.SWP_NOMOVE,
+                )
+                time.sleep(0.05)
+            cr = win32gui.GetClientRect(window.handle)
+            cw, ch = cr[2] - cr[0], cr[3] - cr[1]
+            if abs(cw - width) > tolerance or abs(ch - height) > tolerance:
+                logger.ui_error(f"缩放未达标：客户区 {cw}x{ch}，目标 {width}x{height}")
+                return False
+        except Exception as e:
+            logger.ui_error(f"缩放失败: {e!s}")
+            return False
+        try:
+            self.current = GameWindow(window.handle, family="pc", instance_index=window.instance_index)
+        except Exception as e:
+            logger.warning(f"重建游戏窗口失败：{e}")
+        return True
+
+    def _resize_mumu_client(self, width: int, height: int) -> bool:
+        """模拟器按显示区（截图帧）客户区缩放
+
+        通过 fit_display_size 迭代调整显示子窗口尺寸，成功后重建窗口对象
+        以刷新客户区/内容尺寸；误差超过 2px 视为未达标。
+
+        Args:
+            width (int): 目标显示区宽度
+            height (int): 目标显示区高度
+
+        Returns:
+            bool: 显示区是否达到目标尺寸
+        """
+        window = self.current
+        shot_hwnd = int(getattr(window, "shot_hwnd", 0) or 0)
+        if not shot_hwnd or not is_window(int(window.handle)) or not is_window(shot_hwnd):
+            logger.ui_error("模拟器窗口无效，缩放失败")
+            return False
+        try:
+            final = fit_display_size(window.handle, shot_hwnd, width, height)
+        except Exception as e:
+            logger.ui_error(f"缩放失败: {e!s}")
+            return False
+        try:
+            # 尺寸可能已变化（含未达标时的部分调整），客户区/内容尺寸都过期，重建窗口对象
+            self.current = GameWindow(window.handle, family="mumu", instance_index=window.instance_index)
+        except Exception as e:
+            logger.warning(f"重建游戏窗口失败：{e}")
+        if abs(int(final[0]) - width) > 2 or abs(int(final[1]) - height) > 2:
+            logger.ui_error(f"缩放未达标：显示区 {final[0]}x{final[1]}，目标 {width}x{height}")
+            return False
+        return True
+
+    def resize_window(self, width: int | None = None, height: int | None = None) -> bool:
+        """主动缩放：把窗口调整到指定客户区宽高
+
+        Args:
+            width (int | None): 目标客户区宽度，默认 1136
+            height (int | None): 目标客户区高度，默认 640
+
+        Returns:
+            bool: 是否调整成功（窗口不存在、位置异常或尺寸未达标时返回 False）
+        """
         if not self.current:
             logger.ui_error("请先获取游戏窗口")
             return False
 
+        width = int(STANDARD_CLIENT_WIDTH if width is None else width)
+        height = int(STANDARD_CLIENT_HEIGHT if height is None else height)
+        if width <= 0 or height <= 0:
+            logger.ui_error("宽度和高度必须为正整数")
+            return False
+
+        # 尺寸被重新调整后，允许后续检测再次提示强制缩放
         self._force_zoom_flag = False
 
-        if self.current.family == "mumu":
-            return self._force_zoom_emulator()
-
-        if self.current.window_left != 0 and self.current.window_top != 0:
-            try:
-                win32gui.SetWindowPos(
-                    self.current.handle,
-                    win32con.HWND_TOP,
-                    0,
-                    0,
-                    self.current_window_resolution.window_standard_width,
-                    self.current_window_resolution.window_standard_height,
-                    win32con.SWP_SHOWWINDOW | win32con.SWP_NOMOVE,
-                )
-                logger.ui("强制缩放成功")
-            except Exception as e:
-                logger.ui_error(f"强制缩放失败: {str(e)}")
-                return False
-            return True
-        else:
-            logger.ui_error("强制缩放失败")
+        # 窗口位于屏幕边缘/后台时 SetWindowPos 可能不生效，此时不做缩放
+        if self.current.family != "mumu" and (self.current.window_left == 0 or self.current.window_top == 0):
+            logger.ui_error("缩放失败")
             return False
+
+        if self.current.family == "mumu":
+            if not self._resize_mumu_client(width, height):
+                logger.ui_error("缩放失败")
+                return False
+        elif not self._resize_pc_client(width, height):
+            logger.ui_error("缩放失败")
+            return False
+
+        logger.ui("缩放成功")
+        logger.info(f"窗口客户区已调整为 {width}x{height}")
+        return True
 
     def _check_force_zoom(self) -> bool:
         """检查是否需要强制缩放"""
@@ -432,7 +435,7 @@ class GameWindowManager:
         if self._need_force_zoom():
             if config.user.remember_force_zoom_choice:
                 if config.user.force_zoom_accepted:
-                    self.force_zoom()
+                    self.resize_window()
                 else:
                     logger.info("用户此前已选择不强制缩放，不再提醒")
                 return True
@@ -504,7 +507,7 @@ class GameWindowManager:
 
         self._emit_window_status_changed()
 
-    def force_update(self, handle: int = None):
+    def force_update(self, handle: int | None = None):
         """强制更新游戏窗口
 
         Args:
@@ -531,15 +534,13 @@ class GameWindowManager:
             logger.ui("游戏窗口已置于前台")
             return True
         except Exception as e:
-            logger.ui_error(f"将游戏窗口置于前台失败: {str(e)}")
+            logger.ui_error(f"将游戏窗口置于前台失败: {e!s}")
             return False
 
     @property
     def is_alive(self) -> bool:
         """检查游戏窗口是否存在"""
-        if self.current is None:
-            return False
-        return True
+        return self.current is not None
 
     @property
     def is_emulator(self) -> bool:
@@ -555,13 +556,3 @@ class GameWindowManager:
 
 
 window_manager = GameWindowManager()
-
-
-@log_function_call
-def is_rect_within_range(rect, range_width, range_height):
-    x1, y1, x2, y2 = rect
-    offset = 10
-    return (
-        range_width - offset <= (x2 - x1) < range_width + offset
-        and range_height - offset <= (y2 - y1) < range_height + offset
-    )

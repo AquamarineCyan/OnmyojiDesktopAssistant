@@ -62,16 +62,17 @@ class _FakeSignalManager:
 
 
 def test_game_window_family_probe(monkeypatch, _win32, _enable):
-    mh = pytest.importorskip("src.utils.emulator.mumu_handle")
-    monkeypatch.setattr(mh, "detect_mumu_folder", lambda cfg: "E:\\MuMuPlayer")
+    import src.utils.window as W
+
+    monkeypatch.setattr(W, "detect_mumu_folder", lambda cfg: "E:\\MuMuPlayer")
 
     def raise_for(spec, **k):
         raise ValueError("pc")
 
-    monkeypatch.setattr(mh, "build_handle", raise_for)
+    monkeypatch.setattr(W, "build_handle", raise_for)
     assert GameWindow(999).family == "pc"
 
-    monkeypatch.setattr(mh, "build_handle", lambda spec, **k: _h(spec))
+    monkeypatch.setattr(W, "build_handle", lambda spec, **k: _h(spec))
     g = GameWindow(999)
     assert g.family == "mumu"
     assert g.shot_hwnd == 999 and g.control_hwnds == [999, 999]
@@ -79,10 +80,11 @@ def test_game_window_family_probe(monkeypatch, _win32, _enable):
 
 def test_family_explicit_pc_skips_probe(monkeypatch, _win32):
     """显式 family=pc 时不触发 build_handle 探测。"""
-    mh = pytest.importorskip("src.utils.emulator.mumu_handle")
+    import src.utils.window as W
+
     called = []
-    monkeypatch.setattr(mh, "detect_mumu_folder", lambda cfg: "E:\\MuMuPlayer")
-    monkeypatch.setattr(mh, "build_handle", lambda spec, **k: called.append(spec) or _h(spec))
+    monkeypatch.setattr(W, "detect_mumu_folder", lambda cfg: "E:\\MuMuPlayer")
+    monkeypatch.setattr(W, "build_handle", lambda spec, **k: called.append(spec) or _h(spec))
     assert GameWindow(999, family="pc").family == "pc"
     assert not called
 
@@ -90,16 +92,15 @@ def test_family_explicit_pc_skips_probe(monkeypatch, _win32):
 def test_discover_desktop_first_then_mumu(monkeypatch, _win32, _enable):
     import types
 
-    import src.utils.client_discovery as CD
     import src.utils.window as W
 
     pc1 = types.SimpleNamespace(kind="pc", pid=10, hwnd=333, title="title333", index=1, detail="title333")
     pc2 = types.SimpleNamespace(kind="pc", pid=11, hwnd=334, title="title334", index=2, detail="title334")
     mu1 = types.SimpleNamespace(kind="emulator", pid=20, hwnd=111, title="t111", index=1, detail="MuMu安卓设备")
     mu2 = types.SimpleNamespace(kind="emulator", pid=21, hwnd=222, title="t222", index=2, detail="MuMu安卓设备-1")
-    monkeypatch.setattr(CD, "discover_process_clients", lambda folder="", enable_emulator=True: [pc1, pc2, mu1, mu2])
+    monkeypatch.setattr(W, "discover_process_clients", lambda folder="", enable_emulator=True: [pc1, pc2, mu1, mu2])
     monkeypatch.setattr(
-        CD, "build_client_items", lambda clients, fallback_titles=None: [(f"x{c.hwnd}", c) for c in clients]
+        W, "build_client_items", lambda clients, fallback_titles=None: [(f"x{c.hwnd}", c) for c in clients]
     )
 
     class _GW:
@@ -125,11 +126,10 @@ def test_discover_desktop_first_then_mumu(monkeypatch, _win32, _enable):
 
 
 def test_discover_title_fallback_only_when_empty(monkeypatch, _win32):
-    import src.utils.client_discovery as CD
     import src.utils.window as W
 
-    monkeypatch.setattr(CD, "discover_process_clients", lambda folder="", enable_emulator=True: [])
-    monkeypatch.setattr(CD, "build_client_items", lambda clients, fallback_titles=None: [("阴阳师-网易游戏", None)])
+    monkeypatch.setattr(W, "discover_process_clients", lambda folder="", enable_emulator=True: [])
+    monkeypatch.setattr(W, "build_client_items", lambda clients, fallback_titles=None: [("阴阳师-网易游戏", None)])
     monkeypatch.setattr(W, "get_all_target_window", lambda titles: [555])
     wins = GameWindowManager().discover()
     assert [w.handle for w in wins] == [555]

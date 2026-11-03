@@ -11,13 +11,13 @@ from ..ui.debug_preview_widget import show_debug_preview
 from .application import DEBUG_SCREENSHOT_DIR_PATH
 from .assets import AssetImage
 from .config import config
-from .coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, get_scale, scale_region
+from .coordinate import get_scale, scale_region
 from .event import event_xuanshang
 from .function import check_user_file_exists, random_normal
 from .log import logger
 from .point import Point
 from .screenshot import ScreenShot
-from .window import window_manager
+from .window import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH, window_manager
 
 
 class LOGLEVEL(Enum):

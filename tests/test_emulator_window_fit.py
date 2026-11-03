@@ -1,10 +1,11 @@
-"""模拟器窗口尺寸规范化：复用桌面版「强制缩放」确认流程（弹窗 + 不再提醒）。"""
+﻿"""模拟器窗口尺寸规范化：复用桌面版「强制缩放」确认流程（弹窗 + 不再提醒）。"""
+
 import pytest
 
 import src.utils.window as W
 from src.utils.coordinate import STANDARD_CLIENT_HEIGHT, STANDARD_CLIENT_WIDTH
-from src.utils.message import MessageBoxPayload
 from src.utils.emulator import mumu_handle as MH
+from src.utils.message import MessageBoxPayload
 from src.utils.window import GameWindow, GameWindowManager
 
 
@@ -74,13 +75,13 @@ def test_need_force_zoom_tolerates_one_pixel(manager):
 def test_mumu_force_zoom_fits_display(manager, monkeypatch):
     """模拟器强制缩放 = 把显示区规范化到 1136x640，并重建窗口对象。"""
     calls = []
-    monkeypatch.setattr(MH, "is_window", lambda h: True)
-    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: calls.append(a) or (1136, 640))
+    monkeypatch.setattr(W, "is_window", lambda h: True)
+    monkeypatch.setattr(W, "fit_display_size", lambda *a, **k: calls.append(a) or (1136, 640))
     rebuilt = []
     monkeypatch.setattr(W, "GameWindow", lambda *a, **k: rebuilt.append(a) or _FakeWindow())
 
     manager.current = _FakeWindow()
-    assert manager.force_zoom() is True
+    assert manager.resize_window() is True
 
     assert calls[0][2] == STANDARD_CLIENT_WIDTH
     assert calls[0][3] == STANDARD_CLIENT_HEIGHT
@@ -88,11 +89,9 @@ def test_mumu_force_zoom_fits_display(manager, monkeypatch):
 
 
 def test_mumu_force_zoom_skips_invalid_window(manager, monkeypatch):
-    monkeypatch.setattr(MH, "is_window", lambda h: False)
-    monkeypatch.setattr(
-        MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("不应调用"))
-    )
-    assert manager.force_zoom() is False
+    monkeypatch.setattr(W, "is_window", lambda h: False)
+    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("不应调用")))
+    assert manager.resize_window() is False
 
 
 def test_mumu_update_asks_user_before_resize(manager, monkeypatch):
@@ -100,15 +99,12 @@ def test_mumu_update_asks_user_before_resize(manager, monkeypatch):
     emitted = []
     monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     monkeypatch.setattr(W.config.user, "remember_force_zoom_choice", False)
-    monkeypatch.setattr(
-        MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("未确认不应缩放"))
-    )
+    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("未确认不应缩放")))
 
     manager._update(_FakeWindow())
 
     assert any(
-        isinstance(args[0], MessageBoxPayload)
-        and args[0].action == MessageBoxPayload.Action.FORCE_ZOOM
+        isinstance(args[0], MessageBoxPayload) and args[0].action == MessageBoxPayload.Action.FORCE_ZOOM
         for args in emitted
     ), "未弹出强制缩放确认框"
 
@@ -119,9 +115,9 @@ def test_mumu_update_auto_resize_when_remembered(manager, monkeypatch):
     monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
     monkeypatch.setattr(W.config.user, "remember_force_zoom_choice", True)
     monkeypatch.setattr(W.config.user, "force_zoom_accepted", True)
-    monkeypatch.setattr(MH, "is_window", lambda h: True)
+    monkeypatch.setattr(W, "is_window", lambda h: True)
     calls = []
-    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: calls.append(a) or (1136, 640))
+    monkeypatch.setattr(W, "fit_display_size", lambda *a, **k: calls.append(a) or (1136, 640))
     monkeypatch.setattr(W, "GameWindow", lambda *a, **k: _FakeWindow())
 
     manager._update(_FakeWindow())
@@ -134,9 +130,7 @@ def test_mumu_update_noop_when_size_ok(manager, monkeypatch):
     """尺寸达标时不动窗口、不弹窗。"""
     emitted = []
     monkeypatch.setattr(W, "signal_manager", _FakeSignalManager(emitted))
-    monkeypatch.setattr(
-        MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("不应缩放"))
-    )
+    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: (_ for _ in ()).throw(AssertionError("不应缩放")))
 
     w = _FakeWindow()
     w.content_width, w.content_height = STANDARD_CLIENT_WIDTH, STANDARD_CLIENT_HEIGHT
@@ -183,9 +177,9 @@ def test_fit_display_size_restores_minimized_window(monkeypatch):
 
 def test_mumu_force_zoom_reports_failure_when_not_converged(manager, monkeypatch):
     """显示区收敛不到基准时必须返回失败（修复前无条件报成功）。"""
-    monkeypatch.setattr(MH, "is_window", lambda h: True)
-    monkeypatch.setattr(MH, "fit_display_size", lambda *a, **k: (856, 482))
+    monkeypatch.setattr(W, "is_window", lambda h: True)
+    monkeypatch.setattr(W, "fit_display_size", lambda *a, **k: (856, 482))
     monkeypatch.setattr(W, "GameWindow", lambda *a, **k: _FakeWindow())
 
     manager.current = _FakeWindow()
-    assert manager.force_zoom() is False
+    assert manager.resize_window() is False
