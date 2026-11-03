@@ -14,7 +14,7 @@ from .event import event_thread, event_xuanshang
 from .exception import GUIStopException
 from .log import logger
 from .point import Point
-from .window import window_manager
+from .window import STANDARD_CLIENT_HEIGHT, window_manager
 
 _back_click_point = Point(0, 0)  # 当前位置
 
@@ -370,17 +370,55 @@ class Mouse:
         pyautogui.scroll(distance)
 
     @classmethod
-    def _scroll_backend(cls, distance: int):
-        """后台滚轮：windows事件；模拟器不支持"""
-        if cls._mumu_backend() is not None:
-            logger.ui_warn("模拟器后台暂不支持滚轮（范围外）")
-            return
+    def _scroll_mumu_backend(cls, backend, steps: int):
+        """模拟器滚轮 → 纵向滑动（安卓无滚轮概念，IPC 只有触摸 down/up）
+
+        每格 ≈ 显示区高度的 1/8：调用方（找章节等）是「滚一次 → 识别一次」的反馈循环，
+        单次偏差由下一轮识别纠正，无需精确标定；IPC swipe 为带惯性的 fling，
+        冲过头的场景（滚到列表尽头）也会被下一轮识别正确判定。
+
+        与 drag 不同，这里不更新 _back_click_point：每次滚动都是自包含手势
+        （起点自动入界），且该锚点同时是无参 click 的落点，不应被滚动改变。
+        """
+        sx = int(_back_click_point.client_x)
+        sy = int(_back_click_point.client_y)
+        cur = window_manager.current
+        content_h = int(getattr(cur, "content_height", 0) or 0)
+        if content_h <= 0:
+            content_h = STANDARD_CLIENT_HEIGHT  # 尺寸未知时按基准估算
+        dy = abs(int(steps)) * content_h // 8
+        # 终点越界时把整段滑动重新入界（保持手势长度，方向语义不变）
+        if steps < 0:  # 向下滚（看靠后的章节/条目）= 手指上滑
+            start_y = max(sy, min(dy + 20, content_h - 20))
+            end_y = start_y - dy
+        else:  # 向上滚（看靠前的章节/条目）= 手指下滑
+            start_y = min(sy, max(content_h - dy - 20, 20))
+            end_y = start_y + dy
+        backend.swipe(sx, start_y, sx, end_y)
+        logger.info(f"模拟器滚轮转换为滑动：({sx},{start_y}) → ({sx},{end_y})，手势长度 {dy}px")
+
+    @classmethod
+    def _scroll_backend(cls, distance: int, steps: int) -> bool:
+        """后台滚轮：windows事件；模拟器家族转换为纵向滑动（IPC 无滚轮）
+
+        Args:
+            distance (int): 滚轮距离（steps × WHEEL_DELTA），PC 分支使用
+            steps (int): 滚动格数，正数向上，负数向下，模拟器分支使用
+
+        Returns:
+            bool: 是否真实执行（false=窗口无效等，不应打印「滚动N格」日志）
+        """
+        backend = cls._mumu_backend()
+        if backend is not None:
+            cls._scroll_mumu_backend(backend, steps)
+            return True
         hwnd = window_manager.get_current_handle()
         if hwnd is None:
-            return
+            return False
         temp_point = copy.copy(_back_click_point)
         lParam = win32api.MAKELONG(int(temp_point.client_x), int(temp_point.client_y))
         cls._win_scroll(hwnd, distance, lParam)
+        return True
 
     @classmethod
     def scroll(cls, steps: int) -> None:
@@ -391,10 +429,13 @@ class Mouse:
         """
         distance = int(steps * win32con.WHEEL_DELTA)
         if config.user.interaction_mode.mode == InteractionMode.BACKEND:
-            cls._scroll_backend(distance)
+            executed = cls._scroll_backend(distance, steps)
         else:
             cls._scroll_front(distance)
-        logger.info(f"向{'上' if steps > 0 else '下'}滚动{abs(steps)}格")
+            executed = True
+        # 仅在真实执行后打印，避免模拟器通道空操作时日志与实际不符
+        if executed:
+            logger.info(f"向{'上' if steps > 0 else '下'}滚动{abs(steps)}格")
 
 
 class KeyBoard:

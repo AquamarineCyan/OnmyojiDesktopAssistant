@@ -177,3 +177,65 @@ def test_mumu_drag_sends_int_offsets_to_swipe(monkeypatch):
 
     fx, fy = 1393 / 1136, 784 / 640
     assert backend.calls[-1] == ("swipe", 10, 10, 10 + int(500 * fx), 10 + int(300 * fy))
+
+
+def test_mumu_scroll_routes_to_swipe(monkeypatch):
+    """模拟器后台滚轮 → 纵向滑动：向下滚 = 手指上滑，每格 ≈ 显示区高度 1/8，
+    锚点不被滚动修改（它同时是无参 click 的落点）。"""
+    backend = _Backend()
+    monkeypatch.setattr(E, "get_backend", lambda *a, **k: backend)
+    monkeypatch.setattr(ad.window_manager, "current", _WinScaled())
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad, "_back_click_point", _P(300, 400))
+
+    ad.Mouse.scroll(-3)
+
+    dy = 3 * 784 // 8  # 294
+    assert backend.calls[-1] == ("swipe", 300, 400, 300, 400 - dy)
+    # 锚点保持不变
+    assert ad._back_click_point.client_x == 300
+    assert ad._back_click_point.client_y == 400
+
+
+def test_mumu_scroll_up_swipes_down(monkeypatch):
+    """向上滚 = 手指下滑，方向语义与滚轮一致。"""
+    backend = _Backend()
+    monkeypatch.setattr(E, "get_backend", lambda *a, **k: backend)
+    monkeypatch.setattr(ad.window_manager, "current", _WinScaled())
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad, "_back_click_point", _P(300, 400))
+
+    ad.Mouse.scroll(2)
+
+    dy = 2 * 784 // 8  # 196
+    assert backend.calls[-1] == ("swipe", 300, 400, 300, 400 + dy)
+
+
+def test_mumu_scroll_falls_back_to_baseline_height(monkeypatch):
+    """content 尺寸未知时按基准 640 估算手势长度，不抛异常。"""
+    backend = _Backend()
+    monkeypatch.setattr(E, "get_backend", lambda *a, **k: backend)
+    monkeypatch.setattr(ad.window_manager, "current", _Win())  # 无 content_height 属性
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad, "_back_click_point", _P(300, 400))
+
+    ad.Mouse.scroll(-1)
+
+    dy = 640 // 8
+    assert backend.calls[-1] == ("swipe", 300, 400, 300, 400 - dy)
+
+
+def test_pc_backend_scroll_posts_wheel_message(monkeypatch):
+    """桌面版后台滚轮保持 PostMessage WM_MOUSEWHEEL，不受模拟器改动影响。"""
+    posted = []
+    monkeypatch.setattr(ad.window_manager, "current", _PcWin())
+    monkeypatch.setattr(ad.config.user.interaction_mode, "mode", "后台")
+    monkeypatch.setattr(ad.window_manager, "get_current_handle", lambda: 200)
+    monkeypatch.setattr(ad.win32api, "PostMessage", lambda *a, **k: posted.append(a))
+    monkeypatch.setattr(ad, "_back_click_point", _P(300, 400))
+
+    ad.Mouse.scroll(-3)
+
+    assert len(posted) == 1
+    assert posted[0][0] == 200
+    assert posted[0][1] == ad.win32con.WM_MOUSEWHEEL
