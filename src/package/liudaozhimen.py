@@ -4,6 +4,7 @@ from ..utils.adapter import Mouse
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
+from ..utils.image import RuleImage
 from ..utils.log import logger
 from ..utils.ocr_engine import OcrData, RuleOcr
 from ..utils.point import Point
@@ -51,9 +52,6 @@ class MapNodeCount:
     def reset(self):
         self.node = 0
 
-    def clear(self):
-        self.node = 0
-
 
 class LiuDaoZhiMen(BasePackage):
     """六道之门速刷"""
@@ -82,6 +80,7 @@ class LiuDaoZhiMen(BasePackage):
         self.state: State = State.START
         self.map_node_count: MapNodeCount = MapNodeCount()
         self.skill_level_count: SkillLevelCount = SkillLevelCount()
+        self.map_node_numbers: int = 0  # 地图上节点的个数
 
     @staticmethod
     def description() -> None:
@@ -97,64 +96,95 @@ class LiuDaoZhiMen(BasePackage):
         self.IMAGE_SHOP_REFRESH = self.get_image_asset("shop_refresh")
         self.IMAGE_START = self.get_image_asset("start")
 
-    def check_result_mult(self, list) -> OcrData | None:
+    def check_result_mult(self, keywords: list[str]) -> OcrData | None:
         # TODO 概率返回"月""之海"，需要结合上下文判断
-
         result = RuleOcr().get_raw_result()
         for item in result:
-            if item.score > self.ocr_score and item.text in list:
+            if item.score > self.ocr_score and item.text in keywords:
                 logger.ui_hint(item.text)
                 return item
         return None
 
     def check_title(self):
         """判断当前场景为六道-月之海"""
-        # 如果在六道之门主界面
-        if RuleOcr(name="liudaozhimen", keyword="六道之门", score=0.6).match():
-            logger.ui_hint("六道之门")
-            while True:
-                if bool(event_thread):
-                    raise GUIStopException
+        msg_title: bool = True
+        while True:
+            if bool(event_thread):
+                raise GUIStopException
 
-                data = self.check_result_mult(self.title_list)
-                if data is None:
-                    self.sleep_interval()
-                    continue
-                if data.text == self.title_list[0]:
-                    Mouse.click(data.center)
+            result = RuleOcr().get_raw_result()
+
+            # 如果在六道之门主界面
+            if RuleOcr(name="liudaozhimen", keyword="六道之门", score=0.6).match(result):
+                logger.ui_hint("六道之门")
+                while True:
+                    if bool(event_thread):
+                        raise GUIStopException
+
+                    data = self.check_result_mult(self.title_list)
+                    if data is None:
+                        sleep()
+                        continue
+                    # 仅点击月之海，识别到其他六道时继续等待
+                    if data.text == self.title_list[0]:
+                        Mouse.click(data.center)
+                        break
+                break
+
+            # 如果已在月之海挑战入口
+            if RuleOcr(name="yuezhihai", keyword="月之海", score=self.ocr_score).match(result):
+                if RuleImage(self.IMAGE_START).match(logger_lever="NONE"):
                     break
-            sleep(2)
 
-        # 如果在月之海
-        if RuleOcr(name="yuezhihai", keyword="月之海", score=self.ocr_score).match():
-            # 开始挑战
-            self.check_click(self.IMAGE_START, timeout=3)
-            sleep(5)
-            # 选择试炼式神
-            self.check_click(self.IMAGE_DETERMINE, timeout=3)
-            sleep(3)
-            # 选择队友
-            self.check_click(self.IMAGE_START, timeout=3)
-            sleep(3)
+                sleep()
+                continue
+
+            if msg_title:
+                self.title_error_msg()
+                msg_title = False
+
+            sleep()
+
+        sleep(2)
+        # 开始挑战
+        self.check_click(self.IMAGE_START, timeout=3)
+        sleep(5)
+        # 选择试炼式神
+        self.check_click(self.IMAGE_DETERMINE, timeout=3)
+        sleep(3)
+        # 选择队友
+        self.check_click(self.IMAGE_START, timeout=3)
+        sleep(3)
 
     def check_current_scene(self) -> None:
         """判断当前场景，使用状态机记录"""
-        result = RuleOcr().get_raw_result()
-        for item in result:
-            if item.score < self.ocr_score:
-                continue
-            if "回合后迎战月读" in item.text:
-                logger.ui_hint("战斗进行中")
-                self.state = State.RUNNING
-            if item.text == "六道之门":
-                logger.ui_hint("六道之门主界面")
-                self.state = State.START
+        for _ in range(3):
+            if bool(event_thread):
+                raise GUIStopException
 
-    def choose_initial_skill(self, skill_need_index: int = 1):
+            result = RuleOcr().get_raw_result()
+            for item in result:
+                if item.score < self.ocr_score:
+                    continue
+                if "回合后迎战月读" in item.text:
+                    logger.ui_hint("战斗进行中")
+                    self.state = State.RUNNING
+                    return
+                if item.text == "六道之门":
+                    logger.ui_hint("六道之门主界面")
+                    self.state = State.START
+                    return
+
+            self.sleep_interval()
+
+    def choose_initial_skill(self, skill_need_index: int = 1) -> bool:
         """选择初始技能
 
         Args:
             skill_need_index (int): 初始技能序号，默认第1个
+
+        Returns:
+            bool: 是否选择成功
         """
         initial_skill_counts: int = 0  # 计数器
         result = RuleOcr().get_raw_result()
@@ -166,18 +196,19 @@ class LiuDaoZhiMen(BasePackage):
                     Mouse.click(item.center)
                     self.skill_level_count.reset()
                     self.map_node_count.reset()
-                    return
+                    return True
         logger.ui_error("选择初始技能出错")
+        return False
 
     def get_current_money(self):
         """获取当前万相铃数量"""
         result = RuleOcr(region=(980, 0, 150, 70)).get_raw_result()
+        money: int = 0
         try:
             for item in result:
                 money = int(item.text)
                 logger.ui(f"万相铃: {money}")
         except ValueError:
-            money = 0
             logger.ui_error("万相铃识别失败")
         return money
 
@@ -270,10 +301,10 @@ class LiuDaoZhiMen(BasePackage):
                 sleep(3)
 
                 new_result = RuleOcr().get_raw_result()
-                for item in new_result:
-                    if item.score < self.ocr_score:
+                for skill in new_result:
+                    if skill.score < self.ocr_score:
                         continue
-                    if item.text == self.basic_skill_name:
+                    if skill.text == self.basic_skill_name:
                         self.check_click(self.IMAGE_IMITATION, timeout=3)
                         self.confirm(delay=2)
                         self.skill_level_count.add()
@@ -300,8 +331,8 @@ class LiuDaoZhiMen(BasePackage):
 
         def leave():
             logger.ui("离开商店")
-            result = RuleOcr().get_raw_result()
-            for item in result:
+            new_result = RuleOcr().get_raw_result()
+            for item in new_result:
                 if item.text == "离开":
                     Mouse.click(item.center)
                     break
@@ -388,27 +419,44 @@ class LiuDaoZhiMen(BasePackage):
     def _fight_finish(self):
         logger.ui_hint("结算")
         logger.ui("等待万相赐福")
-        sleep(4)
 
-        cannel_point = None  # 记录取消按钮位置
-        result = RuleOcr().get_raw_result()
+        # 轮询等待「万相赐福」弹窗，结算动画偏慢时固定等待容易漏检
+        result = []
+        for _ in range(6):
+            if bool(event_thread):
+                raise GUIStopException
+
+            sleep(1)
+            result = RuleOcr().get_raw_result()
+            # 标题和「使用/取消」按钮都出现才算弹窗渲染完成
+            has_title: bool = False
+            has_button: bool = False
+            for item in result:
+                if "万相赐福" in item.text:
+                    has_title = True
+                elif item.text in ("使用", "取消"):
+                    has_button = True
+            if has_title and has_button:
+                break
+
+        cancel_point = None  # 记录取消按钮位置
         for item in result:
             if "万相赐福" in item.text:
                 logger.ui_hint("万相赐福")
-                for item in result:
-                    if item.text == "使用":
+                for button in result:
+                    if button.text == "使用":
                         logger.ui("使用万相赐福")
-                        Mouse.click(item.center)
-                        cannel_point = None
+                        Mouse.click(button.center)
+                        cancel_point = None
                         break
-                    if item.text == "取消":
-                        cannel_point = item
+                    if button.text == "取消":
+                        cancel_point = button
                 break
 
         # 检测不到「万相赐福」则点击取消按钮
-        if cannel_point:
+        if cancel_point:
             logger.ui("万相赐福不足，取消购买")
-            Mouse.click(cannel_point.center)
+            Mouse.click(cancel_point.center)
 
         sleep(2)
         finish_random_left_right()
@@ -479,9 +527,7 @@ class LiuDaoZhiMen(BasePackage):
                 self.state = State.START
 
     def run(self):
-        self.check_current_scene()  # TODO 3次
-
-        self.map_node_numbers = 0  # 地图上节点的个数
+        self.check_current_scene()
 
         while self.n < self.max:
             if bool(event_thread):
@@ -491,7 +537,9 @@ class LiuDaoZhiMen(BasePackage):
             if self.state == State.START:
                 self.check_title()
                 sleep()
-                self.choose_initial_skill(1)
+                # 未进入挑战则重新执行初始流程，避免停留在初始界面空转
+                if not self.choose_initial_skill(1):
+                    continue
                 self.state = State.RUNNING
                 sleep(2)
 
