@@ -238,7 +238,7 @@ def merge_dict(base_dict, update_dict) -> dict:
     return base_dict
 
 
-def get_asset_data(resource_path) -> tuple[Path, dict]:
+def get_asset_data(resource_path: str) -> tuple[Path, dict]:
     _full_path = config.resource_dir / resource_path / "assets.json"
     _full_path_user = (USER_DATA_DIR_PATH / "myresource").joinpath(*_full_path.parts[-2:])
 
