@@ -22,7 +22,6 @@ from qfluentwidgets import (
     QColor,
     ScrollArea,
     SettingCard,
-    SpinBox,
     SubtitleLabel,
     SwitchButton,
 )
@@ -49,6 +48,7 @@ from ..utils.log import logger
 from ..utils.theme import apply_theme
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .mumu_emulator_widget import MumuEmulatorMessageBox
+from .number_spin_box import CustomCompactSpinBox
 from .ui_utils import open_log_folder
 
 
@@ -464,7 +464,7 @@ class SettingScreenshotIntervalCard(AppCard):
             parent,
         )
 
-        self.spinbox = SpinBox()
+        self.spinbox = CustomCompactSpinBox()
         self.spinbox.setRange(10, 1000)
         self.spinbox.setValue(config.user.screenshot_interval)
         self.spinbox.valueChanged.connect(self._config_update)

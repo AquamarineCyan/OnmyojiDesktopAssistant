@@ -24,7 +24,6 @@ from qfluentwidgets import (
     InfoBar,
     InfoBarPosition,
     PushButton,
-    SpinBox,
     TableWidget,
 )
 
@@ -32,6 +31,7 @@ from ..utils.log import logger
 from ..utils.ocr_engine import OcrData, ocr_manager
 from ..utils.screenshot import ScreenShot
 from ..utils.window import window_manager
+from .number_spin_box import CustomCompactSpinBox
 
 BOX_COLOR = QColor(255, 59, 48)
 """识别框颜色"""
@@ -219,7 +219,7 @@ class OcrDetectionWidget(QWidget):
         self.auto_checkbox.toggled.connect(self._auto_checkbox_toggled_handle)
 
         self.interval_label = BodyLabel("间隔")
-        self.interval_spinbox = SpinBox()
+        self.interval_spinbox = CustomCompactSpinBox()
         self.interval_spinbox.setRange(1, 60)
         self.interval_spinbox.setValue(2)
         self.interval_spinbox.setSuffix(" 秒")

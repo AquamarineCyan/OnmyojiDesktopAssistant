@@ -20,7 +20,6 @@ from qfluentwidgets import (
     PushButton,
     RadioButton,
     Slider,
-    SpinBox,
     TextBrowser,
     ToolTipFilter,
     ToolTipPosition,
@@ -30,6 +29,7 @@ from ..package.types import GameFunction, MiWenMode, QiLing, XiaJianAnYuMode, Yi
 from ..utils.application import SCREENSHOT_DIR_PATH
 from ..utils.config import config
 from ..utils.log_color import is_dark_theme, swap_default_color
+from .number_spin_box import CustomCompactSpinBox
 
 GroupHeaderCardWidgetHeaderViewHeight: int = 36
 
@@ -125,7 +125,7 @@ class HomeWidget(QWidget):
             self.number_label = BodyLabel("选择次数")
             self.number_label.setFixedWidth(60)
 
-            self.number_spinbox = SpinBox()
+            self.number_spinbox = CustomCompactSpinBox()
             self.number_spinbox.setRange(0, 100)
             self.number_spinbox.setValue(0)
 
@@ -391,7 +391,7 @@ class HomeWidget(QWidget):
 
                 self.tancha_checkbox = CheckBox("探查次数")
                 self.tancha_checkbox.toggled.connect(self._tancha_checkbox_toggled_handle)
-                self.tancha_spinbox = SpinBox()
+                self.tancha_spinbox = CustomCompactSpinBox()
                 self.tancha_spinbox.setDisabled(True)
 
                 self.hBoxLayout1 = QHBoxLayout()
@@ -415,7 +415,7 @@ class HomeWidget(QWidget):
                 self.jieqi_stone_combobox.addItems([item.value for item in QiLing])
                 self.jieqi_stone_combobox.setDisabled(True)
 
-                self.jieqi_stone_spinbox = SpinBox()
+                self.jieqi_stone_spinbox = CustomCompactSpinBox()
                 self.jieqi_stone_spinbox.setDisabled(True)
 
                 self.hBoxLayout3 = QHBoxLayout()
@@ -524,14 +524,14 @@ class HomeWidget(QWidget):
 
                 # self.tansuo_label = BodyLabel("探索总次数（打完BOSS算一次）")
                 self.tansuo_label = BodyLabel("探索次数")
-                self.tansuo_count_spinbox = SpinBox()
+                self.tansuo_count_spinbox = CustomCompactSpinBox()
                 # self.tansuo_hBoxLayout = QHBoxLayout()
                 # # self.tansuo_hBoxLayout.setSpacing(10)
                 # self.tansuo_hBoxLayout.addWidget(self.tansuo_label)
                 # self.tansuo_hBoxLayout.addWidget(self.tansuo_count_spinbox)
 
                 # self.tansuo_interval_label = BodyLabel("每隔多少次探索清理突破券")
-                # self.tansuo_interval_spinbox = SpinBox()
+                # self.tansuo_interval_spinbox = CustomCompactSpinBox()
                 # self.tansuo_interval_spinbox.setValue(1)
 
                 # self.tansuo_interval_hBoxLayout = QHBoxLayout()
@@ -659,7 +659,7 @@ class HomeWidget(QWidget):
 
                 self.auto_exit_checkbox = CheckBox("自动退出战斗")
                 self.auto_exit_checkbox.toggled.connect(self._auto_exit_checkbox_toggled_handle)
-                self.auto_exit_spinbox = SpinBox()
+                self.auto_exit_spinbox = CustomCompactSpinBox()
                 self.auto_exit_spinbox.setRange(10, 180)
                 self.auto_exit_spinbox.setValue(30)
                 self.auto_exit_spinbox.setDisabled(True)
