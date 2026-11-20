@@ -6,8 +6,7 @@ from threading import Thread
 from PIL import Image, ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget
-from qfluentwidgets import Dialog, InfoBar, InfoBarPosition, MessageBox
+from qfluentwidgets import Dialog, MessageBox
 
 from ..package import *
 from ..package.types import GameFunction, MiWenMode, XiaJianAnYuMode
@@ -15,7 +14,7 @@ from ..ui import icon_rc  # noqa: F401
 from ..ui.announcement_widget import AnnouncementWindow
 from ..ui.debug_preview_widget import DebugPreviewWindow
 from ..ui.first_use_widget import FirstUseMessageBox
-from ..ui.fluent import Window as FluentWindow
+from ..ui.fluent import CustomWindow
 from ..ui.force_zoom_dialog import ForceZoomDialog
 from ..ui.home_widget import StackedWidgetIndex
 from ..ui.update_new_version_widget import UpdateNewVersionWidget
@@ -41,7 +40,7 @@ from .update import update_manager
 from .window import SCREEN_SIZE, GameWindow, window_manager
 
 
-class MainWindow(FluentWindow):
+class MainWindow(CustomWindow):
     def __init__(self):
         super().__init__()
 
@@ -52,25 +51,11 @@ class MainWindow(FluentWindow):
         title = f"{APP_NAME} - v{VERSION}{debug_suffix}{suffix}{gpu_suffix}"
         self.setWindowTitle(title)
 
-        self.sub_windows: list[QWidget] = []  # 子窗口列表
         self.debug_preview_window: DebugPreviewWindow | None = None  # 匹配结果预览窗口
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
         self.software_init()
-
-    def open_sub_window(self, window: QWidget) -> QWidget:
-        """注册并打开独立子弹窗，统一管理以便关闭软件时一起关闭
-
-        Args:
-            window (QWidget): 要打开的弹窗
-
-        Returns:
-            QWidget: 传入的弹窗实例
-        """
-        self.sub_windows.append(window)
-        window.show()
-        return window
 
     def ui_init(self):
         """初始化UI"""
@@ -127,7 +112,7 @@ class MainWindow(FluentWindow):
         signal_manager.main.ui_text_info_appended.connect(self.homeInterface.ui_text_info_appended_handle)
         signal_manager.main.is_fighting_changed.connect(self.is_fighting)
         signal_manager.main.ui_text_progress_changed.connect(self.ui_text_progress_changed_handle)
-        signal_manager.main.xuanshangfengyin_detected.connect(self.xuanshangfengyin_detected_handle)
+        signal_manager.main.info_bar_requested.connect(self.info_bar_requested_handle)
         signal_manager.main.sys_exit.connect(self._exit_handle)
         signal_manager.main.debug_preview_requested.connect(self.debug_preview_handle)
         signal_manager.announcement.show_ui.connect(self.show_announcement_window)
@@ -250,23 +235,6 @@ class MainWindow(FluentWindow):
             msg (str): 文本
         """
         self.homeInterface.output_info_group.progress_text.setText(msg)
-
-    def xuanshangfengyin_detected_handle(self, title: str, content: str):
-        """悬赏封印通知（右上角 InfoBar）
-
-        Args:
-            title (str): 标题
-            content (str): 内容
-        """
-        InfoBar.info(
-            title=title,
-            content=content,
-            orient=Qt.Horizontal,
-            isClosable=True,
-            duration=-1,
-            position=InfoBarPosition.TOP_RIGHT,
-            parent=self,
-        )
 
     @log_function_call
     def software_selfcheck(self) -> bool:
@@ -786,13 +754,6 @@ class MainWindow(FluentWindow):
         self.key_listener.stop()
         global_task.stop()
 
-        # 关闭子窗口
-        for child in self.sub_windows:
-            with suppress(RuntimeError):
-                if child is not None and child.isVisible():
-                    child.close()
-        self.sub_windows.clear()
-
         # 清空调试预览截图
         clear_debug_screenshot_dir()
 
@@ -800,9 +761,6 @@ class MainWindow(FluentWindow):
             logger.info("[EXIT]")
 
         super().closeEvent(event)
-
-    def _exit_handle(self):
-        self.close()
 
     def show_announcement_window(self, announcements: list[dict]):
         self.open_sub_window(AnnouncementWindow(announcements))

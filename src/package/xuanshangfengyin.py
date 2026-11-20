@@ -72,7 +72,7 @@ class XuanShangFengYin(BasePackage):
         toast("悬赏封印", "检测到悬赏封印")
         if not self._flag_notify:
             self._flag_notify = True
-            signal_manager.main.xuanshangfengyin_detected.emit("悬赏封印", "检测到悬赏封印，请及时处理")
+            signal_manager.main.info_bar_requested.emit("悬赏封印", "检测到悬赏封印，请及时处理", "info", -1)
         self._flag_msg = True
         match config.user.xuanshangfengyin:
             case XuanShangFengYinMode.ACCEPT:

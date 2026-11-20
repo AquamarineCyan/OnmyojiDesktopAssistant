@@ -62,12 +62,14 @@ class CustomSignal(QObject):
             current_text (str): 当前窗口描述文本，格式为 `标题 - 句柄`，无窗口时为空字符串
         """
 
-        xuanshangfengyin_detected = Signal(str, str)
-        """悬赏封印通知
+        info_bar_requested = Signal(str, str, str, int)
+        """请求主界面 InfoBar 通知
 
         Args:
             title (str): 标题
             content (str): 内容
+            level (str): 级别，`success` / `warning` / `info`
+            duration (int): 显示时长（秒），`-1` 为不自动关闭
         """
 
         sys_exit = Signal()
