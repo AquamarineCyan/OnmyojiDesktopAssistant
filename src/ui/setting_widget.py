@@ -1,7 +1,7 @@
 import os
 from typing import ClassVar
 
-from PySide6.QtCore import Property, QEasingCurve, QPropertyAnimation, Qt
+from PySide6.QtCore import Property, QAbstractAnimation, QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QAbstractScrollArea, QApplication, QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -419,7 +419,8 @@ class CustomExpandGroupSettingCard(ExpandGroupSettingCard):
             return
 
         content_height = self.viewLayout.sizeHint().height()
-        # 上一次动画未结束时先恢复页面，再按本次方向重新冻结
+        # 上一次动画未结束时先停掉动画、恢复页面，再按本次方向重新冻结
+        self.heightAni.stop()
         if self._frozen_scroll is not None:
             self._release_page_freeze()
         self._freeze_page_freeze(content_height, isExpand)
@@ -430,7 +431,6 @@ class CustomExpandGroupSettingCard(ExpandGroupSettingCard):
         self.setStyle(QApplication.style())
         self.verticalScrollBar().setValue(0)
 
-        self.heightAni.stop()
         self.heightAni.setStartValue(self.height())
         self.heightAni.setEndValue(self.card.height() + content_height if isExpand else self.card.height())
         self.heightAni.setDuration(max(300, min(self._DURATION_MAX_MS, content_height * 2)))
@@ -828,6 +828,11 @@ class SettingInteractionModeCard(CustomExpandGroupSettingCard):
         基类按 `group.sizeHint()+3` 求和会低估高度（GroupWidget 有 60px 最小高度），
         显隐切换后一旦算少就会裁掉最后一行，故按 `max(sizeHint, minimumHeight)`
         逐项累加；隐藏的行始终会被移出布局，不做额外可见性过滤。"""
+        # 动画未结束时增删行：动画下一帧会用启动前算好的终值覆盖这里重算的高度，
+        # 先停掉动画并恢复被冻结的外层页面，否则卡片高度会先缩后涨。
+        if self.heightAni.state() != QAbstractAnimation.State.Stopped:
+            self.heightAni.stop()
+            self._release_page_freeze()
         h = 0
         for i in range(self.viewLayout.count()):
             w = self.viewLayout.itemAt(i).widget()

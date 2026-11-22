@@ -30,10 +30,19 @@ finally:
     else:
         os.environ[_PLATFORM_KEY] = _prev_platform
 
+from PySide6.QtCore import QAbstractAnimation
 from PySide6.QtTest import QTest
 
 from src.ui.setting_widget import SettingInteractionModeCard
 from src.utils.config import InteractionMode, config
+
+
+def _wait_expand_anim(card, timeout_ms: int = 2000) -> None:
+    """等展开/折叠动画结束：时长随内容高度伸缩（最长 450ms），固定 qWait 不可靠。"""
+    waited = 0
+    while card.heightAni.state() != QAbstractAnimation.State.Stopped and waited < timeout_ms:
+        QTest.qWait(20)
+        waited += 20
 
 
 def _stub_mumu_message_box(monkeypatch, accepted: bool = True) -> list:
@@ -63,7 +72,7 @@ def card(monkeypatch):
     c.mode_combobox.setCurrentText(InteractionMode.BACKEND)  # 前台模式后台控件整体禁用
     c.show()
     c.setExpand(True)
-    QTest.qWait(350)  # 等展开动画结算
+    _wait_expand_anim(c)
     yield c
     c.deleteLater()
 
