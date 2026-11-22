@@ -1,9 +1,9 @@
 import os
 from typing import ClassVar
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Property, QEasingCurve, QPropertyAnimation, Qt
 from PySide6.QtGui import QFont, QIcon
-from PySide6.QtWidgets import QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QAbstractScrollArea, QApplication, QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import (
     BodyLabel,
     CaptionLabel,
@@ -329,7 +329,116 @@ class ColorSettingRow(QWidget):
         self.set_color(DEFAULT_LOG_COLORS[LogColorLevel(self._config_key.rsplit(".", 1)[-1])])
 
 
-class SettingLoggerColorCard(ExpandGroupSettingCard):
+class CustomExpandGroupSettingCard(ExpandGroupSettingCard):
+    """展开/折叠时直接动画卡片高度，避免基类逐帧滚动内容带来的画面抖动。
+
+    基类靠动画滚动条的值间接改变高度，折叠时滚动区在每帧“滚动 + 缩小视口”，
+    内容会被反复重绘/裁切，看起来抽搐；这里改为固定显示内容顶部、只动画高度。
+    时长随内容高度伸缩（上限 450ms），在顺滑度与响应速度之间取平衡。"""
+
+    _DURATION_MAX_MS = 450
+    """展开/折叠动画时长上限（毫秒）"""
+
+    def __init__(self, icon, title, content=None, parent=None):
+        super().__init__(icon, title, content, parent)
+        # 断开基类基于滚动条的动画，改用自己的高度动画
+        self.expandAni.valueChanged.disconnect(self._onExpandValueChanged)
+        self.heightAni = QPropertyAnimation(self, b"cardHeight", self)
+        self.heightAni.setEasingCurve(QEasingCurve.Type.InOutSine)
+        self.heightAni.finished.connect(self._release_page_freeze)
+        # 动画期间冻结外层滚动页高度，避免逐帧整页重排/重绘
+        self._frozen_scroll: QAbstractScrollArea | None = None
+        self._frozen_content: QWidget | None = None
+        self._frozen_resizable = True
+        self._frozen_constraints: tuple[int, int, int, int] | None = None
+
+    def _get_card_height(self) -> int:
+        return self.height()
+
+    def _set_card_height(self, height: int):
+        self.setFixedHeight(height)
+
+    cardHeight = Property(int, _get_card_height, _set_card_height)
+
+    def _find_page_scroll_area(self) -> QAbstractScrollArea | None:
+        """向上查找承载设置页的滚动区（自身是卡片内部的滚动区，不算）"""
+        parent = self.parentWidget()
+        while parent is not None:
+            if isinstance(parent, QAbstractScrollArea):
+                content = parent.widget()
+                if content is not None and parent.widgetResizable():
+                    return parent
+            parent = parent.parentWidget()
+        return None
+
+    def _freeze_page_freeze(self, content_height: int, expanding: bool) -> None:
+        """动画期间固定外层页面高度，避免滚动区逐帧跟随 sizeHint 触发整页重绘"""
+        scroll = self._find_page_scroll_area()
+        if scroll is None:
+            return
+        content = scroll.widget()
+        if content is None:
+            return
+
+        self._frozen_scroll = scroll
+        self._frozen_content = content
+        self._frozen_resizable = scroll.widgetResizable()
+        self._frozen_constraints = (
+            content.minimumWidth(),
+            content.maximumWidth(),
+            content.minimumHeight(),
+            content.maximumHeight(),
+        )
+
+        current_height = content.height()
+        # 折叠时保持展开高度，让下方内容在固定页面内上移；展开时先补足所需高度
+        target_height = current_height + content_height if expanding else current_height
+        scroll.setWidgetResizable(False)
+        content.setFixedSize(scroll.viewport().width(), max(current_height, target_height))
+
+    def _release_page_freeze(self) -> None:
+        """动画结束后恢复外部滚动页的自动尺寸调整"""
+        scroll = self._frozen_scroll
+        content = self._frozen_content
+        constraints = self._frozen_constraints
+        self._frozen_scroll = None
+        self._frozen_content = None
+        self._frozen_constraints = None
+        if scroll is None or content is None:
+            return
+
+        if constraints is not None:
+            min_width, max_width, min_height, max_height = constraints
+            content.setMinimumSize(min_width, min_height)
+            content.setMaximumSize(max_width, max_height)
+        scroll.setWidgetResizable(self._frozen_resizable)
+        content.resize(scroll.viewport().width(), content.sizeHint().height())
+
+    def setExpand(self, isExpand: bool):
+        if isExpand == self.isExpand:
+            return
+
+        content_height = self.viewLayout.sizeHint().height()
+        # 上一次动画未结束时先恢复页面，再按本次方向重新冻结
+        if self._frozen_scroll is not None:
+            self._release_page_freeze()
+        self._freeze_page_freeze(content_height, isExpand)
+
+        self._adjustViewSize()
+        self.isExpand = isExpand
+        self.setProperty("isExpand", isExpand)
+        self.setStyle(QApplication.style())
+        self.verticalScrollBar().setValue(0)
+
+        self.heightAni.stop()
+        self.heightAni.setStartValue(self.height())
+        self.heightAni.setEndValue(self.card.height() + content_height if isExpand else self.card.height())
+        self.heightAni.setDuration(max(300, min(self._DURATION_MAX_MS, content_height * 2)))
+        self.heightAni.start()
+        self.card.expandButton.setExpand(isExpand)
+
+
+class SettingLoggerColorCard(CustomExpandGroupSettingCard):
     """设置项-日志颜色"""
 
     def __init__(self, parent=None):
@@ -528,7 +637,7 @@ class SettingForceZoomAcceptedCard(AppCard):
             config.update("force_zoom_accepted", accepted)
 
 
-class SettingInteractionModeCard(ExpandGroupSettingCard):
+class SettingInteractionModeCard(CustomExpandGroupSettingCard):
     """设置项-交互模式"""
 
     _MUMU_SUPPORT_CONTENT = "关闭后与旧版行为一致：仅识别桌面版客户端，不探测模拟器"
@@ -755,7 +864,7 @@ class SettingInteractionModeCard(ExpandGroupSettingCard):
             logger.ui_warn("自动探测失败：请确认 MuMu 已安装/实例已运行，或手动填写路径")
 
 
-class SettingUpdateCard(ExpandGroupSettingCard):
+class SettingUpdateCard(CustomExpandGroupSettingCard):
     """设置项-软件更新"""
 
     def __init__(self, parent=None):
@@ -1010,6 +1119,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.logger_color_card)
         self._layout.addWidget(self.log_folder_card)
         self._layout.addWidget(self.win_toast_card)
+        self._layout.addWidget(self.overlay_card)
         self._layout.addWidget(self.group_update)
         self._layout.addSpacing(24)
         self._layout.addWidget(self.developer_setting_label)
@@ -1017,6 +1127,8 @@ class SettingWidget(QWidget):
         self._layout.addSpacing(24)
         self._layout.addWidget(self.about_label)
         self._layout.addWidget(self.about_card)
+        # 底部弹性占位：展开卡片动画期间多余空间由这里吸收，避免卡片被拉伸
+        self._layout.addStretch(1)
 
         self.scroll_area = ScrollArea()
         self.scroll_area.setWidgetResizable(True)  # 使滚动区域可调整大小以适应内容
