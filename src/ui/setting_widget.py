@@ -45,6 +45,7 @@ from ..utils.config import (
 from ..utils.emulator.mumu_handle import is_valid_mumu_folder
 from ..utils.gpu_info import get_cuda_device_list
 from ..utils.log import logger
+from ..utils.signals import signal_manager
 from ..utils.theme import apply_theme
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .mumu_emulator_widget import MumuEmulatorMessageBox
@@ -562,6 +563,53 @@ class SettingBattleThemeCard(AppCard):
             config.update("battle_theme_recognition", status)
 
 
+class SettingPackageMiWenReminderCard(AppCard):
+    """设置项-秘闻提醒"""
+
+    def __init__(self, parent=None):
+        super().__init__(
+            FluentIcon.CALENDAR,
+            "秘闻提醒",
+            "启用后完成10层秘闻会自动更新；本周未完成时启动软件会提示",
+            parent,
+        )
+
+        self.switch = SwitchButton(indicatorPos=IndicatorPosition.RIGHT)
+        self.switch.setOnText("启用")
+        self.switch.setOffText("禁用")
+        self.switch.setChecked(config.user.package_miwen_reminder)
+        self.switch.checkedChanged.connect(self._config_update)
+
+        self.reset_button = PushButton("重置")
+        self.reset_button.clicked.connect(self._reset_completed_date)
+
+        self.hBoxLayout.addWidget(self.reset_button)
+        self.hBoxLayout.addWidget(self.switch)
+
+    def _config_update(self):
+        status = self.switch.isChecked()
+        if status == config.user.package_miwen_reminder:
+            return
+
+        config.update("package_miwen_reminder", status)
+        if not status:
+            # 关闭功能时清空记录的日期，避免残留状态影响再次启用
+            self._clear_completed_date()
+
+    def _clear_completed_date(self):
+        """把完成日期恢复为默认值；已是默认值时跳过写盘"""
+        default = default_config.package_miwen_completed_date
+        if config.user.package_miwen_completed_date == default:
+            logger.info("秘闻完成日期已是默认值，跳过写入")
+            return
+        config.update("package_miwen_completed_date", default)
+
+    def _reset_completed_date(self):
+        """重置完成日期，使本周未完成的提醒重新生效"""
+        self._clear_completed_date()
+        signal_manager.main.info_bar_requested.emit("秘闻提醒", "已重置本周完成记录", "success", 5)
+
+
 class SettingScreenshotIntervalCard(AppCard):
     """设置项-截图时间间隔"""
 
@@ -1060,6 +1108,7 @@ class SettingWidget(QWidget):
         self.language_card = SettingLanguageCard()
         self.xuanshangfengyin_card = SettingXuanshangfengyinCard()
         self.battle_theme_card = SettingBattleThemeCard()
+        self.package_miwen_reminder_card = SettingPackageMiWenReminderCard()
         self.remember_force_zoom_card = SettingRememberForceZoomCard()
         self.force_zoom_accepted_card = SettingForceZoomAcceptedCard()
         self.interaction_mode_card = SettingInteractionModeCard()
@@ -1108,6 +1157,7 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.language_card)
         self._layout.addWidget(self.xuanshangfengyin_card)
         self._layout.addWidget(self.battle_theme_card)
+        self._layout.addWidget(self.package_miwen_reminder_card)
         self._layout.addWidget(self.remember_force_zoom_card)
         self._layout.addWidget(self.force_zoom_accepted_card)
         self._layout.addWidget(self.interaction_mode_card)
@@ -1124,7 +1174,6 @@ class SettingWidget(QWidget):
         self._layout.addWidget(self.logger_color_card)
         self._layout.addWidget(self.log_folder_card)
         self._layout.addWidget(self.win_toast_card)
-        self._layout.addWidget(self.overlay_card)
         self._layout.addWidget(self.group_update)
         self._layout.addSpacing(24)
         self._layout.addWidget(self.developer_setting_label)

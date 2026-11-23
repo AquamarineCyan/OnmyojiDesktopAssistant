@@ -6,7 +6,7 @@ from threading import Thread
 from PIL import Image, ImageQt
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QPixmap
-from qfluentwidgets import Dialog, MessageBox
+from qfluentwidgets import Dialog, InfoBar, InfoBarIcon, MessageBox, PushButton
 
 from ..package import *
 from ..package.types import GameFunction, MiWenMode, XiaJianAnYuMode
@@ -22,7 +22,7 @@ from ..ui.update_record_widget import UpdateRecordWindow
 from ..ui.window_manager_widget import ResizeWindowDialog
 from .announcement import check_announcements, show_all_announcements
 from .application import APP_NAME, APP_PATH, DEBUG_VERSION, VERSION, clear_debug_screenshot_dir
-from .config import GameLanguage, InteractionMode, config
+from .config import GameLanguage, InteractionMode, config, ignore_miwen_reminder_this_week, should_show_miwen_reminder
 from .decorator import log_function_call, run_in_thread
 from .event import event_thread
 from .function import is_Chinese_Path
@@ -52,6 +52,7 @@ class MainWindow(CustomWindow):
         self.setWindowTitle(title)
 
         self.debug_preview_window: DebugPreviewWindow | None = None  # 匹配结果预览窗口
+        self.package_miwen_reminder_bar: InfoBar | None = None  # 每周秘闻提醒条
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
@@ -74,6 +75,9 @@ class MainWindow(CustomWindow):
         # 首次启动提示弹窗
         if config.is_first_run:
             QTimer.singleShot(0, self._show_first_run_dialog)
+
+        # 窗口显示后提示本周秘闻是否完成
+        QTimer.singleShot(0, self._show_miwen_reminder)
 
     def _show_first_run_dialog(self):
         """首次启动提示弹窗"""
@@ -235,6 +239,42 @@ class MainWindow(CustomWindow):
             msg (str): 文本
         """
         self.homeInterface.output_info_group.progress_text.setText(msg)
+
+    def _show_miwen_reminder(self):
+        """启动后在主界面右上角提示本周秘闻未完成"""
+        if self.package_miwen_reminder_bar is not None or not should_show_miwen_reminder():
+            return
+
+        bar = self.show_info_bar(
+            InfoBarIcon.WARNING,
+            "秘闻提醒",
+            "本周秘闻还未完成",
+            duration=10,
+            is_closable=False,
+            auto_show=False,
+        )
+        ignore_button = PushButton("忽略本周提醒")
+        ignore_button.clicked.connect(self._ignore_miwen_reminder)
+        bar.addWidget(ignore_button)
+        bar.closedSignal.connect(self._on_miwen_reminder_closed)
+        self.package_miwen_reminder_bar = bar
+        bar.show()
+
+    def _on_miwen_reminder_closed(self):
+        """提示条关闭（含10秒自动关闭）后清除引用"""
+        self.package_miwen_reminder_bar = None
+
+    def _ignore_miwen_reminder(self):
+        """忽略本周的秘闻提醒"""
+        ignore_miwen_reminder_this_week()
+        self._dismiss_miwen_reminder()
+
+    def _dismiss_miwen_reminder(self):
+        """关闭秘闻提醒条"""
+        if self.package_miwen_reminder_bar is None:
+            return
+        self.package_miwen_reminder_bar.close()
+        self.package_miwen_reminder_bar = None
 
     @log_function_call
     def software_selfcheck(self) -> bool:

@@ -1,9 +1,13 @@
+from datetime import datetime
+
+from ..utils.config import config
 from ..utils.decorator import log_function_call
 from ..utils.event import event_thread
 from ..utils.exception import GUIStopException
 from ..utils.function import finish_random_left_right, sleep
 from ..utils.image import check_image_once
 from ..utils.log import logger
+from ..utils.signals import signal_manager
 from .base_package import BasePackage
 from .types import MiWenMode
 
@@ -81,3 +85,13 @@ class MiWen(BasePackage):
             sleep()
 
         logger.ui_hint("已通关本周秘闻，请手动前往分享。")
+
+    def done(self) -> None:
+        super().done()
+        if not config.user.package_miwen_reminder:
+            return
+        # 完成第9层即视为本周秘闻已完成，避免最后一层结算未计数导致漏记
+        if self.n >= 9:
+            config.update("package_miwen_completed_date", datetime.now().astimezone().date().isoformat())
+        if self.n == 10:
+            signal_manager.main.info_bar_requested.emit("秘闻提醒", "本周秘闻已完成", "success", 5)

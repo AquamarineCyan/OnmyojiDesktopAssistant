@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from enum import StrEnum
 
 import yaml
@@ -180,6 +181,10 @@ class DefaultConfig(BaseModel):
     """日志颜色配置"""
     debug_preview: bool = False
     """调试时显示图像匹配结果框（开发者设置）"""
+    package_miwen_reminder: bool = False
+    """每周秘闻提醒"""
+    package_miwen_completed_date: str = "1970-01-01"
+    """每周秘闻最近一次完成或忽略的日期（YYYY-MM-DD）"""
 
 
 default_config = DefaultConfig()
@@ -230,6 +235,10 @@ class UserConfig(BaseModel):
     """日志颜色配置"""
     debug_preview: bool = False
     """调试时显示图像匹配结果框（开发者设置）"""
+    package_miwen_reminder: bool = False
+    """每周秘闻提醒"""
+    package_miwen_completed_date: str = default_config.package_miwen_completed_date
+    """每周秘闻最近一次完成或忽略的日期（YYYY-MM-DD）"""
     announcement_id: int = 19700101
     """已读公告的最新 id"""
 
@@ -432,3 +441,27 @@ class Config:
 
 
 config = Config()
+
+
+def package_miwen_completed_this_week() -> bool:
+    """本周是否已完成（或被忽略）每周秘闻"""
+    raw = config.user.package_miwen_completed_date
+    if not raw:
+        return False
+    try:
+        completed = date.fromisoformat(raw)
+    except ValueError:
+        return False
+    # isocalendar() 返回 (ISO年, ISO周, ISO周中的第几天)
+    # 检查是否在本周（ISO年+ISO周比较）
+    return completed.isocalendar()[:2] == datetime.now().astimezone().date().isocalendar()[:2]
+
+
+def should_show_miwen_reminder() -> bool:
+    """启动时是否需要提示本周秘闻未完成"""
+    return config.user.package_miwen_reminder and not package_miwen_completed_this_week()
+
+
+def ignore_miwen_reminder_this_week() -> None:
+    """忽略本周的秘闻提醒：记录当天日期，本周不再提示"""
+    config.update("package_miwen_completed_date", datetime.now().astimezone().date().isoformat())
