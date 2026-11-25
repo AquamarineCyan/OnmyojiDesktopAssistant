@@ -265,7 +265,9 @@ class LiuDaoZhiMen(BasePackage):
         logger.ui_hint("混沌之屿")
         flag_has_skill: bool = False
         for item in result:
-            if "幸运" in item.text:
+            # TODO GPU 版可能识别成「幸运宝画」「幸运宝」，用前缀+长度宽松匹配，避免命中「幸运蹦蹦跳」等聊天/广播长文本导致误点
+            text = item.text.strip()
+            if item.score >= self.ocr_score and text.startswith("幸运宝") and len(text) <= 5:
                 logger.ui_hint("幸运宝匣")
                 Mouse.click(item.center)
                 sleep(2)
