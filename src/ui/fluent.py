@@ -74,8 +74,14 @@ class CustomWindow(FluentWindow):
             QWidget: 传入的弹窗实例
         """
         self.sub_windows.append(window)
+        window_id = id(window)
+        window.destroyed.connect(lambda *_, wid=window_id: self._forget_sub_window(wid))
         window.show()
         return window
+
+    def _forget_sub_window(self, window_id: int) -> None:
+        """子窗口销毁后移除引用"""
+        self.sub_windows[:] = [w for w in self.sub_windows if id(w) != window_id]
 
     def show_info_bar(
         self,
@@ -135,7 +141,7 @@ class CustomWindow(FluentWindow):
 
     def closeEvent(self, event):
         """关闭窗口时一并关闭子窗口"""
-        for child in self.sub_windows:
+        for child in list(self.sub_windows):
             with suppress(RuntimeError):
                 if child is not None and child.isVisible():
                     child.close()

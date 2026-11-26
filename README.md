@@ -88,7 +88,7 @@
 
 ### 2. 下载
    - 通过 [GitHub Releases](https://github.com/AquamarineCyan/OnmyojiDesktopAssistant/releases/latest) 下载最新版本 `OnmyojiDesktopAssistant-2.x.x.zip`。
-   - 通过 [Mirror 酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant) 下载最新版本。国内访问更稳定更快速。
+   - 通过 [Mirror 酱](https://mirrorchyan.com/zh/projects?rid=OnmyojiDesktopAssistant&source=oda_github_readme) 下载最新版本。国内访问更稳定更快速。
 
    > [!NOTE]
    > `Mirror酱` 是独立的第三方下载加速服务，需要付费使用，而非本软件收费。其运营成本由订阅收入支撑，部分收益将回馈项目开发者。欢迎订阅 CDK 享受高速下载，同时支持项目持续开发。

@@ -1,7 +1,7 @@
 import os
 from typing import ClassVar
 
-from PySide6.QtCore import Property, QAbstractAnimation, QEasingCurve, QPropertyAnimation, Qt
+from PySide6.QtCore import Property, QAbstractAnimation, QEasingCurve, QPropertyAnimation, Qt, Signal
 from PySide6.QtGui import QFont, QIcon
 from PySide6.QtWidgets import QAbstractScrollArea, QApplication, QFileDialog, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from qfluentwidgets import (
@@ -17,6 +17,7 @@ from qfluentwidgets import (
     IconWidget,
     IndicatorPosition,
     LineEdit,
+    PasswordLineEdit,
     PushButton,
     PushSettingCard,
     QColor,
@@ -42,11 +43,13 @@ from ..utils.config import (
     config,
     default_config,
 )
+from ..utils.decorator import run_in_thread
 from ..utils.emulator.mumu_handle import is_valid_mumu_folder
 from ..utils.gpu_info import get_cuda_device_list
 from ..utils.log import logger
 from ..utils.signals import signal_manager
 from ..utils.theme import apply_theme
+from ..utils.update import MirrorChyanError, get_cdk_remaining_days, update_manager
 from .game_function_selector_widget import GameFunctionSelectorWidget
 from .mumu_emulator_widget import MumuEmulatorMessageBox
 from .number_spin_box import CustomCompactSpinBox
@@ -920,11 +923,13 @@ class SettingInteractionModeCard(CustomExpandGroupSettingCard):
 class SettingUpdateCard(CustomExpandGroupSettingCard):
     """设置项-软件更新"""
 
+    cdk_days_changed = Signal(str)
+
     def __init__(self, parent=None):
         super().__init__(
             FluentIcon.UPDATE,
             "软件更新",
-            "",
+            "获取软件的最新版本",
             parent,
         )
 
@@ -934,6 +939,10 @@ class SettingUpdateCard(CustomExpandGroupSettingCard):
         self.mode_switch.setChecked(default_config.auto_update)
         self.mode_switch.checkedChanged.connect(self._config_update)
 
+        self.check_update_button = PushButton("立即检查")
+        self.check_update_button.clicked.connect(self._check_update_manually)
+        signal_manager.main.update_check_finished.connect(self._on_check_finished)
+
         self.download_combobox = ComboBox()
         self.download_combobox.addItems(default_config.update_download)
         self.download_combobox.setFixedWidth(135)
@@ -942,14 +951,27 @@ class SettingUpdateCard(CustomExpandGroupSettingCard):
 
         # Mirror酱 CDK 分组
         self.cdk_group = None
-        self.cdk_edit: LineEdit = None
+        self.cdk_edit: PasswordLineEdit = None
+        self.cdk_days_label: BodyLabel = None
+        self._cdk_days_seq = 0
+        self.cdk_days_changed.connect(self._set_cdk_days_text)
 
         self.viewLayout.setContentsMargins(0, 0, 0, 0)
         self.viewLayout.setSpacing(0)
 
+        self.card.addWidget(self.check_update_button)
         self.addGroup(FluentIcon.UPDATE, "自动更新", "在应用程序启动时检查更新", self.mode_switch)
         self.addGroup(FluentIcon.DOWNLOAD, "下载站点", "使用镜像源可加快下载速度", self.download_combobox)
         self._sync_mirrorchyan_group()
+
+    def _check_update_manually(self):
+        """手动检查更新，期间禁用按钮"""
+        self.check_update_button.setEnabled(False)
+        update_manager.check_latest(manual=True)
+
+    def _on_check_finished(self):
+        """检查结束后恢复按钮"""
+        self.check_update_button.setEnabled(True)
 
     def _config_update(self):
         status = self.mode_switch.isChecked()
@@ -965,15 +987,17 @@ class SettingUpdateCard(CustomExpandGroupSettingCard):
     def _sync_mirrorchyan_group(self):
         """按当前线路增删 Mirror酱 CDK 分组"""
         if config.user.update_download == UpdateDownload.MIRRORCHYAN and self.cdk_group is None:
-            self.cdk_edit = LineEdit()
+            self.cdk_edit = PasswordLineEdit()
             self.cdk_edit.setPlaceholderText("请输入Mirror酱CDK")
             self.cdk_edit.setFixedWidth(200)
             self.cdk_edit.setText(config.user.mirrorchyan_cdk)
             self.cdk_edit.editingFinished.connect(self._config_update_cdk)
 
             self.get_cdk_link = HyperlinkLabel("获取CDK")
-            self.get_cdk_link.setUrl(Connect.MirrorChyan.home)
-            self.get_cdk_link.setToolTip(Connect.MirrorChyan.home)
+            self.get_cdk_link.setUrl(Connect.MirrorChyan.project_from_settings)
+            self.get_cdk_link.setToolTip(Connect.MirrorChyan.project_from_settings)
+
+            self.cdk_days_label = BodyLabel("")
 
             self.cdk_box = QWidget()
             cdk_layout = QHBoxLayout(self.cdk_box)
@@ -981,6 +1005,7 @@ class SettingUpdateCard(CustomExpandGroupSettingCard):
             cdk_layout.setSpacing(12)
             cdk_layout.addWidget(self.cdk_edit)
             cdk_layout.addWidget(self.get_cdk_link, alignment=Qt.AlignmentFlag.AlignVCenter)
+            cdk_layout.addWidget(self.cdk_days_label, alignment=Qt.AlignmentFlag.AlignVCenter)
             cdk_layout.addStretch(1)
 
             self.cdk_group = self.addGroup(
@@ -989,16 +1014,64 @@ class SettingUpdateCard(CustomExpandGroupSettingCard):
                 "选择 Mirror酱 线路下载时使用的卡密",
                 self.cdk_box,
             )
+            self._refresh_cdk_days()
 
         elif config.user.update_download != UpdateDownload.MIRRORCHYAN and self.cdk_group is not None:
+            # 先隐藏再移出布局：仅 removeGroupWidget 不会隐藏/删除控件，会留下残影
+            self.cdk_group.setVisible(False)
             self.removeGroupWidget(self.cdk_group)
+            self.cdk_group.deleteLater()
             self.cdk_group = None
             self.cdk_edit = None
+            self.cdk_days_label = None
 
     def _config_update_cdk(self):
+        """CDK 输入完成（失焦或回车）后才保存并查询剩余天数"""
         text = self.cdk_edit.text().strip()
         if text != config.user.mirrorchyan_cdk:
             config.update("mirrorchyan_cdk", text)
+            self._refresh_cdk_days()
+
+    def _refresh_cdk_days(self):
+        """查询 Mirror酱 CDK 剩余天数"""
+        self._cdk_days_seq += 1
+        cdk = self.cdk_edit.text().strip() if self.cdk_edit else ""
+        self._query_cdk_days(cdk, self._cdk_days_seq)
+
+    @run_in_thread
+    def _query_cdk_days(self, cdk: str, seq: int):
+        if not cdk:
+            if seq == self._cdk_days_seq:
+                self.cdk_days_changed.emit("")
+            return
+
+        try:
+            days = get_cdk_remaining_days(cdk)
+        except MirrorChyanError as e:
+            logger.ui_warn(f"查询 Mirror酱 CDK 剩余天数失败: {e}")
+            if seq == self._cdk_days_seq:
+                self.cdk_days_changed.emit("")
+            return
+        except Exception as e:
+            logger.ui_warn(f"查询 Mirror酱 CDK 剩余天数异常: {e}")
+            if seq == self._cdk_days_seq:
+                self.cdk_days_changed.emit("")
+            return
+
+        if days is None:
+            text = ""
+        elif days <= 0:
+            text = "CDK 已过期"
+        else:
+            text = f"剩余 {days} 天"
+
+        # 丢弃过期请求的结果，避免旧 CDK 的天数覆盖新值
+        if seq == self._cdk_days_seq:
+            self.cdk_days_changed.emit(text)
+
+    def _set_cdk_days_text(self, text: str):
+        if self.cdk_days_label:
+            self.cdk_days_label.setText(text)
 
 
 class SettingFunctionSelectorCard(AppCard):
@@ -1077,6 +1150,9 @@ class SettingAboutCard(QWidget):
         self.help_doc_label.setUrl(HELP_DOC_LINK)
         self.qq_group_label = HyperlinkLabel("QQ群")
         self.qq_group_label.setUrl(QQ_GROUP_LINK)
+        self.mirrorchyan_label = HyperlinkLabel("Mirror酱")
+        self.mirrorchyan_label.setUrl(Connect.MirrorChyan.project_from_about)
+        self.mirrorchyan_label.setToolTip(Connect.MirrorChyan.project_from_about)
 
         self.hBoxLayout2 = QHBoxLayout()
         self.hBoxLayout2.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -1085,6 +1161,8 @@ class SettingAboutCard(QWidget):
         self.hBoxLayout2.addWidget(self.help_doc_label)
         self.hBoxLayout2.addWidget(BodyLabel("|"))
         self.hBoxLayout2.addWidget(self.qq_group_label)
+        self.hBoxLayout2.addWidget(BodyLabel("|"))
+        self.hBoxLayout2.addWidget(self.mirrorchyan_label)
 
         self.vBoxLayout = QVBoxLayout(self)
         self.vBoxLayout.addWidget(self.version_card)

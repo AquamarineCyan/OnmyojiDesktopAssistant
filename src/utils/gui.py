@@ -1,7 +1,6 @@
 from contextlib import suppress
 from datetime import datetime
 from pathlib import Path
-from threading import Thread
 
 from PIL import Image, ImageQt
 from PySide6.QtCore import Qt, QTimer
@@ -53,6 +52,8 @@ class MainWindow(CustomWindow):
 
         self.debug_preview_window: DebugPreviewWindow | None = None  # 匹配结果预览窗口
         self.package_miwen_reminder_bar: InfoBar | None = None  # 每周秘闻提醒条
+        self.update_new_version_window: UpdateNewVersionWidget | None = None  # 更新新版本窗口
+        self.update_new_version_window_version: str | None = None  # 更新窗口对应的版本
 
         # 通过先启动GUI再初始化各控件，提高启动加载速度
         self.ui_init()
@@ -222,9 +223,25 @@ class MainWindow(CustomWindow):
 
                 if dialog.exec():
                     logger.info("用户接受更新重启")
-                    Thread(target=update_manager.restart, name="update_manager_restart", daemon=True).start()
+                    update_manager.restart()
                 else:
                     logger.info("用户拒绝更新重启")
+
+            elif payload.action == MessageBoxPayload.Action.EXTRACT_CONFIRM:
+                warning = MessageBox(
+                    "更新包校验失败",
+                    "更新包校验失败，是否继续解压？",
+                    self,
+                )
+                warning.yesButton.setText("继续")
+                warning.cancelButton.setText("取消")
+                if warning.exec():
+                    logger.info("用户选择继续解压")
+                    update_manager.restart(force=True)
+                else:
+                    logger.info("用户取消解压")
+                    update_manager.reset_verification_state()
+                    signal_manager.main.info_bar_requested.emit("已取消解压", "请重新检查更新后重试", "warning", 5)
 
             else:
                 logger.warning(f"未处理的弹窗操作标识: {payload.action}")
@@ -809,4 +826,23 @@ class MainWindow(CustomWindow):
         self.open_sub_window(UpdateRecordWindow())
 
     def show_update_new_version_window(self):
-        self.open_sub_window(UpdateNewVersionWidget())
+        window = self.update_new_version_window
+        if window is not None:
+            # 同一版本直接唤起已有窗口，避免重复弹窗
+            if window.isVisible() and self.update_new_version_window_version == update_manager.new_version:
+                window.show()
+                window.raise_()
+                window.activateWindow()
+                return
+            window.close()
+
+        window = UpdateNewVersionWidget()
+        window.destroyed.connect(lambda *_, w=window: self._on_update_new_version_window_destroyed(w))
+        self.update_new_version_window = self.open_sub_window(window)
+        self.update_new_version_window_version = update_manager.new_version
+
+    def _on_update_new_version_window_destroyed(self, window: UpdateNewVersionWidget):
+        """更新窗口销毁后清理引用，避免误清后续新建的窗口"""
+        if self.update_new_version_window is window:
+            self.update_new_version_window = None
+            self.update_new_version_window_version = None

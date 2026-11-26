@@ -1,5 +1,3 @@
-from threading import Thread
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QDesktopServices, QIcon
 from PySide6.QtWidgets import QDialogButtonBox, QHBoxLayout, QSizePolicy, QVBoxLayout, QWidget
@@ -7,6 +5,7 @@ from qfluentwidgets import (
     BodyLabel,
     CardWidget,
     ComboBox,
+    HyperlinkLabel,
     ProgressBar,
     PushButton,
     SingleDirectionScrollArea,
@@ -14,8 +13,8 @@ from qfluentwidgets import (
     TransparentPushButton,
 )
 
-from ..utils.application import ICO_RESOURCE_PATH, VERSION
-from ..utils.config import config, default_config
+from ..utils.application import ICO_RESOURCE_PATH, VERSION, Connect
+from ..utils.config import UpdateDownload, config, default_config
 from ..utils.log import logger
 from ..utils.markdown import autolink_urls, downgrade_headings
 from ..utils.signals import signal_manager
@@ -94,6 +93,7 @@ class UpdateNewVersionWidget(QWidget):
         super().__init__()
         self.setWindowIcon(QIcon(ICO_RESOURCE_PATH))
         self.setWindowTitle("更新新版本")
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose)
         self.resize(600, 500)
 
         self.update_button = PushButton("下载更新")
@@ -105,6 +105,11 @@ class UpdateNewVersionWidget(QWidget):
         self.download_route_combobox.setCurrentText(config.user.update_download)
         self.download_route_combobox.setToolTip("Mirror酱线路需先在设置中填写CDK")
         self.download_route_combobox.currentIndexChanged.connect(self._route_changed_handle)
+
+        self.get_cdk_link = HyperlinkLabel("获取CDK")
+        self.get_cdk_link.setUrl(Connect.MirrorChyan.project_from_update_dialog)
+        self.get_cdk_link.setToolTip(Connect.MirrorChyan.project_from_update_dialog)
+        self.get_cdk_link.setVisible(config.user.update_download == UpdateDownload.MIRRORCHYAN)
 
         self.progress_bar = ProgressBar()
 
@@ -151,6 +156,7 @@ class UpdateNewVersionWidget(QWidget):
         self.route_hBoxLayout = QHBoxLayout()
         self.route_hBoxLayout.addWidget(BodyLabel("下载线路:"), alignment=Qt.AlignmentFlag.AlignLeft)
         self.route_hBoxLayout.addWidget(self.download_route_combobox, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.route_hBoxLayout.addWidget(self.get_cdk_link, alignment=Qt.AlignmentFlag.AlignLeft)
         self.route_hBoxLayout.addStretch(1)
 
         self.vBoxLayout = QVBoxLayout(self)
@@ -167,6 +173,8 @@ class UpdateNewVersionWidget(QWidget):
         text = self.download_route_combobox.currentText()
         if text != config.user.update_download:
             config.update("update_download", text)
+
+        self.get_cdk_link.setVisible(text == UpdateDownload.MIRRORCHYAN)
 
     def _download_info_update_handle(self, text: str):
         """更新文件进度信息
@@ -195,7 +203,7 @@ class UpdateNewVersionWidget(QWidget):
 
     def _download_button_handle(self):
         self._progress_bar_show_handle()
-        Thread(target=update_manager.ui_download_handle, name="update_manager.ui_download_handle", daemon=True).start()
+        update_manager.ui_download_handle()
 
     def _split_versions(self, version_history: list[dict]) -> tuple[list[dict], list[dict]]:
         """拆分默认展示与折叠的版本

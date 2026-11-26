@@ -30,6 +30,7 @@ class MessageBoxPayload:
 
         FORCE_ZOOM = "强制缩放"
         UPDATE_RESTART = "更新重启"
+        EXTRACT_CONFIRM = "解压确认"
 
     level: Level
     content: str = ""  # 弹窗正文（`Level.ERROR` 使用）

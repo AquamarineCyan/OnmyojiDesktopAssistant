@@ -72,6 +72,9 @@ class CustomSignal(QObject):
             duration (int): 显示时长（秒），`-1` 为不自动关闭
         """
 
+        update_check_finished = Signal()
+        """检查更新结束（无论成功、失败或跳过）"""
+
         sys_exit = Signal()
         """退出程序"""
 

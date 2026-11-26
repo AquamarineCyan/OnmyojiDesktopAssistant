@@ -92,8 +92,14 @@ class Connect:
 
         resource = APP_NAME
         """资源ID"""
-        home = "https://mirrorchyan.com/zh/get-start"
-        """主页链接"""
+        project = f"https://mirrorchyan.com/zh/projects?rid={resource}"
+        """项目页链接"""
+        project_from_settings = f"{project}&source=oda_settings_cdk"
+        """目标来源：设置页获取 CDK"""
+        project_from_update_dialog = f"{project}&source=oda_update_dialog"
+        """目标来源：更新对话框获取 CDK"""
+        project_from_about = f"{project}&source=oda_about"
+        """目标来源：设置页关于卡片"""
         api = "https://mirrorchyan.com/api/resources"
         """接口基础地址"""
         user_agent = "ODAGUI"
