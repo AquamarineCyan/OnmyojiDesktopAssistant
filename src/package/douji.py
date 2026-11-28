@@ -18,6 +18,14 @@ class DouJiScoreFullException(CustomException):
         logger.ui_warn("异常捕获：斗技分数已达名士")
 
 
+class DouJiClosedException(CustomException):
+    """斗技未开放（匹配按钮变为练习）"""
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        logger.ui_warn("异常捕获：斗技未开放或已结束")
+
+
 class DouJi(BasePackage):
     scene_name = "斗技"
     resource_path = "douji"
@@ -33,6 +41,7 @@ class DouJi(BasePackage):
     def load_asset(self):
         self.OCR_TITLE = self.get_ocr_asset("title")
         self.OCR_FIGHT = self.get_ocr_asset("fight")
+        self.OCR_PRACTICE = self.get_ocr_asset("practice")
         self.OCR_AUTO = self.get_ocr_asset("auto")
         self.OCR_CANCEL = self.get_ocr_asset("cancel")
         self.OCR_INTENTIONAL = self.get_ocr_asset("intentional")
@@ -40,10 +49,11 @@ class DouJi(BasePackage):
         self.OCR_FAIL = self.get_ocr_asset("fail")
         self.OCR_LEVEL_UP = self.get_ocr_asset("level_up")
         self.OCR_SHARE = self.get_ocr_asset("share")
+        self.OCR_SCORE = self.get_ocr_asset("score")
 
     def get_current_score(self):
         try:
-            result = RuleOcr(region=(480, 370, 160, 100)).get_raw_result()
+            result = RuleOcr(self.OCR_SCORE).get_raw_result()
             for item in result:
                 if "名士" in item.text:
                     self.current_score = 3000
@@ -57,7 +67,7 @@ class DouJi(BasePackage):
             logger.ui(f"当前分数: {self.current_score}")
 
         except Exception as e:
-            logger.error(f"获取当前分数失败: {str(e)}")
+            logger.error(f"获取当前分数失败: {e!s}")
 
         if self.current_score >= 3000:
             raise DouJiScoreFullException
@@ -68,6 +78,7 @@ class DouJi(BasePackage):
         self.current_asset_list = [
             self.OCR_TITLE,
             self.OCR_FIGHT,
+            self.OCR_PRACTICE,
             self.OCR_CANCEL,  # `取消`比`自动`先识别
             self.OCR_AUTO,
             self.OCR_INTENTIONAL,
@@ -110,6 +121,10 @@ class DouJi(BasePackage):
                     Mouse.click(result.match_result.center)
                     _flag = True
                     self.current_asset_list.remove(self.OCR_FIGHT)
+
+                case self.OCR_PRACTICE.name:
+                    logger.ui_warn("匹配按钮已变为「练」，斗技未开放或已结束")
+                    raise DouJiClosedException
 
                 case self.OCR_AUTO.name:
                     asset_region = self.OCR_AUTO.region
@@ -182,6 +197,7 @@ class DouJi(BasePackage):
             self.fighting_once()
             sleep(4)
 
+            logger.ui("正在分析结算结果")
             # 周奖励
             if weekly_rewards < 3 and self.check_click(self.global_assets.IMAGE_FINISH, timeout=5):
                 logger.ui("周奖励")
